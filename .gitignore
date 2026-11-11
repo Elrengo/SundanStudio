@@ -1,0 +1,8 @@
+# Ignorar todo por defecto
+*
+
+# Excepto los archivos del proyecto
+!.gitignore
+!afar.html
+!index.html
+!indexa.html
