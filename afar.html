@@ -93,7 +93,20 @@ function drawAfar(ctx,x,y,facing,animState,animTime,swingTheta){
   var s=animState,p;ctx.save();
   if(s==='swing'){
     ctx.translate(x,y);ctx.scale(facing,1);ctx.rotate(swingTheta);ctx.translate(0,41);
-    figure({legA:[0.15,0.1],legB:[0.08,0.04],armA:[PI-0.12,PI-0.05],armB:[-(PI-0.12),-(PI-0.05)]});
+    // swingPose: 0=encogido (rodillas al pecho), 0.5=neutro, 1=estirado (piernas adelante)
+    var sp=typeof P!=='undefined'&&P.swingPose!=null?P.swingPose:0.5;
+    var om=typeof P!=='undefined'?Math.abs(P.swingOmega||0):0;
+    var intens=Math.min(1,om*0.8);
+    var t=(sp*2-1)*intens; // -1=tuck, 0=neutro, 1=stretch
+    var tf=Math.max(0,-t), sf=Math.max(0,t);
+    // piernas: neutro upper=0.12 lower=0.07 | tuck upper=-0.72 lower=1.3 | stretch upper=0.42 lower=0.04
+    var legU=0.12+tf*(-0.72-0.12)+sf*(0.42-0.12);
+    var legL=0.07+tf*(1.3-0.07)+sf*(0.04-0.07);
+    // leve lift en tuck (cuerpo se recoge), leve extensión en stretch
+    var lft=tf*5-sf*1.5;
+    figure({legA:[legU,legL],legB:[legU-0.04,legL-0.03],
+            armA:[PI-0.12,PI-0.05],armB:[-(PI-0.12),-(PI-0.05)],
+            lift:lft});
   }else if(s==='trick'){
     ctx.translate(x,y-20);ctx.scale(facing,1);ctx.rotate(animTime*12);
     ctx.beginPath();ctx.arc(0,0,12,0,PI*2);ctx.fillStyle=suit;ctx.fill();
@@ -337,6 +350,7 @@ function initPlayer(){
   P={x:lv.spawnX,y:lv.spawnY-2,vx:0,vy:0,
      onGround:false,facing:1,state:'idle',animTime:0,
      grabbed:null,swingTheta:0,swingOmega:0,
+     swingPose:0.5,
      deathAnim:0,trickAnim:0};
 }
 
@@ -447,6 +461,9 @@ function updateSwing(dt){
   P.x=tr.px+Math.sin(P.swingTheta)*tr.L;
   P.y=tr.py+Math.cos(P.swingTheta)*tr.L;
   P.state='swing';P.animTime+=dt;
+  // pose: 1=estiramiento (outswing), 0=encogido (inswing)
+  var poseTarget=P.swingOmega*P.swingTheta>0?1:0;
+  P.swingPose+=(poseTarget-P.swingPose)*Math.min(1,6*dt);
   if(jumpPressed){
     P.vx=Math.cos(P.swingTheta)*tr.L*P.swingOmega;
     P.vy=JUMP_VEL*0.5; // 50% del salto normal desde el suelo
