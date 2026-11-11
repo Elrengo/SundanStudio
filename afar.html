@@ -104,6 +104,8 @@ function drawAfar(ctx,x,y,facing,animState,animTime,swingTheta){
     var legL=0.07+tf*(1.3-0.07)+sf*(0.04-0.07);
     // leve lift en tuck (cuerpo se recoge), leve extensión en stretch
     var lft=tf*5-sf*1.5;
+    // inclinación de espalda en tuck: cabeza hacia atrás ~15°
+    if(tf>0) ctx.rotate(-tf*0.26);
     figure({legA:[legU,legL],legB:[legU-0.04,legL-0.03],
             armA:[PI-0.12,PI-0.05],armB:[-(PI-0.12),-(PI-0.05)],
             lift:lft});
@@ -461,9 +463,11 @@ function updateSwing(dt){
   P.x=tr.px+Math.sin(P.swingTheta)*tr.L;
   P.y=tr.py+Math.cos(P.swingTheta)*tr.L;
   P.state='swing';P.animTime+=dt;
-  // pose: 1=estiramiento (outswing), 0=encogido (inswing)
-  var poseTarget=P.swingOmega*P.swingTheta>0?1:0;
-  P.swingPose+=(poseTarget-P.swingPose)*Math.min(1,6*dt);
+  // pose: depende de la tecla presionada
+  var poseTarget=0.5; // neutral sin input
+  if(lean>0) poseTarget=1;      // derecha → stretch
+  else if(lean<0) poseTarget=0; // izquierda → tuck
+  P.swingPose+=(poseTarget-P.swingPose)*Math.min(1,8*dt);
   if(jumpPressed){
     P.vx=Math.cos(P.swingTheta)*tr.L*P.swingOmega;
     P.vy=JUMP_VEL*0.5; // 50% del salto normal desde el suelo
