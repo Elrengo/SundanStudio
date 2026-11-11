@@ -246,16 +246,16 @@ const LEVELS=[
     story:'El viento arrebató la carta de las manos de Afar.\nLa vio flotar hacia las cavernas oscuras... y saltó.',
     platforms:[
       {x:0,   y:342,w:300,h:63},
-      {x:620,  y:285,w:200,h:18},   // tras trap1 (hueco 320)
-      {x:910,  y:265,w:200,h:18},   // salto 90
-      {x:1200, y:248,w:200,h:18},   // salto 90
-      {x:1720, y:230,w:200,h:18},   // tras trap2 (hueco 320)
-      {x:2060, y:212,w:200,h:18},   // salto 140
-      {x:2380, y:195,w:200,h:18},   // salto 120
-      {x:2910, y:175,w:200,h:18},   // tras trap3 (hueco 330)
-      {x:3240, y:160,w:200,h:18},   // salto 130
-      {x:3580, y:145,w:200,h:18},   // salto 140
-      {x:4000, y:132,w:800,h:273},  // final
+      {x:620,  y:285,w:230,h:18},   // tras trap1 (hueco 320)
+      {x:910,  y:265,w:230,h:18},   // salto ~60
+      {x:1200, y:248,w:230,h:18},   // salto ~60
+      {x:1720, y:230,w:230,h:18},   // tras trap2 (hueco 320)
+      {x:2060, y:212,w:230,h:18},   // salto ~110
+      {x:2380, y:195,w:230,h:18},   // salto ~90
+      {x:2910, y:175,w:230,h:18},   // tras trap3 (hueco 330)
+      {x:3240, y:160,w:230,h:18},   // salto ~100
+      {x:3580, y:145,w:230,h:18},   // salto ~110
+      {x:4000, y:132,w:800,h:273},  // final (gap 190)
     ],
     trapezes:[
       {px:460, py:38,L:185,theta:0.9,omega:0,id:0}, // 300→620
@@ -271,22 +271,22 @@ const LEVELS=[
     story:'La carta cae al corazón del abismo.\nEntre rayos y sombras,\nAfar no se detiene.',
     platforms:[
       {x:0,   y:342,w:300,h:63},
-      {x:620,  y:288,w:200,h:18},   // tras trap1 (hueco 320)
-      {x:910,  y:268,w:200,h:18},   // salto 90 (edge→1110)
+      {x:620,  y:288,w:230,h:18},   // tras trap1 (hueco 320)
+      {x:910,  y:268,w:230,h:18},   // salto ~60
       // ══ DOBLE TRAPECIO: hueco 940px ══
       {x:1570, y:242,w:100,h:18},   // mini-plataforma central (sólo vía trapecio)
       // ═══════════════════════════════
-      {x:2050, y:248,w:200,h:18},   // tras trap2b (edge→2250)
-      {x:2430, y:230,w:200,h:18},   // salto 180
-      {x:2800, y:214,w:200,h:18},   // salto 170 (edge→3000)
-      {x:3330, y:196,w:200,h:18},   // tras trap3 (hueco 330)
-      {x:3720, y:180,w:200,h:18},   // salto 190 (edge→3920)
-      {x:4250, y:163,w:200,h:18},   // tras trap4 (hueco 330)
-      {x:4640, y:148,w:200,h:18},   // salto 190 (edge→4840)
-      {x:5050, y:133,w:200,h:18},   // salto 210 ≈ max (edge→5250)
-      {x:5580, y:118,w:200,h:18},   // tras trap5 (hueco 330)
-      {x:5970, y:103,w:200,h:18},   // salto 190 (edge→6170)
-      {x:6360, y:90, w:200,h:18},   // salto 190
+      {x:2050, y:248,w:230,h:18},   // tras trap2b
+      {x:2430, y:230,w:230,h:18},   // salto ~150
+      {x:2800, y:214,w:230,h:18},   // salto ~140
+      {x:3330, y:196,w:230,h:18},   // tras trap3 (hueco 330)
+      {x:3720, y:180,w:230,h:18},   // salto ~160
+      {x:4250, y:163,w:230,h:18},   // tras trap4 (hueco 330)
+      {x:4640, y:148,w:230,h:18},   // salto ~160
+      {x:5050, y:133,w:230,h:18},   // salto ~180 (era 210)
+      {x:5580, y:118,w:230,h:18},   // tras trap5 (hueco 330)
+      {x:5970, y:103,w:230,h:18},   // salto ~160
+      {x:6360, y:90, w:230,h:18},   // salto ~160
       {x:6600, y:78, w:300,h:327},  // final
     ],
     trapezes:[
@@ -306,23 +306,23 @@ const LEVELS=[
     story:'La carta reposa al borde del precipicio más alto.\nSolo el trapecio puede llevarlo allí.\nEste es el último vuelo de Afar.',
     platforms:[
       {x:0,   y:342,w:300,h:63},
-      {x:620,  y:295,w:200,h:18},   // tras trap1 (hueco 320)
-      {x:1010, y:276,w:200,h:18},   // salto 190 (edge→1210)
-      {x:1400, y:258,w:200,h:18},   // salto 190 (edge→1600)
-      {x:1930, y:240,w:200,h:18},   // tras trap2 (hueco 330)
-      {x:2330, y:224,w:200,h:18},   // salto 200 (edge→2530)
-      {x:2730, y:208,w:200,h:18},   // salto 200 (edge→2930)
-      {x:3260, y:190,w:200,h:18},   // tras trap3 (hueco 330)
-      {x:3660, y:175,w:200,h:18},   // salto 200 (edge→3860)
-      {x:4060, y:160,w:200,h:18},   // salto 200 (edge→4260)
-      {x:4590, y:143,w:200,h:18},   // tras trap4 (hueco 330)
-      {x:4990, y:128,w:200,h:18},   // salto 200 (edge→5190)
+      {x:620,  y:295,w:230,h:18},   // tras trap1 (hueco 320)
+      {x:1010, y:276,w:230,h:18},   // salto ~160
+      {x:1400, y:258,w:230,h:18},   // salto ~160
+      {x:1930, y:240,w:230,h:18},   // tras trap2 (hueco 330)
+      {x:2330, y:224,w:230,h:18},   // salto ~170
+      {x:2730, y:208,w:230,h:18},   // salto ~170
+      {x:3260, y:190,w:230,h:18},   // tras trap3 (hueco 330)
+      {x:3660, y:175,w:230,h:18},   // salto ~170
+      {x:4060, y:160,w:230,h:18},   // salto ~170
+      {x:4590, y:143,w:230,h:18},   // tras trap4 (hueco 330)
+      {x:4990, y:128,w:230,h:18},   // salto ~170
       {x:5390, y:115,w:150,h:18,moving:true,mx:55,mspd:0.9},  // plataforma móvil
-      {x:5790, y:103,w:200,h:18},   // salto ~200 desde móvil (edge→5990)
-      {x:6320, y:88, w:200,h:18},   // tras trap5 (hueco 330)
-      {x:6705, y:76, w:200,h:18},   // salto 185 (edge→6905)
+      {x:5790, y:103,w:230,h:18},   // salto desde móvil
+      {x:6320, y:88, w:230,h:18},   // tras trap5 (hueco 330)
+      {x:6705, y:76, w:230,h:18},   // salto ~155
       {x:7105, y:65, w:150,h:18,moving:true,mx:45,mspd:0.75}, // plataforma móvil
-      {x:7510, y:57, w:200,h:18},   // salto ~200 desde móvil (edge→7710)
+      {x:7510, y:57, w:230,h:18},   // salto desde móvil
       {x:7910, y:50, w:150,h:18,moving:true,mx:35,mspd:1.1},  // plataforma móvil
       {x:8300, y:52, w:700,h:353},  // final
     ],
