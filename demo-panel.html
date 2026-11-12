@@ -1,0 +1,1399 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#4f46e5">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Demo de Pulso, un panel de analítica para tiendas online creado por Sundan Studio.">
+<meta name="description" content="Demo de Pulso, un panel de analítica para tiendas online creado por Sundan Studio.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://sundanstudio.com/demo-panel.html">
+<meta property="og:title" content="Pulso · Demo">
+<meta property="og:description" content="Demo de Pulso, un panel de analítica para tiendas online creado por Sundan Studio.">
+<meta property="og:url" content="https://sundanstudio.com/demo-panel.html">
+<meta property="og:image" content="https://sundanstudio.com/assets/og-image.png">
+<title>Pulso · Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<script>
+(function () {
+  var t = null;
+  try { t = localStorage.getItem('pulso-theme'); } catch (e) {}
+  if (t !== 'light' && t !== 'dark') {
+    t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  document.documentElement.setAttribute('data-theme', t);
+})();
+</script>
+<style>
+:root {
+  --bg:#f6f7fb; --surface:#ffffff; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
+  --accent:#4f46e5; --accent-soft:#eef2ff; --on-accent:#ffffff;
+  --ok:#16a34a; --warn:#d97706; --bad:#dc2626;
+  --hover:#f1f5f9; --ribbon:#4338ca;
+  --c1:#4f46e5; --c2:#0891b2; --c3:#d97706; --c4:#db2777;
+  --radius:12px; --shadow:0 1px 2px rgba(15,23,42,.04), 0 1px 3px rgba(15,23,42,.05);
+  --sb:248px; --ease:200ms ease;
+  --font:"Inter", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+html[data-theme="dark"] {
+  --bg:#0b1020; --surface:#121a2e; --ink:#e5e9f5; --muted:#8b95ad; --line:#1f2a44;
+  --accent:#818cf8; --accent-soft:#1e1b4b; --on-accent:#0b1020;
+  --ok:#4ade80; --warn:#fbbf24; --bad:#f87171;
+  --hover:#18223b; --ribbon:#3730a3;
+  --c1:#818cf8; --c2:#22d3ee; --c3:#fbbf24; --c4:#f472b6;
+  --shadow:none; color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:#0b1020; --surface:#121a2e; --ink:#e5e9f5; --muted:#8b95ad; --line:#1f2a44;
+    --accent:#818cf8; --accent-soft:#1e1b4b; --on-accent:#0b1020;
+    --ok:#4ade80; --warn:#fbbf24; --bad:#f87171;
+    --hover:#18223b; --ribbon:#3730a3;
+    --c1:#818cf8; --c2:#22d3ee; --c3:#fbbf24; --c4:#f472b6;
+    --shadow:none; color-scheme: dark;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; font-family: var(--font); font-size: 14px; line-height: 1.5; color: var(--ink);
+  background: var(--bg); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased;
+  transition: background-color var(--ease), color var(--ease);
+}
+h1, h2, p { margin: 0; }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+#main:focus, #drawer-title:focus { outline: none; }
+.sr-only {
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+[hidden] { display: none !important; }
+.i { display: block; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.ico { display: inline-grid; place-items: center; }
+.muted { color: var(--muted); }
+
+/* Ribbon */
+.ribbon {
+  position: relative; display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+  gap: 4px 14px; padding: 8px 48px 8px 16px; background: var(--ribbon); color: #fff; font-size: 13px; text-align: center;
+}
+.ribbon p { margin: 0; }
+.ribbon a { color: #fff; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
+.ribbon-close {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px;
+  border: 0; border-radius: 8px; background: transparent; color: #fff; display: grid; place-items: center;
+}
+.ribbon-close:hover { background: rgba(255,255,255,.14); }
+.ribbon-close .i { width: 16px; height: 16px; }
+
+/* Layout */
+.app { display: grid; grid-template-columns: var(--sb) minmax(0, 1fr); min-height: 100vh; align-items: start; transition: grid-template-columns 200ms ease; }
+.sidebar {
+  position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; gap: 16px; padding: 16px 12px;
+  background: var(--surface); border-right: 1px solid var(--line); overflow-y: auto; overflow-x: hidden; min-width: 0; z-index: 40;
+}
+.sb-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 4px 8px 8px; }
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; font-size: 18px; font-weight: 700; letter-spacing: -.02em; }
+.logo { width: 32px; height: 32px; border-radius: 9px; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; flex: none; }
+.logo .i { width: 20px; height: 20px; stroke-width: 2.2; }
+.collapse-btn {
+  width: 32px; height: 32px; border: 0; background: none; color: var(--muted); border-radius: 8px;
+  display: grid; place-items: center; flex: none; transition: background-color var(--ease), color var(--ease);
+}
+.collapse-btn:hover { background: var(--hover); color: var(--ink); }
+.collapse-btn .i { width: 18px; height: 18px; transition: transform var(--ease); }
+.nav-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.nav-item {
+  position: relative; width: 100%; display: flex; align-items: center; gap: 12px; padding: 9px 10px; border: 0; border-radius: 10px;
+  background: none; color: var(--muted); font-weight: 500; text-align: left; white-space: nowrap;
+  transition: background-color var(--ease), color var(--ease);
+}
+.nav-item:hover { background: var(--hover); color: var(--ink); }
+.nav-item[aria-current="page"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.nav-item .i { width: 20px; height: 20px; }
+.demo-card { margin-top: auto; background: var(--accent-soft); border-radius: var(--radius); padding: 14px; font-size: 12.5px; line-height: 1.45; }
+.demo-card p { color: var(--muted); margin-bottom: 10px; }
+.demo-card p strong { color: var(--ink); }
+.demo-card a { color: var(--accent); font-weight: 600; text-decoration: none; }
+.demo-card a:hover { text-decoration: underline; }
+
+.main { min-width: 0; display: flex; flex-direction: column; }
+.topbar {
+  position: sticky; top: 0; z-index: 30; display: flex; align-items: center; flex-wrap: wrap; gap: 12px 16px;
+  padding: 12px 24px; background: var(--surface); border-bottom: 1px solid var(--line);
+}
+.menu-btn { display: none; }
+.title-wrap { min-width: 0; flex: 1 1 180px; }
+h1 { font-size: 20px; line-height: 1.25; font-weight: 700; letter-spacing: -.02em; }
+.sub { margin-top: 2px; font-size: 13px; color: var(--muted); }
+.top-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; }
+.seg { display: inline-flex; padding: 3px; gap: 2px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; }
+.seg button {
+  border: 0; background: none; color: var(--muted); font-size: 13px; font-weight: 500; padding: 6px 12px; border-radius: 7px;
+  white-space: nowrap; transition: background-color var(--ease), color var(--ease);
+}
+.seg button:hover { color: var(--ink); }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); font-weight: 600; box-shadow: 0 0 0 1px var(--line), var(--shadow); }
+.search { position: relative; flex: 0 1 240px; min-width: 160px; }
+.search .i { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--muted); pointer-events: none; }
+.field {
+  width: 100%; min-height: 38px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
+  color: var(--ink); font-size: 14px; transition: border-color var(--ease), box-shadow var(--ease);
+}
+.field::placeholder { color: var(--muted); opacity: 1; }
+.field:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.search .field { padding-left: 34px; }
+.icon-btn {
+  width: 38px; height: 38px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 10px;
+  background: var(--surface); color: var(--ink); flex: none; transition: background-color var(--ease);
+}
+.icon-btn:hover { background: var(--hover); }
+html[data-theme="dark"] .i-sun { display: none; }
+html:not([data-theme="dark"]) .i-moon { display: none; }
+.avatar {
+  width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft);
+  color: var(--accent); font-size: 13px; font-weight: 700; flex: none;
+}
+
+.content { padding: 24px; display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+#main { min-width: 0; display: flex; flex-direction: column; gap: 24px; }
+.view { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); min-width: 0; }
+.card h2 { font-size: 15px; font-weight: 600; line-height: 1.3; }
+.card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.card-head p { margin-top: 2px; font-size: 13px; color: var(--muted); }
+.chart-hint { margin-top: 8px; font-size: 12px; color: var(--muted); }
+
+/* KPIs */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.kpi { display: flex; flex-direction: column; gap: 8px; padding: 18px 20px; }
+.kpi-label { font-size: 13px; font-weight: 500; color: var(--muted); }
+.kpi-value {
+  font-family: var(--mono); font-size: 24px; font-weight: 500; letter-spacing: -.01em; line-height: 1.2;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.delta { display: flex; align-items: center; flex-wrap: wrap; gap: 0 4px; font-size: 12.5px; font-weight: 600; color: var(--ok); }
+.delta.down { color: var(--bad); }
+.delta .i { width: 14px; height: 14px; stroke-width: 2.4; }
+.delta-note { font-weight: 400; color: var(--muted); }
+.spark { height: 36px; margin-top: 6px; }
+.spark svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.spark-line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.spark-area { fill: var(--accent); opacity: .1; }
+
+/* Chart grids */
+.grid-a { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 16px; }
+.grid-b { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 16px; }
+.chart-box { position: relative; min-width: 0; }
+.chart-mount { min-width: 0; }
+.chart-mount svg { display: block; width: 100%; height: auto; border-radius: 8px; }
+.chart-mount svg:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--accent); }
+.chart-mount text { font-size: 11px; fill: var(--muted); font-family: var(--font); }
+.chart-mount .bar-val { fill: var(--ink); font-weight: 600; }
+.grid-line { stroke: var(--line); stroke-width: 1; }
+.line-path { fill: none; stroke: var(--accent); stroke-width: 2.25; stroke-linejoin: round; stroke-linecap: round; }
+.stop-a { stop-color: var(--accent); stop-opacity: .22; }
+.stop-b { stop-color: var(--accent); stop-opacity: 0; }
+.guide { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; }
+.dot { fill: var(--surface); stroke: var(--accent); stroke-width: 2.5; }
+.bar { fill: var(--accent); opacity: .42; transition: opacity var(--ease); }
+.bar.top { opacity: 1; }
+.tip {
+  position: absolute; z-index: 2; pointer-events: none; transform: translate(-50%, calc(-100% - 12px));
+  background: var(--ink); color: var(--surface); padding: 8px 10px; border-radius: 8px; font-size: 12px; line-height: 1.35;
+  white-space: nowrap; box-shadow: 0 4px 14px rgba(15, 23, 42, .18); transition: left 120ms ease, top 120ms ease;
+}
+.tip strong { display: block; font-weight: 600; opacity: .8; }
+.tip .v { font-family: var(--mono); font-weight: 500; font-size: 13px; }
+
+/* Donut */
+.donut-wrap { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.donut { width: 180px; height: 180px; }
+.donut svg { display: block; width: 100%; height: 100%; }
+.donut .track { stroke: var(--line); }
+.donut .seg-0 { stroke: var(--c1); }
+.donut .seg-1 { stroke: var(--c2); }
+.donut .seg-2 { stroke: var(--c3); }
+.donut .seg-3 { stroke: var(--c4); }
+.donut text { font-family: var(--font); fill: var(--ink); }
+.donut .d-total { font-family: var(--mono); font-size: 13px; font-weight: 500; }
+.donut .d-sub { font-size: 10px; fill: var(--muted); }
+.legend { list-style: none; margin: 0; padding: 0; width: 100%; display: grid; gap: 10px; }
+.legend li { display: grid; grid-template-columns: auto 1fr auto auto; gap: 10px; align-items: center; font-size: 13px; }
+.sw { width: 10px; height: 10px; border-radius: 3px; }
+.sw-0 { background: var(--c1); }
+.sw-1 { background: var(--c2); }
+.sw-2 { background: var(--c3); }
+.sw-3 { background: var(--c4); }
+.legend .amt { font-family: var(--mono); font-weight: 500; color: var(--muted); }
+.legend .pct { font-family: var(--mono); font-weight: 500; min-width: 48px; text-align: right; }
+
+/* Badges & buttons */
+.badge {
+  display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 600;
+  color: var(--b); background: color-mix(in srgb, var(--b) 13%, transparent); white-space: nowrap;
+}
+.badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.st-Pagado { --b: var(--ok); }
+.st-Pendiente { --b: var(--warn); }
+.st-Enviado { --b: var(--accent); }
+.st-Reembolsado { --b: var(--bad); }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; font-weight: 600; padding: 8px 14px;
+  border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); white-space: nowrap;
+  transition: background-color var(--ease), filter var(--ease);
+}
+.btn:hover:not(:disabled) { background: var(--hover); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.btn-primary:hover:not(:disabled) { background: var(--accent); filter: brightness(1.08); }
+.btn-ghost { background: none; border-color: transparent; color: var(--accent); }
+.btn-ghost:hover:not(:disabled) { background: var(--accent-soft); }
+
+/* Tables */
+.table-wrap { position: relative; overflow-x: auto; margin: 0 -20px; padding: 0 20px; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.data-table th {
+  text-align: left; font-size: 12px; font-weight: 600; color: var(--muted); padding: 10px 12px;
+  border-bottom: 1px solid var(--line); white-space: nowrap;
+}
+.data-table td { padding: 12px; border-bottom: 1px solid var(--line); vertical-align: middle; white-space: nowrap; }
+.data-table tbody tr[data-id] { cursor: pointer; transition: background-color var(--ease); }
+.data-table tbody tr[data-id]:hover { background: var(--hover); }
+.data-table tbody tr:last-child td { border-bottom: 0; }
+.num-col, .data-table td.amount { text-align: right; }
+.data-table td.amount { font-family: var(--mono); font-weight: 500; }
+.data-table td.cust { max-width: 200px; overflow: hidden; text-overflow: ellipsis; }
+.data-table td.prod { max-width: 260px; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
+.data-table .empty-cell { text-align: center; color: var(--muted); padding: 28px 12px; }
+.id-btn { background: none; border: 0; padding: 0; font-family: var(--mono); font-weight: 500; font-size: 13px; color: var(--accent); }
+.id-btn:hover { text-decoration: underline; }
+.sort-btn { background: none; border: 0; padding: 0; font: inherit; color: inherit; display: inline-flex; align-items: center; gap: 6px; }
+.sort-btn:hover { color: var(--ink); }
+.sort-btn .arrow { font-family: var(--mono); font-size: 12px; opacity: .45; }
+th[aria-sort="ascending"] .arrow, th[aria-sort="descending"] .arrow { opacity: 1; color: var(--accent); }
+th[aria-sort="ascending"], th[aria-sort="descending"] { color: var(--ink); }
+th.num-col .sort-btn { margin-left: auto; }
+
+/* Pedidos toolbar */
+.toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.field-search { flex: 1 1 260px; max-width: 360px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  border: 1px solid var(--line); background: var(--surface); color: var(--muted); font-size: 13px; font-weight: 500;
+  padding: 6px 12px; border-radius: 999px; transition: background-color var(--ease), color var(--ease), border-color var(--ease);
+}
+.chip:hover { color: var(--ink); }
+.chip[aria-pressed="true"] { background: var(--accent-soft); border-color: transparent; color: var(--accent); font-weight: 600; }
+.chip .count { font-family: var(--mono); font-weight: 500; margin-left: 6px; opacity: .8; }
+.pager { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 16px; font-size: 13px; color: var(--muted); }
+.pager-btns { display: flex; align-items: center; gap: 8px; }
+.pager-btns span { min-width: 96px; text-align: center; color: var(--ink); font-weight: 500; }
+
+/* Empty views */
+.empty { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 56px 24px; }
+.empty-ico {
+  width: 56px; height: 56px; border-radius: 16px; background: var(--accent-soft); color: var(--accent); display: grid;
+  place-items: center; margin-bottom: 6px;
+}
+.empty-ico .i { width: 26px; height: 26px; }
+.empty h2 { font-size: 17px; }
+.empty p { max-width: 420px; color: var(--muted); margin-bottom: 8px; }
+
+/* Drawer & scrim */
+.scrim { position: fixed; inset: 0; z-index: 60; background: rgba(15, 23, 42, .45); opacity: 0; visibility: hidden; transition: opacity var(--ease), visibility var(--ease); }
+.scrim.show { opacity: 1; visibility: visible; }
+.drawer {
+  position: fixed; top: 0; right: 0; height: 100%; width: min(420px, 100%); z-index: 70; display: flex; flex-direction: column;
+  background: var(--surface); border-left: 1px solid var(--line); box-shadow: -12px 0 40px rgba(15, 23, 42, .15);
+  transform: translateX(100%); visibility: hidden; transition: transform 200ms ease, visibility 200ms ease;
+}
+.drawer.open { transform: none; visibility: visible; }
+.drawer-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+.drawer-head h2 { font-size: 16px; }
+.drawer-body { flex: 1; overflow-y: auto; padding: 20px; display: grid; align-content: start; gap: 20px; }
+.drawer-status { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 13px; }
+.dl { display: grid; grid-template-columns: auto 1fr; gap: 12px 16px; margin: 0; font-size: 14px; }
+.dl dt { color: var(--muted); }
+.dl dd { margin: 0; text-align: right; min-width: 0; overflow-wrap: anywhere; }
+.drawer-foot { display: flex; flex-direction: column; gap: 8px; padding: 16px 20px; border-top: 1px solid var(--line); }
+.hint { font-size: 12.5px; color: var(--muted); }
+
+/* Toast */
+.toast {
+  position: fixed; left: 50%; bottom: 24px; z-index: 90; transform: translate(-50%, 16px); max-width: calc(100vw - 32px);
+  background: var(--ink); color: var(--surface); padding: 12px 16px; border-radius: 10px; font-size: 14px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, .2); opacity: 0; visibility: hidden;
+  transition: opacity 200ms ease, transform 200ms ease, visibility 200ms ease;
+}
+.toast.show { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+
+/* Desktop collapsed sidebar */
+@media (min-width: 900px) {
+  .app.collapsed { --sb: 76px; }
+  .app.collapsed .nav-text, .app.collapsed .brand-text {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap;
+  }
+  .app.collapsed .nav-item { justify-content: center; padding: 10px; }
+  .app.collapsed .demo-card { display: none; }
+  .app.collapsed .sb-top { flex-direction: column; gap: 12px; padding: 4px 0 8px; }
+  .app.collapsed .collapse-btn .i { transform: rotate(180deg); }
+}
+
+/* Responsive */
+@media (max-width: 1180px) {
+  .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-a, .grid-b { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 899px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .sidebar {
+    position: fixed; top: 0; left: 0; bottom: 0; height: 100%; width: 272px; max-width: 86vw; z-index: 80;
+    transform: translateX(-100%); transition: transform 200ms ease, box-shadow 200ms ease; padding-bottom: 24px;
+  }
+  .sidebar.open { transform: none; box-shadow: 0 0 40px rgba(15, 23, 42, .25); }
+  .collapse-btn { display: none; }
+  .menu-btn { display: grid; }
+  .topbar { padding: 12px 16px; }
+  .content { padding: 16px; }
+}
+@media (max-width: 640px) {
+  .kpi-grid { grid-template-columns: minmax(0, 1fr); }
+  .card { padding: 16px; }
+  .card .table-wrap { margin: 0; padding: 0; }
+  .card-head { flex-wrap: wrap; }
+  .data-table thead {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap;
+  }
+  .stack, .stack tbody, .stack tr, .stack td { display: block; width: 100%; }
+  .stack tbody tr[data-id], .stack tbody tr:not([data-id]) {
+    border: 1px solid var(--line); border-radius: var(--radius); padding: 4px 14px; margin-bottom: 12px; background: var(--surface);
+  }
+  .stack td {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; border: 0;
+    text-align: right; white-space: normal; min-width: 0;
+  }
+  .stack td::before { content: attr(data-label); font-size: 12px; font-weight: 600; color: var(--muted); text-align: left; flex: none; }
+  .stack td.cust, .stack td.prod { max-width: none; overflow: visible; text-overflow: clip; }
+  .stack td.amount { font-size: 14px; }
+  .toolbar { align-items: stretch; }
+  .field-search { max-width: none; flex-basis: 100%; }
+  .search { flex: 1 1 100%; min-width: 0; }
+  .seg { width: 100%; }
+  .seg button { flex: 1 1 0; padding: 6px 8px; }
+  .top-actions { width: 100%; }
+  .top-actions .search { order: 1; }
+  .drawer-body { padding: 16px; }
+  .drawer-head, .drawer-foot { padding: 14px 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation: none !important; scroll-behavior: auto !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="ribbon" id="ribbon">
+  <p>Demo creada por <strong>Sundan Studio</strong> — ¿necesitas un panel así para tu negocio?</p>
+  <a href="index.html#contacto">Hablemos →</a>
+  <button type="button" class="ribbon-close" id="ribbon-close" aria-label="Cerrar aviso"><span class="ico" data-icon="close"></span></button>
+</div>
+
+<div class="app" id="app">
+  <aside class="sidebar" id="sidebar" aria-label="Navegación principal">
+    <div class="sb-top">
+      <div class="brand">
+        <span class="logo"><span class="ico" data-icon="pulse"></span></span>
+        <span class="brand-text">Pulso</span>
+      </div>
+      <button type="button" class="collapse-btn" id="collapse" aria-expanded="true" aria-controls="sidebar" aria-label="Contraer menú"><span class="ico" data-icon="collapse"></span></button>
+    </div>
+    <nav aria-label="Secciones">
+      <ul class="nav-list">
+        <li><button type="button" class="nav-item" data-view="resumen" aria-current="page"><span class="ico" data-icon="resumen"></span><span class="nav-text">Resumen</span></button></li>
+        <li><button type="button" class="nav-item" data-view="pedidos"><span class="ico" data-icon="pedidos"></span><span class="nav-text">Pedidos</span></button></li>
+        <li><button type="button" class="nav-item" data-view="clientes"><span class="ico" data-icon="clientes"></span><span class="nav-text">Clientes</span></button></li>
+        <li><button type="button" class="nav-item" data-view="productos"><span class="ico" data-icon="productos"></span><span class="nav-text">Productos</span></button></li>
+        <li><button type="button" class="nav-item" data-view="ajustes"><span class="ico" data-icon="ajustes"></span><span class="nav-text">Ajustes</span></button></li>
+      </ul>
+    </nav>
+    <div class="demo-card">
+      <p><strong>Qué demuestra:</strong> gráficos propios en SVG, tablas con filtros y orden, modo oscuro, responsive.</p>
+      <a href="index.html#proyectos">← Volver a Sundan Studio</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="icon-btn menu-btn" id="menu" aria-label="Abrir menú" aria-controls="sidebar" aria-expanded="false"><span class="ico" data-icon="menu"></span></button>
+      <div class="title-wrap">
+        <h1 id="page-title">Resumen</h1>
+        <p class="sub" id="page-sub">Últimos 30 días frente a los 30 anteriores</p>
+      </div>
+      <div class="top-actions">
+        <div class="seg" role="group" aria-label="Rango de fechas">
+          <button type="button" data-range="7" aria-pressed="false">7 días</button>
+          <button type="button" data-range="30" aria-pressed="true">30 días</button>
+          <button type="button" data-range="90" aria-pressed="false">90 días</button>
+        </div>
+        <label class="search">
+          <span class="sr-only">Buscar pedido o cliente</span>
+          <span class="ico" data-icon="search"></span>
+          <input class="field" type="search" id="global-search" placeholder="Buscar pedido o cliente" autocomplete="off">
+        </label>
+        <button type="button" class="icon-btn" id="theme" aria-label="Activar modo oscuro" title="Activar modo oscuro">
+          <span class="ico i-sun" data-icon="sun"></span><span class="ico i-moon" data-icon="moon"></span>
+        </button>
+        <div class="avatar" title="Ana Morales · Administradora" aria-label="Usuario: Ana Morales">AM</div>
+      </div>
+    </header>
+
+    <main id="main" tabindex="-1" class="content">
+
+      <!-- RESUMEN -->
+      <section id="view-resumen" class="view" aria-label="Resumen">
+        <div class="kpi-grid">
+          <article class="card kpi" data-kpi="revenue">
+            <p class="kpi-label">Ingresos</p>
+            <p class="kpi-value">—</p>
+            <div class="delta"></div>
+            <div class="spark" aria-hidden="true"></div>
+          </article>
+          <article class="card kpi" data-kpi="orders">
+            <p class="kpi-label">Pedidos</p>
+            <p class="kpi-value">—</p>
+            <div class="delta"></div>
+            <div class="spark" aria-hidden="true"></div>
+          </article>
+          <article class="card kpi" data-kpi="ticket">
+            <p class="kpi-label">Ticket medio</p>
+            <p class="kpi-value">—</p>
+            <div class="delta"></div>
+            <div class="spark" aria-hidden="true"></div>
+          </article>
+          <article class="card kpi" data-kpi="conv">
+            <p class="kpi-label">Tasa de conversión</p>
+            <p class="kpi-value">—</p>
+            <div class="delta"></div>
+            <div class="spark" aria-hidden="true"></div>
+          </article>
+        </div>
+
+        <div class="grid-a">
+          <article class="card" aria-labelledby="t-rev">
+            <div class="card-head">
+              <div>
+                <h2 id="t-rev">Ingresos diarios</h2>
+                <p>Evolución en el rango seleccionado</p>
+              </div>
+            </div>
+            <div class="chart-box" id="rev-box">
+              <div class="chart-mount" id="rev-chart"></div>
+              <div class="tip" id="rev-tip" hidden></div>
+            </div>
+            <p class="chart-hint">Pasa el cursor sobre el gráfico o usa las flechas ← → cuando tenga el foco.</p>
+          </article>
+          <article class="card" aria-labelledby="t-donut">
+            <div class="card-head">
+              <div>
+                <h2 id="t-donut">Ventas por categoría</h2>
+                <p>Reparto de ingresos del periodo</p>
+              </div>
+            </div>
+            <div class="donut-wrap">
+              <div class="donut chart-mount" id="donut"></div>
+              <ul class="legend" id="legend"></ul>
+            </div>
+          </article>
+        </div>
+
+        <div class="grid-b">
+          <article class="card" aria-labelledby="t-wk">
+            <div class="card-head">
+              <div>
+                <h2 id="t-wk">Pedidos por día de la semana</h2>
+                <p>Suma de pedidos del rango seleccionado</p>
+              </div>
+            </div>
+            <div class="chart-box chart-mount" id="weekday"></div>
+          </article>
+          <article class="card" aria-labelledby="t-rec">
+            <div class="card-head">
+              <div>
+                <h2 id="t-rec">Últimos pedidos</h2>
+                <p>Los 5 pedidos más recientes</p>
+              </div>
+              <button type="button" class="btn btn-ghost" data-goto="pedidos">Ver todos</button>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table stack">
+                <caption class="sr-only">Últimos 5 pedidos</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Pedido</th>
+                    <th scope="col">Cliente</th>
+                    <th scope="col">Fecha</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col" class="num-col">Importe</th>
+                  </tr>
+                </thead>
+                <tbody id="recent-body"></tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- PEDIDOS -->
+      <section id="view-pedidos" class="view" aria-label="Pedidos" hidden>
+        <article class="card">
+          <div class="toolbar">
+            <label class="field-search">
+              <span class="sr-only">Buscar por cliente o producto</span>
+              <input class="field" type="search" id="orders-search" placeholder="Buscar por cliente o producto" autocomplete="off">
+            </label>
+            <div class="chips" id="chips" role="group" aria-label="Filtrar por estado"></div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table stack" id="orders-table">
+              <caption class="sr-only">Pedidos de la tienda. Pulsa una fila para ver el detalle.</caption>
+              <thead id="orders-thead">
+                <tr>
+                  <th scope="col">Pedido</th>
+                  <th scope="col" data-sort="date" aria-sort="descending"><button type="button" class="sort-btn">Fecha <span class="arrow" aria-hidden="true">↓</span></button></th>
+                  <th scope="col" data-sort="customer" aria-sort="none"><button type="button" class="sort-btn">Cliente <span class="arrow" aria-hidden="true">↕</span></button></th>
+                  <th scope="col">Producto</th>
+                  <th scope="col">Estado</th>
+                  <th scope="col" data-sort="amount" aria-sort="none" class="num-col"><button type="button" class="sort-btn">Importe <span class="arrow" aria-hidden="true">↕</span></button></th>
+                </tr>
+              </thead>
+              <tbody id="orders-body"></tbody>
+            </table>
+          </div>
+          <div class="pager">
+            <p id="pager-info"></p>
+            <div class="pager-btns">
+              <button type="button" class="btn" id="prev">Anterior</button>
+              <span id="page-label" aria-live="polite"></span>
+              <button type="button" class="btn" id="next">Siguiente</button>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- VERSIÓN COMPLETA -->
+      <section id="view-clientes" class="view" aria-label="Clientes" hidden>
+        <article class="card empty">
+          <span class="empty-ico" data-icon="clientes"></span>
+          <h2>Disponible en la versión completa</h2>
+          <p>Historial de compras, segmentos y fichas de cliente.</p>
+          <button type="button" class="btn btn-primary" data-goto="resumen">Volver a Resumen</button>
+        </article>
+      </section>
+      <section id="view-productos" class="view" aria-label="Productos" hidden>
+        <article class="card empty">
+          <span class="empty-ico" data-icon="productos"></span>
+          <h2>Disponible en la versión completa</h2>
+          <p>Catálogo, stock y variantes con edición masiva de precios.</p>
+          <button type="button" class="btn btn-primary" data-goto="resumen">Volver a Resumen</button>
+        </article>
+      </section>
+      <section id="view-ajustes" class="view" aria-label="Ajustes" hidden>
+        <article class="card empty">
+          <span class="empty-ico" data-icon="ajustes"></span>
+          <h2>Disponible en la versión completa</h2>
+          <p>Equipo, permisos, facturación e integraciones con tu tienda.</p>
+          <button type="button" class="btn btn-primary" data-goto="resumen">Volver a Resumen</button>
+        </article>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" inert>
+  <header class="drawer-head">
+    <h2 id="drawer-title" tabindex="-1">Pedido</h2>
+    <button type="button" class="icon-btn" id="drawer-close" aria-label="Cerrar detalle"><span class="ico" data-icon="close"></span></button>
+  </header>
+  <div class="drawer-body" id="drawer-body"></div>
+  <footer class="drawer-foot">
+    <button type="button" class="btn btn-primary" id="mark-sent">Marcar como enviado</button>
+    <p class="hint" id="mark-hint"></p>
+  </footer>
+</aside>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- Utilidades ---------- */
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+  var REDUCED = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  function mulberry32(a) {
+    return function () {
+      var t = a += 0x6D2B79F5;
+      t = Math.imul(t ^ t >>> 15, t | 1);
+      t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  function h(tag, attrs) {
+    var el = document.createElement(tag);
+    if (attrs) {
+      Object.keys(attrs).forEach(function (k) {
+        var v = attrs[k];
+        if (v === null || v === undefined || v === false) return;
+        el.setAttribute(k, v === true ? '' : String(v));
+      });
+    }
+    for (var i = 2; i < arguments.length; i++) appendKids(el, arguments[i]);
+    return el;
+  }
+  function appendKids(el, kid) {
+    if (kid === null || kid === undefined || kid === false) return;
+    if (Array.isArray(kid)) kid.forEach(function (k) { appendKids(el, k); });
+    else if (kid instanceof Node) el.appendChild(kid);
+    else el.appendChild(document.createTextNode(String(kid)));
+  }
+  function norm(s) { return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+
+  /* ---------- Iconos (SVG en línea) ---------- */
+  var ICONS = {
+    resumen: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+    pedidos: '<path d="M4 2v20l3-2 3 2 3-2 3 2 3-2 3 2V2l-3 2-3-2-3 2-3-2-3 2z"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+    clientes: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    productos: '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/>',
+    ajustes: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+    search: '<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
+    moon: '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
+    menu: '<path d="M3 6h18M3 12h18M3 18h18"/>',
+    close: '<path d="M18 6 6 18M6 6l12 12"/>',
+    up: '<path d="M12 19V5M5 12l7-7 7 7"/>',
+    down: '<path d="M12 5v14M19 12l-7 7-7-7"/>',
+    collapse: '<path d="m15 18-6-6 6-6"/>',
+    pulse: '<path d="M3 12h4l2.5-6 4 12 2.5-6H21"/>'
+  };
+  function svgIcon(name) {
+    return '<svg class="i" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + (ICONS[name] || '') + '</svg>';
+  }
+  function hydrateIcons(root) {
+    $$('[data-icon]', root || document).forEach(function (el) {
+      el.innerHTML = svgIcon(el.getAttribute('data-icon'));
+    });
+  }
+
+  /* ---------- Formatos ---------- */
+  var fmtEUR0 = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+  var fmtEUR2 = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  var fmtInt = new Intl.NumberFormat('es-ES');
+  var fmtPct0 = new Intl.NumberFormat('es-ES', { style: 'percent', maximumFractionDigits: 0 });
+  var fmtPct1 = new Intl.NumberFormat('es-ES', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  var fmtChange = new Intl.NumberFormat('es-ES', { signDisplay: 'always', minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  var fmtCompact = new Intl.NumberFormat('es-ES', { notation: 'compact', maximumFractionDigits: 1 });
+  var fmtDayShort = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short' });
+  var fmtDateLong = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+  var fmtDateTime = new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  var fmtTip = new Intl.DateTimeFormat('es-ES', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+
+  /* ---------- Datos simulados (deterministas) ---------- */
+  var END = new Date(2026, 10, 11);          // fecha de referencia fija
+  var HIST = 180;                            // 90 días de periodo actual + 90 de comparación
+  var CATS = ['Ropa', 'Hogar', 'Electrónica', 'Belleza'];
+  var CAT_SHARE = [0.36, 0.27, 0.22, 0.15];
+  var WEEK_W = [0.92, 1.0, 1.04, 1.02, 1.12, 1.38, 1.22]; // índice getDay(): 0 = domingo
+  var DAY_SHORT = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+  var DAY_LONG = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
+  var STATUSES = ['Pagado', 'Pendiente', 'Enviado', 'Reembolsado'];
+
+  var rnd = mulberry32(20261107);
+  var DAILY = [];
+  for (var i = 0; i < HIST; i++) {
+    var d = new Date(END.getFullYear(), END.getMonth(), END.getDate() - (HIST - 1 - i));
+    var growth = 1 + i * 0.0035;
+    var orders = Math.round(22 * growth * WEEK_W[d.getDay()] * (0.88 + rnd() * 0.24));
+    var conv = 0.021 + rnd() * 0.007;
+    var visitors = Math.round(orders / conv);
+    var ticket = 38 + rnd() * 12 + (i / HIST) * 4;
+    var revenue = Math.round(orders * ticket * 100) / 100;
+    var w = CAT_SHARE.map(function (s) { return s * (0.85 + rnd() * 0.3); });
+    var wsum = w.reduce(function (a, b) { return a + b; }, 0);
+    var cats = w.map(function (x) { return Math.round(revenue * x / wsum * 100) / 100; });
+    DAILY.push({ date: d, wd: (d.getDay() + 6) % 7, orders: orders, visitors: visitors, revenue: revenue, cats: cats });
+  }
+
+  var CUSTOMERS = [
+    'Lucía Martín', 'Javier Ruiz', 'Carmen Ortega', 'Pablo Navarro', 'Marta Gil', 'Alejandro Vidal', 'Irene Castillo',
+    'Sergio Molina', 'Elena Serrano', 'Daniel Ramos', 'Laura Domínguez', 'Adrián Prieto', 'Sara Herrero', 'Mario Cano',
+    'Paula Iglesias', 'Raúl Medina', 'Noelia Campos', 'Hugo Fuentes', 'Claudia Santos', 'Álvaro Peña', 'Beatriz Lozano',
+    'Ismael Rojas', 'Rocío Vega', 'Iván Delgado', 'Patricia Soto', 'Óscar Núñez', 'Teresa Ibáñez', 'Gonzalo Pardo',
+    'Victoria Ferrer', 'Tomás Blanco', 'Cristina Román', 'Rubén Carrasco', 'Nerea Ortiz', 'Andrés Moya', 'Silvia Esteban',
+    'Jorge Vázquez', 'Alba Reyes', 'Pau Bermúdez', 'Mónica Rubio', 'Ángel Guerrero'
+  ];
+  var PRODUCTS = [
+    { name: 'Camiseta de algodón orgánico', cat: 0, price: 24.9 },
+    { name: 'Sudadera con capucha', cat: 0, price: 49 },
+    { name: 'Vaso térmico 500 ml', cat: 1, price: 18.5 },
+    { name: 'Lámpara de mesa LED', cat: 1, price: 62 },
+    { name: 'Auriculares inalámbricos', cat: 2, price: 89 },
+    { name: 'Cargador USB-C 65 W', cat: 2, price: 34.9 },
+    { name: 'Crema hidratante facial', cat: 3, price: 21.5 },
+    { name: 'Set de brochas de maquillaje', cat: 3, price: 38 }
+  ];
+  var CITIES = ['Madrid', 'Valencia', 'Sevilla', 'Bilbao', 'Zaragoza', 'Málaga', 'Granada', 'Valladolid'];
+  var PAYMENTS = ['Tarjeta', 'PayPal', 'Bizum', 'Transferencia'];
+
+  var rnd2 = mulberry32(7741);
+  var ORDERS = CUSTOMERS.map(function (name) {
+    var p = PRODUCTS[Math.floor(rnd2() * PRODUCTS.length)];
+    var qty = rnd2() < 0.8 ? 1 : 2;
+    var daysAgo = Math.floor(Math.pow(rnd2(), 1.4) * 60);
+    var date = new Date(END.getFullYear(), END.getMonth(), END.getDate() - daysAgo,
+      8 + Math.floor(rnd2() * 12), Math.floor(rnd2() * 60));
+    var r = rnd2();
+    var status;
+    if (daysAgo < 3) status = r < 0.6 ? 'Pendiente' : 'Pagado';
+    else if (r < 0.45) status = 'Pagado';
+    else if (r < 0.7) status = 'Enviado';
+    else if (r < 0.85) status = 'Pendiente';
+    else status = 'Reembolsado';
+    return {
+      name: name,
+      email: norm(name).replace(/\s+/g, '.') + '@ejemplo.es',
+      product: p.name,
+      cat: p.cat,
+      qty: qty,
+      amount: Math.round(p.price * qty * 100) / 100,
+      status: status,
+      date: date,
+      city: CITIES[Math.floor(rnd2() * CITIES.length)],
+      payment: PAYMENTS[Math.floor(rnd2() * PAYMENTS.length)]
+    };
+  });
+  ORDERS.sort(function (a, b) { return b.date - a.date; });
+  ORDERS.forEach(function (o, idx) { o.id = 'PUL-' + (1240 + ORDERS.length - idx); });
+
+  /* ---------- Estado ---------- */
+  var PAGE = 10;
+  var FULL_COLS = ['id', 'date', 'customer', 'product', 'status', 'amount'];
+  var RECENT_COLS = ['id', 'customer', 'date', 'status', 'amount'];
+  var VIEWS = {
+    resumen: { title: 'Resumen' },
+    pedidos: { title: 'Pedidos', sub: 'Gestiona y revisa los pedidos de la tienda' },
+    clientes: { title: 'Clientes', sub: 'Historial y segmentos de compradores' },
+    productos: { title: 'Productos', sub: 'Catálogo, stock y precios' },
+    ajustes: { title: 'Ajustes', sub: 'Equipo, facturación y cuenta' }
+  };
+  var state = {
+    range: 30, view: 'resumen', sort: { key: 'date', dir: 'desc' },
+    status: 'Todos', query: '', page: 1
+  };
+  var openId = null;
+  var revIdx = null;
+
+  function windowOf(n) {
+    var end = DAILY.length;
+    return { cur: DAILY.slice(end - n), prev: DAILY.slice(end - 2 * n, end - n) };
+  }
+  function totals(list) {
+    var r = 0, o = 0, v = 0;
+    list.forEach(function (d) { r += d.revenue; o += d.orders; v += d.visitors; });
+    return { revenue: r, orders: o, ticket: o ? r / o : 0, conv: v ? o / v * 100 : 0 };
+  }
+  function pctChange(cur, prev) { return prev ? (cur - prev) / prev * 100 : 0; }
+
+  /* Escala con marcas redondas */
+  function niceScale(max, count) {
+    if (!(max > 0)) max = 1;
+    var rough = max / count;
+    var mag = Math.pow(10, Math.floor(Math.log10(rough)));
+    var norm2 = rough / mag;
+    var nice = norm2 <= 1 ? 1 : norm2 <= 2 ? 2 : norm2 <= 2.5 ? 2.5 : norm2 <= 5 ? 5 : 10;
+    var step = nice * mag;
+    var top = Math.ceil(max / step) * step;
+    var ticks = [];
+    for (var v = 0; v <= top + step * 0.001; v += step) ticks.push(Math.round(v * 1000) / 1000);
+    return { top: top, ticks: ticks };
+  }
+
+  /* ---------- KPIs ---------- */
+  var KPI = [
+    { key: 'revenue', fmt: function (v) { return fmtEUR0.format(v); }, series: function (d) { return d.revenue; } },
+    { key: 'orders', fmt: function (v) { return fmtInt.format(Math.round(v)); }, series: function (d) { return d.orders; } },
+    { key: 'ticket', fmt: function (v) { return fmtEUR2.format(v); }, series: function (d) { return d.orders ? d.revenue / d.orders : 0; } },
+    { key: 'conv', fmt: function (v) { return fmtPct1.format(v) + ' %'; }, series: function (d) { return d.visitors ? d.orders / d.visitors * 100 : 0; } }
+  ];
+  var shown = {}, rafs = {};
+
+  function animateTo(key, to, fmt, el) {
+    var from = shown[key] != null ? shown[key] : 0;
+    cancelAnimationFrame(rafs[key]);
+    if (REDUCED || from === to) { shown[key] = to; el.textContent = fmt(to); return; }
+    var t0 = performance.now(), dur = 650;
+    function step(now) {
+      var t = Math.min(1, (now - t0) / dur);
+      var e = 1 - Math.pow(1 - t, 3);
+      var v = from + (to - from) * e;
+      shown[key] = v;
+      el.textContent = fmt(v);
+      if (t < 1) rafs[key] = requestAnimationFrame(step);
+      else shown[key] = to;
+    }
+    step(t0);
+  }
+
+  function sparkSvg(values) {
+    var n = values.length;
+    var min = Math.min.apply(null, values), max = Math.max.apply(null, values);
+    var span = (max - min) || 1, W = 100, H = 36, P = 3;
+    var pts = values.map(function (v, i) {
+      var x = n > 1 ? i * W / (n - 1) : W / 2;
+      var y = P + (H - 2 * P) * (1 - (v - min) / span);
+      return x.toFixed(2) + ',' + y.toFixed(2);
+    });
+    var line = 'M' + pts.join(' L');
+    var area = line + ' L' + W + ',' + H + ' L0,' + H + ' Z';
+    return '<svg viewBox="0 0 100 36" preserveAspectRatio="none" aria-hidden="true" focusable="false">' +
+      '<path class="spark-area" d="' + area + '"/><path class="spark-line" d="' + line + '"/></svg>';
+  }
+
+  function renderKPIs() {
+    var w = windowOf(state.range), m = totals(w.cur), p = totals(w.prev);
+    var prevLabel = 'vs. ' + state.range + ' días anteriores';
+    KPI.forEach(function (k) {
+      var card = $('[data-kpi="' + k.key + '"]');
+      animateTo(k.key, m[k.key], k.fmt, $('.kpi-value', card));
+      var change = pctChange(m[k.key], p[k.key]);
+      var up = change >= 0;
+      var delta = $('.delta', card);
+      delta.className = 'delta' + (up ? '' : ' down');
+      delta.innerHTML = svgIcon(up ? 'up' : 'down');
+      delta.appendChild(document.createTextNode(fmtChange.format(change) + ' %'));
+      delta.appendChild(h('span', { class: 'delta-note' }, ' · ' + prevLabel));
+      $('.spark', card).innerHTML = sparkSvg(w.cur.map(k.series));
+    });
+  }
+
+  /* ---------- Tabla accesible alternativa ---------- */
+  function srTable(caption, head, rows) {
+    return h('table', { class: 'sr-only' },
+      h('caption', null, caption),
+      h('thead', null, h('tr', null, head.map(function (x) { return h('th', { scope: 'col' }, x); }))),
+      h('tbody', null, rows.map(function (r) {
+        return h('tr', null, r.map(function (c, i) {
+          return i === 0 ? h('th', { scope: 'row' }, c) : h('td', null, c);
+        }));
+      }))
+    );
+  }
+
+  /* ---------- Gráfico de ingresos ---------- */
+  function renderRevenue() {
+    var box = $('#rev-box'), mount = $('#rev-chart'), tip = $('#rev-tip');
+    var cur = windowOf(state.range).cur, n = cur.length;
+    var W = Math.max(280, Math.round(mount.clientWidth || 640)), H = 260;
+    var P = { l: 56, r: 12, t: 16, b: 28 };
+    var iw = W - P.l - P.r, ih = H - P.t - P.b;
+    var maxV = 0, maxI = 0, total = 0;
+    cur.forEach(function (d, k) { total += d.revenue; if (d.revenue > maxV) { maxV = d.revenue; maxI = k; } });
+    var sc = niceScale(maxV, 5);
+    function X(i) { return P.l + (n > 1 ? i * iw / (n - 1) : iw / 2); }
+    function Y(v) { return P.t + ih - v / sc.top * ih; }
+
+    var grid = sc.ticks.map(function (t) {
+      var y = Y(t).toFixed(1);
+      return '<line class="grid-line" x1="' + P.l + '" x2="' + (W - P.r) + '" y1="' + y + '" y2="' + y + '"/>' +
+        '<text x="' + (P.l - 8) + '" y="' + (Y(t) + 4).toFixed(1) + '" text-anchor="end">' + fmtCompact.format(t) + '</text>';
+    }).join('');
+
+    var step = Math.max(1, Math.ceil(n / 6)), xl = '';
+    for (var i = n - 1; i >= 0; i -= step) {
+      var anchor = i === n - 1 ? 'end' : (i === 0 ? 'start' : 'middle');
+      xl += '<text x="' + X(i).toFixed(1) + '" y="' + (H - 8) + '" text-anchor="' + anchor + '">' + fmtDayShort.format(cur[i].date) + '</text>';
+    }
+
+    var pts = cur.map(function (d, k) { return X(k).toFixed(1) + ',' + Y(d.revenue).toFixed(1); });
+    var line = 'M' + pts.join(' L');
+    var base = (P.t + ih).toFixed(1);
+    var area = line + ' L' + X(n - 1).toFixed(1) + ',' + base + ' L' + X(0).toFixed(1) + ',' + base + ' Z';
+
+    var first = fmtDateLong.format(cur[0].date), last = fmtDateLong.format(cur[n - 1].date);
+    var prevTot = totals(windowOf(state.range).prev).revenue;
+    var ch = pctChange(total, prevTot);
+    var label = 'Ingresos diarios del ' + first + ' al ' + last + ': total ' + fmtEUR0.format(total) +
+      ', máximo ' + fmtEUR0.format(maxV) + ' el ' + fmtDateLong.format(cur[maxI].date) + '. ' +
+      'Frente al periodo anterior, ' + (ch >= 0 ? 'sube' : 'baja') + ' un ' + fmtPct1.format(Math.abs(ch)) + ' %.';
+
+    mount.innerHTML = '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" role="img" tabindex="0" aria-label="' + label + '">' +
+      '<defs><linearGradient id="rev-grad" x1="0" y1="0" x2="0" y2="1"><stop class="stop-a" offset="0"/><stop class="stop-b" offset="1"/></linearGradient></defs>' +
+      grid +
+      '<path d="' + area + '" fill="url(#rev-grad)"/>' +
+      '<path class="line-path" d="' + line + '"/>' +
+      '<line class="guide" id="rev-guide" x1="0" x2="0" y1="' + P.t + '" y2="' + (P.t + ih) + '" visibility="hidden"/>' +
+      '<circle class="dot" id="rev-dot" r="5" cx="0" cy="0" visibility="hidden"/>' +
+      xl + '</svg>';
+    mount.appendChild(srTable('Ingresos diarios', ['Fecha', 'Ingresos', 'Pedidos'],
+      cur.map(function (d) { return [fmtDateLong.format(d.date), fmtEUR2.format(d.revenue), fmtInt.format(d.orders)]; })));
+
+    var svg = mount.querySelector('svg');
+    var guide = svg.querySelector('#rev-guide'), dot = svg.querySelector('#rev-dot');
+    revIdx = null;
+    tip.hidden = true;
+
+    function show(i) {
+      revIdx = Math.max(0, Math.min(n - 1, i));
+      var d = cur[revIdx], x = X(revIdx), y = Y(d.revenue);
+      var s = svg.getBoundingClientRect().width / W;
+      guide.setAttribute('x1', x.toFixed(1));
+      guide.setAttribute('x2', x.toFixed(1));
+      guide.setAttribute('visibility', 'visible');
+      dot.setAttribute('cx', x.toFixed(1));
+      dot.setAttribute('cy', y.toFixed(1));
+      dot.setAttribute('visibility', 'visible');
+      tip.textContent = '';
+      tip.appendChild(h('strong', null, fmtTip.format(d.date)));
+      tip.appendChild(h('span', { class: 'v' }, fmtEUR2.format(d.revenue)));
+      tip.appendChild(document.createTextNode('  ·  ' + fmtInt.format(d.orders) + ' pedidos'));
+      tip.hidden = false;
+      var bw = box.clientWidth, tw = tip.offsetWidth || 160;
+      tip.style.left = Math.max(tw / 2 + 4, Math.min(bw - tw / 2 - 4, x * s)) + 'px';
+      tip.style.top = (y * s) + 'px';
+    }
+    function hide() {
+      revIdx = null;
+      guide.setAttribute('visibility', 'hidden');
+      dot.setAttribute('visibility', 'hidden');
+      tip.hidden = true;
+    }
+    svg.addEventListener('pointermove', function (e) {
+      var r = svg.getBoundingClientRect();
+      var px = (e.clientX - r.left) * (W / r.width);
+      show(Math.round((px - P.l) / iw * (n - 1)));
+    });
+    svg.addEventListener('pointerleave', hide);
+    svg.addEventListener('focus', function () { show(revIdx == null ? n - 1 : revIdx); });
+    svg.addEventListener('blur', hide);
+    svg.addEventListener('keydown', function (e) {
+      var c = revIdx == null ? n - 1 : revIdx, handled = true;
+      if (e.key === 'ArrowLeft') show(c - 1);
+      else if (e.key === 'ArrowRight') show(c + 1);
+      else if (e.key === 'Home') show(0);
+      else if (e.key === 'End') show(n - 1);
+      else if (e.key === 'Escape') hide();
+      else handled = false;
+      if (handled) e.preventDefault();
+    });
+  }
+
+  /* ---------- Barras por día de la semana ---------- */
+  function renderWeekday() {
+    var mount = $('#weekday'), cur = windowOf(state.range).cur;
+    var counts = [0, 0, 0, 0, 0, 0, 0];
+    cur.forEach(function (d) { counts[d.wd] += d.orders; });
+    var W = Math.max(260, Math.round(mount.clientWidth || 360)), H = 220;
+    var P = { l: 40, r: 8, t: 26, b: 30 };
+    var iw = W - P.l - P.r, ih = H - P.t - P.b;
+    var maxC = Math.max.apply(null, counts), top = counts.indexOf(maxC);
+    var sc = niceScale(maxC, 4), slot = iw / 7, bw = Math.min(40, slot * 0.58);
+    var total = counts.reduce(function (a, b) { return a + b; }, 0);
+
+    var grid = sc.ticks.map(function (t) {
+      var y = P.t + ih - t / sc.top * ih;
+      return '<line class="grid-line" x1="' + P.l + '" x2="' + (W - P.r) + '" y1="' + y.toFixed(1) + '" y2="' + y.toFixed(1) + '"/>' +
+        '<text x="' + (P.l - 8) + '" y="' + (y + 4).toFixed(1) + '" text-anchor="end">' + fmtCompact.format(t) + '</text>';
+    }).join('');
+    var bars = counts.map(function (v, k) {
+      var bh = v / sc.top * ih, x = P.l + k * slot + (slot - bw) / 2, y = P.t + ih - bh;
+      return '<rect class="bar' + (k === top ? ' top' : '') + '" x="' + x.toFixed(1) + '" y="' + y.toFixed(1) +
+        '" width="' + bw.toFixed(1) + '" height="' + Math.max(0, bh).toFixed(1) + '" rx="6"/>' +
+        '<text class="bar-val" x="' + (x + bw / 2).toFixed(1) + '" y="' + (y - 7).toFixed(1) + '" text-anchor="middle">' + fmtInt.format(v) + '</text>' +
+        '<text x="' + (P.l + k * slot + slot / 2).toFixed(1) + '" y="' + (H - 8) + '" text-anchor="middle">' + DAY_SHORT[k] + '</text>';
+    }).join('');
+
+    var label = 'Pedidos por día de la semana: ' + fmtInt.format(total) + ' pedidos en total. El día con más pedidos es el ' +
+      DAY_LONG[top] + ', con ' + fmtInt.format(counts[top]) + '.';
+    mount.innerHTML = '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + label + '">' + grid + bars + '</svg>';
+    mount.appendChild(srTable('Pedidos por día de la semana', ['Día', 'Pedidos'],
+      counts.map(function (v, k) { return [DAY_LONG[k], fmtInt.format(v)]; })));
+  }
+
+  /* ---------- Donut de categorías ---------- */
+  function renderDonut() {
+    var mount = $('#donut'), legend = $('#legend'), cur = windowOf(state.range).cur;
+    var sums = CATS.map(function (_, k) { return cur.reduce(function (a, d) { return a + d.cats[k]; }, 0); });
+    var total = sums.reduce(function (a, b) { return a + b; }, 0) || 1;
+    var R = 70, C = 2 * Math.PI * R, off = 0, segs = '';
+    sums.forEach(function (v, k) {
+      var frac = v / total, len = Math.max(0, frac * C - 3);
+      segs += '<circle class="seg-' + k + '" cx="80" cy="80" r="' + R + '" fill="none" stroke-width="22" ' +
+        'stroke-dasharray="' + len.toFixed(2) + ' ' + C.toFixed(2) + '" stroke-dashoffset="' + (-off).toFixed(2) + '" ' +
+        'transform="rotate(-90 80 80)"/>';
+      off += frac * C;
+    });
+    var label = 'Ventas por categoría: ' + CATS.map(function (c, k) {
+      return c + ' ' + fmtPct0.format(sums[k] / total);
+    }).join(', ') + '. Total ' + fmtEUR0.format(total) + '.';
+    mount.innerHTML = '<svg viewBox="0 0 160 160" role="img" aria-label="' + label + '">' +
+      '<circle class="track" cx="80" cy="80" r="' + R + '" fill="none" stroke-width="22"/>' + segs +
+      '<text class="d-total" x="80" y="78" text-anchor="middle">' + fmtEUR0.format(total) + '</text>' +
+      '<text class="d-sub" x="80" y="96" text-anchor="middle">Total</text></svg>';
+
+    legend.textContent = '';
+    CATS.forEach(function (c, k) {
+      legend.appendChild(h('li', null,
+        h('span', { class: 'sw sw-' + k, 'aria-hidden': 'true' }),
+        h('span', null, c),
+        h('span', { class: 'amt' }, fmtEUR0.format(sums[k])),
+        h('span', { class: 'pct' }, fmtPct0.format(sums[k] / total))
+      ));
+    });
+  }
+
+  /* ---------- Pedidos: filas, tablas, filtros ---------- */
+  function cell(c, o) {
+    switch (c) {
+      case 'id':
+        return h('td', { 'data-label': 'Pedido' }, h('button', { type: 'button', class: 'id-btn', 'data-open': o.id }, o.id));
+      case 'date':
+        return h('td', { 'data-label': 'Fecha' }, fmtDateLong.format(o.date));
+      case 'customer':
+        return h('td', { 'data-label': 'Cliente', class: 'cust' }, o.name);
+      case 'product':
+        return h('td', { 'data-label': 'Producto', class: 'prod' }, o.product);
+      case 'status':
+        return h('td', { 'data-label': 'Estado' }, h('span', { class: 'badge st-' + o.status }, o.status));
+      default:
+        return h('td', { 'data-label': 'Importe', class: 'amount' }, fmtEUR2.format(o.amount));
+    }
+  }
+  function orderRow(o, cols) {
+    var tr = h('tr', { 'data-id': o.id });
+    cols.forEach(function (c) { tr.appendChild(cell(c, o)); });
+    return tr;
+  }
+
+  function renderRecent() {
+    var body = $('#recent-body');
+    body.textContent = '';
+    ORDERS.slice(0, 5).forEach(function (o) { body.appendChild(orderRow(o, RECENT_COLS)); });
+  }
+
+  function filteredOrders() {
+    var q = norm(state.query.trim());
+    var key = state.sort.key, m = state.sort.dir === 'asc' ? 1 : -1;
+    return ORDERS.filter(function (o) {
+      if (state.status !== 'Todos' && o.status !== state.status) return false;
+      if (q && norm(o.name + ' ' + o.product + ' ' + o.id).indexOf(q) === -1) return false;
+      return true;
+    }).sort(function (a, b) {
+      if (key === 'customer') return m * a.name.localeCompare(b.name, 'es');
+      var va = key === 'amount' ? a.amount : a.date.getTime();
+      var vb = key === 'amount' ? b.amount : b.date.getTime();
+      return m * (va - vb);
+    });
+  }
+
+  function renderOrders() {
+    var list = filteredOrders();
+    var pages = Math.max(1, Math.ceil(list.length / PAGE));
+    if (state.page > pages) state.page = pages;
+    var start = (state.page - 1) * PAGE;
+    var slice = list.slice(start, start + PAGE);
+
+    var body = $('#orders-body');
+    body.textContent = '';
+    if (!slice.length) {
+      body.appendChild(h('tr', null, h('td', { colspan: '6', class: 'empty-cell' },
+        'No hay pedidos que coincidan con la búsqueda o el filtro.')));
+    } else {
+      slice.forEach(function (o) { body.appendChild(orderRow(o, FULL_COLS)); });
+    }
+
+    $$('#orders-thead th[data-sort]').forEach(function (th) {
+      var key = th.getAttribute('data-sort'), active = state.sort.key === key;
+      th.setAttribute('aria-sort', active ? (state.sort.dir === 'asc' ? 'ascending' : 'descending') : 'none');
+      $('.arrow', th).textContent = active ? (state.sort.dir === 'asc' ? '↑' : '↓') : '↕';
+    });
+
+    $$('#chips .chip').forEach(function (c) {
+      var s = c.getAttribute('data-status');
+      var n = s === 'Todos' ? ORDERS.length : ORDERS.filter(function (o) { return o.status === s; }).length;
+      c.setAttribute('aria-pressed', String(state.status === s));
+      $('.count', c).textContent = fmtInt.format(n);
+    });
+
+    $('#pager-info').textContent = list.length
+      ? 'Mostrando ' + (start + 1) + '–' + (start + slice.length) + ' de ' + fmtInt.format(list.length) + ' pedidos'
+      : '0 pedidos';
+    $('#page-label').textContent = 'Página ' + state.page + ' de ' + pages;
+    $('#prev').disabled = state.page <= 1;
+    $('#next').disabled = state.page >= pages;
+  }
+
+  function buildChips() {
+    var box = $('#chips');
+    ['Todos'].concat(STATUSES).forEach(function (s) {
+      box.appendChild(h('button', { type: 'button', class: 'chip', 'data-status': s, 'aria-pressed': 'false' },
+        s, h('span', { class: 'count' })));
+    });
+  }
+
+  /* ---------- Detalle de pedido (drawer) ---------- */
+  function renderDrawer(o) {
+    $('#drawer-title').textContent = 'Pedido ' + o.id;
+    var body = $('#drawer-body');
+    body.textContent = '';
+    body.appendChild(h('div', { class: 'drawer-status' },
+      h('span', { class: 'badge st-' + o.status }, o.status),
+      h('span', { class: 'muted' }, fmtDateTime.format(o.date))));
+    var rows = [
+      ['Cliente', o.name],
+      ['Correo', o.email],
+      ['Ciudad de envío', o.city],
+      ['Producto', o.product + (o.qty > 1 ? ' × ' + o.qty : '')],
+      ['Categoría', CATS[o.cat]],
+      ['Método de pago', o.payment],
+      ['Fecha', fmtDateTime.format(o.date)],
+      ['Importe', fmtEUR2.format(o.amount)]
+    ];
+    var dl = h('dl', { class: 'dl' });
+    rows.forEach(function (r) { dl.appendChild(h('dt', null, r[0])); dl.appendChild(h('dd', null, r[1])); });
+    body.appendChild(dl);
+
+    var btn = $('#mark-sent');
+    btn.disabled = o.status !== 'Pagado';
+    var hint = {
+      Pagado: 'Demo: el cambio solo afecta a esta simulación.',
+      Pendiente: 'Disponible cuando el pago esté confirmado.',
+      Enviado: 'Este pedido ya está enviado.',
+      Reembolsado: 'Los pedidos reembolsados no se pueden enviar.'
+    };
+    $('#mark-hint').textContent = hint[o.status];
+  }
+
+  function openDrawer(id) {
+    var o = ORDERS.filter(function (x) { return x.id === id; })[0];
+    if (!o) return;
+    openId = id;
+    renderDrawer(o);
+    drawer.inert = false;
+    drawer.classList.add('open');
+    updateScrim();
+    $('#drawer-title').focus();
+  }
+
+  function closeDrawer() {
+    if (!openId) return;
+    var id = openId;
+    openId = null;
+    drawer.classList.remove('open');
+    drawer.inert = true;
+    updateScrim();
+    var target = $('.view:not([hidden]) [data-open="' + id + '"]') || $('#main');
+    target.focus();
+  }
+
+  /* ---------- Toast ---------- */
+  var toastTimer = null;
+  function toast(msg) {
+    var t = $('#toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove('show'); }, 3200);
+  }
+
+  /* ---------- Vistas ---------- */
+  var sidebar = $('#sidebar'), app = $('#app'), scrim = $('#scrim');
+  var menuBtn = $('#menu'), collapseBtn = $('#collapse'), drawer = $('#drawer');
+
+  function updateScrim() {
+    scrim.classList.toggle('show', sidebar.classList.contains('open') || !!openId);
+  }
+  function setMenu(open) {
+    sidebar.classList.toggle('open', open);
+    menuBtn.setAttribute('aria-expanded', String(open));
+    updateScrim();
+  }
+  function updateSub() {
+    $('#page-sub').textContent = state.view === 'resumen'
+      ? 'Últimos ' + state.range + ' días frente a los ' + state.range + ' anteriores'
+      : VIEWS[state.view].sub;
+  }
+  function renderCharts() {
+    if (state.view !== 'resumen') return;
+    renderRevenue();
+    renderWeekday();
+  }
+  function renderCurrentView() {
+    if (state.view === 'resumen') {
+      renderKPIs();
+      renderDonut();
+      renderRecent();
+      renderCharts();
+    } else if (state.view === 'pedidos') {
+      renderOrders();
+    }
+    updateSub();
+  }
+  function showView(name) {
+    if (!VIEWS[name]) return;
+    state.view = name;
+    $$('.view').forEach(function (s) { s.hidden = s.id !== 'view-' + name; });
+    $$('.nav-item').forEach(function (b) {
+      if (b.getAttribute('data-view') === name) b.setAttribute('aria-current', 'page');
+      else b.removeAttribute('aria-current');
+    });
+    $('#page-title').textContent = VIEWS[name].title;
+    setMenu(false);
+    renderCurrentView();
+  }
+
+  function setQuery(v) {
+    state.query = v;
+    state.page = 1;
+    $('#orders-search').value = v;
+    $('#global-search').value = v;
+    if (state.view === 'pedidos') renderOrders();
+  }
+
+  function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    var dark = t === 'dark';
+    var label = dark ? 'Activar modo claro' : 'Activar modo oscuro';
+    $('#theme').setAttribute('aria-label', label);
+    $('#theme').setAttribute('title', label);
+  }
+
+  /* ---------- Eventos ---------- */
+  function bind() {
+    document.addEventListener('click', function (e) {
+      var tr = e.target.closest('tr[data-id]');
+      if (tr && tr.closest('table')) { openDrawer(tr.getAttribute('data-id')); return; }
+      var nav = e.target.closest('[data-view]');
+      if (nav) { showView(nav.getAttribute('data-view')); return; }
+      var go = e.target.closest('[data-goto]');
+      if (go) { showView(go.getAttribute('data-goto')); }
+    });
+
+    $('.seg').addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-range]');
+      if (!b) return;
+      state.range = parseInt(b.getAttribute('data-range'), 10);
+      $$('.seg button').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+      if (state.view === 'resumen') renderCurrentView();
+    });
+
+    $('#global-search').addEventListener('input', function (e) {
+      var v = e.target.value;
+      setQuery(v);
+      if (v && state.view !== 'pedidos') showView('pedidos');
+    });
+    $('#orders-search').addEventListener('input', function (e) { setQuery(e.target.value); });
+
+    $('#chips').addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-status]');
+      if (!b) return;
+      state.status = b.getAttribute('data-status');
+      state.page = 1;
+      renderOrders();
+    });
+
+    $('#orders-thead').addEventListener('click', function (e) {
+      var th = e.target.closest('th[data-sort]');
+      if (!th) return;
+      var key = th.getAttribute('data-sort');
+      if (state.sort.key === key) state.sort.dir = state.sort.dir === 'asc' ? 'desc' : 'asc';
+      else state.sort = { key: key, dir: key === 'customer' ? 'asc' : 'desc' };
+      renderOrders();
+    });
+
+    $('#prev').addEventListener('click', function () { state.page--; renderOrders(); });
+    $('#next').addEventListener('click', function () { state.page++; renderOrders(); });
+
+    menuBtn.addEventListener('click', function () { setMenu(!sidebar.classList.contains('open')); });
+    collapseBtn.addEventListener('click', function () {
+      var c = app.classList.toggle('collapsed');
+      collapseBtn.setAttribute('aria-expanded', String(!c));
+      collapseBtn.setAttribute('aria-label', c ? 'Expandir menú' : 'Contraer menú');
+    });
+    scrim.addEventListener('click', function () { setMenu(false); closeDrawer(); });
+
+    $('#theme').addEventListener('click', function () {
+      var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      applyTheme(next);
+      try { localStorage.setItem('pulso-theme', next); } catch (err) {}
+    });
+
+    $('#ribbon-close').addEventListener('click', function () { $('#ribbon').hidden = true; });
+
+    $('#drawer-close').addEventListener('click', closeDrawer);
+    $('#mark-sent').addEventListener('click', function () {
+      var o = ORDERS.filter(function (x) { return x.id === openId; })[0];
+      if (!o || o.status !== 'Pagado') return;
+      o.status = 'Enviado';
+      renderDrawer(o);
+      renderOrders();
+      renderRecent();
+      $('#drawer-title').focus();
+      toast('Pedido ' + o.id + ' marcado como enviado');
+    });
+
+    drawer.addEventListener('keydown', function (e) {
+      if (e.key !== 'Tab') return;
+      var f = $$('button:not([disabled])', drawer);
+      if (!f.length) return;
+      var first = f[0], last = f[f.length - 1], active = document.activeElement;
+      if (e.shiftKey && (active === first || active === $('#drawer-title'))) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && active === last) { e.preventDefault(); first.focus(); }
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      if (openId) closeDrawer();
+      else if (sidebar.classList.contains('open')) { setMenu(false); menuBtn.focus(); }
+    });
+
+    if ('ResizeObserver' in window) {
+      var lastW = 0;
+      new ResizeObserver(function (entries) {
+        var w = Math.round(entries[0].contentRect.width);
+        if (w === lastW) return;
+        lastW = w;
+        renderCharts();
+      }).observe($('#main'));
+    }
+  }
+
+  /* ---------- Inicio ---------- */
+  function init() {
+    hydrateIcons();
+    applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
+    buildChips();
+    bind();
+    showView('resumen');
+  }
+  init();
+})();
+</script>
+<footer style="text-align:center;padding:2rem 1rem;font-size:.8rem;opacity:.7;line-height:1.8">
+<a href="index.html" style="color:inherit">← Volver a Sundan Studio</a> · <a href="aviso-legal.html" style="color:inherit">Aviso legal</a> · <a href="privacidad.html" style="color:inherit">Privacidad</a>
+</footer>
+</body>
+</html>

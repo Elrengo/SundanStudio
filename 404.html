@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>404 · Sundan Studio</title>
+<meta name="description" content="Esta página no existe en Sundan Studio. Vuelve al inicio o mira los proyectos.">
+<meta name="theme-color" content="#14060f">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14060f; --plum:#1b0812; --blood:#c1121f; --bone:#efe3c8; --gold:#e9b42f; --teal:#1f9e8f;
+  --display:"Gloock","Georgia","Times New Roman",serif;
+  --body:"Instrument Sans","Helvetica Neue",Arial,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{background:var(--ink)}
+body{margin:0;min-height:100vh;background:var(--ink);color:var(--bone);font-family:var(--body);line-height:1.6;overflow-x:hidden;display:flex;align-items:center;justify-content:center;padding:24px 16px}
+.nf{width:100%;max-width:560px;text-align:center}
+.stage{position:relative;height:110px;margin:0 auto 1.2rem;overflow:hidden}
+.awning{position:absolute;left:0;right:0;bottom:0;height:34px;background:repeating-linear-gradient(90deg,var(--blood) 0 48px,var(--bone) 48px 96px)}
+.ball{position:absolute;top:0;left:calc(50% - 14px);width:28px;height:28px;border-radius:50%;background:var(--gold);box-shadow:0 0 18px rgba(233,180,47,.5);animation:bounce 1.2s cubic-bezier(.5,0,.5,1) infinite alternate}
+@keyframes bounce{from{transform:translateY(0)}to{transform:translateY(48px)}}
+.code{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(6rem,30vw,11rem);line-height:.9;color:var(--bone);text-shadow:0 0 40px rgba(193,18,31,.6)}
+.lede{font-family:var(--display);font-size:clamp(1.3rem,4vw,1.8rem);color:var(--gold);margin:.4rem 0 .8rem}
+.txt{margin:0 0 2rem;opacity:.85}
+.btns{display:flex;flex-wrap:wrap;justify-content:center;gap:.8rem}
+.pill{font-family:var(--display);font-size:1.25rem;padding:.7rem 1.4rem;border:2px solid var(--gold);color:var(--bone);background:transparent;text-decoration:none;display:inline-block;border-radius:99px}
+.pill.main{background:var(--gold);color:var(--ink)}
+.pill:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){
+  .ball{animation:none;transform:translateY(48px)}
+}
+</style>
+</head>
+<body>
+<main class="nf">
+  <div class="stage" aria-hidden="true">
+    <div class="ball"></div>
+    <div class="awning"></div>
+  </div>
+  <p class="code">404</p>
+  <p class="lede">Este número no está en el programa del circo.</p>
+  <p class="txt">La página que buscas no existe o se ha movido. Puedes volver al inicio o echar un vistazo a los proyectos.</p>
+  <div class="btns">
+    <a class="pill main" href="/">Volver al inicio</a>
+    <a class="pill" href="/#proyectos">Ver proyectos</a>
+  </div>
+</main>
+</body>
+</html>

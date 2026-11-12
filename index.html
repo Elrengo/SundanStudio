@@ -4,6 +4,44 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Sundan Studio</title>
+<meta name="description" content="Sundan Studio: diseño y desarrollo de webs y aplicaciones con personalidad. Webs a medida, aplicaciones web y experiencias interactivas.">
+<meta name="description" content="Sundan Studio: diseño y desarrollo de webs y aplicaciones con personalidad. Webs a medida, aplicaciones web y experiencias interactivas.">
+<link rel="canonical" href="https://sundanstudio.com/">
+<meta name="theme-color" content="#14060f">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="manifest" href="assets/site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Sundan Studio">
+<meta property="og:locale" content="es_ES">
+<meta property="og:url" content="https://sundanstudio.com/">
+<meta property="og:title" content="Sundan Studio — Webs y aplicaciones con personalidad">
+<meta property="og:description" content="Sundan Studio: diseño y desarrollo de webs y aplicaciones con personalidad. Webs a medida, aplicaciones web y experiencias interactivas.">
+<meta property="og:image" content="https://sundanstudio.com/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Sundan Studio: webs y aplicaciones con personalidad">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Sundan Studio — Webs y aplicaciones con personalidad">
+<meta name="twitter:description" content="Sundan Studio: diseño y desarrollo de webs y aplicaciones con personalidad. Webs a medida, aplicaciones web y experiencias interactivas.">
+<meta name="twitter:image" content="https://sundanstudio.com/assets/og-image.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "Sundan Studio",
+  "url": "https://sundanstudio.com/",
+  "image": "https://sundanstudio.com/assets/og-image.png",
+  "email": "rafmoline@gmail.com",
+  "description": "Sundan Studio: diseño y desarrollo de webs y aplicaciones con personalidad. Webs a medida, aplicaciones web y experiencias interactivas.",
+  "areaServed": "Worldwide",
+  "knowsLanguage": [
+    "es",
+    "en"
+  ],
+  "priceRange": "€€"
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gloock&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
@@ -17,16 +55,25 @@
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
 }
-html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth;background:var(--ink)}
+html{scroll-padding-top:calc(64px + env(safe-area-inset-top,0px));scroll-behavior:smooth;background:var(--ink)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--ink);color:var(--bone);font-family:var(--body);overflow-x:hidden}
 
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:150;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem clamp(16px,5vw,64px);background:rgba(20,6,15,.82);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:2px solid var(--gold)}
+.tb-logo{font-family:var(--display);font-size:1.4rem;color:var(--bone);text-decoration:none;white-space:nowrap}
+.topbar nav{display:flex;gap:1.2rem}
+.topbar nav a{color:var(--bone);text-decoration:none;font-size:.95rem}
+.topbar nav a:hover,.topbar nav a:focus-visible{color:var(--gold)}
+.topbar a:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.topbar .tb-cta{font-size:1rem;padding:.45rem 1rem}
+@media (max-width:639px){.topbar nav{display:none}}
 /* HERO */
 .hero{position:relative;height:100vh;height:100svh;overflow:hidden}
 #c{position:absolute;inset:0;width:100%;height:100%;display:block}
 #fx{position:fixed;inset:0;width:100%;height:100%;display:block;pointer-events:none;z-index:200}
 .stage{position:absolute;inset:0;pointer-events:none}
-header{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;padding:0 5vw}
+.hero header{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;padding:0 5vw}
 h1{display:inline-block;font-family:var(--display);font-weight:400;font-size:clamp(2.8rem,8.5vw,7.5rem);line-height:.92;margin:0;letter-spacing:-.02em;color:var(--bone);text-shadow:0 0 40px rgba(193,18,31,.6);pointer-events:auto;cursor:default}
 h1 span{display:inline-block;opacity:0;filter:blur(14px);transform:translateY(.25em) scale(1.15);animation:rise 1.4s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:calc(var(--i)*70ms + 300ms)}
 h1.done span{animation:none;opacity:1;filter:none;transform:none}
@@ -154,21 +201,812 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
 .tz{font-size:.85rem;opacity:.65;margin:.7rem 0 1rem}
 .sum{font-family:var(--display);font-size:1.5rem;color:var(--gold)}
 @media (prefers-reduced-motion:reduce){.marquee::before,.marquee::after{animation:none}.arrow.on{animation:none}.card.shake{animation:none}.pum{animation-duration:.01s}.qh.zap{animation:none}.arena.pop .yeswrap,.arena.pop #no{animation:none}.bar{transition:none}}
+
+
+/* SERVICIOS */
+.services{background:var(--ink);color:var(--bone);position:relative;overflow:hidden;padding:0 0 clamp(56px,12vh,130px)}
+.services .stub{height:28px;background:radial-gradient(circle at 50% 100%,var(--ink) 6px,transparent 6.5px) 0 100%/22px 14px repeat-x,var(--gold)}
+.services .wrap.one{grid-template-columns:1fr;padding-top:48px;min-width:0}
+.services .intro{min-width:0}
+.services .intro .lede{margin-top:.6rem}
+.services .tickets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin-top:48px;min-width:0}
+.services .ticket{--r:0deg;position:relative;min-width:0;padding:1.5rem 1.4rem 1.5rem;border:2px solid var(--gold);background:rgba(239,227,200,.05);transform:rotate(var(--r));transition:transform .3s ease}
+.services .ticket:nth-child(1){--r:.6deg}
+.services .ticket:nth-child(2){--r:-.5deg}
+.services .ticket:nth-child(3){--r:.4deg}
+.services .ticket:hover,.services .ticket:focus-within{--r:0deg;transform:rotate(0deg) translateY(-6px)}
+.services .ticket::before{content:"";position:absolute;inset:-2px;pointer-events:none;background:radial-gradient(circle at 0 0,var(--ink) 11px,transparent 11.5px) 0 0/100% 100% no-repeat,radial-gradient(circle at 100% 0,var(--ink) 11px,transparent 11.5px) 0 0/100% 100% no-repeat,radial-gradient(circle at 0 100%,var(--ink) 11px,transparent 11.5px) 0 0/100% 100% no-repeat,radial-gradient(circle at 100% 100%,var(--ink) 11px,transparent 11.5px) 0 0/100% 100% no-repeat}
+.services .tk-label{margin:0 0 .9rem;font-family:ui-monospace,Consolas,"Courier New",monospace;font-size:.75rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+.services .ticket h3{margin:0 0 .6rem;font-family:var(--display);font-weight:400;font-size:1.6rem;line-height:1.15;color:var(--bone)}
+.services .tk-desc{margin:0 0 1rem;font-size:.98rem;line-height:1.45;opacity:.9}
+.services .ticket ul{list-style:none;margin:0;padding:0}
+.services .ticket li{position:relative;padding-left:1.5em;margin:.4rem 0;font-size:.95rem;line-height:1.4}
+.services .ticket li::before{content:"\25C6";position:absolute;left:0;top:0;color:var(--gold)}
+.services .tk-plazo{margin:1.2rem 0 0;padding-top:.9rem;border-top:2px dashed rgba(233,180,47,.6);font-size:.9rem;color:var(--gold)}
+.services .also{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin:2rem 0 0;padding:0;list-style:none}
+.services .also-label{font-size:.85rem;opacity:.75;margin-right:.3rem}
+.services .also .tag{border:1px solid var(--teal);color:var(--bone);padding:.35rem .8rem;border-radius:99px;font-size:.85rem;line-height:1.3}
+.services .cta{display:flex;flex-wrap:wrap;gap:1rem;align-items:center;margin-top:2.2rem}
+.services .cta-note{width:100%;margin:.2rem 0 0;opacity:.6;font-size:.9rem}
+.services a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+@media (max-width:760px){
+  .services .tickets{grid-template-columns:minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:reduce){
+  .services .ticket,.services .ticket:hover,.services .ticket:focus-within{transition:none;transform:none}
+}
+
+/* PROYECTOS */
+.projects{background:var(--plum);padding:0 0 clamp(56px,12vh,130px)}
+.projects .lights{display:block;width:100%;height:30px;overflow:hidden}
+.projects .lights svg{display:block;width:100%;height:30px}
+.projects .wave{fill:none;stroke:var(--bone);stroke-opacity:.4;stroke-width:1.5}
+.projects .bulb{animation:projects-glow 2.6s ease-in-out infinite}
+.projects .bulb.b{animation-delay:-1.3s}
+.projects .c-gold{fill:var(--gold)}
+.projects .c-blood{fill:var(--blood)}
+.projects .c-teal{fill:var(--teal)}
+.projects .wrap.one{grid-template-columns:1fr}
+.projects .grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,3vw,32px);margin-top:2.2rem}
+.projects .pcard{border:2px solid var(--gold);background:rgba(20,6,15,.6);padding:1.2rem;transform:rotate(var(--r,0deg));transition:transform .3s ease;min-width:0;display:flex;flex-direction:column;gap:.8rem}
+.projects .pcard:hover,.projects .pcard:focus-within{transform:rotate(0) translateY(-6px)}
+.projects .pcard.feat{display:flex}
+.projects .pcard.feat{grid-column:1/-1}
+.projects .pcard.wide{grid-column:1/-1}
+.projects .shot{position:relative;aspect-ratio:16/9;background:#0b0307;overflow:hidden}
+.projects .shot svg{width:100%;height:100%;display:block}
+.projects .body{display:flex;flex-direction:column;gap:.8rem;min-width:0}
+.projects .tags{display:flex;flex-wrap:wrap;gap:.4rem}
+.projects .tags span{border:1px solid var(--teal);color:var(--teal);border-radius:999px;padding:.15rem .6rem;font-size:.75rem}
+.projects h3{font-family:var(--display);font-weight:400;font-size:1.5rem;line-height:1.15;margin:0;overflow-wrap:break-word}
+.projects .desc{margin:0;opacity:.9}
+.projects .result{margin:0;font-size:.8rem;letter-spacing:.08em;font-variant:small-caps;color:var(--gold)}
+.projects .result strong{font-weight:600}
+.projects .actions{display:flex;flex-wrap:wrap;gap:.7rem;margin-top:auto}
+.projects .note{font-style:italic;opacity:.6;margin:2rem 0 0}
+.projects .note a{color:var(--gold)}
+.projects .phone{fill:none;stroke:var(--bone);stroke-width:2}
+.projects .scoop{animation:projects-float 4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.projects .scoop.d{animation-delay:-2s}
+.projects .chip{fill:none;stroke:var(--gold);stroke-width:1.5}
+.projects .chip-t{fill:var(--bone);font-family:var(--body);font-size:7px;text-anchor:middle}
+.projects .pole{fill:var(--gold)}
+.projects .arc{fill:none;stroke:var(--bone);stroke-opacity:.6;stroke-width:1.5;stroke-dasharray:4 5}
+.projects .acro{fill:var(--bone)}
+.projects .bolt{fill:none;stroke:var(--gold);stroke-width:3;stroke-linejoin:miter;animation:projects-flicker 3.2s linear infinite}
+.projects .ring{fill:var(--blood)}
+.projects .iris{fill:var(--gold)}
+.projects .pupil{fill:var(--ink)}
+.projects .shine{fill:var(--bone);opacity:.8}
+.projects .glow{fill:var(--teal);filter:drop-shadow(0 0 6px var(--teal));animation:projects-glow 2.6s ease-in-out infinite}
+.projects .next{margin-top:0}
+.projects a:focus-visible,.projects .pcard:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+@keyframes projects-glow{0%,100%{opacity:.45}50%{opacity:1}}
+@keyframes projects-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes projects-flicker{0%,88%,100%{opacity:1}90%{opacity:.25}92%{opacity:1}94%{opacity:.4}}
+@media (min-width:760px){
+  .projects .grid{grid-template-columns:1fr 1fr}
+  .projects .pcard.feat,.projects .pcard.wide{display:grid;grid-template-columns:1.1fr 1fr;gap:1.4rem;align-items:center}
+}
+@media (max-width:759px){
+  .projects .grid{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  .projects .bulb,.projects .scoop,.projects .bolt,.projects .glow{animation:none}
+  .projects .pcard,.projects .pcard:hover,.projects .pcard:focus-within{transform:none;transition:none}
+}
+
+/* PROCESO */
+.process{background:var(--ink);padding:0 0 clamp(56px,12vh,130px)}
+.process .checks{height:18px;background:repeating-conic-gradient(var(--blood) 0 25%, var(--bone) 0 50%) 0 0/18px 18px}
+.process .wrap{align-items:start;grid-template-columns:1fr 1fr}
+.process .wrap > *{min-width:0}
+.process h3{font-family:var(--display);font-weight:400;color:var(--gold);margin:0}
+.process .stack h3{font-size:1.4rem;margin-bottom:.8rem}
+.process .tags{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:.45rem}
+.process .tags li{border:1px solid var(--teal);color:var(--teal);border-radius:999px;padding:.2rem .65rem;font-size:.8rem}
+.process .about{margin-top:2rem;border:2px solid var(--gold);background:rgba(239,227,200,.05);padding:1.2rem;transform:rotate(-.8deg)}
+.process .about h3{font-size:1.3rem;margin-bottom:.6rem}
+.process .about p{margin:0;opacity:.85}
+.process .steps{list-style:none;margin:0;padding:0;position:relative}
+.process .steps::before{content:"";position:absolute;left:21px;top:22px;bottom:22px;border-left:2px dashed var(--gold)}
+.process .step{position:relative;display:grid;grid-template-columns:44px 1fr;gap:1.1rem;padding-bottom:2rem}
+.process .num{position:relative;z-index:1;width:44px;height:44px;box-sizing:border-box;border:2px solid var(--gold);border-radius:50%;background:var(--ink);color:var(--gold);font-family:var(--display);font-size:1.2rem;display:flex;align-items:center;justify-content:center}
+.process .step h3{font-size:1.35rem;margin:.2rem 0 .3rem}
+.process .step p{margin:0;opacity:.85}
+.process .steps.js .step{opacity:0;transform:translateX(-12px);transition:opacity .6s ease,transform .6s ease;transition-delay:calc(var(--i,0) * 140ms)}
+.process .steps.js .step.in{opacity:1;transform:none}
+.process .guar{margin-top:1.6rem;border-top:1px solid rgba(239,227,200,.2);padding-top:1.1rem}
+.process .guar-label{font-family:var(--display);color:var(--gold);font-size:1.1rem;margin:0 0 .6rem}
+.process .guar ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:.6rem 1.4rem}
+.process .guar li{font-size:.9rem}
+.process .guar li::before{content:"\25C6";color:var(--gold);margin-right:.45rem}
+.process a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+@media (max-width:759px){
+  .process .wrap{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  .process .steps.js .step{opacity:1;transform:none;transition:none}
+  .process .about{transform:none}
+}
+/* PRECIOS */
+.pricing{background:var(--plum);color:var(--bone);position:relative;overflow:hidden;padding:0 0 clamp(56px,12vh,130px)}
+.pricing .pr-bunting{height:26px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='26' viewBox='0 0 160 26'%3E%3Cpath d='M0 2H160' stroke='%23e9b42f' stroke-width='2'/%3E%3Cpath d='M4 2H36L20 24Z' fill='%23c1121f'/%3E%3Cpath d='M44 2H76L60 24Z' fill='%23efe3c8'/%3E%3Cpath d='M84 2H116L100 24Z' fill='%23e9b42f'/%3E%3Cpath d='M124 2H156L140 24Z' fill='%231f9e8f'/%3E%3C/svg%3E") 0 0/160px 26px repeat-x}
+.pricing .wrap.one{grid-template-columns:1fr;padding-top:48px;min-width:0}
+.pricing .intro{min-width:0}
+.pricing .intro .lede{margin-top:.6rem}
+.pricing .pr-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:36px 28px;margin-top:56px;min-width:0}
+.pricing .pr-card{--r:0deg;position:relative;display:flex;flex-direction:column;min-width:0;padding:1.9rem 1.4rem 1.5rem;border:2px solid var(--gold);background:rgba(239,227,200,.05);transform:rotate(var(--r));transition:transform .3s ease}
+.pricing .pr-card:nth-child(1){--r:-.6deg}
+.pricing .pr-card:nth-child(2){--r:.5deg}
+.pricing .pr-card:nth-child(3){--r:-.4deg}
+.pricing .pr-card:hover,.pricing .pr-card:focus-within{--r:0deg;transform:rotate(0deg) translateY(-6px)}
+.pricing .pr-card.pr-feat{--r:0deg;background:rgba(233,180,47,.08)}
+.pricing .pr-ribbon{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--ink);font-family:ui-monospace,Consolas,"Courier New",monospace;font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:.4rem .9rem;white-space:nowrap}
+.pricing .pr-name{margin:0 0 .6rem;font-family:var(--display);font-weight:400;font-size:1.6rem;line-height:1.15;color:var(--bone)}
+.pricing .pr-price{margin:0 0 .9rem}
+.pricing .pr-from{display:block;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;opacity:.75}
+.pricing .pr-amount{display:block;margin-top:.3rem;font-family:var(--display);font-weight:400;font-size:2.7rem;line-height:1;color:var(--gold)}
+.pricing .pr-custom .pr-amount{font-size:2.1rem}
+.pricing .pr-desc{margin:0 0 1rem;font-size:.98rem;line-height:1.45;opacity:.9}
+.pricing .pr-list{list-style:none;margin:0;padding:0}
+.pricing .pr-list li{position:relative;padding-left:1.5em;margin:.4rem 0;font-size:.95rem;line-height:1.4}
+.pricing .pr-list li::before{content:"\25C6";position:absolute;left:0;top:0;color:var(--gold)}
+.pricing .pr-plazo{margin:1.2rem 0 0;padding-top:.9rem;border-top:2px dashed rgba(233,180,47,.6);font-size:.9rem;color:var(--gold)}
+.pricing .pr-foot{margin-top:auto;padding-top:1.4rem}
+.pricing .pr-addon{margin:2.6rem 0 0;border:1px dashed var(--teal);padding:1rem 1.2rem;font-size:.95rem;line-height:1.5;min-width:0}
+.pricing .pr-addon strong{color:var(--gold);font-weight:700}
+.pricing .pr-fine{margin:1.2rem 0 0;opacity:.6;font-size:.85rem;line-height:1.5}
+.pricing .pr-card a:focus-visible,.pricing .next:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+@media (min-width:861px){
+  .pricing .pr-card.pr-feat{transform:rotate(0deg) scale(1.03)}
+  .pricing .pr-card.pr-feat:hover,.pricing .pr-card.pr-feat:focus-within{transform:rotate(0deg) translateY(-6px) scale(1.03)}
+}
+@media (max-width:860px){
+  .pricing .pr-grid{grid-template-columns:minmax(0,1fr)}
+}
+@media (prefers-reduced-motion:reduce){
+  .pricing .pr-card,.pricing .pr-card:hover,.pricing .pr-card:focus-within,.pricing .pr-card.pr-feat,.pricing .pr-card.pr-feat:hover{transition:none;transform:none}
+}
+
+/* FAQ */
+.faq{background:var(--ink);color:var(--bone);position:relative;overflow:hidden;padding:0 0 clamp(56px,12vh,130px)}
+.faq .faq-band{height:14px;background-color:var(--blood);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='14' viewBox='0 0 28 14'%3E%3Cpath d='M14 1L21 7L14 13L7 7Z' fill='%23e9b42f'/%3E%3C/svg%3E");background-size:28px 14px;background-repeat:repeat-x}
+.faq .wrap{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;gap:clamp(32px,5vw,72px);padding-top:56px;min-width:0}
+.faq .wrap > *{min-width:0}
+.faq .faq-intro{position:sticky;top:96px}
+.faq .faq-intro .lede{margin:.6rem 0 1.6rem}
+.faq .faq-list{margin:0;padding:0}
+.faq .faq-item{border-left:2px solid var(--gold);padding:0 0 .9rem 1.1rem;margin:0 0 1rem}
+.faq .faq-q{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;cursor:pointer;list-style:none;padding:.2rem 0 .3rem;font-family:var(--display);font-weight:400;font-size:1.25rem;line-height:1.3;color:var(--bone)}
+.faq .faq-q::-webkit-details-marker{display:none}
+.faq .faq-q::marker{content:""}
+.faq .faq-ico{position:relative;flex:0 0 18px;width:18px;height:18px;margin-top:.3rem}
+.faq .faq-ico::before,.faq .faq-ico::after{content:"";position:absolute;left:0;right:0;top:50%;height:2px;margin-top:-1px;background:var(--gold);transition:transform .3s ease}
+.faq .faq-ico::after{transform:rotate(90deg)}
+.faq .faq-item[open] .faq-ico::after{transform:rotate(0deg)}
+.faq .faq-a{margin:.6rem 0 0;line-height:1.6;opacity:.85}
+.faq .faq-q:focus-visible,.faq .faq-intro a:focus-visible,.faq .next:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+@media (max-width:759px){
+  .faq .wrap{grid-template-columns:minmax(0,1fr)}
+  .faq .faq-intro{position:static}
+}
+@media (prefers-reduced-motion:reduce){
+  .faq .faq-ico::before,.faq .faq-ico::after{transition:none}
+}
+.faq h2.big{font-size:clamp(3rem,6.4vw,5.6rem);overflow-wrap:anywhere}
+.faq .wrap > *{min-width:0}
+/* FOOTER */
+.site-foot{background:var(--plum);border-top:2px solid var(--gold);padding:2.5rem clamp(20px,5vw,64px);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem 2rem;font-size:.9rem;color:var(--bone);min-width:0}
+.site-foot__mark{margin:0;font-family:var(--display);font-weight:400;font-size:1.3rem;color:var(--gold)}
+.site-foot__copy{margin:0;opacity:.6}
+.site-foot__nav{display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;width:100%}
+.site-foot a{color:var(--bone);text-underline-offset:.25em;overflow-wrap:anywhere}
+.site-foot a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 </style>
 </head>
 <body>
 <canvas id="fx" aria-hidden="true"></canvas>
-<section class="hero" id="hero">
-  <canvas id="c" aria-hidden="true"></canvas>
-  <div class="stage">
-    <p class="hint">Mueve el cursor. Dos luces te acompañan: una seria, una traviesa.</p>
-    <header>
-      <h1 aria-label="Sundan Studio" id="title"></h1>
-      <p class="lead">Un taller de ideas a medio hacer. Cada búho es un proyecto.</p>
-    </header>
-    <div class="panel" id="panel" role="status" aria-live="polite"><h2 id="pt"></h2><p id="pp"></p><a id="pl" class="plink" hidden></a></div>
-    <a class="down" href="#helados">Helados</a>
+<header class="topbar">
+  <a class="tb-logo" href="#proyectos">Sundan Studio</a>
+  <nav aria-label="Principal">
+    <a href="#proyectos">Proyectos</a>
+    <a href="#servicios">Servicios</a>
+    <a href="#precios">Precios</a>
+    <a href="#contacto">Contacto</a>
+  </nav>
+  <a class="pill main tb-cta" href="#contacto">Pide presupuesto</a>
+</header>
+<section class="projects" id="proyectos">
+  <div class="lights" aria-hidden="true">
+    <svg viewBox="0 0 1200 30" preserveAspectRatio="none" focusable="false">
+      <path class="wave" d="M0,6 Q25,14 50,6 T100,6 T150,6 T200,6 T250,6 T300,6 T350,6 T400,6 T450,6 T500,6 T550,6 T600,6 T650,6 T700,6 T750,6 T800,6 T850,6 T900,6 T950,6 T1000,6 T1050,6 T1100,6 T1150,6 T1200,6"/>
+      <circle class="bulb c-gold" cx="25" cy="15" r="3.5"/>
+      <circle class="bulb c-blood b" cx="75" cy="7" r="3.5"/>
+      <circle class="bulb c-teal" cx="125" cy="15" r="3.5"/>
+      <circle class="bulb c-gold b" cx="175" cy="7" r="3.5"/>
+      <circle class="bulb c-blood" cx="225" cy="15" r="3.5"/>
+      <circle class="bulb c-teal b" cx="275" cy="7" r="3.5"/>
+      <circle class="bulb c-gold" cx="325" cy="15" r="3.5"/>
+      <circle class="bulb c-blood b" cx="375" cy="7" r="3.5"/>
+      <circle class="bulb c-teal" cx="425" cy="15" r="3.5"/>
+      <circle class="bulb c-gold b" cx="475" cy="7" r="3.5"/>
+      <circle class="bulb c-blood" cx="525" cy="15" r="3.5"/>
+      <circle class="bulb c-teal b" cx="575" cy="7" r="3.5"/>
+      <circle class="bulb c-gold" cx="625" cy="15" r="3.5"/>
+      <circle class="bulb c-blood b" cx="675" cy="7" r="3.5"/>
+      <circle class="bulb c-teal" cx="725" cy="15" r="3.5"/>
+      <circle class="bulb c-gold b" cx="775" cy="7" r="3.5"/>
+      <circle class="bulb c-blood" cx="825" cy="15" r="3.5"/>
+      <circle class="bulb c-teal b" cx="875" cy="7" r="3.5"/>
+      <circle class="bulb c-gold" cx="925" cy="15" r="3.5"/>
+      <circle class="bulb c-blood b" cx="975" cy="7" r="3.5"/>
+      <circle class="bulb c-teal" cx="1025" cy="15" r="3.5"/>
+      <circle class="bulb c-gold b" cx="1075" cy="7" r="3.5"/>
+      <circle class="bulb c-blood" cx="1125" cy="15" r="3.5"/>
+      <circle class="bulb c-teal b" cx="1175" cy="7" r="3.5"/>
+    </svg>
   </div>
+
+  <div class="wrap one">
+    <h2 class="big">Proyectos</h2>
+    <p class="lede">Hola, soy Sundan Studio: diseño y desarrollo webs y aplicaciones con carácter. Estas son algunas cosas que he construido. Ábrelas, tócalas, rómpelas.</p>
+
+    <div class="grid">
+      <article class="pcard feat" style="--r:-.5deg">
+        <div class="shot" aria-hidden="true">
+          <svg viewBox="0 0 640 300" preserveAspectRatio="xMidYMid slice" focusable="false" aria-hidden="true">
+            <defs>
+              <filter id="gn-glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+              <pattern id="gn-haz" width="28" height="28" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="14" height="28" fill="#ffb000"/><rect x="14" width="14" height="28" fill="#07070a"/></pattern>
+            </defs>
+            <rect width="640" height="300" fill="#07070a"/>
+            <g fill="none" stroke="#d9dde3" stroke-opacity=".35" stroke-width="1.5">
+              <circle cx="430" cy="150" r="120"/>
+              <ellipse cx="430" cy="150" rx="120" ry="120"/>
+              <ellipse cx="430" cy="150" rx="90" ry="120"/>
+              <ellipse cx="430" cy="150" rx="55" ry="120"/>
+              <ellipse cx="430" cy="150" rx="20" ry="120"/>
+              <ellipse cx="430" cy="90" rx="104" ry="14"/>
+              <ellipse cx="430" cy="150" rx="120" ry="14"/>
+              <ellipse cx="430" cy="210" rx="104" ry="14"/>
+            </g>
+            <path d="M250 170 Q270 110 340 96" fill="none" stroke="#ffb000" stroke-opacity=".6" stroke-width="2"/>
+            <circle cx="340" cy="96" r="5" fill="#ffb000" filter="url(#gn-glow)"/>
+            <path d="M420 258 Q500 250 530 190" fill="none" stroke="#e10600" stroke-opacity=".6" stroke-width="2"/>
+            <circle cx="530" cy="190" r="5" fill="#e10600" filter="url(#gn-glow)"/>
+            <g font-family="Anton, Impact, sans-serif" font-size="78">
+              <text x="40" y="132" fill="#f1e9d8">GLOBO</text>
+              <text x="40" y="214" fill="#e10600">NEGRO</text>
+            </g>
+            <rect x="0" y="286" width="640" height="14" fill="url(#gn-haz)"/>
+          </svg>
+        </div>
+        <div class="body">
+          <div class="tags"><span>Canvas 3D</span><span>Scroll</span><span>Configurador</span><span>Financiación</span></div>
+          <h3>Globo Negro · concesionario de motos</h3>
+          <p class="desc">Motos de carreras, de lujo y choppers presentadas como el número del globo de la muerte: esfera 3D, efecto vértigo, configurador con financiación en directo y reserva de prueba.</p>
+          <p class="result">Resultado / qué demuestra: <strong>Una marca osada que nadie olvida.</strong></p>
+          <div class="actions">
+            <a class="pill main" href="demo-motos.html">Entrar al globo →</a>
+          </div>
+        </div>
+      </article>
+      <article class="pcard" style="--r:-.6deg">
+        <div class="shot" aria-hidden="true">
+          <svg viewBox="0 0 320 180" focusable="false">
+            <rect width="320" height="180" fill="#0b0307"/>
+            <circle class="scoop" cx="62" cy="64" r="18" fill="#f7c6d0"/>
+            <circle class="scoop d" cx="44" cy="106" r="12" fill="#bfe3d4"/>
+            <circle class="scoop d" cx="262" cy="74" r="16" fill="#f6e2a8"/>
+            <circle class="scoop" cx="282" cy="120" r="11" fill="#f7c6d0"/>
+            <rect class="phone" x="125" y="14" width="70" height="152" rx="12"/>
+            <rect x="137" y="32" width="46" height="12" rx="3" fill="#f7c6d0"/>
+            <rect x="137" y="50" width="46" height="12" rx="3" fill="#bfe3d4"/>
+            <rect x="137" y="68" width="46" height="12" rx="3" fill="#f6e2a8"/>
+            <rect class="chip" x="143" y="112" width="34" height="14" rx="7"/>
+            <text class="chip-t" x="160" y="122">Añadir</text>
+          </svg>
+        </div>
+        <div class="body">
+          <div class="tags"><span>PWA</span><span>JavaScript</span><span>UX móvil</span><span>LocalStorage</span></div>
+          <h3>Bola de Nieve · app de pedidos</h3>
+          <p class="desc">Demo completa para una heladería: carta con filtros, carrito, hora de recogida y confirmación del pedido. Pensada primero para el móvil.</p>
+          <p class="result">Resultado / qué demuestra: <strong>Aplicación web real, de principio a fin.</strong></p>
+          <div class="actions">
+            <a class="pill main" href="demo-heladeria.html">Abrir la demo →</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="pcard" style="--r:.5deg">
+        <div class="shot" aria-hidden="true">
+          <svg viewBox="0 0 320 180" focusable="false" aria-hidden="true">
+            <rect width="320" height="180" fill="#0f1a14"/>
+            <rect x="24" y="36" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="44" y="36" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="64" y="36" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="84" y="36" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="104" y="36" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="124" y="36" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="144" y="36" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="24" y="56" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="44" y="56" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="64" y="56" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="84" y="56" width="14" height="14" rx="2" fill="#b8893b" stroke="#b8893b"/>
+            <rect x="104" y="56" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="124" y="56" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="144" y="56" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="24" y="76" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="44" y="76" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="64" y="76" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="84" y="76" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="104" y="76" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="124" y="76" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="144" y="76" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="24" y="96" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="44" y="96" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="64" y="96" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="84" y="96" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="104" y="96" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="124" y="96" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="144" y="96" width="14" height="14" rx="2" fill="none" stroke="#efe3c8" stroke-opacity=".35"/>
+            <rect x="190" y="40" width="110" height="26" rx="13" fill="#1f4d3a"/>
+            <text x="245" y="57" font-family="sans-serif" font-size="10" fill="#efe3c8" text-anchor="middle">10:15</text>
+            <rect x="190" y="78" width="110" height="26" rx="13" fill="none" stroke="#b8893b" stroke-width="1.5"/>
+            <text x="245" y="95" font-family="sans-serif" font-size="10" fill="#efe3c8" text-anchor="middle">11:00</text>
+            <rect x="190" y="116" width="110" height="26" rx="13" fill="#1f4d3a"/>
+            <text x="245" y="133" font-family="sans-serif" font-size="10" fill="#efe3c8" text-anchor="middle">12:30</text>
+          </svg>
+        </div>
+        <div class="body">
+          <div class="tags"><span>Calendario</span><span>Disponibilidad</span><span>Formularios</span><span>.ics</span></div>
+          <h3>Tijera &amp; Café · reservas online</h3>
+          <p class="desc">Reservas para una barbería: servicio, profesional, día y hora según disponibilidad real, y la cita directa a tu calendario.</p>
+          <p class="result">Resultado / qué demuestra: <strong>Lógica de negocio real en una interfaz sencilla.</strong></p>
+          <div class="actions">
+            <a class="pill main" href="demo-reservas.html">Reservar una cita →</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="pcard" style="--r:-.4deg">
+        <div class="shot" aria-hidden="true">
+          <svg viewBox="0 0 320 180" focusable="false" aria-hidden="true">
+            <rect width="320" height="180" fill="#0b1020"/>
+            <rect x="0" y="0" width="54" height="180" fill="#121a2e"/>
+            <rect x="66" y="12" width="76" height="40" rx="4" fill="#121a2e"/>
+            <polyline points="74,42 90,34 106,38 122,26 136,30" fill="none" stroke="#818cf8" stroke-width="1.5"/>
+            <rect x="150" y="12" width="76" height="40" rx="4" fill="#121a2e"/>
+            <polyline points="158,42 174,36 190,40 206,28 220,32" fill="none" stroke="#818cf8" stroke-width="1.5"/>
+            <rect x="234" y="12" width="76" height="40" rx="4" fill="#121a2e"/>
+            <polyline points="242,42 258,30 274,36 290,26 302,30" fill="none" stroke="#818cf8" stroke-width="1.5"/>
+            <path d="M66 120 C90 100 110 130 130 112 S170 88 190 104 S235 78 254 92 S292 70 310 74 L310 160 L66 160 Z" fill="#818cf8" opacity=".2"/>
+            <path d="M66 120 C90 100 110 130 130 112 S170 88 190 104 S235 78 254 92 S292 70 310 74" fill="none" stroke="#818cf8" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="body">
+          <div class="tags"><span>SVG</span><span>Gráficos</span><span>Tablas</span><span>Modo oscuro</span></div>
+          <h3>Pulso · panel de gestión</h3>
+          <p class="desc">Panel para una tienda online: KPIs, gráficos propios, pedidos con filtros, orden y detalle. Claro y oscuro.</p>
+          <p class="result">Resultado / qué demuestra: <strong>Datos complejos, interfaz tranquila.</strong></p>
+          <div class="actions">
+            <a class="pill main" href="demo-panel.html">Abrir el panel →</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="pcard" style="--r:.5deg">
+        <div class="shot" aria-hidden="true">
+          <svg viewBox="0 0 320 180" focusable="false">
+            <defs>
+              <linearGradient id="pj-storm" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#2a1640"/>
+                <stop offset="1" stop-color="#0b0307"/>
+              </linearGradient>
+            </defs>
+            <rect width="320" height="180" fill="url(#pj-storm)"/>
+            <rect class="pole" x="51" y="40" width="6" height="130"/>
+            <rect class="pole" x="157" y="40" width="6" height="130"/>
+            <rect class="pole" x="262" y="40" width="6" height="130"/>
+            <path class="arc" d="M54 150 Q160 20 265 150"/>
+            <circle class="acro" cx="160" cy="85" r="6"/>
+            <polyline class="bolt" points="222,14 206,58 220,58 198,112 214,112 188,160"/>
+          </svg>
+        </div>
+        <div class="body">
+          <div class="tags"><span>Canvas</span><span>Física</span><span>Animación</span></div>
+          <h3>Afar · juego de navegador</h3>
+          <p class="desc">Un trapecista que gira entre palos bajo una tormenta. Física, controles táctiles y arte propio.</p>
+          <p class="result">Resultado / qué demuestra: <strong>Rendimiento y animación a 60 fps.</strong></p>
+          <div class="actions">
+            <a class="pill" href="afar.html">Jugar →</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="pcard wide" style="--r:-.4deg">
+        <div class="shot" aria-hidden="true">
+          <svg viewBox="0 0 320 180" focusable="false">
+            <rect width="320" height="180" fill="#0b0307"/>
+            <g>
+              <circle class="ring" cx="110" cy="90" r="44"/>
+              <circle class="iris" cx="110" cy="90" r="30"/>
+              <circle class="pupil" cx="110" cy="90" r="13"/>
+              <circle class="shine" cx="104" cy="84" r="3"/>
+            </g>
+            <g>
+              <circle class="ring" cx="210" cy="90" r="44"/>
+              <circle class="iris" cx="210" cy="90" r="30"/>
+              <circle class="pupil" cx="210" cy="90" r="13"/>
+              <circle class="shine" cx="204" cy="84" r="3"/>
+            </g>
+            <circle class="glow" cx="160" cy="160" r="4"/>
+          </svg>
+        </div>
+        <div class="body">
+          <div class="tags"><span>Canvas</span><span>SVG</span><span>Accesibilidad</span></div>
+          <h3>Esta misma web</h3>
+          <p class="desc">Búhos que te miran, luces que te siguen y una tarjeta de contacto con tormenta incluida.</p>
+          <p class="result">Resultado / qué demuestra: <strong>Identidad de marca hecha interacción.</strong></p>
+          <div class="actions">
+            <a class="pill" href="#hero">Volver arriba ↑</a>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <p class="note">¿Tienes un proyecto parecido? Te enseño cómo lo haría en una llamada de 20 minutos. <a href="#contacto">Escríbeme</a>.</p>
+  </div>
+
+  <a class="next" href="#servicios">Servicios</a>
+</section>
+
+<section class="services" id="servicios">
+  <div class="stub" aria-hidden="true"></div>
+  <div class="wrap one">
+    <div class="intro">
+      <h2 class="big">Servicios</h2>
+      <p class="lede">Diseño y desarrollo webs y aplicaciones que se sienten vivas. Tú pones la idea; yo la convierto en algo que la gente quiera usar.</p>
+    </div>
+
+    <div class="tickets">
+      <article class="ticket">
+        <p class="tk-label">Admisión Nº 01</p>
+        <h3>Webs a medida</h3>
+        <p class="tk-desc">Landing pages y webs corporativas rápidas, accesibles y con carácter.</p>
+        <ul>
+          <li>Diseño único (sin plantillas)</li>
+          <li>Adaptada a móvil</li>
+          <li>SEO técnico y velocidad</li>
+          <li>Panel para editar textos</li>
+        </ul>
+        <p class="tk-plazo">Plazo orientativo: 2–4 semanas</p>
+      </article>
+
+      <article class="ticket">
+        <p class="tk-label">Admisión Nº 02</p>
+        <h3>Aplicaciones web</h3>
+        <p class="tk-desc">Herramientas, reservas, paneles y tiendas que resuelven un problema real.</p>
+        <ul>
+          <li>Cuentas de usuario</li>
+          <li>Pagos y reservas</li>
+          <li>Base de datos y API</li>
+          <li>Funciona como app (PWA)</li>
+        </ul>
+        <p class="tk-plazo">Plazo orientativo: 4–10 semanas</p>
+      </article>
+
+      <article class="ticket">
+        <p class="tk-label">Admisión Nº 03</p>
+        <h3>Experiencias interactivas</h3>
+        <p class="tk-desc">Animación, juegos y microinteracciones que hacen que tu marca se recuerde.</p>
+        <ul>
+          <li>Animación con Canvas y SVG</li>
+          <li>Minijuegos de marca</li>
+          <li>Configuradores y demos</li>
+          <li>Rendimiento a 60 fps</li>
+        </ul>
+        <p class="tk-plazo">Plazo orientativo: 1–6 semanas</p>
+      </article>
+    </div>
+
+    <ul class="also" aria-label="También incluido">
+      <li class="also-label">También incluido:</li>
+      <li class="tag">Hosting y dominio</li>
+      <li class="tag">Mantenimiento</li>
+      <li class="tag">Analítica</li>
+      <li class="tag">Accesibilidad AA</li>
+      <li class="tag">Textos y traducción</li>
+    </ul>
+
+    <div class="cta">
+      <a class="pill main" href="#contacto">Pide presupuesto</a>
+      <a class="pill" href="#proyectos">Ver proyectos</a>
+      <p class="cta-note">Presupuesto cerrado y sin compromiso en 48 h.</p>
+    </div>
+  </div>
+
+  <a class="next" href="#proceso">Cómo trabajo</a>
+</section>
+
+<section class="process" id="proceso">
+  <div class="checks" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <div class="left">
+      <h2 class="big">Cómo trabajo</h2>
+      <p class="lede">Sin sorpresas: sabes qué pasa en cada momento y qué recibes al final.</p>
+
+      <div class="stack">
+        <h3>Con qué construyo</h3>
+        <ul class="tags">
+          <li>HTML</li><li>CSS</li><li>JavaScript</li><li>TypeScript</li><li>React</li>
+          <li>Next.js</li><li>Node.js</li><li>Supabase</li><li>Canvas/SVG</li><li>Figma</li>
+        </ul>
+      </div>
+
+      <div class="about">
+        <h3>Hola, soy Rafa</h3>
+        <p>Desarrollador web y creador de Sundan Studio. Me gustan las interfaces con personalidad y el código que no se rompe. Trabajo en remoto con clientes de cualquier país, en español o inglés.</p>
+      </div>
+    </div>
+
+    <div class="right">
+      <ol class="steps">
+        <li class="step" style="--i:0">
+          <span class="num">1</span>
+          <div>
+            <h3>Charla</h3>
+            <p>20 minutos para entender tu idea, tu público y qué necesitas de verdad.</p>
+          </div>
+        </li>
+        <li class="step" style="--i:1">
+          <span class="num">2</span>
+          <div>
+            <h3>Propuesta</h3>
+            <p>Precio cerrado, plazos y un boceto de la estructura. Sin letra pequeña.</p>
+          </div>
+        </li>
+        <li class="step" style="--i:2">
+          <span class="num">3</span>
+          <div>
+            <h3>Diseño y desarrollo</h3>
+            <p>Te enseño avances cada semana en un enlace privado. Opinas mientras se construye.</p>
+          </div>
+        </li>
+        <li class="step" style="--i:3">
+          <span class="num">4</span>
+          <div>
+            <h3>Lanzamiento</h3>
+            <p>Publico la web, te enseño a usarla y la cuido el primer mes sin coste.</p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="guar">
+        <p class="guar-label">Garantías</p>
+        <ul>
+          <li>Código tuyo, sin ataduras</li>
+          <li>Respuesta en 24 h</li>
+          <li>1 mes de soporte incluido</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <a class="next" href="#precios">Precios</a>
+
+  <script>
+    (function () {
+      var ol = document.querySelector('.process .steps');
+      if (!ol) return;
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce || !('IntersectionObserver' in window)) return;
+      ol.classList.add('js');
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) {
+            e.target.classList.add('in');
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.25 });
+      ol.querySelectorAll('.step').forEach(function (s) { io.observe(s); });
+    })();
+  </script>
+</section>
+
+<section class="pricing" id="precios">
+  <div class="pr-bunting" aria-hidden="true"></div>
+
+  <div class="wrap one">
+    <div class="intro">
+      <h2 class="big">Precios</h2>
+      <p class="lede">Precios claros desde el principio. Cada proyecto es distinto, así que estos son puntos de partida: te doy un presupuesto cerrado tras la primera charla.</p>
+    </div>
+
+    <div class="pr-grid">
+      <article class="pr-card">
+        <h3 class="pr-name">Básico</h3>
+        <div class="pr-price">
+          <span class="pr-from">desde</span>
+          <span class="pr-amount">450 €</span>
+        </div>
+        <p class="pr-desc">Para empezar con buen pie.</p>
+        <ul class="pr-list">
+          <li>Landing page de una sola página</li>
+          <li>Diseño adaptado a tu marca</li>
+          <li>Adaptada a móvil y rápida</li>
+          <li>Formulario de contacto</li>
+          <li>SEO básico y analítica</li>
+        </ul>
+        <p class="pr-plazo">Plazo: 1–2 semanas</p>
+        <div class="pr-foot">
+          <a class="pill" href="#contacto">Lo quiero</a>
+        </div>
+      </article>
+
+      <article class="pr-card pr-feat">
+        <span class="pr-ribbon">El más pedido</span>
+        <h3 class="pr-name">Profesional</h3>
+        <div class="pr-price">
+          <span class="pr-from">desde</span>
+          <span class="pr-amount">1.200 €</span>
+        </div>
+        <p class="pr-desc">Una web completa que trabaja por ti.</p>
+        <ul class="pr-list">
+          <li>Hasta 6 páginas</li>
+          <li>Diseño a medida con animaciones</li>
+          <li>Panel para editar contenidos</li>
+          <li>Blog o catálogo</li>
+          <li>SEO técnico, velocidad y accesibilidad</li>
+          <li>1 mes de soporte</li>
+        </ul>
+        <p class="pr-plazo">Plazo: 3–5 semanas</p>
+        <div class="pr-foot">
+          <a class="pill main" href="#contacto">Lo quiero</a>
+        </div>
+      </article>
+
+      <article class="pr-card pr-custom">
+        <h3 class="pr-name">A medida</h3>
+        <div class="pr-price">
+          <span class="pr-from">según alcance</span>
+          <span class="pr-amount">Presupuesto</span>
+        </div>
+        <p class="pr-desc">Aplicaciones, reservas, tiendas y paneles.</p>
+        <ul class="pr-list">
+          <li>Aplicación web o PWA</li>
+          <li>Cuentas de usuario y pagos</li>
+          <li>Base de datos y panel de gestión</li>
+          <li>Integraciones (API, CRM, calendario)</li>
+          <li>Experiencias interactivas y minijuegos</li>
+        </ul>
+        <p class="pr-plazo">Plazo: 4–12 semanas</p>
+        <div class="pr-foot">
+          <a class="pill" href="#contacto">Cuéntame tu idea</a>
+        </div>
+      </article>
+    </div>
+
+    <div class="pr-addon">
+      <strong>Mantenimiento mensual</strong> — desde 40 €/mes: actualizaciones, copias de seguridad, pequeños cambios y soporte prioritario.
+    </div>
+
+    <p class="pr-fine">Precios orientativos sin IVA. Pago en dos partes: 50% al empezar y 50% al publicar.</p>
+  </div>
+
+  <a class="next" href="#faq">Preguntas frecuentes</a>
+</section>
+
+<section class="faq" id="faq">
+  <div class="faq-band" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <div class="faq-intro">
+      <h2 class="big">Preguntas</h2>
+      <p class="lede">Lo que casi todo el mundo pregunta antes de empezar. Si tu duda no está aquí, escríbeme.</p>
+      <a class="pill main" href="#contacto">Escríbeme</a>
+    </div>
+
+    <div class="faq-list">
+      <details class="faq-item">
+        <summary class="faq-q"><span>¿Cuánto tarda una web?</span><span class="faq-ico" aria-hidden="true"></span></summary>
+        <p class="faq-a">Una landing, 1–2 semanas. Una web completa, 3–5. Una aplicación, de 4 a 12 según lo que necesite. Te doy fechas concretas en la propuesta.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q"><span>¿Necesito tener los textos y las fotos?</span><span class="faq-ico" aria-hidden="true"></span></summary>
+        <p class="faq-a">Ayuda, pero no es imprescindible. Puedo ayudarte con los textos y buscar imágenes adecuadas, o recomendarte fotógrafo.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q"><span>¿Podré editar la web yo mismo?</span><span class="faq-ico" aria-hidden="true"></span></summary>
+        <p class="faq-a">Sí. Si lo necesitas, incluyo un panel sencillo para cambiar textos, imágenes y entradas sin tocar código, y te enseño a usarlo.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q"><span>¿Qué pasa después de publicar?</span><span class="faq-ico" aria-hidden="true"></span></summary>
+        <p class="faq-a">Tienes un mes de soporte incluido. Después puedes contratar mantenimiento mensual o pedirme cambios puntuales cuando los necesites.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q"><span>¿El hosting y el dominio están incluidos?</span><span class="faq-ico" aria-hidden="true"></span></summary>
+        <p class="faq-a">Te ayudo a elegirlos y los dejo configurados a tu nombre, para que sean tuyos. Su coste anual suele ser bajo y lo pagas directamente al proveedor.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q"><span>¿Trabajas con clientes de otros países?</span><span class="faq-ico" aria-hidden="true"></span></summary>
+        <p class="faq-a">Sí, trabajo en remoto en español e inglés. Hacemos las reuniones por videollamada y te comparto los avances en un enlace privado.</p>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q"><span>¿Cómo se paga?</span><span class="faq-ico" aria-hidden="true"></span></summary>
+        <p class="faq-a">50% al empezar y 50% al publicar, por transferencia. Para proyectos grandes podemos dividirlo por fases.</p>
+      </details>
+    </div>
+  </div>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "¿Cuánto tarda una web?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Una landing, 1–2 semanas. Una web completa, 3–5. Una aplicación, de 4 a 12 según lo que necesite. Te doy fechas concretas en la propuesta." }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Necesito tener los textos y las fotos?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Ayuda, pero no es imprescindible. Puedo ayudarte con los textos y buscar imágenes adecuadas, o recomendarte fotógrafo." }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Podré editar la web yo mismo?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Sí. Si lo necesitas, incluyo un panel sencillo para cambiar textos, imágenes y entradas sin tocar código, y te enseño a usarlo." }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Qué pasa después de publicar?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Tienes un mes de soporte incluido. Después puedes contratar mantenimiento mensual o pedirme cambios puntuales cuando los necesites." }
+      },
+      {
+        "@type": "Question",
+        "name": "¿El hosting y el dominio están incluidos?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Te ayudo a elegirlos y los dejo configurados a tu nombre, para que sean tuyos. Su coste anual suele ser bajo y lo pagas directamente al proveedor." }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Trabajas con clientes de otros países?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Sí, trabajo en remoto en español e inglés. Hacemos las reuniones por videollamada y te comparto los avances en un enlace privado." }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Cómo se paga?",
+        "acceptedAnswer": { "@type": "Answer", "text": "50% al empezar y 50% al publicar, por transferencia. Para proyectos grandes podemos dividirlo por fases." }
+      }
+    ]
+  }
+  </script>
+
+  <script>
+    (function () {
+      var list = document.querySelector('.faq .faq-list');
+      if (!list) return;
+      list.addEventListener('toggle', function (e) {
+        var t = e.target;
+        if (t.tagName !== 'DETAILS' || !t.open) return;
+        list.querySelectorAll('details[open]').forEach(function (d) {
+          if (d !== t) d.open = false;
+        });
+      }, true);
+    })();
+  </script>
+
+  <a class="next" href="#helados">Un descanso: helados</a>
 </section>
 
 <section class="gelato" id="helados">
@@ -226,13 +1064,40 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
       <button class="skip" id="skip" type="button" hidden>Saltar</button>
     </div>
   </div>
+  <a class="next" href="#hero">El taller de los búhos</a>
 </section>
+
+<section class="hero" id="hero">
+  <canvas id="c" aria-hidden="true"></canvas>
+  <div class="stage">
+    <p class="hint">Mueve el cursor. Dos luces te acompañan: una seria, una traviesa.</p>
+    <header>
+      <h1 aria-label="Sundan Studio" id="title"></h1>
+      <p class="lead">Aquí termina el espectáculo. Cada búho es un proyecto: haz clic y descúbrelo.</p>
+    </header>
+    <div class="panel" id="panel" role="status" aria-live="polite"><h2 id="pt"></h2><p id="pp"></p><a id="pl" class="plink" hidden></a></div>
+    <a class="down" href="#proyectos">Volver arriba ↑</a>
+  </div>
+</section>
+<footer class="site-foot">
+  <p class="site-foot__mark">Sundan Studio</p>
+  <p class="site-foot__copy">© 2026 Sundan Studio</p>
+  <nav class="site-foot__nav" aria-label="Pie de página">
+      <a href="#servicios">Servicios</a>
+      <a href="#proyectos">Proyectos</a>
+      <a href="#precios">Precios</a>
+      <a href="#faq">Preguntas</a>
+      <a href="aviso-legal.html">Aviso legal</a>
+      <a href="privacidad.html">Privacidad</a>
+      <a href="mailto:rafmoline@gmail.com">rafmoline@gmail.com</a>
+    </nav>
+</footer>
 
 <script>
 (function(){
   var projects=[
     {n:"FTS",kind:"fun",d:"Banda ficticia en una distopía cercana: canciones, personajes y cómic en SVG."},
-    {n:"Perfil",kind:"pro",d:"Mi perfil profesional: experiencia, stack y proyectos para quien contrata. En preparación."},
+    {n:"Perfil",kind:"pro",href:"#servicios",link:"Ver servicios →",d:"Qué hago, cómo trabajo y proyectos para quien quiere contratar."},
     {n:"Afar",kind:"fun",href:"afar.html",link:"Jugar ahora →",d:"Un trapecista que gira entre palos bajo una tormenta. Juego para el navegador."}
   ];
   var C={ink:"#14060f",blood:"#c1121f",bone:"#efe3c8",gold:"#e9b42f",teal:"#1f9e8f"};

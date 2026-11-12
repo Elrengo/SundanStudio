@@ -1,0 +1,1380 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1f4d3a">
+<meta name="description" content="Demo de reservas online para Tijera & Café, creada por Sundan Studio.">
+<meta name="description" content="Demo de reservas online para Tijera & Café, creada por Sundan Studio.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://sundanstudio.com/demo-reservas.html">
+<meta property="og:title" content="Tijera &amp; Café · Demo">
+<meta property="og:description" content="Demo de reservas online para Tijera &amp; Café, creada por Sundan Studio.">
+<meta property="og:url" content="https://sundanstudio.com/demo-reservas.html">
+<meta property="og:image" content="https://sundanstudio.com/assets/og-image.png">
+<title>Tijera & Café · Demo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap">
+<style>
+:root {
+  --paper: #f6f1e7;
+  --surface: #fffdf8;
+  --ink: #1f2a24;
+  --muted: #6b736d;
+  --green: #1f4d3a;
+  --green-2: #2f6b52;
+  --brass: #b8893b;
+  --line: #e4dccb;
+  --on-green: #fffdf8;
+  --danger: #9a3b2e;
+  --radius: 14px;
+  --shadow: 0 1px 2px rgba(31, 42, 36, .06), 0 8px 24px rgba(31, 42, 36, .07);
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --dur: 220ms;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #141a17;
+    --surface: #1c2420;
+    --ink: #ece6d8;
+    --muted: #a2aba4;
+    --green: #8cc3a4;
+    --green-2: #6fae8e;
+    --brass: #d6a960;
+    --line: #334039;
+    --on-green: #10170f;
+    --danger: #e08a7a;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px rgba(0, 0, 0, .35);
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+h1, h2, h3, h4 { margin: 0; color: var(--ink); line-height: 1.2; }
+h2 { font-family: "Playfair Display", Georgia, serif; font-weight: 700; font-size: clamp(1.6rem, 4vw, 2rem); }
+h3 { font-family: "Playfair Display", Georgia, serif; font-weight: 700; font-size: 1.25rem; }
+h4 { font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+p { margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:disabled, [aria-disabled="true"] { cursor: not-allowed; }
+a { color: var(--green); }
+:focus-visible { outline: 3px solid var(--brass); outline-offset: 2px; border-radius: 6px; }
+[tabindex="-1"]:focus { outline: none; }
+.container { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+
+/* Ribbon */
+.ribbon {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  padding: 8px 16px; background: var(--green); color: var(--on-green); font-size: 14px;
+}
+.ribbon p { text-align: center; }
+.ribbon a { color: #e7c98f; font-weight: 600; white-space: nowrap; }
+.ribbon-close {
+  flex: none; background: none; border: 0; color: inherit; font-size: 20px; line-height: 1;
+  padding: 4px 8px; border-radius: 6px;
+}
+
+/* Header */
+.site-head { background: var(--surface); border-bottom: 1px solid var(--line); }
+.head-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; }
+.brand { display: flex; align-items: center; gap: 12px; background: none; border: 0; padding: 4px 0; }
+.brand svg { width: 40px; height: 40px; flex: none; }
+.brand-name { font-family: "Playfair Display", Georgia, serif; font-weight: 700; font-size: 1.25rem; color: var(--green); }
+.amp { color: var(--brass); font-style: italic; }
+.nav { display: flex; gap: 4px; }
+.nav-btn {
+  background: none; border: 0; padding: 8px 12px; border-radius: 999px; color: var(--muted); font-weight: 500;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.nav-btn:hover { color: var(--ink); background: var(--paper); }
+.nav-btn[aria-current="page"] { color: var(--green); background: var(--paper); font-weight: 600; }
+
+/* Status + progress + steps */
+.status-line { min-height: 1.5em; margin-top: 16px; font-size: 14px; font-weight: 500; color: var(--green-2); }
+.progress { height: 4px; background: var(--line); border-radius: 999px; overflow: hidden; margin-top: 8px; }
+.progress span {
+  display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--green-2), var(--brass));
+  transition: width 300ms var(--ease);
+}
+.steps { list-style: none; margin: 16px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.step {
+  width: 100%; background: none; border: 0; padding: 4px 0; display: flex; flex-direction: column; align-items: center;
+  gap: 6px; color: var(--muted); font-size: 12px; line-height: 1.2; text-align: center;
+  transition: color var(--dur) var(--ease);
+}
+.step:disabled { cursor: default; opacity: .55; }
+.step:not(:disabled):hover .step-num { border-color: var(--green-2); }
+.step-num {
+  width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center;
+  border: 1.5px solid var(--line); background: var(--surface); color: var(--ink);
+  font-weight: 600; font-size: 14px; transition: all var(--dur) var(--ease);
+}
+.step-num svg { width: 16px; height: 16px; }
+.step.is-current .step-num { background: var(--green); border-color: var(--green); color: var(--on-green); }
+.step.is-done .step-num { background: var(--green-2); border-color: var(--green-2); color: var(--on-green); }
+.step.is-current .step-label { color: var(--ink); font-weight: 600; }
+
+/* Layout */
+.layout { margin-top: 24px; display: grid; gap: 24px; padding-bottom: 48px; }
+.flow { min-width: 0; }
+@media (min-width: 961px) {
+  .layout { grid-template-columns: minmax(0, 640px) 320px; justify-content: center; align-items: start; }
+  .layout.solo { grid-template-columns: minmax(0, 640px); }
+  .summary { position: sticky; top: 24px; padding: 24px; }
+  .summary-toggle { display: none; }
+  .summary-body { display: block; padding: 0; }
+}
+@media (max-width: 960px) {
+  .layout.has-bar { padding-bottom: 96px; }
+  .summary {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; max-height: 70vh; overflow: auto;
+    border-radius: var(--radius) var(--radius) 0 0; border-bottom: 0;
+    box-shadow: 0 -8px 24px rgba(31, 42, 36, .12);
+  }
+}
+
+/* Panels */
+.step-panel {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 24px; min-width: 0;
+}
+@media (min-width: 600px) { .step-panel { padding: 32px; } }
+.step-panel.anim-next { animation: slideNext 280ms var(--ease); }
+.step-panel.anim-prev { animation: slidePrev 280ms var(--ease); }
+.step-panel.anim-fade { animation: fadeIn 240ms ease; }
+@keyframes slideNext { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
+@keyframes slidePrev { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: none; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.eyebrow { font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--brass); margin-bottom: 8px; }
+.lede { color: var(--muted); margin-top: 8px; margin-bottom: 24px; }
+.hint { font-size: 13px; color: var(--muted); }
+.center { text-align: center; }
+.field-error { font-size: 13px; color: var(--danger); font-weight: 500; }
+.field-error.block { margin-bottom: 16px; font-size: 14px; }
+
+/* Option cards */
+.cards { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media (min-width: 520px) { .cards:not(.staff-cards) { grid-template-columns: 1fr 1fr; } }
+.card-opt {
+  position: relative; text-align: left; background: var(--surface); color: var(--ink);
+  border: 1.5px solid var(--line); border-radius: var(--radius); padding: 16px;
+  display: flex; flex-direction: column; gap: 8px;
+  transition: border-color var(--dur) var(--ease), transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+.card-opt:hover { border-color: var(--green-2); transform: translateY(-1px); box-shadow: var(--shadow); }
+.card-opt.is-selected { border-color: var(--green); box-shadow: inset 0 0 0 1px var(--green); background: var(--paper); }
+.card-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.card-name { font-weight: 600; font-size: 16px; }
+.card-desc { font-size: 14px; color: var(--muted); }
+.card-meta { font-size: 14px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+.card-meta .price { color: var(--green); font-weight: 600; }
+.dot { width: 4px; height: 4px; border-radius: 50%; background: var(--brass); }
+.check {
+  width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--line); flex: none;
+  display: grid; place-items: center; color: var(--on-green); transition: all var(--dur) var(--ease);
+}
+.check svg { width: 14px; height: 14px; }
+.card-opt.is-selected .check { background: var(--green); border-color: var(--green); }
+.staff-opt { flex-direction: row; align-items: center; gap: 16px; }
+.staff-main { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.staff-days { font-size: 13px; color: var(--brass); font-weight: 500; }
+.avatar {
+  width: 48px; height: 48px; border-radius: 50%; flex: none; display: grid; place-items: center;
+  color: #fffdf8; font-family: "Playfair Display", Georgia, serif; font-weight: 700; font-size: 18px;
+}
+.avatar.any { background: var(--line); color: var(--ink); }
+
+/* Calendar */
+.cal { border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; background: var(--paper); }
+.cal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+.cal-title { text-transform: capitalize; font-size: 1.15rem; text-align: center; }
+.icon-btn {
+  width: 40px; height: 40px; flex: none; border-radius: 50%; border: 1px solid var(--line);
+  background: var(--surface); display: grid; place-items: center; color: var(--ink);
+  transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease), opacity var(--dur) var(--ease);
+}
+.icon-btn:hover:not(:disabled) { border-color: var(--green-2); color: var(--green); }
+.icon-btn:disabled { opacity: .35; }
+.icon-btn svg { width: 18px; height: 18px; }
+.cal-week, .cal-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.cal-week span { text-align: center; font-size: 12px; font-weight: 600; color: var(--muted); padding: 4px 0; }
+.day {
+  aspect-ratio: 1 / 1; min-height: 40px; width: 100%; padding: 0; border-radius: 10px;
+  border: 1px solid transparent; background: transparent; color: var(--ink);
+  font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums; display: grid; place-items: center;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.day:hover:not([aria-disabled="true"]) { background: var(--surface); border-color: var(--line); }
+.day.is-today { border-color: var(--brass); }
+.day.is-selected { background: var(--green); color: var(--on-green); border-color: var(--green); }
+.day[aria-disabled="true"] { color: var(--muted); opacity: .4; }
+.day-empty { visibility: hidden; }
+
+/* Slots */
+.slots { margin-top: 24px; }
+.slots-title { font-family: "Playfair Display", Georgia, serif; font-size: 1.15rem; font-weight: 700; margin-bottom: 4px; }
+.slot-group { margin-top: 16px; }
+.slot-group h4 { margin-bottom: 8px; }
+.slot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; }
+.slot {
+  min-height: 44px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  font-weight: 500; font-variant-numeric: tabular-nums;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.slot:hover:not(:disabled) { border-color: var(--green-2); }
+.slot[aria-pressed="true"] { background: var(--green); border-color: var(--green); color: var(--on-green); }
+.slot:disabled { text-decoration: line-through; color: var(--muted); background: transparent; opacity: .6; }
+.legend { font-size: 13px; color: var(--muted); margin-top: 16px; }
+
+/* Form */
+.fields { display: block; }
+.field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
+.field label, .check-row label { font-weight: 600; font-size: 14px; }
+.field input, .field textarea {
+  font: inherit; font-size: 16px; width: 100%; min-height: 48px; padding: 12px 14px;
+  border: 1.5px solid var(--line); border-radius: 12px; background: var(--paper); color: var(--ink);
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.field textarea { resize: vertical; min-height: 88px; }
+.field input:focus, .field textarea:focus { border-color: var(--green-2); box-shadow: 0 0 0 3px rgba(47, 107, 82, .18); }
+.field input[aria-invalid="true"] { border-color: var(--danger); }
+.field .hint { margin: 0; }
+.field .field-error { margin: 0; }
+.check-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+.check-row input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--green); flex: none; }
+.check-row label { font-weight: 500; }
+
+/* Buttons */
+.actions {
+  display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center;
+  margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--line);
+}
+.actions.center { justify-content: center; }
+.actions .btn-primary { margin-left: auto; }
+.actions.center .btn-primary { margin-left: 0; }
+.btn-primary {
+  background: var(--green); color: var(--on-green); border: 0; border-radius: 999px; padding: 12px 24px;
+  font-weight: 600; display: inline-flex; align-items: center; gap: 8px;
+  transition: background var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.btn-primary:hover { background: var(--green-2); }
+.btn-primary:active { transform: scale(.98); }
+.btn-primary svg { width: 18px; height: 18px; }
+.btn-ghost {
+  background: none; color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 12px 20px;
+  font-weight: 500; transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.btn-ghost:hover { border-color: var(--green-2); color: var(--green); }
+.btn-cancel {
+  background: none; color: var(--danger); border: 1px solid var(--line); border-radius: 999px;
+  padding: 8px 14px; font-weight: 600; font-size: 14px; transition: border-color var(--dur) var(--ease);
+}
+.btn-cancel:hover { border-color: var(--danger); }
+
+/* Summary */
+.summary { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+.summary-toggle {
+  width: 100%; min-height: 56px; display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding: 16px; background: none; border: 0; font-weight: 600; color: var(--ink); text-align: left;
+}
+.summary-toggle .chev { width: 20px; height: 20px; flex: none; transition: transform var(--dur) var(--ease); }
+.summary.open .chev { transform: rotate(180deg); }
+.summary-body { display: none; padding: 0 16px 16px; }
+.summary.open .summary-body { display: block; }
+.summary-title { margin-bottom: 4px; }
+.sum-list { margin: 16px 0 0; display: grid; gap: 12px; }
+.sum-row { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding-bottom: 10px; border-bottom: 1px dashed var(--line); }
+.sum-row dt { color: var(--muted); font-size: 14px; }
+.sum-row dd { margin: 0; font-weight: 600; text-align: right; }
+.sum-total { color: var(--green) !important; font-size: 20px; font-family: "Playfair Display", Georgia, serif; }
+
+/* Confirmation */
+.confirm { text-align: center; }
+.badge { width: 96px; height: 96px; margin: 0 auto 16px; color: var(--green); }
+.badge svg { width: 96px; height: 96px; display: block; }
+.draw-circle { stroke-dasharray: 190; stroke-dashoffset: 190; animation: draw .7s var(--ease) forwards; }
+.draw-tick { stroke-dasharray: 40; stroke-dashoffset: 40; animation: draw .4s .6s ease forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.code-label { font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-top: 16px; }
+.code {
+  display: inline-block; margin-top: 8px; padding: 8px 20px; border: 1.5px dashed var(--brass); border-radius: 12px;
+  font-family: "Playfair Display", Georgia, serif; font-size: 28px; font-weight: 700; letter-spacing: .08em; color: var(--green);
+}
+.confirm .sum-list { max-width: 420px; margin-left: auto; margin-right: auto; text-align: left; }
+.confirm .hint { margin-top: 16px; }
+
+/* Mis citas */
+.group-title { font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 24px 0 12px; font-family: Inter, system-ui, sans-serif; }
+.mine-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.bk { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; display: grid; gap: 6px; }
+.bk.is-past { opacity: .7; }
+.bk-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.bk-name { font-weight: 600; font-size: 16px; }
+.bk-price { color: var(--green); font-weight: 600; white-space: nowrap; }
+.bk-meta { font-size: 14px; color: var(--muted); }
+.bk-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 4px; flex-wrap: wrap; }
+.bk-code { font-family: "Playfair Display", Georgia, serif; font-weight: 700; color: var(--green); letter-spacing: .06em; }
+.empty { text-align: center; padding: 24px 8px; }
+.empty p { color: var(--muted); margin-bottom: 20px; }
+
+/* Footer */
+.site-foot { border-top: 1px solid var(--line); background: var(--surface); padding: 32px 0 48px; }
+.foot-card h2 { font-size: 1.25rem; }
+.foot-list { margin: 12px 0 16px; padding: 0; list-style: none; }
+.foot-list li { display: inline; color: var(--ink); }
+.foot-list li + li::before { content: "· "; color: var(--brass); margin: 0 6px 0 2px; }
+.back-link { color: var(--green); font-weight: 600; text-decoration: none; border-bottom: 1px solid var(--brass); }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .draw-circle, .draw-tick { stroke-dashoffset: 0 !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="ribbon" id="ribbon">
+  <p>Demo creada por Sundan Studio — ¿quieres reservas online para tu negocio? <a href="index.html#contacto">Hablemos →</a></p>
+  <button type="button" class="ribbon-close" id="ribbon-close" aria-label="Cerrar aviso">&times;</button>
+</div>
+
+<header class="site-head">
+  <div class="container head-inner">
+    <button type="button" class="brand" id="brand" data-key="brand">
+      <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+        <rect width="48" height="48" rx="14" fill="#1f4d3a"/>
+        <g fill="none" stroke="#b8893b" stroke-width="2.6" stroke-linecap="round">
+          <circle cx="17" cy="31" r="5"/>
+          <circle cx="31" cy="31" r="5"/>
+          <path d="M20.5 27.5L33 12M27.5 27.5L15 12"/>
+        </g>
+      </svg>
+      <span class="brand-name">Tijera <span class="amp">&amp;</span> Café</span>
+    </button>
+    <nav class="nav" aria-label="Principal">
+      <button type="button" class="nav-btn" id="nav-book" data-key="nav-book">Reservar</button>
+      <button type="button" class="nav-btn" id="nav-mine" data-key="nav-mine">Mis citas</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <p class="status-line" id="status" role="status" aria-live="polite"></p>
+
+  <div id="stepper-wrap">
+    <div class="progress" role="progressbar" aria-label="Progreso de la reserva" aria-valuemin="0" aria-valuemax="4" aria-valuenow="1" id="progress">
+      <span id="progress-fill"></span>
+    </div>
+    <nav aria-label="Pasos de la reserva">
+      <ol class="steps" id="steps"></ol>
+    </nav>
+  </div>
+
+  <div class="layout" id="layout">
+    <div class="flow" id="app"></div>
+    <aside class="summary" id="summary" aria-label="Resumen de tu cita"></aside>
+  </div>
+</main>
+
+<footer class="site-foot">
+  <div class="container">
+    <div class="foot-card">
+      <h2>Qué demuestra esta demo</h2>
+      <ul class="foot-list">
+        <li>Calendario accesible con teclado</li>
+        <li>Disponibilidad real según profesional y duración</li>
+        <li>Validación de formularios</li>
+        <li>Exportar a calendario (.ics)</li>
+        <li>Sin frameworks</li>
+      </ul>
+      <a class="back-link" href="index.html#proyectos">← Volver a Sundan Studio</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- Data ---------- */
+  var SERVICES = [
+    { id: 'corte', name: 'Corte clásico', dur: 30, price: 18 },
+    { id: 'corte-barba', name: 'Corte + barba', dur: 45, price: 26 },
+    { id: 'barba', name: 'Arreglo de barba', dur: 20, price: 12 },
+    { id: 'infantil', name: 'Corte infantil', dur: 25, price: 14 },
+    { id: 'color', name: 'Color', dur: 90, price: 45 },
+    { id: 'ritual', name: 'Ritual completo', desc: 'Corte, barba, toalla caliente y café', dur: 75, price: 42 }
+  ];
+  var STAFF = [
+    { id: 'lucia', name: 'Lucía', role: 'Especialista en color', days: [2, 3, 4, 5, 6], daysLabel: 'Martes a sábado', color: '#8a4b2a' },
+    { id: 'marco', name: 'Marco', role: 'Barbas', days: [1, 2, 3, 4, 5], daysLabel: 'Lunes a viernes', color: '#2f6b52' },
+    { id: 'nora', name: 'Nora', role: 'Cortes infantiles y clásicos', days: [3, 4, 5, 6, 0], daysLabel: 'Miércoles a domingo', color: '#4b5d8a' }
+  ];
+  var ANY = { id: 'any', name: 'Me da igual', role: 'Te asignamos la primera persona libre', days: [0, 1, 2, 3, 4, 5, 6], daysLabel: 'Según disponibilidad', color: '' };
+
+  var OPEN = 600, CLOSE = 1200, LUNCH_START = 840, LUNCH_END = 900, SLOT_STEP = 15, MAX_DAYS = 60;
+  var KEY_BOOK = 'tc_citas', KEY_RIBBON = 'tc_ribbon_off';
+  var DAY_INITIALS = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+  var CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  var RE_PHONE = /^(\+34)?[6-9]\d{8}$/;
+  var RE_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  var fmtDay = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+  var fmtDayFull = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  var fmtMonth = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' });
+  var fmtEur = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0, maximumFractionDigits: 2 });
+
+  var today = startOfDay(new Date());
+  var maxDate = addDays(today, MAX_DAYS);
+  var memBookings = null; /* fallback when localStorage is unavailable */
+
+  var state = {
+    view: 'book',
+    step: 1,
+    service: null,
+    staff: null,
+    date: null,
+    time: null,
+    calMonth: new Date(today.getFullYear(), today.getMonth(), 1),
+    focusDate: null,
+    form: { name: '', phone: '', email: '', notes: '', sms: false },
+    errors: {},
+    stepError: '',
+    lastBooking: null,
+    anim: null,
+    summaryOpen: false
+  };
+
+  /* ---------- Helpers ---------- */
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function startOfDay(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  function addDays(d, n) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); }
+  function keyOf(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function parseKey(k) { var p = k.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function hm(min) { return pad(Math.floor(min / 60)) + ':' + pad(min % 60); }
+  function toMin(t) { var p = t.split(':'); return (+p[0]) * 60 + (+p[1]); }
+  function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+  function fmtDate(k) { return cap(fmtDay.format(parseKey(k))); }
+  function hash(s) {
+    var h = 2166136261;
+    for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+    h ^= h >>> 13; h = Math.imul(h, 0x5bd1e995); h ^= h >>> 15;
+    return h >>> 0;
+  }
+  function isBooked(dateKey, staffId, min) { return hash(dateKey + '|' + staffId + '|' + min) % 100 < 28; }
+  function svcOf(id) { return SERVICES.find(function (s) { return s.id === id; }) || null; }
+  function staffOf(id) {
+    if (id === 'any') return ANY;
+    return STAFF.find(function (s) { return s.id === id; }) || null;
+  }
+  function staffFor(id) { return id === 'any' ? STAFF : STAFF.filter(function (s) { return s.id === id; }); }
+  function workersOn(d, id) {
+    return staffFor(id).filter(function (s) { return s.days.indexOf(d.getDay()) !== -1; });
+  }
+  function dayOk(d) {
+    return !!state.staff && d >= today && d <= maxDate && workersOn(d, state.staff).length > 0;
+  }
+
+  /* Returns every start time from 10:00 to 20:00 where the service fits, lunch excluded */
+  function getSlots(dateKey) {
+    var out = [];
+    if (!state.service || !state.staff) return out;
+    var svc = svcOf(state.service);
+    var workers = workersOn(parseKey(dateKey), state.staff);
+    var now = new Date();
+    var nowMin = now.getHours() * 60 + now.getMinutes();
+    var isToday = dateKey === keyOf(today);
+    for (var min = OPEN; min + svc.dur <= CLOSE; min += SLOT_STEP) {
+      if (min < LUNCH_END && min + svc.dur > LUNCH_START) continue;
+      var status, staffId = null;
+      if (isToday && min <= nowMin) {
+        status = 'past';
+      } else {
+        var free = workers.filter(function (s) { return !isBooked(dateKey, s.id, min); });
+        if (free.length) { status = 'free'; staffId = free[0].id; } else { status = 'booked'; }
+      }
+      out.push({ time: hm(min), min: min, status: status, staffId: staffId });
+    }
+    return out;
+  }
+  function slotOf(dateKey, time) {
+    return getSlots(dateKey).find(function (s) { return s.time === time; }) || null;
+  }
+  function slotFree(dateKey, time) {
+    var s = slotOf(dateKey, time);
+    return !!s && s.status === 'free';
+  }
+  /* Keeps the selection consistent when service or professional changes */
+  function revalidate() {
+    if (!state.date) return;
+    if (!state.staff || !dayOk(parseKey(state.date))) {
+      state.date = null;
+      state.time = null;
+    } else if (state.time && !slotFree(state.date, state.time)) {
+      state.time = null;
+    }
+  }
+  function canGo(n) {
+    if (n === 1) return true;
+    if (n === 2) return !!state.service;
+    if (n === 3) return !!state.service && !!state.staff;
+    return !!state.service && !!state.staff && !!state.date && !!state.time;
+  }
+  function defaultFocusDate() {
+    for (var d = new Date(today); d <= maxDate; d = addDays(d, 1)) {
+      if (dayOk(d)) return keyOf(d);
+    }
+    return keyOf(today);
+  }
+  function bookingDateTime(b) {
+    var d = parseKey(b.date);
+    var t = toMin(b.time);
+    d.setHours(Math.floor(t / 60), t % 60, 0, 0);
+    return d;
+  }
+  function genCode() {
+    var s = '';
+    for (var i = 0; i < 4; i++) s += CODE_CHARS.charAt(Math.floor(Math.random() * CODE_CHARS.length));
+    return 'TC-' + s;
+  }
+  function setStatus(msg) {
+    var el = document.getElementById('status');
+    if (el) el.textContent = msg || '';
+  }
+
+  /* ---------- Storage (every access guarded) ---------- */
+  function readBookings() {
+    if (memBookings) return memBookings.slice();
+    try {
+      var raw = window.localStorage.getItem(KEY_BOOK);
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch (e) {
+      return [];
+    }
+  }
+  function writeBookings(list) {
+    try {
+      window.localStorage.setItem(KEY_BOOK, JSON.stringify(list));
+      memBookings = null;
+      return true;
+    } catch (e) {
+      memBookings = list.slice();
+      return false;
+    }
+  }
+
+  /* ---------- Validation ---------- */
+  function fieldError(field) {
+    var v = (state.form[field] || '').trim();
+    if (field === 'name') {
+      if (!v) return 'Escribe tu nombre.';
+      if (v.length < 2) return 'El nombre debe tener al menos 2 letras.';
+      return '';
+    }
+    if (field === 'phone') {
+      if (!v) return 'Escribe tu teléfono.';
+      if (!RE_PHONE.test(v.replace(/\s+/g, ''))) return 'Revisa el teléfono: 9 cifras, con o sin +34.';
+      return '';
+    }
+    if (field === 'email') {
+      if (v && !RE_EMAIL.test(v)) return 'Revisa el email, por ejemplo nombre@correo.es.';
+      return '';
+    }
+    return '';
+  }
+  function checkField(field) {
+    var msg = fieldError(field);
+    if (msg) state.errors[field] = msg; else delete state.errors[field];
+    var input = document.getElementById('f-' + field);
+    var err = document.getElementById('e-' + field);
+    if (err) { err.textContent = msg; err.hidden = !msg; }
+    if (input) input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+    return msg;
+  }
+
+  /* ---------- DOM builder (user text only ever goes in as text nodes) ---------- */
+  function addKids(node, list) {
+    list.forEach(function (c) {
+      if (c === null || c === undefined || c === false || c === true) return;
+      if (Array.isArray(c)) { addKids(node, c); return; }
+      node.appendChild(c.nodeType ? c : document.createTextNode(String(c)));
+    });
+  }
+  function h(tag, attrs) {
+    var node = document.createElement(tag);
+    var kids = Array.prototype.slice.call(arguments, 2);
+    if (attrs !== null && attrs !== undefined && (typeof attrs !== 'object' || attrs.nodeType || Array.isArray(attrs))) {
+      kids.unshift(attrs);
+      attrs = null;
+    }
+    if (attrs) {
+      Object.keys(attrs).forEach(function (k) {
+        var v = attrs[k];
+        if (k.indexOf('aria-') === 0 && (v === true || v === false)) { node.setAttribute(k, String(v)); return; }
+        if (v === null || v === undefined || v === false) return;
+        if (k === 'text') node.textContent = String(v);
+        else if (k.indexOf('on') === 0) node.addEventListener(k.slice(2), v);
+        else if (v === true) node.setAttribute(k, '');
+        else node.setAttribute(k, String(v));
+      });
+    }
+    addKids(node, kids);
+    return node;
+  }
+
+  var ICONS = {
+    check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+    left: '<path d="M15 6l-6 6 6 6"/>',
+    right: '<path d="M9 6l6 6-6 6"/>',
+    down: '<path d="M6 9l6 6 6-6"/>',
+    cal: '<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>'
+  };
+  function icon(name, cls) {
+    var t = document.createElement('template');
+    t.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' + ICONS[name] + '</svg>';
+    var svg = t.content.firstChild;
+    if (cls) svg.setAttribute('class', cls);
+    return svg;
+  }
+  function badgeSvg() {
+    var t = document.createElement('template');
+    t.innerHTML = '<svg viewBox="0 0 96 96" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><circle class="draw-circle" cx="48" cy="48" r="44"/><path class="draw-tick" d="M29 50l12 12 26-27"/></svg>';
+    return t.content.firstChild;
+  }
+  function row(label, value, strong) {
+    return h('div', { class: 'sum-row' },
+      h('dt', { text: label }),
+      h('dd', { class: strong ? 'sum-total' : null, text: value }));
+  }
+
+  /* ---------- Render ---------- */
+  function render(opts) {
+    opts = opts || {};
+    var active = document.activeElement;
+    var restoreKey = opts.focusKey || (active && active !== document.body && active.getAttribute && active.getAttribute('data-key')) || null;
+
+    renderStepper();
+    renderMain();
+    renderSummary();
+
+    var layout = document.getElementById('layout');
+    layout.classList.toggle('solo', state.view !== 'book');
+    layout.classList.toggle('has-bar', state.view === 'book');
+    document.getElementById('stepper-wrap').hidden = state.view !== 'book';
+    updateNav();
+
+    if (restoreKey) {
+      var target = document.querySelector('[data-key="' + restoreKey + '"]');
+      if (target && !target.disabled) {
+        try { target.focus({ preventScroll: !opts.focusKey }); } catch (e) { /* ignore */ }
+      }
+    }
+    state.anim = null;
+  }
+
+  function updateNav() {
+    var book = document.getElementById('nav-book');
+    var mine = document.getElementById('nav-mine');
+    if (state.view === 'book') { book.setAttribute('aria-current', 'page'); mine.removeAttribute('aria-current'); }
+    else if (state.view === 'mine') { mine.setAttribute('aria-current', 'page'); book.removeAttribute('aria-current'); }
+    else { book.removeAttribute('aria-current'); mine.removeAttribute('aria-current'); }
+  }
+
+  function renderStepper() {
+    var ol = document.getElementById('steps');
+    var labels = ['Servicio', 'Profesional', 'Fecha y hora', 'Tus datos'];
+    var items = labels.map(function (lab, i) {
+      var n = i + 1;
+      var cur = state.step === n;
+      var done = n < state.step;
+      return h('li', null,
+        h('button', {
+          type: 'button',
+          class: 'step' + (cur ? ' is-current' : '') + (done ? ' is-done' : ''),
+          disabled: !canGo(n),
+          'aria-current': cur ? 'step' : null,
+          'data-key': 'step-' + n,
+          onclick: function () { goStep(n); }
+        },
+          h('span', { class: 'step-num', 'aria-hidden': 'true' }, done ? icon('check') : String(n)),
+          h('span', { class: 'step-label', text: lab })));
+    });
+    ol.replaceChildren.apply(ol, items);
+    var pct = (state.step / 4 * 100) + '%';
+    document.getElementById('progress-fill').style.width = pct;
+    document.getElementById('progress').setAttribute('aria-valuenow', String(state.step));
+  }
+
+  function renderMain() {
+    var app = document.getElementById('app');
+    var node;
+    if (state.view === 'confirm' && state.lastBooking) node = viewConfirm();
+    else if (state.view === 'mine') node = viewMine();
+    else { state.view = 'book'; node = viewBook(); }
+    app.replaceChildren(node);
+  }
+
+  function animClass() {
+    if (state.anim === 'next') return ' anim-next';
+    if (state.anim === 'prev') return ' anim-prev';
+    if (state.anim === 'fade') return ' anim-fade';
+    return '';
+  }
+
+  /* Booking flow */
+  function viewBook() {
+    var titles = ['Elige tu servicio', 'Elige profesional', 'Elige fecha y hora', 'Tus datos'];
+    var subs = [
+      'Selecciona el servicio que quieres reservar. La duración y el precio se actualizan en tu cita.',
+      'Elige con quién quieres tu cita, o deja que te asignemos a la primera persona libre.',
+      'Elige un día del calendario y después una hora libre.',
+      'Solo necesitamos lo imprescindible para confirmar tu cita.'
+    ];
+    var body;
+    if (state.step === 1) body = stepService();
+    else if (state.step === 2) body = stepStaff();
+    else if (state.step === 3) body = stepDateTime();
+    else body = stepDetails();
+
+    var actions = h('div', { class: 'actions' },
+      state.step > 1
+        ? h('button', { type: 'button', class: 'btn-ghost', 'data-key': 'back', onclick: function () { goStep(state.step - 1); } }, 'Atrás')
+        : null,
+      state.step < 4
+        ? h('button', { type: 'submit', class: 'btn-primary', 'data-key': 'next' }, 'Continuar')
+        : h('button', { type: 'submit', class: 'btn-primary', 'data-key': 'submit' }, 'Confirmar cita'));
+
+    return h('form', {
+      class: 'step-panel' + animClass(),
+      novalidate: true,
+      'aria-labelledby': 'step-title',
+      onsubmit: function (e) {
+        e.preventDefault();
+        if (state.step === 4) submitBooking();
+        else goNext();
+      }
+    },
+      h('div', { class: 'panel-head' },
+        h('p', { class: 'eyebrow', text: 'Paso ' + state.step + ' de 4' }),
+        h('h2', { id: 'step-title', tabindex: '-1', 'data-key': 'step-title', text: titles[state.step - 1] }),
+        h('p', { class: 'lede', text: subs[state.step - 1] })),
+      state.stepError ? h('p', { class: 'field-error block', id: 'step-error', role: 'alert', text: state.stepError }) : null,
+      body,
+      actions);
+  }
+
+  function stepService() {
+    return h('div', { class: 'cards', role: 'group', 'aria-label': 'Servicios' },
+      SERVICES.map(function (s) {
+        var sel = state.service === s.id;
+        return h('button', {
+          type: 'button',
+          class: 'card-opt' + (sel ? ' is-selected' : ''),
+          'aria-pressed': sel ? 'true' : 'false',
+          'data-key': 'svc-' + s.id,
+          onclick: function () { selectService(s.id); }
+        },
+          h('span', { class: 'card-top' },
+            h('span', { class: 'card-name', text: s.name }),
+            h('span', { class: 'check', 'aria-hidden': 'true' }, sel ? icon('check') : null)),
+          s.desc ? h('span', { class: 'card-desc', text: s.desc }) : null,
+          h('span', { class: 'card-meta' },
+            h('span', { text: s.dur + ' min' }),
+            h('span', { class: 'dot', 'aria-hidden': 'true' }),
+            h('span', { class: 'price', text: fmtEur.format(s.price) })));
+      }));
+  }
+
+  function stepStaff() {
+    return h('div', { class: 'cards staff-cards', role: 'group', 'aria-label': 'Profesionales' },
+      STAFF.concat([ANY]).map(function (p) {
+        var sel = state.staff === p.id;
+        var isAny = p.id === 'any';
+        return h('button', {
+          type: 'button',
+          class: 'card-opt staff-opt' + (sel ? ' is-selected' : ''),
+          'aria-pressed': sel ? 'true' : 'false',
+          'data-key': 'staff-' + p.id,
+          onclick: function () { selectStaff(p.id); }
+        },
+          h('span', {
+            class: 'avatar' + (isAny ? ' any' : ''),
+            style: isAny ? null : 'background:' + p.color,
+            'aria-hidden': 'true',
+            text: isAny ? '?' : p.name.charAt(0)
+          }),
+          h('span', { class: 'staff-main' },
+            h('span', { class: 'card-name', text: p.name }),
+            h('span', { class: 'card-desc', text: p.role }),
+            h('span', { class: 'staff-days', text: p.daysLabel })),
+          h('span', { class: 'check', 'aria-hidden': 'true' }, sel ? icon('check') : null));
+      }));
+  }
+
+  function stepDateTime() {
+    return h('div', null, calendarNode(), slotsNode());
+  }
+
+  function calendarNode() {
+    var m = state.calMonth;
+    var y = m.getFullYear(), mo = m.getMonth();
+    var first = new Date(y, mo, 1);
+    var daysIn = new Date(y, mo + 1, 0).getDate();
+    var offset = (first.getDay() + 6) % 7;
+    var curFirst = new Date(today.getFullYear(), today.getMonth(), 1);
+    var prevOff = !(m > curFirst);
+    var nextOff = new Date(y, mo + 1, 1) > maxDate;
+    var fk = state.focusDate;
+    var ym = y + '-' + pad(mo + 1);
+    var focusInMonth = !!fk && fk.indexOf(ym + '-') === 0;
+
+    var cells = [];
+    for (var i = 0; i < offset; i++) cells.push(h('span', { class: 'day-empty', 'aria-hidden': 'true' }));
+    for (var dd = 1; dd <= daysIn; dd++) {
+      var tabStop = focusInMonth ? keyOf(new Date(y, mo, dd)) === fk : dd === 1;
+      cells.push(dayButton(new Date(y, mo, dd), tabStop));
+    }
+
+    return h('div', { class: 'cal' },
+      h('div', { class: 'cal-head' },
+        h('button', { type: 'button', class: 'icon-btn', 'aria-label': 'Mes anterior', 'data-key': 'prev-month', disabled: prevOff, onclick: function () { moveMonth(-1); } }, icon('left')),
+        h('h3', { class: 'cal-title', text: cap(fmtMonth.format(m)) }),
+        h('button', { type: 'button', class: 'icon-btn', 'aria-label': 'Mes siguiente', 'data-key': 'next-month', disabled: nextOff, onclick: function () { moveMonth(1); } }, icon('right'))),
+      h('div', { class: 'cal-week', 'aria-hidden': 'true' }, DAY_INITIALS.map(function (l) { return h('span', { text: l }); })),
+      h('div', { class: 'cal-days', role: 'group', 'aria-label': 'Días del mes. Usa las flechas para moverte.', onkeydown: onCalKey }, cells));
+  }
+
+  function dayButton(d, tabStop) {
+    var k = keyOf(d);
+    var ok = dayOk(d);
+    var sel = state.date === k;
+    var isToday = k === keyOf(today);
+    var label = fmtDay.format(d) + (isToday ? ', hoy' : '') + (ok ? '' : ', no disponible');
+    return h('button', {
+      type: 'button',
+      class: 'day' + (sel ? ' is-selected' : '') + (isToday ? ' is-today' : ''),
+      'aria-pressed': sel ? 'true' : 'false',
+      'aria-disabled': ok ? 'false' : 'true',
+      'aria-label': label,
+      'data-key': 'day-' + k,
+      tabindex: tabStop ? '0' : '-1',
+      onclick: function () {
+        if (ok) selectDate(k);
+        else setStatus('Ese día no está disponible.');
+      }
+    }, String(d.getDate()));
+  }
+
+  function slotsNode() {
+    var head = h('h3', { id: 'slots-title', class: 'slots-title', text: state.date ? 'Horas libres · ' + fmtDate(state.date) : 'Horas' });
+    if (!state.date) {
+      return h('div', { class: 'slots' }, head,
+        h('p', { class: 'hint', text: 'Elige un día en el calendario para ver las horas disponibles.' }));
+    }
+    var slots = getSlots(state.date);
+    var freeCount = slots.filter(function (s) { return s.status === 'free'; }).length;
+    if (!freeCount) {
+      return h('div', { class: 'slots' }, head,
+        h('p', { class: 'hint', text: 'No quedan horas libres este día. Prueba con otro día.' }));
+    }
+    var morning = slots.filter(function (s) { return s.min < LUNCH_START; });
+    var afternoon = slots.filter(function (s) { return s.min >= LUNCH_END; });
+    return h('div', { class: 'slots' }, head,
+      slotGroup('Mañana', morning),
+      slotGroup('Tarde', afternoon),
+      h('p', { class: 'legend', text: 'Tachadas: ocupadas o ya pasadas. Pausa de 14:00 a 15:00.' }));
+  }
+
+  function slotGroup(title, list) {
+    if (!list.length) return null;
+    return h('div', { class: 'slot-group' },
+      h('h4', { text: title }),
+      h('div', { class: 'slot-grid' }, list.map(slotButton)));
+  }
+
+  function slotButton(s) {
+    var sel = state.time === s.time;
+    var off = s.status !== 'free';
+    var label = s.time + (s.status === 'booked' ? ', ocupado' : s.status === 'past' ? ', ya pasado' : ', libre');
+    return h('button', {
+      type: 'button',
+      class: 'slot' + (sel ? ' is-selected' : ''),
+      'aria-pressed': sel ? 'true' : 'false',
+      'aria-label': label,
+      disabled: off,
+      'data-key': 'slot-' + s.time,
+      onclick: function () { selectTime(s.time); }
+    }, s.time);
+  }
+
+  function textField(opts) {
+    var err = state.errors[opts.id] || '';
+    var hintId = 'h-' + opts.id;
+    var errId = 'e-' + opts.id;
+    return h('div', { class: 'field' },
+      h('label', { for: 'f-' + opts.id, text: opts.label }),
+      h('input', {
+        id: 'f-' + opts.id,
+        name: opts.id,
+        type: opts.type || 'text',
+        value: state.form[opts.id] || '',
+        autocomplete: opts.autocomplete,
+        placeholder: opts.placeholder,
+        inputmode: opts.inputmode,
+        'aria-required': opts.required ? 'true' : null,
+        'aria-invalid': err ? 'true' : 'false',
+        'aria-describedby': hintId + ' ' + errId,
+        'data-key': 'f-' + opts.id,
+        oninput: function (e) {
+          state.form[opts.id] = e.target.value;
+          if (state.errors[opts.id]) checkField(opts.id);
+        },
+        onblur: function (e) {
+          state.form[opts.id] = e.target.value;
+          checkField(opts.id);
+        }
+      }),
+      h('p', { class: 'hint', id: hintId, text: opts.hint }),
+      h('p', { class: 'field-error', id: errId, hidden: !err, text: err }));
+  }
+
+  function stepDetails() {
+    return h('div', { class: 'fields' },
+      textField({ id: 'name', label: 'Nombre', autocomplete: 'name', placeholder: 'Tu nombre', required: true, hint: 'Obligatorio.' }),
+      textField({ id: 'phone', label: 'Teléfono', type: 'tel', autocomplete: 'tel', inputmode: 'tel', placeholder: '600 123 456', required: true, hint: '9 cifras, con o sin +34. Se permiten espacios.' }),
+      textField({ id: 'email', label: 'Email', type: 'email', autocomplete: 'email', placeholder: 'nombre@correo.es', hint: 'Opcional. Te enviaremos el justificante.' }),
+      h('div', { class: 'field' },
+        h('label', { for: 'f-notes', text: 'Notas' }),
+        h('textarea', {
+          id: 'f-notes',
+          name: 'notes',
+          rows: '3',
+          maxlength: '300',
+          'aria-describedby': 'h-notes',
+          'data-key': 'f-notes',
+          oninput: function (e) { state.form.notes = e.target.value; }
+        }, state.form.notes),
+        h('p', { class: 'hint', id: 'h-notes', text: 'Alergias, preferencias, etc. (opcional, máximo 300 caracteres).' })),
+      h('div', { class: 'check-row' },
+        h('input', {
+          type: 'checkbox',
+          id: 'f-sms',
+          checked: !!state.form.sms,
+          'data-key': 'f-sms',
+          onchange: function (e) { state.form.sms = e.target.checked; }
+        }),
+        h('label', { for: 'f-sms', text: 'Recordarme por SMS el día antes' })));
+  }
+
+  /* Confirmation */
+  function viewConfirm() {
+    var b = state.lastBooking;
+    return h('section', { class: 'step-panel confirm' + animClass(), 'aria-labelledby': 'confirm-title' },
+      h('div', { class: 'badge', 'aria-hidden': 'true' }, badgeSvg()),
+      h('h2', { id: 'confirm-title', tabindex: '-1', 'data-key': 'confirm-title', text: '¡Cita confirmada!' }),
+      h('p', { class: 'lede', text: 'Te esperamos. Hemos guardado tu cita en este navegador.' }),
+      h('p', { class: 'code-label', text: 'Código de reserva' }),
+      h('p', { class: 'code', text: b.code }),
+      h('dl', { class: 'sum-list' },
+        row('Servicio', b.serviceName),
+        row('Profesional', b.staffName),
+        row('Fecha', cap(fmtDayFull.format(parseKey(b.date)))),
+        row('Hora', b.time),
+        row('Duración', b.duration + ' min'),
+        row('Total', fmtEur.format(b.price), true)),
+      b.sms ? h('p', { class: 'hint', text: 'Te recordaremos por SMS el día antes.' }) : null,
+      h('div', { class: 'actions center' },
+        h('button', { type: 'button', class: 'btn-primary', 'data-key': 'ics', onclick: function () { downloadIcs(b); } },
+          icon('cal'), h('span', { text: 'Añadir al calendario' })),
+        h('button', { type: 'button', class: 'btn-ghost', 'data-key': 'again', onclick: resetBooking }, 'Hacer otra reserva'),
+        h('button', { type: 'button', class: 'btn-ghost', 'data-key': 'see-mine', onclick: function () { goView('mine'); } }, 'Ver mis citas')));
+  }
+
+  /* Mis citas */
+  function viewMine() {
+    var now = new Date();
+    var items = readBookings()
+      .filter(function (b) { return b && b.date && b.time && b.code; })
+      .map(function (b) { return { b: b, when: bookingDateTime(b) }; });
+    var upcoming = items.filter(function (x) { return x.when >= now; }).sort(function (a, b) { return a.when - b.when; });
+    var past = items.filter(function (x) { return x.when < now; }).sort(function (a, b) { return b.when - a.when; });
+
+    var head = h('div', { class: 'panel-head' },
+      h('h2', { id: 'mine-title', tabindex: '-1', 'data-key': 'mine-title', text: 'Mis citas' }),
+      h('p', { class: 'lede', text: 'Tus reservas guardadas en este navegador. Puedes cancelar las próximas.' }));
+
+    if (!items.length) {
+      return h('section', { class: 'step-panel' + animClass(), 'aria-labelledby': 'mine-title' }, head,
+        h('div', { class: 'empty' },
+          h('p', { text: 'Aún no tienes citas reservadas.' }),
+          h('button', { type: 'button', class: 'btn-primary', 'data-key': 'empty-book', onclick: resetBooking }, 'Reservar una cita')));
+    }
+
+    return h('section', { class: 'step-panel' + animClass(), 'aria-labelledby': 'mine-title' }, head,
+      h('h3', { class: 'group-title', text: 'Próximas' }),
+      upcoming.length
+        ? h('ul', { class: 'mine-list' }, upcoming.map(function (x) { return bookingCard(x.b, true); }))
+        : h('p', { class: 'hint', text: 'No tienes citas próximas.' }),
+      past.length ? h('h3', { class: 'group-title', text: 'Pasadas' }) : null,
+      past.length ? h('ul', { class: 'mine-list' }, past.map(function (x) { return bookingCard(x.b, false); })) : null);
+  }
+
+  function bookingCard(b, upcoming) {
+    var when = cap(fmtDay.format(parseKey(b.date))) + ' · ' + b.time;
+    return h('li', { class: 'bk' + (upcoming ? '' : ' is-past') },
+      h('div', { class: 'bk-top' },
+        h('strong', { class: 'bk-name', text: b.serviceName }),
+        h('span', { class: 'bk-price', text: fmtEur.format(b.price) })),
+      h('p', { class: 'bk-meta', text: when }),
+      h('p', { class: 'bk-meta', text: 'Con ' + b.staffName + ' · ' + b.duration + ' min' }),
+      h('div', { class: 'bk-foot' },
+        h('span', { class: 'bk-code', text: b.code }),
+        upcoming
+          ? h('button', { type: 'button', class: 'btn-cancel', 'data-key': 'cancel-' + b.code, onclick: function () { cancelBooking(b); } }, 'Cancelar cita')
+          : null));
+  }
+
+  /* Summary card (desktop side column, mobile bottom bar) */
+  function renderSummary() {
+    var aside = document.getElementById('summary');
+    aside.hidden = state.view !== 'book';
+    aside.className = 'summary' + (state.summaryOpen ? ' open' : '');
+    var svc = state.service ? svcOf(state.service) : null;
+    var pro = state.staff ? staffOf(state.staff) : null;
+    var total = svc ? fmtEur.format(svc.price) : null;
+    var toggleText = svc ? svc.name + ' · ' + total : 'Tu cita: elige un servicio';
+
+    aside.replaceChildren(
+      h('button', {
+        type: 'button',
+        class: 'summary-toggle',
+        'aria-expanded': state.summaryOpen ? 'true' : 'false',
+        'aria-controls': 'summary-body',
+        'data-key': 'summary-toggle',
+        onclick: function () { state.summaryOpen = !state.summaryOpen; render({ focusKey: 'summary-toggle' }); }
+      }, h('span', { text: toggleText }), icon('down', 'chev')),
+      h('div', { class: 'summary-body', id: 'summary-body' },
+        h('h3', { class: 'summary-title', text: 'Tu cita' }),
+        h('dl', { class: 'sum-list' },
+          row('Servicio', svc ? svc.name : '—'),
+          row('Profesional', pro ? pro.name : '—'),
+          row('Fecha', state.date ? cap(fmtDay.format(parseKey(state.date))) : '—'),
+          row('Hora', state.time || '—'),
+          row('Duración', svc ? svc.dur + ' min' : '—'),
+          row('Total', total || '—', true))));
+  }
+
+  /* ---------- Actions ---------- */
+  function goView(v) {
+    state.view = v;
+    state.anim = 'fade';
+    state.stepError = '';
+    setStatus('');
+    render({ focusKey: v === 'mine' ? 'mine-title' : 'step-title' });
+  }
+
+  function goStep(n) {
+    if (!canGo(n)) return;
+    if (n !== state.step) state.anim = n > state.step ? 'next' : 'prev';
+    else state.anim = null;
+    state.step = n;
+    state.view = 'book';
+    state.stepError = '';
+    if (n === 3) {
+      var base = state.date || state.focusDate || defaultFocusDate();
+      state.focusDate = base;
+      var bd = parseKey(base);
+      state.calMonth = new Date(bd.getFullYear(), bd.getMonth(), 1);
+    }
+    setStatus('');
+    render({ focusKey: 'step-title' });
+  }
+
+  function goNext() {
+    var msgs = {
+      1: 'Elige un servicio para continuar.',
+      2: 'Elige un profesional para continuar.',
+      3: 'Elige un día y una hora para continuar.'
+    };
+    if (!canGo(state.step + 1)) {
+      state.stepError = msgs[state.step] || '';
+      setStatus(state.stepError);
+      render();
+      return;
+    }
+    goStep(state.step + 1);
+  }
+
+  function selectService(id) {
+    state.service = id;
+    state.stepError = '';
+    revalidate();
+    setStatus('Servicio seleccionado: ' + svcOf(id).name + '.');
+    render({ focusKey: 'svc-' + id });
+  }
+
+  function selectStaff(id) {
+    state.staff = id;
+    state.stepError = '';
+    revalidate();
+    if (!state.focusDate) state.focusDate = defaultFocusDate();
+    setStatus('Profesional: ' + staffOf(id).name + '.');
+    render({ focusKey: 'staff-' + id });
+  }
+
+  function selectDate(k) {
+    if (state.date !== k) state.time = null;
+    state.date = k;
+    state.focusDate = k;
+    state.stepError = '';
+    setStatus('Día seleccionado: ' + fmtDate(k) + '. Elige una hora.');
+    render({ focusKey: 'day-' + k });
+  }
+
+  function selectTime(t) {
+    state.time = t;
+    state.stepError = '';
+    setStatus('Hora seleccionada: ' + t + '.');
+    render({ focusKey: 'slot-' + t });
+  }
+
+  function moveMonth(delta) {
+    var m = state.calMonth;
+    var nm = new Date(m.getFullYear(), m.getMonth() + delta, 1);
+    var curFirst = new Date(today.getFullYear(), today.getMonth(), 1);
+    if (nm < curFirst || nm > maxDate) return;
+    state.calMonth = nm;
+    var fd = state.focusDate ? parseKey(state.focusDate) : today;
+    var dim = new Date(nm.getFullYear(), nm.getMonth() + 1, 0).getDate();
+    var target = new Date(nm.getFullYear(), nm.getMonth(), Math.min(fd.getDate(), dim));
+    if (target < today) target = new Date(today);
+    if (target > maxDate) target = new Date(maxDate);
+    state.focusDate = keyOf(target);
+    render({ focusKey: 'day-' + state.focusDate });
+  }
+
+  function moveFocusTo(d) {
+    if (d < today) d = new Date(today);
+    if (d > maxDate) d = new Date(maxDate);
+    var k = keyOf(d);
+    state.focusDate = k;
+    var m = state.calMonth;
+    if (d.getMonth() !== m.getMonth() || d.getFullYear() !== m.getFullYear()) {
+      state.calMonth = new Date(d.getFullYear(), d.getMonth(), 1);
+    }
+    render({ focusKey: 'day-' + k });
+  }
+
+  /* Keyboard navigation inside the calendar grid */
+  function onCalKey(e) {
+    if (!state.focusDate) return;
+    var cur = parseKey(state.focusDate);
+    var mondayOffset = (cur.getDay() + 6) % 7;
+    var delta = null;
+    switch (e.key) {
+      case 'ArrowLeft': delta = -1; break;
+      case 'ArrowRight': delta = 1; break;
+      case 'ArrowUp': delta = -7; break;
+      case 'ArrowDown': delta = 7; break;
+      case 'Home': delta = -mondayOffset; break;
+      case 'End': delta = 6 - mondayOffset; break;
+      case 'PageUp':
+      case 'PageDown': {
+        var step = e.key === 'PageUp' ? -1 : 1;
+        var nd = new Date(cur.getFullYear(), cur.getMonth() + step, 1);
+        var dim = new Date(nd.getFullYear(), nd.getMonth() + 1, 0).getDate();
+        nd.setDate(Math.min(cur.getDate(), dim));
+        e.preventDefault();
+        moveFocusTo(nd);
+        return;
+      }
+      default: return;
+    }
+    e.preventDefault();
+    moveFocusTo(addDays(cur, delta));
+  }
+
+  function submitBooking() {
+    var bad = ['name', 'phone', 'email'].filter(function (f) { return !!checkField(f); });
+    if (bad.length) {
+      state.stepError = '';
+      setStatus('Revisa los campos marcados.');
+      render({ focusKey: 'f-' + bad[0] });
+      return;
+    }
+    if (!canGo(4)) {
+      setStatus('Elige día y hora para continuar.');
+      goStep(canGo(3) ? 3 : 2);
+      return;
+    }
+    var slot = slotOf(state.date, state.time);
+    if (!slot || slot.status !== 'free') {
+      state.time = null;
+      setStatus('Ese horario acaba de ocuparse. Elige otra hora.');
+      goStep(3);
+      return;
+    }
+    var svc = svcOf(state.service);
+    var pro = staffOf(slot.staffId);
+    var booking = {
+      code: genCode(),
+      serviceId: svc.id,
+      serviceName: svc.name,
+      duration: svc.dur,
+      price: svc.price,
+      staffId: pro.id,
+      staffName: pro.name,
+      date: state.date,
+      time: state.time,
+      name: state.form.name.trim(),
+      phone: state.form.phone.trim(),
+      email: state.form.email.trim(),
+      notes: state.form.notes.trim().slice(0, 300),
+      sms: !!state.form.sms,
+      createdAt: new Date().toISOString()
+    };
+    var saved = writeBookings(readBookings().concat([booking]));
+    state.lastBooking = booking;
+    state.view = 'confirm';
+    state.anim = 'fade';
+    state.stepError = '';
+    state.errors = {};
+    setStatus(saved
+      ? 'Cita confirmada. Código ' + booking.code + '.'
+      : 'Cita confirmada, pero este navegador no permite guardarla. Descarga el .ics para no perderla.');
+    render({ focusKey: 'confirm-title' });
+  }
+
+  function resetBooking() {
+    state.service = null;
+    state.staff = null;
+    state.date = null;
+    state.time = null;
+    state.focusDate = null;
+    state.calMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    state.form = { name: '', phone: '', email: '', notes: '', sms: false };
+    state.errors = {};
+    state.stepError = '';
+    state.step = 1;
+    state.view = 'book';
+    state.lastBooking = null;
+    state.anim = 'fade';
+    setStatus('');
+    render({ focusKey: 'step-title' });
+  }
+
+  function cancelBooking(b) {
+    var msg = '¿Cancelar tu cita de ' + b.serviceName + ' el ' + fmtDay.format(parseKey(b.date)) + ' a las ' + b.time + ' (código ' + b.code + ')?';
+    var ok;
+    try { ok = window.confirm(msg); } catch (e) { ok = true; }
+    if (!ok) return;
+    var list = readBookings().filter(function (x) { return x.code !== b.code; });
+    writeBookings(list);
+    setStatus('Cita ' + b.code + ' cancelada.');
+    render({ focusKey: 'mine-title' });
+  }
+
+  /* ---------- .ics export ---------- */
+  function icsEsc(s) {
+    return String(s).replace(/\\/g, '\\\\').replace(/\r?\n/g, '\\n').replace(/;/g, '\\;').replace(/,/g, '\\,');
+  }
+  function icsFold(line) {
+    var out = [];
+    while (line.length > 60) {
+      out.push(line.slice(0, 60));
+      line = ' ' + line.slice(60);
+    }
+    out.push(line);
+    return out.join('\r\n');
+  }
+  function icsDate(d) {
+    return d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + 'T' + pad(d.getHours()) + pad(d.getMinutes()) + '00';
+  }
+  function downloadIcs(b) {
+    try {
+      var start = bookingDateTime(b);
+      var end = new Date(start.getTime() + b.duration * 60000);
+      var stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
+      var desc = 'Código ' + b.code + '\nCon ' + b.staffName + '\nTotal ' + fmtEur.format(b.price) + (b.notes ? '\nNotas: ' + b.notes : '');
+      var lines = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Sundan Studio//Tijera y Cafe Demo//ES',
+        'CALSCALE:GREGORIAN',
+        'METHOD:PUBLISH',
+        'BEGIN:VEVENT',
+        'UID:' + b.code + '@tijera-cafe-demo',
+        'DTSTAMP:' + stamp,
+        'DTSTART:' + icsDate(start),
+        'DTEND:' + icsDate(end),
+        'SUMMARY:' + icsEsc('Tijera & Café · ' + b.serviceName),
+        'LOCATION:' + icsEsc('Tijera & Café'),
+        'DESCRIPTION:' + icsEsc(desc),
+        'BEGIN:VALARM',
+        'ACTION:DISPLAY',
+        'DESCRIPTION:' + icsEsc('Recuerda tu cita en Tijera & Café'),
+        'TRIGGER:-P1D',
+        'END:VALARM',
+        'END:VEVENT',
+        'END:VCALENDAR'
+      ].map(icsFold);
+      var blob = new Blob([lines.join('\r\n') + '\r\n'], { type: 'text/calendar;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'cita-' + b.code + '.ics';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function () {
+        if (a.parentNode) a.parentNode.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 1000);
+      setStatus('Archivo .ics descargado.');
+    } catch (e) {
+      setStatus('No se pudo generar el archivo de calendario en este navegador.');
+    }
+  }
+
+  /* ---------- Init ---------- */
+  function init() {
+    var ribbon = document.getElementById('ribbon');
+    try {
+      if (window.localStorage.getItem(KEY_RIBBON) === '1') ribbon.hidden = true;
+    } catch (e) { /* storage blocked: show ribbon */ }
+
+    document.getElementById('ribbon-close').addEventListener('click', function () {
+      document.getElementById('brand').focus({ preventScroll: true });
+      ribbon.hidden = true;
+      try { window.localStorage.setItem(KEY_RIBBON, '1'); } catch (e) { /* ignore */ }
+    });
+    document.getElementById('nav-book').addEventListener('click', function () { goView('book'); });
+    document.getElementById('nav-mine').addEventListener('click', function () { goView('mine'); });
+    document.getElementById('brand').addEventListener('click', function () { goView('book'); });
+
+    render();
+  }
+
+  init();
+})();
+</script>
+<footer style="text-align:center;padding:2rem 1rem;font-size:.8rem;opacity:.7;line-height:1.8">
+<a href="index.html" style="color:inherit">← Volver a Sundan Studio</a> · <a href="aviso-legal.html" style="color:inherit">Aviso legal</a> · <a href="privacidad.html" style="color:inherit">Privacidad</a>
+</footer>
+</body>
+</html>
