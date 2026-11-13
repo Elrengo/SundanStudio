@@ -8,10 +8,12 @@
  *   data-base="/"           base absoluta para las rutas (por defecto "" = relativas)
  *   data-pos-narrow="tl"    esquina por debajo de 600px de ancho (opcional)
  *   data-z="2147483000"     z-index (bajarlo para quedar debajo de los diálogos de la página)
- *   data-autohide="0"       desactiva ocultarse al bajar con el scroll
+ *   data-autohide="1"       se oculta al bajar con el scroll (desactivado por defecto: siempre visible)
  *   data-hide-hash="#admin" oculta la barra mientras la URL tenga ese hash
  *   data-hash-pos="#admin:tr" con ese hash la barra pasa a otra esquina
  *   data-below=".cabecera"  arriba, se coloca justo debajo de ese elemento fijo
+ *   data-raise="#login" data-raise-z="210" sube de capa mientras ese elemento esté visible
+ *   data-avoid=".tour"      si ese elemento aparece en su esquina inferior, la barra se coloca encima
  */
 (function () {
   'use strict';
@@ -34,7 +36,7 @@
   var pos = attr('data-pos', 'bl');
   if (['bl', 'br', 'tl', 'tr'].indexOf(pos) === -1) { pos = 'bl'; }
   var compact = attr('data-compact', '0') === '1';
-  var autohide = attr('data-autohide', '1') !== '0';
+  var autohide = attr('data-autohide', '0') === '1';   // off by default: the bar must always stay visible
   var z = String(parseInt(attr('data-z', '2147483000'), 10) || 2147483000);
 
   var base = attr('data-base', '');
@@ -156,6 +158,48 @@
   bar.addEventListener('keyup', stop, false);
 
   document.body.appendChild(bar);
+
+  /* data-raise="#login" data-raise-z="210": mientras ese elemento (p. ej. una pantalla de acceso a
+     pantalla completa) esté visible, la barra sube de capa para no quedar tapada; al cerrarse vuelve */
+  function isShown(el) {
+    if (!el || el.hidden) { return false; }
+    var cs = window.getComputedStyle(el);
+    return cs.display !== 'none' && cs.visibility !== 'hidden' && parseFloat(cs.opacity) > 0.05 && el.getClientRects().length > 0;
+  }
+  function anyShown(sel) {
+    var list = document.querySelectorAll(sel);
+    for (var k = 0; k < list.length; k++) { if (isShown(list[k])) { return list[k]; } }
+    return null;
+  }
+  var raiseSel = attr('data-raise', '');
+  var raiseZ = String(parseInt(attr('data-raise-z', '2147483000'), 10) || 2147483000);
+  /* data-avoid=".tour, .toast": if one of these is visible where the bar sits (bottom corners),
+     the bar moves up just above it so it is never covered; when it goes away the bar returns */
+  var avoidSel = attr('data-avoid', '');
+  var checkLayers = function () {
+    if (raiseSel) { bar.style.zIndex = anyShown(raiseSel) ? raiseZ : ''; }
+    if (avoidSel) {
+      var p = bar.getAttribute('data-pos') || pos;
+      if (p.charAt(0) !== 'b') { bar.style.bottom = ''; return; }
+      bar.style.bottom = '';
+      var br = bar.getBoundingClientRect(), lift = 0;
+      var list = document.querySelectorAll(avoidSel);
+      for (var k = 0; k < list.length; k++) {
+        var el = list[k];
+        if (!isShown(el) || bar.contains(el)) { continue; }
+        var r = el.getBoundingClientRect();
+        var overlapX = r.left < br.right && r.right > br.left;
+        var nearBottom = r.bottom > window.innerHeight - 4 - br.height - 40;
+        if (overlapX && nearBottom) { lift = Math.max(lift, window.innerHeight - r.top + 12); }
+      }
+      if (lift) { bar.style.bottom = Math.round(lift) + 'px'; }
+    }
+  };
+  if (raiseSel || avoidSel) {
+    checkLayers();
+    setInterval(checkLayers, 400);
+    window.addEventListener('resize', checkLayers, false);
+  }
 
   /* ---------- ocultarse al bajar con el scroll, reaparecer al subir ---------- */
   if (autohide) {

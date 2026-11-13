@@ -184,8 +184,19 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
 .card.open .bar{opacity:0}
 .card.open .bar.t{transform:translateY(-101%)}
 .card.open .bar.b{transform:translateY(101%)}
-.skip{position:absolute;right:.8rem;bottom:.5rem;z-index:5;background:transparent;border:0;color:var(--bone);font:500 .85rem var(--body);opacity:.6;cursor:pointer;padding:.4rem .6rem}
+.skip{position:absolute;right:.8rem;bottom:.5rem;z-index:5;background:transparent;border:0;color:var(--bone);font:500 .95rem var(--body);opacity:.85;cursor:pointer;padding:.5rem .8rem;min-height:44px;text-decoration:underline;text-underline-offset:.2em}
 .skip:hover{opacity:1}
+.nonote{margin:1rem 0 0;font-size:.95rem;line-height:1.5;min-height:0}
+.nonote:empty{display:none}
+.cx-expect{margin:-.6rem 0 .4rem;font-family:var(--display);font-size:1.25rem;line-height:1.25;color:var(--gold)}
+.cx-steps{margin:0 0 1.6rem;font-size:.95rem;line-height:1.55;opacity:.85;max-width:56ch}
+.mailrow{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem .8rem;margin-top:.2rem}
+.mailrow a{overflow-wrap:anywhere}
+.copybtn{font-family:var(--display);font-size:1rem;line-height:1;padding:.6rem 1rem;min-height:44px;border:2px solid var(--gold);border-radius:999px;background:transparent;color:var(--bone);cursor:pointer}
+.copybtn:hover{background:rgba(233,180,47,.12)}
+.copybtn:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
+.copy-live{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.how a:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 .skip:focus-visible{outline:3px solid var(--gold)}
 .replay{margin-top:1.8rem;font-size:1.1rem}
 .replay:hover{background:rgba(233,180,47,.15)}
@@ -1211,8 +1222,14 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
     <div>
       <h2 class="big">Contacto</h2>
       <p class="lede">Si algo de lo que ves aquí te sirve para tu proyecto, hablemos.</p>
+      <p class="cx-expect">Respondo en menos de 24 h laborables.</p>
+      <p class="cx-steps">1. Me cuentas tu idea · 2. Charlamos 20 minutos · 3. Te envío una propuesta con precio cerrado en 48 h.</p>
       <ul class="how">
-        <li><strong>Correo</strong><a href="mailto:rafmoline@gmail.com">rafmoline@gmail.com</a></li>
+        <li><strong>Correo</strong>
+          <span class="mailrow"><a href="mailto:rafmoline@gmail.com" id="mailtxt">rafmoline@gmail.com</a><button class="copybtn" id="copy" type="button">Copiar correo</button></span>
+          <span class="copy-live" id="copystatus" role="status" aria-live="polite"></span>
+        </li>
+        <li><strong>LinkedIn</strong><a href="https://www.linkedin.com/in/molinerorafael" target="_blank" rel="me noopener">Rafael Molinero</a></li>
         <li><strong>Videollamada</strong>Elige día y hora en el recuadro.</li>
       </ul>
       <button class="pill replay" id="replay" type="button">↻ Ver la tormenta otra vez</button>
@@ -1222,9 +1239,10 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
       <div id="cardbody">
         <h3 class="qh hide">¿Querrías contratarme?</h3>
         <div class="arena hold" id="arena"><div class="btns"><span class="yeswrap"><svg class="arrow" id="arrow" viewBox="0 0 28 42" aria-hidden="true"><path d="M14 3v28M4 21l10 14 10-14" fill="none" stroke="#e9b42f" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg><button class="pill main" id="yes">Sí</button></span><button class="pill" id="no">No</button></div></div>
+        <p class="nonote" id="nonote" aria-live="polite"></p>
       </div>
       <div class="bar t" aria-hidden="true"></div><div class="bar b" aria-hidden="true"></div>
-      <button class="skip" id="skip" type="button" hidden>Saltar</button>
+      <button class="skip" id="skip" type="button">Saltar animación</button>
     </div>
   </div>
   <a class="next" href="#hero">El taller de los búhos</a>
@@ -2339,12 +2357,11 @@ function drawMumi(c, p){
     requestAnimationFrame(stormFrame);
   }
   function beginIntro(){
-    if(introBegun||reduce)return;
+    if(introBegun||introDone||reduce)return;
     introBegun=true;
     var cr0=card.getBoundingClientRect(),hr=qh.getBoundingClientRect();
     qh.style.transition="none";
     qh.style.transform="translateY("+((cr0.top+cr0.height/2)-(hr.top+hr.height/2))+"px)";
-    skip.hidden=false;
     introRunning=true;
   }
   function reveal(){
@@ -2384,8 +2401,13 @@ function drawMumi(c, p){
     no.style.left=(b.left-a.left)+"px";no.style.top=(b.top-a.top)+"px";
     no.classList.add("run");
   }
+  // reduced motion: "No" stays put and explains the other ways to reach me
+  function noReply(){
+    var n=document.getElementById("nonote");
+    if(n)n.textContent="Sin problema. Si prefieres otra vía, tienes el correo y LinkedIn justo arriba.";
+  }
   function dodge(px,py){
-    if(mode!=="ask")return;
+    if(reduce||mode!=="ask")return;
     toRun();lastD=performance.now();dodges++;
     if(dodges>=THRESH){takeover();return;}
     arrow.classList.add("on");
@@ -2402,14 +2424,14 @@ function drawMumi(c, p){
     yes.style.transform="scale("+(1+dodges*.045)+")";
   }
   addEventListener("pointermove",function(e){
-    if(mode!=="ask")return;
+    if(reduce||mode!=="ask")return;
     var b=no.getBoundingClientRect(),dx=Math.max(b.left-e.clientX,0,e.clientX-b.right),dy=Math.max(b.top-e.clientY,0,e.clientY-b.bottom);
     if(Math.hypot(dx,dy)<90&&performance.now()-lastD>140)dodge(e.clientX,e.clientY);
   });
   function bind(){
     yes=document.getElementById("yes");yw=document.querySelector(".yeswrap");no=document.getElementById("no");arrow=document.getElementById("arrow");arena=document.getElementById("arena");qh=body.querySelector("h3");
-    no.addEventListener("pointerdown",function(e){e.preventDefault();dodge(e.clientX,e.clientY);});
-    no.addEventListener("click",function(e){e.preventDefault();dodge(e.clientX,e.clientY);});
+    no.addEventListener("pointerdown",function(e){if(reduce)return;e.preventDefault();dodge(e.clientX,e.clientY);});
+    no.addEventListener("click",function(e){e.preventDefault();if(reduce){noReply();return;}dodge(e.clientX,e.clientY);});
     no.addEventListener("focus",function(){var b=no.getBoundingClientRect();dodge(b.left+b.width/2,b.top+b.height/2);});
     yes.addEventListener("click",go);
   }
@@ -2420,7 +2442,7 @@ function drawMumi(c, p){
   addEventListener("pointermove",function(e){ptr.x=e.clientX;ptr.y=e.clientY;ptr.on=true;});
   document.documentElement.addEventListener("pointerleave",function(){ptr.on=false;});
   function follow(t){
-    if(mode!=="ask")return;
+    if(reduce||mode!=="ask")return;
     var dt=Math.min((t-lastT)/16.7||1,3);lastT=t;
     if(!reduce&&ptr.on&&cardVis){
       var a=arena.getBoundingClientRect(),r=yw.getBoundingClientRect(),hw=r.width/2,hh=r.height/2;
@@ -2581,10 +2603,62 @@ function drawMumi(c, p){
     bolts=[];ct=reduce?3000:0;it=0;evi=0;
     introRunning=false;introDone=false;introBegun=false;
     orb=null;ox=0;oy=0;dodges=0;noScale=1;lastD=0;mode="intro";
-    skip.hidden=true;
+    skip.hidden=false;
     bind();
     card.scrollIntoView({behavior:reduce?"auto":"smooth",block:"center"});
     if(reduce)skipIntro();else beginIntro();
+  });
+})();
+</script>
+<script>
+// contact: copy the email (clipboard API with a textarea fallback)
+(function () {
+  var btn = document.getElementById('copy'), live = document.getElementById('copystatus'), mailEl = document.getElementById('mailtxt');
+  if (!btn || !live || !mailEl) return;
+  var MAIL_TEXT = mailEl.textContent.trim(), label = btn.textContent, timer = null;
+  function say(msg) {
+    live.textContent = '';
+    setTimeout(function () { live.textContent = msg; }, 30);
+  }
+  function okState() {
+    btn.textContent = '¡Copiado!';
+    say('Correo copiado');
+    clearTimeout(timer);
+    timer = setTimeout(function () { btn.textContent = label; }, 2000);
+  }
+  function selectMail() {
+    try {
+      var r = document.createRange(), s = window.getSelection();
+      r.selectNodeContents(mailEl);
+      s.removeAllRanges();
+      s.addRange(r);
+    } catch (e) {}
+  }
+  function failState() {
+    selectMail();
+    say('No se pudo copiar. El correo está seleccionado para copiarlo a mano.');
+  }
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea'), done = false;
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '0';
+    ta.style.left = '0';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    try { ta.select(); done = document.execCommand('copy'); } catch (e) { done = false; }
+    document.body.removeChild(ta);
+    return done;
+  }
+  btn.addEventListener('click', function () {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(MAIL_TEXT).then(okState, function () {
+        if (fallbackCopy(MAIL_TEXT)) okState(); else failState();
+      });
+    } else {
+      if (fallbackCopy(MAIL_TEXT)) okState(); else failState();
+    }
   });
 })();
 </script>

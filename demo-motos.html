@@ -200,7 +200,7 @@ html:not(.calm) .card:hover .wr,html:not(.calm) .card:hover .wf{animation:spin .
 @keyframes openSpot{to{clip-path:circle(75% at 50% 50%)}}
 .intro-line{position:relative;font-family:Rye,Georgia,serif;font-size:clamp(1.6rem,5vw,3.4rem);color:var(--bone);text-align:center;padding:0 20px;margin:0;opacity:0;animation:fadeUp 1s 1.2s forwards;text-shadow:0 0 24px rgba(255,176,0,.5)}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-.intro-skip{position:absolute;right:16px;bottom:16px;background:none;border:1px solid var(--steel);color:var(--chrome);padding:10px 14px;cursor:pointer;font-size:13px;letter-spacing:.14em;text-transform:uppercase}
+.intro-skip{position:absolute;left:16px;bottom:16px;background:none;border:1px solid var(--steel);color:var(--chrome);padding:10px 14px;cursor:pointer;font-size:13px;letter-spacing:.14em;text-transform:uppercase}
 
 /* configurator modal */
 .modal{position:fixed;inset:0;z-index:250;display:flex;align-items:center;justify-content:center;padding:16px}
@@ -1214,6 +1214,6 @@ fForm.addEventListener('submit', function(e){
 render();
 })();
 </script>
-<script src="assets/sundan-bar.js" defer data-pos="br" data-z="200"></script>
+<script src="assets/sundan-bar.js" defer data-pos="br" data-z="200" data-raise="#intro" data-raise-z="310"></script>
 </body>
 </html>
