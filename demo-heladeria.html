@@ -540,42 +540,42 @@
   }
 
   /* ===== CSS: admin panel ===== */
-  .ad-login {
+  .pn-login {
     min-height: 100vh; display: grid; place-items: center; padding: var(--s4); background: var(--bg);
     background-image: radial-gradient(circle at 15% 20%, var(--pink) 0, transparent 38%), radial-gradient(circle at 85% 80%, var(--mint) 0, transparent 35%);
   }
-  .ad-login-card {
+  .pn-login-card {
     width: min(100%, 400px); background: var(--surface); border: 1px solid var(--line); border-radius: 24px;
     padding: var(--s8) var(--s6); box-shadow: 0 30px 60px rgba(43,29,36,.14); display: grid; gap: var(--s4);
   }
-  .ad-login-card h1 { font-size: 26px; }
-  .ad-login-card .btn-primary { width: 100%; }
-  .ad-shell { min-height: 100vh; display: grid; grid-template-columns: 240px minmax(0, 1fr); background: var(--bg); }
-  .ad-side {
+  .pn-login-card h1 { font-size: 26px; }
+  .pn-login-card .btn-primary { width: 100%; }
+  .pn-shell { min-height: 100vh; display: grid; grid-template-columns: 240px minmax(0, 1fr); background: var(--bg); }
+  .pn-side {
     position: sticky; top: 0; height: 100vh; overflow-y: auto; background: var(--surface); border-right: 1px solid var(--line);
     padding: var(--s6) var(--s4); display: flex; flex-direction: column; gap: var(--s6);
   }
-  .ad-nav { display: grid; gap: var(--s1); }
-  .ad-nav button {
+  .pn-nav { display: grid; gap: var(--s1); }
+  .pn-nav button {
     display: flex; align-items: center; gap: var(--s3); width: 100%; text-align: left; padding: 10px var(--s3);
     border: 0; background: none; border-radius: 12px; font-weight: 500;
   }
-  .ad-nav button:hover { background: var(--bg); }
-  .ad-nav button[aria-current="page"] { background: var(--brand-soft); color: var(--ink); font-weight: 700; }
-  .ad-nav .count { margin-left: auto; font-size: 12px; background: var(--brand); color: var(--brand-ink); border-radius: var(--r-pill); padding: 1px 8px; }
-  .ad-side-foot { margin-top: auto; display: grid; gap: var(--s3); }
-  .ad-status { font-size: 14px; padding: var(--s3); border-radius: 14px; background: var(--bg); border: 1px solid var(--line); }
-  .ad-status strong { display: block; }
-  .ad-main { min-width: 0; padding: var(--s6) var(--s8) var(--s10); }
-  .ad-top { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); flex-wrap: wrap; margin-bottom: var(--s6); }
-  .ad-top h1 { font-size: 30px; }
-  .ad-menu-btn { display: none; }
-  .ad-panel[hidden] { display: none !important; }
-  .ad-kpis { display: grid; gap: var(--s3); grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: var(--s6); }
-  .ad-kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); padding: var(--s4); box-shadow: var(--shadow); min-width: 0; }
-  .ad-kpi .v { font-family: 'Fraunces', Georgia, serif; font-size: 26px; font-weight: 700; }
-  .ad-kpi .l { font-size: 13px; color: var(--muted); }
-  .ad-toolbar { display: flex; flex-wrap: wrap; gap: var(--s3); align-items: center; justify-content: space-between; margin-bottom: var(--s4); }
+  .pn-nav button:hover { background: var(--bg); }
+  .pn-nav button[aria-current="page"] { background: var(--brand-soft); color: var(--ink); font-weight: 700; }
+  .pn-nav .count { margin-left: auto; font-size: 12px; background: var(--brand); color: var(--brand-ink); border-radius: var(--r-pill); padding: 1px 8px; }
+  .pn-side-foot { margin-top: auto; display: grid; gap: var(--s3); }
+  .pn-status { font-size: 14px; padding: var(--s3); border-radius: 14px; background: var(--bg); border: 1px solid var(--line); }
+  .pn-status strong { display: block; }
+  .pn-main { min-width: 0; padding: var(--s6) var(--s8) var(--s10); }
+  .pn-top { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); flex-wrap: wrap; margin-bottom: var(--s6); }
+  .pn-top h1 { font-size: 30px; }
+  .pn-menu-btn { display: none; }
+  .pn-panel[hidden] { display: none !important; }
+  .pn-kpis { display: grid; gap: var(--s3); grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: var(--s6); }
+  .pn-kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); padding: var(--s4); box-shadow: var(--shadow); min-width: 0; }
+  .pn-kpi .v { font-family: 'Fraunces', Georgia, serif; font-size: 26px; font-weight: 700; }
+  .pn-kpi .l { font-size: 13px; color: var(--muted); }
+  .pn-toolbar { display: flex; flex-wrap: wrap; gap: var(--s3); align-items: center; justify-content: space-between; margin-bottom: var(--s4); }
   .seg { display: inline-flex; border: 1px solid var(--line); border-radius: var(--r-pill); padding: 3px; background: var(--surface); }
   .seg button { border: 0; background: none; padding: 7px 14px; border-radius: var(--r-pill); font-weight: 500; font-size: 14px; }
   .seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
@@ -624,8 +624,8 @@
   .upcoming { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s2); }
   .upcoming li { display: flex; justify-content: space-between; gap: var(--s2); font-size: 14px; border-bottom: 1px solid var(--line); padding-bottom: var(--s2); }
 
-  .ad-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); padding: var(--s4); box-shadow: var(--shadow); }
-  .ad-card + .ad-card { margin-top: var(--s4); }
+  .pn-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); padding: var(--s4); box-shadow: var(--shadow); }
+  .pn-card + .pn-card { margin-top: var(--s4); }
   .tbl { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: var(--r-card); overflow: hidden; }
   .tbl th, .tbl td { text-align: left; padding: 12px var(--s3); border-bottom: 1px solid var(--line); vertical-align: middle; font-size: 14px; }
   .tbl th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
@@ -646,30 +646,30 @@
   .hours-tbl td { padding: 8px var(--s2); }
   .hours-tbl input[type="time"] { width: 130px; }
   .inline-confirm { display: inline-flex; align-items: center; gap: var(--s2); flex-wrap: wrap; font-size: 14px; }
-  .ad-toast {
+  .pn-toast {
     position: fixed; right: var(--s6); bottom: var(--s6); z-index: 80; max-width: min(360px, calc(100% - 32px));
     background: var(--ink); color: var(--bg); padding: 12px var(--s4); border-radius: 14px; box-shadow: 0 12px 30px rgba(43,29,36,.3);
     transform: translateY(20px); opacity: 0; transition: opacity .25s, transform .25s var(--ease); pointer-events: none; font-weight: 500;
   }
-  .ad-toast.show { opacity: 1; transform: none; }
-  .ad-scrim { display: none; }
+  .pn-toast.show { opacity: 1; transform: none; }
+  .pn-scrim { display: none; }
 
   @media (max-width: 1100px) {
-    .ad-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .pn-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .week { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   }
   @media (max-width: 860px) {
-    .ad-shell { grid-template-columns: minmax(0, 1fr); }
-    .ad-side {
+    .pn-shell { grid-template-columns: minmax(0, 1fr); }
+    .pn-side {
       position: fixed; left: 0; top: 0; bottom: 0; height: auto; width: min(280px, 86vw); z-index: 60;
       transform: translateX(-105%); transition: transform .3s var(--ease); box-shadow: 0 0 40px rgba(0,0,0,.2);
     }
-    .ad-side.open { transform: none; }
-    .ad-scrim { display: block; position: fixed; inset: 0; background: rgba(43,29,36,.4); z-index: 55; opacity: 0; visibility: hidden; transition: opacity .3s; }
-    .ad-scrim.show { opacity: 1; visibility: visible; }
-    .ad-menu-btn { display: inline-flex; }
-    .ad-main { padding: var(--s4) var(--s4) var(--s10); }
-    .ad-top h1 { font-size: 24px; }
+    .pn-side.open { transform: none; }
+    .pn-scrim { display: block; position: fixed; inset: 0; background: rgba(43,29,36,.4); z-index: 55; opacity: 0; visibility: hidden; transition: opacity .3s; }
+    .pn-scrim.show { opacity: 1; visibility: visible; }
+    .pn-menu-btn { display: inline-flex; }
+    .pn-main { padding: var(--s4) var(--s4) var(--s10); }
+    .pn-top h1 { font-size: 24px; }
     .week { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .board { grid-template-columns: repeat(5, minmax(200px, 1fr)); }
   }
@@ -691,10 +691,10 @@
     .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
   @media (max-width: 480px) {
-    .ad-kpis { grid-template-columns: 1fr 1fr; }
-    .ad-kpi .v { font-size: 20px; }
+    .pn-kpis { grid-template-columns: 1fr 1fr; }
+    .pn-kpi .v { font-size: 20px; }
     .week { grid-template-columns: 1fr; }
-    .ad-toast { left: var(--s3); right: var(--s3); }
+    .pn-toast { left: var(--s3); right: var(--s3); }
   }
 </style>
 </head>
@@ -876,15 +876,15 @@
 <p class="sr-only" id="live" role="status" aria-live="polite"></p>
 
 <!-- ===== ADMIN (#admin) ===== -->
-<div id="adminRoot" hidden>
-  <div class="ad-login" id="adLogin">
-    <form class="ad-login-card" id="adLoginForm" novalidate>
+<div id="staffRoot" hidden>
+  <div class="pn-login" id="pnLogin">
+    <form class="pn-login-card" id="pnLoginForm" novalidate>
       <p class="kicker">Panel de administración</p>
       <h1>Bola de Nieve</h1>
       <p class="view-sub">Acceso del equipo</p>
       <div class="field">
-        <label for="adUser">Usuario</label>
-        <input class="input" id="adUser" type="text" value="Marta · Encargada" autocomplete="username">
+        <label for="pnUser">Usuario</label>
+        <input class="input" id="pnUser" type="text" value="Marta · Encargada" autocomplete="username">
       </div>
       <button type="submit" class="btn btn-primary">Entrar</button>
       <p class="notice">Demo: el acceso está simulado. No hay contraseña real.</p>
@@ -892,91 +892,91 @@
     </form>
   </div>
 
-  <div class="ad-shell" id="adShell" hidden>
-    <aside class="ad-side" id="adSide" aria-label="Menú de administración">
+  <div class="pn-shell" id="pnShell" hidden>
+    <aside class="pn-side" id="pnSide" aria-label="Menú de administración">
       <a class="brand" href="#" aria-label="Volver a la tienda">
         <span class="mini" aria-hidden="true"></span>
         <span class="brand-text"><span class="wordmark" style="display:block;font-size:19px">Bola de Nieve</span><span class="loc">Panel del equipo</span></span>
       </a>
-      <nav class="ad-nav" aria-label="Secciones">
+      <nav class="pn-nav" aria-label="Secciones">
         <button type="button" data-go="pedidos">Pedidos <span class="count" id="navCount">0</span></button>
         <button type="button" data-go="calendario">Calendario de entregas</button>
         <button type="button" data-go="productos">Productos</button>
         <button type="button" data-go="tortas">Tortas</button>
         <button type="button" data-go="ajustes">Ajustes</button>
       </nav>
-      <div class="ad-side-foot">
-        <div class="ad-status" id="adStatus" role="status"><strong id="adStatusTxt">Tienda abierta</strong><span id="adStatusSub"></span></div>
-        <button type="button" class="btn-sm" id="adPause">Pausar pedidos online</button>
+      <div class="pn-side-foot">
+        <div class="pn-status" id="pnStatus" role="status"><strong id="pnStatusTxt">Tienda abierta</strong><span id="pnStatusSub"></span></div>
+        <button type="button" class="btn-sm" id="pnPause">Pausar pedidos online</button>
         <a href="#" class="btn-sm" style="text-align:center;text-decoration:none;display:block">Ver la tienda</a>
-        <button type="button" class="btn-sm" id="adLogout" hidden>Salir</button>
+        <button type="button" class="btn-sm" id="pnLogout" hidden>Salir</button>
       </div>
     </aside>
-    <div class="ad-scrim" id="adScrim"></div>
+    <div class="pn-scrim" id="pnScrim"></div>
 
-    <div class="ad-main">
-      <header class="ad-top">
+    <div class="pn-main">
+      <header class="pn-top">
         <div style="display:flex;gap:var(--s3);align-items:center;flex-wrap:wrap">
-          <button type="button" class="btn-sm ad-menu-btn" id="adMenuBtn" aria-controls="adSide" aria-expanded="false">☰ Menú</button>
-          <h1 id="adTitle" tabindex="-1">Pedidos</h1>
+          <button type="button" class="btn-sm pn-menu-btn" id="pnMenuBtn" aria-controls="pnSide" aria-expanded="false">☰ Menú</button>
+          <h1 id="pnTitle" tabindex="-1">Pedidos</h1>
         </div>
-        <p class="view-sub" id="adDate" style="font-size:14px"></p>
+        <p class="view-sub" id="pnDate" style="font-size:14px"></p>
       </header>
 
       <!-- Pedidos -->
-      <section class="ad-panel" data-panel="pedidos" aria-label="Pedidos">
-        <div class="ad-toolbar">
+      <section class="pn-panel" data-panel="pedidos" aria-label="Pedidos">
+        <div class="pn-toolbar">
           <div class="seg" role="group" aria-label="Mostrar pedidos">
             <button type="button" data-filter="hoy" aria-pressed="true">Hoy</button>
             <button type="button" data-filter="todos" aria-pressed="false">Todos</button>
           </div>
-          <label class="toggle"><input type="checkbox" id="adSound"><span class="track-s" aria-hidden="true"></span>Aviso sonoro al llegar un pedido</label>
-          <span class="view-sub" id="adSimInfo" style="font-size:13px"></span>
+          <label class="toggle"><input type="checkbox" id="pnSound"><span class="track-s" aria-hidden="true"></span>Aviso sonoro al llegar un pedido</label>
+          <span class="view-sub" id="pnSimInfo" style="font-size:13px"></span>
         </div>
         <div class="board" id="board" role="region" aria-label="Tablero de pedidos"></div>
       </section>
 
       <!-- Calendario -->
-      <section class="ad-panel" data-panel="calendario" aria-label="Calendario de entregas" hidden>
-        <div class="ad-kpis" id="kpis"></div>
-        <div class="ad-card">
+      <section class="pn-panel" data-panel="calendario" aria-label="Calendario de entregas" hidden>
+        <div class="pn-kpis" id="kpis"></div>
+        <div class="pn-card">
           <h2 style="font-size:20px;margin-bottom:var(--s3)">Hoy, por franjas horarias</h2>
           <div class="cal-grid" id="calDay"></div>
         </div>
-        <div class="ad-card">
+        <div class="pn-card">
           <h2 style="font-size:20px;margin-bottom:var(--s3)">Próximas entregas</h2>
           <ol class="upcoming" id="upcoming"></ol>
         </div>
-        <div class="ad-card">
+        <div class="pn-card">
           <h2 style="font-size:20px;margin-bottom:var(--s3)">Vista semanal</h2>
           <div class="week" id="week"></div>
         </div>
       </section>
 
       <!-- Productos -->
-      <section class="ad-panel" data-panel="productos" aria-label="Productos" hidden>
-        <div class="ad-toolbar">
+      <section class="pn-panel" data-panel="productos" aria-label="Productos" hidden>
+        <div class="pn-toolbar">
           <p class="view-sub">Los cambios se reflejan al instante en la tienda.</p>
           <button type="button" class="btn-sm primary" id="prodAdd">+ Añadir producto</button>
         </div>
-        <div class="ad-card" id="prodFormWrap" hidden></div>
+        <div class="pn-card" id="prodFormWrap" hidden></div>
         <div id="prodTable"></div>
       </section>
 
       <!-- Tortas -->
-      <section class="ad-panel" data-panel="tortas" aria-label="Tortas" hidden>
-        <div class="ad-toolbar">
+      <section class="pn-panel" data-panel="tortas" aria-label="Tortas" hidden>
+        <div class="pn-toolbar">
           <p class="view-sub">Tamaños, precios y antelación mínima de cada torta.</p>
           <button type="button" class="btn-sm primary" id="cakeAdd">+ Añadir torta</button>
         </div>
-        <div class="ad-card" id="cakeFormWrap" hidden></div>
+        <div class="pn-card" id="cakeFormWrap" hidden></div>
         <div id="cakeTable"></div>
       </section>
 
       <!-- Ajustes -->
-      <section class="ad-panel" data-panel="ajustes" aria-label="Ajustes" hidden>
-        <div class="ad-card" id="settingsWrap"></div>
-        <div class="ad-card">
+      <section class="pn-panel" data-panel="ajustes" aria-label="Ajustes" hidden>
+        <div class="pn-card" id="settingsWrap"></div>
+        <div class="pn-card">
           <h2 style="font-size:20px">Datos de demo</h2>
           <p class="view-sub" style="margin:var(--s2) 0 var(--s3)">Vuelve a los datos de ejemplo: carta, tortas, ajustes y pedidos. Los pedidos hechos en la tienda se borran.</p>
           <div id="resetWrap"><button type="button" class="btn-sm danger" id="resetBtn">Restablecer demo</button></div>
@@ -984,7 +984,7 @@
       </section>
     </div>
   </div>
-  <div class="ad-toast" id="adToast" role="status" aria-live="polite"></div>
+  <div class="pn-toast" id="pnToast" role="status" aria-live="polite"></div>
 </div>
 <script>
 /* Safety net: never leave a blank page. If start-up fails, or nothing is visible,
@@ -993,7 +993,7 @@
   window.__bnBooted = false;
   var lastError = '';
   function visibleContent() {
-    var app = document.getElementById('app'), adm = document.getElementById('adminRoot');
+    var app = document.getElementById('app'), adm = document.getElementById('staffRoot');
     function shown(el) { return el && !el.hidden && getComputedStyle(el).display !== 'none' && el.innerText.trim().length > 20; }
     return shown(app) || shown(adm);
   }
@@ -1007,7 +1007,7 @@
     }
     var mm = function (q) { try { return matchMedia(q).matches ? 1 : 0; } catch (e) { return '?'; } };
     var keys = 0; try { keys = Object.keys(localStorage).filter(function (k) { return k.indexOf('bola') === 0; }).length; } catch (e) { keys = 'x'; }
-    return ['boot=' + (window.__bnBooted ? 1 : 0), 'hash=' + location.hash, st('app'), st('adminRoot'), st('adLogin'), st('adShell'),
+    return ['boot=' + (window.__bnBooted ? 1 : 0), 'hash=' + location.hash, st('app'), st('staffRoot'), st('pnLogin'), st('pnShell'),
       'vw=' + innerWidth + 'x' + innerHeight, 'dpr=' + devicePixelRatio, 'dark=' + mm('(prefers-color-scheme: dark)'),
       'rm=' + mm('(prefers-reduced-motion: reduce)'), 'ls=' + keys, (navigator.userAgent.match(/(Chrome|Edg|Firefox|Version)\/[\d.]+/g) || []).join(' ')].join(' · ');
   }
@@ -2186,16 +2186,16 @@
 
   /* ===== END B) STORE ===== */
   /* ===== C) ADMIN: panel at #admin (pedidos, calendario, productos, tortas, ajustes) ===== */
-  var adminRoot = $('adminRoot');
-  var adLogin = $('adLogin');
-  var adShell = $('adShell');
-  var adSide = $('adSide');
-  var adScrim = $('adScrim');
-  var adPanel = 'pedidos';
-  var adFilter = 'hoy';
-  var adVisible = false;
-  var adLoggedMem = false;
-  var adToastTimer = null;
+  var staffRoot = $('staffRoot');
+  var pnLogin = $('pnLogin');
+  var pnShell = $('pnShell');
+  var pnSide = $('pnSide');
+  var pnScrim = $('pnScrim');
+  var pnPanel = 'pedidos';
+  var pnFilter = 'hoy';
+  var pnVisible = false;
+  var pnLoggedMem = false;
+  var pnToastTimer = null;
   var simTimer = null;
   var soundOn = false;
   var audioCtx = null;
@@ -2204,22 +2204,22 @@
   var PANEL_TITLES = { pedidos: 'Pedidos', calendario: 'Calendario de entregas', productos: 'Productos', tortas: 'Tortas', ajustes: 'Ajustes' };
   var SIM_NAMES = ['Ana B.', 'Hugo M.', 'Lara S.', 'Álvaro P.', 'Sofía R.', 'Mario C.', 'Paula G.', 'Raúl T.', 'Berta F.'];
 
-  function adIsLogged() {
-    try { return window.sessionStorage.getItem(ADMIN_KEY) === '1'; } catch (e) { return adLoggedMem; }
+  function pnIsLogged() {
+    try { return window.sessionStorage.getItem(ADMIN_KEY) === '1'; } catch (e) { return pnLoggedMem; }
   }
-  function adSetLogged(v) {
-    adLoggedMem = v;
+  function pnSetLogged(v) {
+    pnLoggedMem = v;
     try { if (v) window.sessionStorage.setItem(ADMIN_KEY, '1'); else window.sessionStorage.removeItem(ADMIN_KEY); } catch (e) { /* memory only */ }
   }
   function toastAd(msg) {
-    var t = $('adToast');
+    var t = $('pnToast');
     t.textContent = msg;
     t.classList.add('show');
-    clearTimeout(adToastTimer);
-    adToastTimer = setTimeout(function () { t.classList.remove('show'); }, 2600);
+    clearTimeout(pnToastTimer);
+    pnToastTimer = setTimeout(function () { t.classList.remove('show'); }, 2600);
   }
   function kpi(label, value) {
-    return h('div', { class: 'ad-kpi' }, h('div', { class: 'l' }, label), h('div', { class: 'v' }, value));
+    return h('div', { class: 'pn-kpi' }, h('div', { class: 'l' }, label), h('div', { class: 'v' }, value));
   }
   function th(label, cls) { return h('th', { class: cls || null, scope: 'col' }, label); }
   function swatch(color) {
@@ -2247,91 +2247,91 @@
   /* ---------- Entry, login and routing helpers ---------- */
   function showAdmin() {
     appEl.hidden = true;
-    adminRoot.hidden = false;
-    adVisible = true;
-    adSetLogged(true);            // demo: no login screen, the team button opens the panel directly
-    adLogin.hidden = true;
-    adShell.hidden = false;
-    adGo(adPanel);
+    staffRoot.hidden = false;
+    pnVisible = true;
+    pnSetLogged(true);            // demo: no login screen, the team button opens the panel directly
+    pnLogin.hidden = true;
+    pnShell.hidden = false;
+    pnGo(pnPanel);
     startSim();
   }
   function hideAdmin() {
-    if (!adVisible) return;
-    adVisible = false;
+    if (!pnVisible) return;
+    pnVisible = false;
     stopSim();
-    adminRoot.hidden = true;
+    staffRoot.hidden = true;
     appEl.hidden = false;
   }
 
-  $('adLoginForm').addEventListener('submit', function (e) {
+  $('pnLoginForm').addEventListener('submit', function (e) {
     e.preventDefault();
-    adSetLogged(true);
-    adLogin.hidden = true;
-    adShell.hidden = false;
-    adGo('pedidos');
+    pnSetLogged(true);
+    pnLogin.hidden = true;
+    pnShell.hidden = false;
+    pnGo('pedidos');
     startSim();
     toastAd('Sesión de demo iniciada');
   });
-  $('adLogout').addEventListener('click', function () {
+  $('pnLogout').addEventListener('click', function () {
     // demo: leaving the panel goes straight back to the shop
-    adSide.classList.remove('open');
-    adScrim.classList.remove('show');
+    pnSide.classList.remove('open');
+    pnScrim.classList.remove('show');
     location.hash = '';
     hideAdmin();
   });
 
-  function adGo(panel) {
-    adPanel = panel;
-    Array.prototype.slice.call(document.querySelectorAll('.ad-panel')).forEach(function (p) {
+  function pnGo(panel) {
+    pnPanel = panel;
+    Array.prototype.slice.call(document.querySelectorAll('.pn-panel')).forEach(function (p) {
       p.hidden = p.getAttribute('data-panel') !== panel;
     });
-    Array.prototype.slice.call(document.querySelectorAll('.ad-nav button')).forEach(function (b) {
+    Array.prototype.slice.call(document.querySelectorAll('.pn-nav button')).forEach(function (b) {
       if (b.getAttribute('data-go') === panel) b.setAttribute('aria-current', 'page');
       else b.removeAttribute('aria-current');
     });
-    $('adTitle').textContent = PANEL_TITLES[panel];
-    $('adDate').textContent = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
-    adSide.classList.remove('open');
-    adScrim.classList.remove('show');
-    $('adMenuBtn').setAttribute('aria-expanded', 'false');
+    $('pnTitle').textContent = PANEL_TITLES[panel];
+    $('pnDate').textContent = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
+    pnSide.classList.remove('open');
+    pnScrim.classList.remove('show');
+    $('pnMenuBtn').setAttribute('aria-expanded', 'false');
     renderAdPanel();
   }
   function renderAdPanel() {
-    if (!adVisible) return;
-    if (adPanel === 'pedidos') renderBoard();
-    else if (adPanel === 'calendario') renderCalendar();
-    else if (adPanel === 'productos') renderProducts();
-    else if (adPanel === 'tortas') renderCakesAdmin();
-    else if (adPanel === 'ajustes') renderSettings();
+    if (!pnVisible) return;
+    if (pnPanel === 'pedidos') renderBoard();
+    else if (pnPanel === 'calendario') renderCalendar();
+    else if (pnPanel === 'productos') renderProducts();
+    else if (pnPanel === 'tortas') renderCakesAdmin();
+    else if (pnPanel === 'ajustes') renderSettings();
     renderAdStatus();
   }
 
-  Array.prototype.slice.call(document.querySelectorAll('.ad-nav button')).forEach(function (b) {
-    b.addEventListener('click', function () { adGo(b.getAttribute('data-go')); });
+  Array.prototype.slice.call(document.querySelectorAll('.pn-nav button')).forEach(function (b) {
+    b.addEventListener('click', function () { pnGo(b.getAttribute('data-go')); });
   });
-  $('adMenuBtn').addEventListener('click', function () {
-    var open = !adSide.classList.contains('open');
-    adSide.classList.toggle('open', open);
-    adScrim.classList.toggle('show', open);
+  $('pnMenuBtn').addEventListener('click', function () {
+    var open = !pnSide.classList.contains('open');
+    pnSide.classList.toggle('open', open);
+    pnScrim.classList.toggle('show', open);
     this.setAttribute('aria-expanded', String(open));
   });
-  adScrim.addEventListener('click', function () {
-    adSide.classList.remove('open');
-    adScrim.classList.remove('show');
-    $('adMenuBtn').setAttribute('aria-expanded', 'false');
+  pnScrim.addEventListener('click', function () {
+    pnSide.classList.remove('open');
+    pnScrim.classList.remove('show');
+    $('pnMenuBtn').setAttribute('aria-expanded', 'false');
   });
 
   function renderAdStatus() {
     var info = openInfo(new Date());
     var paused = !DB.settings().onlineOrders;
-    $('adStatusTxt').textContent = info.state === 'open' ? 'Tienda abierta' : info.state === 'paused' ? 'Pedidos pausados' : 'Tienda cerrada';
-    $('adStatusSub').textContent = info.line;
-    var pb = $('adPause');
+    $('pnStatusTxt').textContent = info.state === 'open' ? 'Tienda abierta' : info.state === 'paused' ? 'Pedidos pausados' : 'Tienda cerrada';
+    $('pnStatusSub').textContent = info.line;
+    var pb = $('pnPause');
     pb.textContent = paused ? 'Reanudar pedidos online' : 'Pausar pedidos online';
     pb.setAttribute('aria-pressed', String(paused));
     $('navCount').textContent = String(DB.orders().filter(function (o) { return o.status !== 'entregado'; }).length);
   }
-  $('adPause').addEventListener('click', function () {
+  $('pnPause').addEventListener('click', function () {
     var on = !DB.settings().onlineOrders;
     DB.saveSettings({ onlineOrders: on });
     toastAd(on ? 'Pedidos online reanudados' : 'Pedidos online pausados');
@@ -2344,19 +2344,19 @@
   }
   function renderBoard() {
     var now = Date.now();
-    var list = DB.orders().filter(function (o) { return adFilter === 'todos' || isToday(o, now); });
+    var list = DB.orders().filter(function (o) { return pnFilter === 'todos' || isToday(o, now); });
     setChildren($('board'), STATUSES.map(function (st) {
       var items = list.filter(function (o) { return o.status === st.id; }).sort(function (a, b) { return a.dueAt - b.dueAt; });
       return colEl(st, items);
     }));
     Array.prototype.slice.call(document.querySelectorAll('[data-filter]')).forEach(function (b) {
-      b.setAttribute('aria-pressed', String(b.getAttribute('data-filter') === adFilter));
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-filter') === pnFilter));
     });
-    $('adSimInfo').textContent = 'Llegan pedidos de prueba cada 40–60 s mientras este panel está abierto.';
+    $('pnSimInfo').textContent = 'Llegan pedidos de prueba cada 40–60 s mientras este panel está abierto.';
     tickDue();
   }
   Array.prototype.slice.call(document.querySelectorAll('[data-filter]')).forEach(function (b) {
-    b.addEventListener('click', function () { adFilter = b.getAttribute('data-filter'); renderBoard(); });
+    b.addEventListener('click', function () { pnFilter = b.getAttribute('data-filter'); renderBoard(); });
   });
 
   function colEl(st, items) {
@@ -2481,13 +2481,13 @@
   function startSim() { stopSim(); scheduleSim(); }
   function scheduleSim() {
     simTimer = setTimeout(function () {
-      if (adVisible && adIsLogged()) simOrder();
+      if (pnVisible && pnIsLogged()) simOrder();
       scheduleSim();
     }, 40000 + rand(20000));
   }
   function stopSim() { clearTimeout(simTimer); simTimer = null; }
 
-  $('adSound').addEventListener('change', function (e) {
+  $('pnSound').addEventListener('change', function (e) {
     soundOn = e.target.checked;
     if (soundOn) beep();
   });
@@ -2507,7 +2507,7 @@
       kpi('Pedidos hoy', String(today.length)),
       kpi('Ingresos hoy', money(revenue)),
       kpi('Ticket medio', money(ticket)),
-      h('div', { class: 'ad-kpi' }, h('div', { class: 'l' }, 'Próximas 3 entregas'),
+      h('div', { class: 'pn-kpi' }, h('div', { class: 'l' }, 'Próximas 3 entregas'),
         h('ol', { class: 'upcoming', style: 'margin-top:6px' },
           upcoming.length ? upcoming.slice(0, 3).map(function (o) {
             return h('li', null, h('span', null, fmtTime(o.dueAt) + ' · ' + o.customer.name), h('strong', null, o.id));
@@ -2861,19 +2861,19 @@
 
   /* ---------- Live updates and clock ---------- */
   DB.onChange(function () {
-    if (!adVisible || !adIsLogged()) return;
+    if (!pnVisible || !pnIsLogged()) return;
     renderAdStatus();
     if (dragId) return;                       // do not rebuild the board while dragging
-    if (adPanel === 'pedidos') renderBoard();
-    else if (adPanel === 'calendario') renderCalendar();
-    else if (adPanel === 'productos') renderProducts();
-    else if (adPanel === 'tortas') renderCakesAdmin();
+    if (pnPanel === 'pedidos') renderBoard();
+    else if (pnPanel === 'calendario') renderCalendar();
+    else if (pnPanel === 'productos') renderProducts();
+    else if (pnPanel === 'tortas') renderCakesAdmin();
   });
   setInterval(function () {
-    if (!adVisible || !adIsLogged()) return;
+    if (!pnVisible || !pnIsLogged()) return;
     tickDue();
     renderAdStatus();
-    if (adPanel === 'calendario') renderCalendar();
+    if (pnPanel === 'calendario') renderCalendar();
   }, 10000);
 
   /* ===== END C) ADMIN ===== */
