@@ -5,12 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#fff8f1" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1d1519" media="(prefers-color-scheme: dark)">
-<meta name="description" content="Demo de pedidos para heladería artesana: Bola de Nieve, creada por Sundan Studio.">
-<meta name="description" content="Demo de pedidos para heladería artesana: Bola de Nieve, creada por Sundan Studio.">
+<meta name="description" content="Demo de heladería artesana: tienda online de helados y tortas por encargo, y panel de administración para el equipo. Bola de Nieve, creada por Sundan Studio.">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="canonical" href="https://sundanstudio.com/demo-heladeria.html">
 <meta property="og:title" content="Bola de Nieve · Demo">
-<meta property="og:description" content="Demo de pedidos para heladería artesana: Bola de Nieve, creada por Sundan Studio.">
+<meta property="og:description" content="Demo de heladería artesana: tienda online de helados y tortas por encargo, y panel de administración para el equipo. Bola de Nieve, creada por Sundan Studio.">
 <meta property="og:url" content="https://sundanstudio.com/demo-heladeria.html">
 <meta property="og:image" content="https://sundanstudio.com/assets/og-image.png">
 <title>Bola de Nieve · Demo</title>
@@ -18,42 +17,47 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:wght@600;700&display=swap" rel="stylesheet">
 <style>
+  /* ===== CSS: tokens ===== */
   :root {
-    --bg:#fff8f1; --surface:#ffffff; --ink:#2b1d24; --muted:#7a6670;
+    --bg:#fff8f1; --surface:#ffffff; --ink:#2b1d24; --muted:#6e5b64;
     --brand:#e8516b; --brand-ink:#ffffff; --mint:#bfe3d4; --pink:#f7c6d0;
     --vanilla:#f6e2a8; --choco:#7b4a35; --line:#f0e1d6; --err:#c0354f;
-    --brand-soft:#fde3e8;
+    --brand-soft:#fde3e8; --ok:#2f7d5b; --warn:#9a4a00;
     --r-card:18px; --r-pill:999px;
     --shadow:0 6px 20px rgba(43,29,36,.08);
-    --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s6:24px; --s8:32px;
+    --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px; --s8:32px; --s10:40px;
     --ease:cubic-bezier(.2,.7,.3,1);
+    --side:900px;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg:#1d1519; --surface:#2a1f25; --ink:#fbeef2; --muted:#bfa9b2;
+      --bg:#1d1519; --surface:#2a1f25; --ink:#fbeef2; --muted:#c3adb6;
       --brand:#ff6f88; --brand-ink:#2b1d24; --mint:#2f5246; --pink:#4d2c38;
       --vanilla:#4a3f22; --choco:#8f5d46; --line:#3d2c34; --err:#ff9fb0;
-      --brand-soft:#3f2630; --shadow:0 6px 20px rgba(0,0,0,.35);
+      --brand-soft:#3f2630; --ok:#8fd6b4; --warn:#f2b47a; --shadow:0 6px 20px rgba(0,0,0,.35);
     }
   }
   :root[data-theme="dark"] {
-    --bg:#1d1519; --surface:#2a1f25; --ink:#fbeef2; --muted:#bfa9b2;
+    --bg:#1d1519; --surface:#2a1f25; --ink:#fbeef2; --muted:#c3adb6;
     --brand:#ff6f88; --brand-ink:#2b1d24; --mint:#2f5246; --pink:#4d2c38;
     --vanilla:#4a3f22; --choco:#8f5d46; --line:#3d2c34; --err:#ff9fb0;
-    --brand-soft:#3f2630; --shadow:0 6px 20px rgba(0,0,0,.35);
+    --brand-soft:#3f2630; --ok:#8fd6b4; --warn:#f2b47a; --shadow:0 6px 20px rgba(0,0,0,.35);
   }
 
+  /* ===== CSS: base ===== */
   *, *::before, *::after { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
   body {
     margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink);
     font: 400 16px/1.5 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    overflow-x: clip;
   }
   body.locked { overflow: hidden; }
   h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 700; line-height: 1.15; margin: 0; }
   p { margin: 0; }
-  button { font: inherit; color: inherit; cursor: pointer; }
-  button:disabled { cursor: not-allowed; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  button:disabled, [aria-disabled="true"] { cursor: not-allowed; }
   :focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; border-radius: 8px; }
   [hidden] { display: none !important; }
   .sr-only {
@@ -64,39 +68,34 @@
     font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
     color: var(--brand); margin: 0 0 var(--s1);
   }
+  a { color: inherit; }
+  .wrap { width: 100%; max-width: 1240px; margin: 0 auto; padding: 0 var(--s4); }
 
-  /* ---------- Layout ---------- */
-  .shell { display: flex; justify-content: center; align-items: flex-start; gap: var(--s8); }
-  .phone {
-    position: relative; width: 100%; max-width: 430px; min-height: 100vh;
-    background: var(--bg); overflow: clip;
-  }
-  .pitch { display: none; }
-
-  /* ---------- Ribbon ---------- */
+  /* ===== CSS: ribbon and header ===== */
   .ribbon {
     display: flex; align-items: center; justify-content: center; gap: var(--s3);
     background: var(--vanilla); color: var(--ink); padding: var(--s2) var(--s4);
     font-size: 14px; position: relative; z-index: 30;
   }
-  .ribbon p { text-align: center; max-width: 100%; }
+  .ribbon p { text-align: center; }
   .ribbon a { color: var(--ink); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--brand); }
-  .ribbon a:hover { color: var(--brand); }
   .ribbon-close {
     flex: 0 0 auto; background: none; border: 0; font-size: 20px; line-height: 1;
     width: 32px; height: 32px; border-radius: var(--r-pill);
   }
   .ribbon-close:hover { background: rgba(43,29,36,.08); }
 
-  /* ---------- Header ---------- */
   .top {
-    position: sticky; top: 0; z-index: 10; display: flex; align-items: center;
-    justify-content: space-between; gap: var(--s3); padding: var(--s4) var(--s4) var(--s3);
-    background: color-mix(in srgb, var(--bg) 90%, transparent);
+    position: sticky; top: 0; z-index: 25;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
     -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--line);
   }
-  .brand { display: flex; align-items: center; gap: var(--s3); min-width: 0; }
+  .top-inner {
+    display: flex; align-items: center; gap: var(--s4); padding-top: var(--s3); padding-bottom: var(--s3);
+    max-width: 1240px; margin: 0 auto; padding-inline: var(--s4);
+  }
+  .brand { display: flex; align-items: center; gap: var(--s3); min-width: 0; text-decoration: none; }
   .mini { position: relative; width: 30px; height: 32px; flex: 0 0 auto; }
   .mini::before {
     content: ''; position: absolute; top: 0; left: 3px; width: 24px; height: 24px; border-radius: 50%;
@@ -107,39 +106,63 @@
     content: ''; position: absolute; top: 18px; left: 8px; width: 16px; height: 14px;
     background: linear-gradient(#f3cd92, #d99a5c); clip-path: polygon(0 0, 100% 0, 50% 100%);
   }
+  .brand-text { min-width: 0; }
   .wordmark { font-size: 22px; white-space: nowrap; }
   .loc { font-size: 12px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .nav { display: none; gap: var(--s6); margin-left: auto; }
+  .nav a { text-decoration: none; font-weight: 500; padding: var(--s1) 0; border-bottom: 2px solid transparent; }
+  .nav a:hover { border-color: var(--brand); }
+  .open-pill {
+    display: none; align-items: center; gap: var(--s2); font-size: 13px; font-weight: 500;
+    padding: 6px 12px; border-radius: var(--r-pill); background: var(--mint); white-space: nowrap;
+  }
+  .open-pill::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--ok); }
+  .open-pill[data-state="closed"] { background: var(--pink); }
+  .open-pill[data-state="closed"]::before { background: var(--err); }
+  .open-pill[data-state="paused"] { background: var(--vanilla); }
+  .open-pill[data-state="paused"]::before { background: var(--warn); }
   .cart-btn {
     position: relative; flex: 0 0 auto; display: grid; place-items: center; width: 48px; height: 48px;
     border-radius: var(--r-pill); border: 1px solid var(--line); background: var(--surface);
-    box-shadow: var(--shadow); transition: transform .2s var(--ease);
+    box-shadow: var(--shadow); transition: transform .2s var(--ease); margin-left: auto;
   }
   .cart-btn:hover { transform: translateY(-1px); }
   .cart-btn svg { width: 22px; height: 22px; }
   .badge {
     position: absolute; top: -4px; right: -4px; min-width: 22px; height: 22px; padding: 0 6px;
     border-radius: var(--r-pill); background: var(--brand); color: var(--brand-ink);
-    font-size: 12px; font-weight: 700; display: grid; place-items: center;
-    border: 2px solid var(--bg);
+    font-size: 12px; font-weight: 700; display: grid; place-items: center; border: 2px solid var(--bg);
   }
   .badge.bump { animation: bump .45s var(--ease); }
-  @keyframes bump {
-    0% { transform: scale(1); } 35% { transform: scale(1.35); } 70% { transform: scale(.9); } 100% { transform: scale(1); }
-  }
+  @keyframes bump { 0% { transform: scale(1); } 35% { transform: scale(1.35); } 70% { transform: scale(.9); } 100% { transform: scale(1); } }
 
-  /* ---------- Views ---------- */
-  .view { padding: var(--s4) var(--s4) 0; }
+  /* ===== CSS: store views and hero ===== */
+  .view { padding: var(--s4) 0 var(--s8); }
+  .view > .wrap { padding-top: 0; }
   .view-title { font-size: 28px; }
   .view-sub { color: var(--muted); margin-top: var(--s1); }
-  .intro { margin-bottom: var(--s4); }
+  .section { padding-top: var(--s8); scroll-margin-top: 80px; }
+  .section-head { margin-bottom: var(--s4); }
+  .section-head h2 { font-size: 26px; }
   .back {
-    background: none; border: 0; color: var(--muted); padding: var(--s2) 0; font-weight: 500;
-    margin-bottom: var(--s2);
+    background: none; border: 0; color: var(--muted); padding: var(--s2) 0; font-weight: 500; margin-bottom: var(--s2);
   }
   .back:hover { color: var(--ink); }
+  .hero {
+    position: relative; overflow: hidden; border-radius: 28px; margin-top: var(--s4);
+    background: linear-gradient(135deg, var(--mint), var(--pink) 70%, var(--vanilla));
+    padding: var(--s6); display: grid; gap: var(--s4); align-items: center;
+  }
+  .hero h1, .hero .hero-title { font-size: 30px; }
+  .hero-copy p { margin-top: var(--s2); max-width: 46ch; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: var(--s2); margin-top: var(--s4); }
+  .hero-actions .btn { width: auto; padding: 12px var(--s5); font-size: 15px; }
+  .hero-art { position: relative; height: 170px; display: flex; justify-content: center; align-items: flex-end; gap: var(--s2); }
+  .hero-art .scoop { transform-origin: bottom center; }
+  .hero-art .scoop:nth-child(2) { transform: translateY(-14px); }
 
-  /* ---------- Search and chips ---------- */
-  .search { position: relative; margin-bottom: var(--s3); }
+  /* ===== CSS: search, chips and product grid ===== */
+  .search { position: relative; margin-bottom: var(--s3); max-width: 420px; }
   .search svg {
     position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px;
     color: var(--muted); pointer-events: none;
@@ -147,60 +170,64 @@
   .search input {
     width: 100%; padding: 12px 16px 12px 44px; border-radius: var(--r-pill);
     border: 1px solid var(--line); background: var(--surface); color: var(--ink);
-    font: inherit; box-shadow: var(--shadow); transition: border-color .2s;
+    box-shadow: var(--shadow); transition: border-color .2s;
   }
   .search input::placeholder { color: var(--muted); }
   .search input:focus { outline: none; border-color: var(--brand); }
   .search input:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
   .chips {
-    display: flex; gap: var(--s2); overflow-x: auto; scroll-snap-type: x mandatory;
-    padding: var(--s1) var(--s4) var(--s2); margin: 0 calc(var(--s4) * -1) var(--s3);
-    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    display: flex; gap: var(--s2); overflow-x: auto; padding: var(--s1) 0 var(--s2); margin-bottom: var(--s3);
+    scrollbar-width: none; -webkit-overflow-scrolling: touch; max-width: 100%;
   }
   .chips::-webkit-scrollbar { display: none; }
   .chip {
-    flex: 0 0 auto; scroll-snap-align: start; padding: var(--s2) var(--s4); border-radius: var(--r-pill);
+    flex: 0 0 auto; padding: var(--s2) var(--s4); border-radius: var(--r-pill);
     border: 1px solid var(--line); background: var(--surface); font-size: 14px; font-weight: 500;
     transition: background .2s, color .2s, border-color .2s;
   }
   .chip:hover { border-color: var(--brand); }
   .chip[aria-pressed="true"] { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); }
-
-  /* ---------- Product grid ---------- */
   .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s3); }
   .card {
     position: relative; display: flex; flex-direction: column; background: var(--surface);
     border: 1px solid var(--line); border-radius: var(--r-card); box-shadow: var(--shadow);
-    overflow: hidden; transition: transform .2s var(--ease), box-shadow .2s var(--ease);
+    overflow: hidden; transition: transform .2s var(--ease), box-shadow .2s var(--ease); min-width: 0;
   }
   .card:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(43,29,36,.12); }
+  .card.is-out { opacity: .72; }
   .card-open {
     display: flex; flex-direction: column; align-items: stretch; gap: var(--s2); padding: 0 0 var(--s2);
-    background: none; border: 0; text-align: left; color: inherit; border-radius: 0;
+    background: none; border: 0; text-align: left; color: inherit; border-radius: 0; min-width: 0;
   }
   .card-open:focus-visible { outline-offset: -3px; border-radius: var(--r-card); }
   .thumb {
-    height: 124px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: var(--s2);
+    height: 124px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: var(--s2); position: relative;
     background: linear-gradient(160deg, color-mix(in srgb, var(--c1) 40%, var(--surface)), var(--surface) 85%);
   }
+  .sold-badge {
+    position: absolute; top: var(--s2); left: var(--s2); font-size: 11px; font-weight: 700; padding: 2px 8px;
+    border-radius: var(--r-pill); background: var(--ink); color: var(--bg);
+  }
   .card-name { font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: 17px; line-height: 1.2; padding: 0 var(--s3); }
+  .card-desc { font-size: 13px; color: var(--muted); padding: 0 var(--s3); }
   .card-foot {
     display: flex; align-items: center; justify-content: space-between; gap: var(--s2);
     margin-top: auto; padding: 0 var(--s3) var(--s3);
   }
-  .price { font-weight: 700; font-size: 16px; }
+  .price { font-weight: 700; font-size: 16px; white-space: nowrap; }
   .add {
-    width: 36px; height: 36px; flex: 0 0 auto; border-radius: var(--r-pill); border: 0;
+    min-width: 36px; height: 36px; flex: 0 0 auto; border-radius: var(--r-pill); border: 0; padding: 0 var(--s3);
     background: var(--brand); color: var(--brand-ink); font-size: 22px; line-height: 1;
     display: grid; place-items: center; transition: transform .2s var(--ease);
   }
-  .add:hover { transform: scale(1.08); }
-  .add:active { transform: scale(.95); }
+  .add:hover:not(:disabled) { transform: scale(1.08); }
+  .add:active:not(:disabled) { transform: scale(.95); }
+  .add:disabled { background: var(--line); color: var(--muted); font-size: 13px; font-weight: 700; }
   .empty { text-align: center; padding: var(--s8) var(--s4); color: var(--muted); }
 
-  /* ---------- Tags ---------- */
+  /* ===== CSS: tags and scoop illustration ===== */
   .tags { display: flex; flex-wrap: wrap; gap: var(--s1); padding: 0 var(--s3); }
-  .card-open .tags { padding: 0 var(--s3); }
+  .sheet .tags { padding: 0; margin: var(--s3) 0 var(--s4); }
   .tag {
     font-size: 11px; font-weight: 700; letter-spacing: .02em; padding: 2px 8px; border-radius: var(--r-pill);
     background: var(--tagbg, var(--line)); color: var(--ink);
@@ -209,9 +236,7 @@
   .tag-sin-gluten { --tagbg: var(--vanilla); }
   .tag-nuevo { --tagbg: var(--pink); }
   .tag-especial { --tagbg: var(--choco); color: #fff; }
-  :root[data-theme="dark"] .tag-especial, :root:not([data-theme="light"]) .tag-especial { color: #fff; }
-
-  /* ---------- Scoop illustration ---------- */
+  .tag-allergen { --tagbg: var(--brand-soft); }
   .scoop { position: relative; flex: 0 0 auto; }
   .ball {
     position: absolute; left: 0; border-radius: 50%;
@@ -229,22 +254,43 @@
     clip-path: polygon(0 0, 100% 0, 50% 100%);
   }
 
-  /* ---------- Buttons ---------- */
+  /* ===== CSS: cakes ===== */
+  .cakes { display: grid; grid-template-columns: 1fr; gap: var(--s4); }
+  .cake {
+    display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--r-card); box-shadow: var(--shadow); overflow: hidden; min-width: 0;
+  }
+  .cake-band { height: 96px; position: relative; background: linear-gradient(135deg, var(--c1), color-mix(in srgb, var(--c1) 60%, #000)); }
+  .cake-band::after {
+    content: ''; position: absolute; left: 12%; right: 12%; bottom: 0; height: 26px; border-radius: 14px 14px 0 0;
+    background: rgba(255,255,255,.35);
+  }
+  .cake-body { padding: var(--s4); display: flex; flex-direction: column; gap: var(--s2); flex: 1; }
+  .cake-body h3 { font-size: 19px; }
+  .cake-body p { color: var(--muted); font-size: 14px; }
+  .cake-meta { font-size: 13px; color: var(--muted); }
+  .cake-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); margin-top: auto; padding-top: var(--s2); flex-wrap: wrap; }
+  .btn-small { padding: 10px var(--s4); font-size: 14px; width: auto; }
+
+  /* ===== CSS: buttons ===== */
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: var(--s2);
     padding: 14px var(--s6); border-radius: var(--r-pill); border: 0; font-weight: 700; font-size: 16px;
     text-decoration: none; text-align: center; transition: transform .2s var(--ease), box-shadow .2s var(--ease), background .2s;
   }
-  .btn-primary {
-    width: 100%; background: var(--brand); color: var(--brand-ink);
-    box-shadow: 0 8px 20px rgba(232,81,107,.3);
-  }
-  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 12px 24px rgba(232,81,107,.38); }
-  .btn-primary:active { transform: translateY(0); }
+  .btn:disabled { opacity: .5; }
+  .btn-primary { width: 100%; background: var(--brand); color: var(--brand-ink); box-shadow: 0 8px 20px rgba(232,81,107,.3); }
+  .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 12px 24px rgba(232,81,107,.38); }
+  .btn-primary:active:not(:disabled) { transform: translateY(0); }
   .btn-ghost { background: transparent; border: 1px solid var(--line); color: var(--ink); }
   .btn-ghost:hover { border-color: var(--brand); color: var(--brand); }
+  .icon-btn {
+    width: 40px; height: 40px; border-radius: var(--r-pill); border: 1px solid var(--line);
+    background: var(--bg); font-size: 22px; line-height: 1; display: grid; place-items: center; flex: 0 0 auto;
+  }
+  .icon-btn:hover { border-color: var(--brand); }
 
-  /* ---------- Sticky cart bar ---------- */
+  /* ===== CSS: cart bar, toast, sheet ===== */
   .cartbar { position: sticky; bottom: var(--s4); z-index: 20; margin: var(--s4) var(--s4) 0; }
   .cartbar button {
     width: 100%; display: flex; align-items: center; justify-content: center; padding: 14px var(--s6);
@@ -252,24 +298,21 @@
     box-shadow: 0 12px 28px rgba(43,29,36,.25); transition: transform .2s var(--ease);
   }
   .cartbar button:hover { transform: translateY(-1px); }
-
-  /* ---------- Toast ---------- */
   .toast {
-    position: fixed; left: 50%; top: 84px; z-index: 70; pointer-events: none; white-space: nowrap;
+    position: fixed; left: 50%; top: 84px; z-index: 70; pointer-events: none; white-space: nowrap; max-width: calc(100% - 32px);
+    overflow: hidden; text-overflow: ellipsis;
     transform: translate(-50%, -12px); opacity: 0; background: var(--ink); color: var(--bg);
     padding: 12px var(--s6); border-radius: var(--r-pill); font-weight: 500; box-shadow: 0 10px 24px rgba(43,29,36,.25);
     transition: opacity .25s, transform .25s var(--ease);
   }
   .toast.show { opacity: 1; transform: translate(-50%, 0); }
-
-  /* ---------- Product sheet ---------- */
   .backdrop {
     position: fixed; inset: 0; z-index: 40; background: rgba(43,29,36,.38);
     opacity: 0; visibility: hidden; transition: opacity .3s, visibility 0s linear .3s;
   }
   .backdrop.show { opacity: 1; visibility: visible; transition: opacity .3s, visibility 0s; }
   .sheet {
-    position: fixed; left: 50%; bottom: 0; z-index: 50; width: min(100%, 430px); max-height: 88vh; overflow-y: auto;
+    position: fixed; left: 50%; bottom: 0; z-index: 50; width: min(100%, 520px); max-height: 88vh; overflow-y: auto;
     background: var(--surface); border-radius: 24px 24px 0 0; box-shadow: 0 -12px 40px rgba(43,29,36,.2);
     padding: var(--s3) var(--s6) var(--s6); transform: translate(-50%, 105%); visibility: hidden;
     transition: transform .3s var(--ease), visibility 0s linear .3s;
@@ -279,15 +322,9 @@
     content: ''; display: block; width: 40px; height: 4px; border-radius: 4px; background: var(--line); margin: 0 auto var(--s3);
   }
   .sheet-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--s2); }
-  .icon-btn {
-    width: 40px; height: 40px; border-radius: var(--r-pill); border: 1px solid var(--line);
-    background: var(--bg); font-size: 22px; line-height: 1; display: grid; place-items: center;
-  }
-  .icon-btn:hover { border-color: var(--brand); }
   .sheet-scoop { display: flex; justify-content: center; align-items: flex-end; min-height: 110px; margin: var(--s2) 0 var(--s3); }
   .sheet-title { font-size: 26px; }
   .desc { color: var(--muted); margin-top: var(--s1); }
-  .sheet .tags { padding: 0; margin: var(--s3) 0 var(--s4); }
   .fs { border: 0; padding: 0; margin: 0 0 var(--s4); min-width: 0; }
   .legend { font-weight: 700; font-size: 14px; margin-bottom: var(--s2); padding: 0; }
   .opts { display: flex; flex-wrap: wrap; gap: var(--s2); }
@@ -312,51 +349,66 @@
     transition: transform .15s var(--ease);
   }
   .step:hover { transform: scale(1.06); }
-  .step[aria-disabled="true"] { opacity: .4; cursor: not-allowed; transform: none; }
+  .step[aria-disabled="true"] { opacity: .4; transform: none; }
   .qty-val { min-width: 32px; text-align: center; font-weight: 700; }
   .sheet-add { margin-top: var(--s2); }
+  .sheet-note { font-size: 13px; color: var(--muted); margin-top: var(--s2); }
 
-  /* ---------- Cart ---------- */
+  /* ===== CSS: cart panel ===== */
+  .cart-panel { display: flex; flex-direction: column; gap: var(--s4); }
+  .cart-panel h2 { font-size: 22px; }
   .lines { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s3); }
   .line {
-    display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: var(--s3); align-items: center;
+    display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: var(--s3); align-items: center;
     background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card);
-    padding: var(--s3); box-shadow: var(--shadow);
+    padding: var(--s3); box-shadow: var(--shadow); min-width: 0;
   }
-  .line-art { display: flex; align-items: flex-end; justify-content: center; height: 84px; }
-  .line-info h3 { font-size: 16px; }
-  .line-info p { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .line.is-warn { border-color: var(--err); }
+  .line-art { display: flex; align-items: flex-end; justify-content: center; height: 72px; }
+  .cake-chip { display: block; width: 44px; height: 40px; border-radius: 10px 10px 6px 6px; background: var(--brand); box-shadow: inset 0 -6px 0 rgba(0,0,0,.12); }
+  .line-info h3 { font-size: 16px; overflow-wrap: anywhere; }
+  .line-info p { font-size: 13px; color: var(--muted); margin-top: 2px; overflow-wrap: anywhere; }
   .link-btn {
     background: none; border: 0; color: var(--brand); font-weight: 700; font-size: 13px; padding: var(--s1) 0; margin-top: var(--s1);
   }
   .link-btn:hover { text-decoration: underline; }
   .line-side { display: flex; flex-direction: column; align-items: flex-end; gap: var(--s2); }
   .line-total { font-weight: 700; white-space: nowrap; }
+  .sum-lines { display: grid; gap: var(--s2); font-size: 15px; }
+  .sum-lines div { display: flex; justify-content: space-between; gap: var(--s3); }
+  .sum-lines .muted { color: var(--muted); }
   .subtotal {
     display: flex; justify-content: space-between; align-items: baseline; font-size: 18px; font-weight: 700;
-    padding: var(--s4) 0; margin-top: var(--s4); border-top: 1px dashed var(--line);
+    padding-top: var(--s3); border-top: 1px dashed var(--line);
   }
-  .field { margin-bottom: var(--s4); }
-  .field label { display: block; font-weight: 500; margin-bottom: var(--s2); }
+  .field { display: grid; gap: var(--s2); }
+  .field label, .field .label { font-weight: 500; }
+  .field .hint { font-size: 13px; color: var(--muted); }
   .input {
     width: 100%; padding: 12px var(--s4); border-radius: 14px; border: 1px solid var(--line);
-    background: var(--surface); color: var(--ink); font: inherit; transition: border-color .2s;
+    background: var(--surface); color: var(--ink); transition: border-color .2s; min-width: 0;
   }
   .input:focus { outline: none; border-color: var(--brand); }
   .input:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
   .input[aria-invalid="true"] { border-color: var(--err); }
-  .err { color: var(--err); font-size: 14px; margin-top: var(--s2); font-weight: 500; }
-  .closed-msg {
+  .input[readonly] { background: var(--bg); color: var(--muted); }
+  textarea.input { resize: vertical; min-height: 80px; }
+  .err { color: var(--err); font-size: 14px; font-weight: 500; }
+  .notice {
     background: var(--vanilla); color: var(--ink); border-radius: 14px; padding: var(--s3) var(--s4);
-    margin-bottom: var(--s4); font-weight: 500; font-size: 14px;
+    font-weight: 500; font-size: 14px;
   }
-  .empty-state { text-align: center; padding: var(--s6) var(--s2) var(--s8); }
+  .notice.bad { background: var(--brand-soft); color: var(--ink); }
+  .check { display: flex; align-items: center; gap: var(--s2); font-size: 15px; }
+  .check input { width: 18px; height: 18px; accent-color: var(--brand); }
+  .radio-row { display: flex; flex-wrap: wrap; gap: var(--s2); }
+  .empty-state { text-align: center; padding: var(--s6) var(--s2) var(--s6); }
   .empty-state svg { width: 120px; height: 120px; }
   .empty-state h3 { font-size: 22px; margin: var(--s3) 0 var(--s2); }
-  .empty-state p { color: var(--muted); margin-bottom: var(--s6); }
+  .empty-state p { color: var(--muted); margin-bottom: var(--s4); }
   .empty-state .btn { width: 100%; }
 
-  /* ---------- Confirmation ---------- */
+  /* ===== CSS: confirmation and tracker ===== */
   .code-card {
     background: linear-gradient(135deg, var(--mint), var(--pink)); color: var(--ink);
     border-radius: var(--r-card); padding: var(--s6); text-align: center; margin: var(--s4) 0;
@@ -365,10 +417,10 @@
   .code { font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: 40px; letter-spacing: .04em; margin-top: var(--s1); }
   .tracker { position: relative; margin: var(--s6) 0 var(--s4); }
   .steps {
-    list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr);
+    list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
     position: relative; z-index: 1;
   }
-  .steps li { display: flex; flex-direction: column; align-items: center; gap: var(--s2); text-align: center; font-size: 14px; font-weight: 500; color: var(--muted); }
+  .steps li { display: flex; flex-direction: column; align-items: center; gap: var(--s2); text-align: center; font-size: 13px; font-weight: 500; color: var(--muted); }
   .steps li.current, .steps li.done { color: var(--ink); }
   .dot {
     width: 28px; height: 28px; border-radius: 50%; border: 3px solid var(--line); background: var(--surface);
@@ -377,7 +429,7 @@
   .steps li.done .dot { background: var(--brand); border-color: var(--brand); }
   .steps li.current .dot { border-color: var(--brand); box-shadow: 0 0 0 6px var(--brand-soft); }
   .track {
-    position: absolute; top: 13px; left: calc(100% / 6); right: calc(100% / 6); height: 4px;
+    position: absolute; top: 13px; left: calc(100% / 8); right: calc(100% / 8); height: 4px;
     background: var(--line); border-radius: 4px; z-index: 0;
   }
   .track-fill { height: 100%; width: 0; background: var(--brand); border-radius: 4px; transition: width .6s var(--ease); }
@@ -392,73 +444,304 @@
   .sum-row { display: flex; justify-content: space-between; gap: var(--s3); padding: var(--s2) 0; color: var(--muted); }
   .sum-row.total { color: var(--ink); font-weight: 700; font-size: 18px; border-top: 1px dashed var(--line); margin-top: var(--s2); padding-top: var(--s3); }
 
-  /* ---------- Desktop framing ---------- */
-  @media (min-width: 901px) {
-    body {
-      background:
-        radial-gradient(circle at 15% 20%, var(--pink) 0, transparent 38%),
-        radial-gradient(circle at 85% 80%, var(--mint) 0, transparent 35%),
-        var(--bg);
-      background-attachment: fixed;
+  /* ===== CSS: home sections ===== */
+  .how { display: grid; gap: var(--s3); grid-template-columns: 1fr; }
+  .how-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); padding: var(--s4); box-shadow: var(--shadow); }
+  .how-card .num { font-family: 'Fraunces', Georgia, serif; font-size: 28px; color: var(--brand); font-weight: 700; }
+  .how-card h3 { font-size: 18px; margin: var(--s1) 0; }
+  .how-card p { color: var(--muted); font-size: 14px; }
+  .site-footer { border-top: 1px solid var(--line); margin-top: var(--s10); padding: var(--s8) 0; font-size: 14px; color: var(--muted); }
+  .foot-grid { display: grid; gap: var(--s6); grid-template-columns: 1fr; }
+  .foot-grid h3 { font-size: 16px; color: var(--ink); margin-bottom: var(--s2); }
+  .foot-grid ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s1); }
+  .foot-legal { margin-top: var(--s6); padding-top: var(--s4); border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: var(--s3); justify-content: space-between; }
+  .foot-legal a { color: inherit; }
+  .team-link { color: var(--ink); font-weight: 500; }
+  .sheet-sizes .opt { gap: var(--s2); }
+
+  /* ===== CSS: admin entry in the page (link) ===== */
+  .sr-skip { position: absolute; left: var(--s2); top: -40px; background: var(--ink); color: var(--bg); padding: var(--s2) var(--s3); border-radius: 10px; z-index: 99; }
+  .sr-skip:focus { top: var(--s2); }
+
+  /* ===== CSS: responsive, store ===== */
+  @media (min-width: 600px) {
+    .hero { grid-template-columns: minmax(0,1fr) auto; }
+    .hero-art { height: 200px; }
+    .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .cakes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .how { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  /* Tablet: 600–899 — cart becomes a slide-in drawer */
+  @media (min-width: 600px) and (max-width: 899px) {
+    #view-cart:not([hidden]) {
+      position: fixed; top: 0; right: 0; bottom: 0; z-index: 45; width: min(460px, 100%);
+      overflow-y: auto; background: var(--bg); box-shadow: -12px 0 40px rgba(43,29,36,.18); padding: var(--s4) var(--s6);
+      animation: slide-in .3s var(--ease);
     }
-    .shell { padding: var(--s8) var(--s6) var(--s8); min-height: calc(100vh - 56px); align-items: center; }
-    .phone {
-      min-height: min(820px, calc(100vh - 120px)); max-width: 430px; border-radius: 36px;
-      border: 1px solid var(--line); box-shadow: 0 30px 60px rgba(43,29,36,.14);
+  }
+  @keyframes slide-in { from { transform: translateX(100%); } to { transform: none; } }
+  @media (min-width: 900px) {
+    .top-inner { max-width: 1240px; }
+    .nav { display: flex; }
+    .open-pill { display: inline-flex; }
+    .cart-btn { margin-left: 0; }
+    .loc { display: none; }
+    .cartbar { display: none; }
+    .hero { padding: var(--s8); grid-template-columns: minmax(0,1fr) auto; }
+    .hero h1, .hero .hero-title { font-size: 40px; }
+    .hero-art { height: 220px; }
+    .view { padding-top: var(--s6); }
+    .main-grid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: var(--s8); align-items: start; }
+    .main-grid > .content { min-width: 0; }
+    .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .cakes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    #view-cart { display: none !important; }
+    #view-cart.is-desktop-hidden { display: none !important; }
+    .side-cart {
+      display: block; position: sticky; top: 96px; align-self: start;
+      background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: var(--s6);
+      box-shadow: var(--shadow); max-height: calc(100vh - 116px); overflow-y: auto;
     }
-    .pitch {
-      display: block; position: sticky; top: var(--s8); flex: 0 0 300px; width: 300px;
-      background: var(--surface); border: 1px solid var(--line); border-radius: 24px;
-      padding: var(--s6); box-shadow: var(--shadow);
-    }
-    .pitch h2 { font-size: 24px; margin-bottom: var(--s3); }
-    .pitch-lead { color: var(--muted); margin-bottom: var(--s4); }
-    .pitch-list { list-style: none; margin: 0 0 var(--s6); padding: 0; display: grid; gap: var(--s3); }
-    .pitch-list li { position: relative; padding-left: var(--s6); }
-    .pitch-list li::before {
-      content: ''; position: absolute; left: 0; top: 8px; width: 10px; height: 10px; border-radius: 50%;
-      background: var(--brand);
-    }
-    .pitch .btn { width: 100%; }
+    .side-cart .checkout-btn { width: 100%; }
+    .wrap-wide { max-width: 1240px; }
+    .section-head h2 { font-size: 32px; }
+    .view-confirm-wide { max-width: 720px; margin: 0 auto; }
+  }
+  @media (min-width: 1200px) {
+    .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+  @media (max-width: 899px) {
+    .side-cart { display: none; }
+  }
+  @media (max-width: 599px) {
+    .hero-art { height: auto; padding-top: var(--s2); zoom: .82; }
+    .hero { padding: var(--s5); }
+    .hero h1, .hero .hero-title { font-size: 26px; }
   }
 
-  /* ---------- Reduced motion ---------- */
+  /* ===== CSS: reduced motion ===== */
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: .01ms !important; animation-iteration-count: 1 !important;
       transition-duration: .01ms !important; scroll-behavior: auto !important;
     }
   }
+
+  /* ===== CSS: admin panel ===== */
+  .ad-login {
+    min-height: 100vh; display: grid; place-items: center; padding: var(--s4); background: var(--bg);
+    background-image: radial-gradient(circle at 15% 20%, var(--pink) 0, transparent 38%), radial-gradient(circle at 85% 80%, var(--mint) 0, transparent 35%);
+  }
+  .ad-login-card {
+    width: min(100%, 400px); background: var(--surface); border: 1px solid var(--line); border-radius: 24px;
+    padding: var(--s8) var(--s6); box-shadow: 0 30px 60px rgba(43,29,36,.14); display: grid; gap: var(--s4);
+  }
+  .ad-login-card h1 { font-size: 26px; }
+  .ad-login-card .btn-primary { width: 100%; }
+  .ad-shell { min-height: 100vh; display: grid; grid-template-columns: 240px minmax(0, 1fr); background: var(--bg); }
+  .ad-side {
+    position: sticky; top: 0; height: 100vh; overflow-y: auto; background: var(--surface); border-right: 1px solid var(--line);
+    padding: var(--s6) var(--s4); display: flex; flex-direction: column; gap: var(--s6);
+  }
+  .ad-nav { display: grid; gap: var(--s1); }
+  .ad-nav button {
+    display: flex; align-items: center; gap: var(--s3); width: 100%; text-align: left; padding: 10px var(--s3);
+    border: 0; background: none; border-radius: 12px; font-weight: 500;
+  }
+  .ad-nav button:hover { background: var(--bg); }
+  .ad-nav button[aria-current="page"] { background: var(--brand-soft); color: var(--ink); font-weight: 700; }
+  .ad-nav .count { margin-left: auto; font-size: 12px; background: var(--brand); color: var(--brand-ink); border-radius: var(--r-pill); padding: 1px 8px; }
+  .ad-side-foot { margin-top: auto; display: grid; gap: var(--s3); }
+  .ad-status { font-size: 14px; padding: var(--s3); border-radius: 14px; background: var(--bg); border: 1px solid var(--line); }
+  .ad-status strong { display: block; }
+  .ad-main { min-width: 0; padding: var(--s6) var(--s8) var(--s10); }
+  .ad-top { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); flex-wrap: wrap; margin-bottom: var(--s6); }
+  .ad-top h1 { font-size: 30px; }
+  .ad-menu-btn { display: none; }
+  .ad-panel[hidden] { display: none !important; }
+  .ad-kpis { display: grid; gap: var(--s3); grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: var(--s6); }
+  .ad-kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); padding: var(--s4); box-shadow: var(--shadow); min-width: 0; }
+  .ad-kpi .v { font-family: 'Fraunces', Georgia, serif; font-size: 26px; font-weight: 700; }
+  .ad-kpi .l { font-size: 13px; color: var(--muted); }
+  .ad-toolbar { display: flex; flex-wrap: wrap; gap: var(--s3); align-items: center; justify-content: space-between; margin-bottom: var(--s4); }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: var(--r-pill); padding: 3px; background: var(--surface); }
+  .seg button { border: 0; background: none; padding: 7px 14px; border-radius: var(--r-pill); font-weight: 500; font-size: 14px; }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+  .btn-sm { padding: 8px 14px; font-size: 14px; border-radius: var(--r-pill); border: 1px solid var(--line); background: var(--surface); font-weight: 500; }
+  .btn-sm:hover { border-color: var(--brand); }
+  .btn-sm.primary { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); font-weight: 700; }
+  .btn-sm.danger { color: var(--err); }
+  .btn-sm:disabled { opacity: .45; cursor: not-allowed; }
+  .switch-lbl { display: inline-flex; align-items: center; gap: var(--s2); font-size: 14px; }
+
+  .board { display: grid; grid-template-columns: repeat(5, minmax(220px, 1fr)); gap: var(--s3); overflow-x: auto; padding-bottom: var(--s2); }
+  .col { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); padding: var(--s3); min-height: 260px; display: flex; flex-direction: column; gap: var(--s2); min-width: 0; }
+  .col.over { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+  .col-head { display: flex; align-items: center; justify-content: space-between; font-weight: 700; font-size: 14px; padding: var(--s1) var(--s1) var(--s2); }
+  .col-head .n { background: var(--bg); border-radius: var(--r-pill); padding: 0 8px; font-size: 12px; }
+  .col-empty { font-size: 13px; color: var(--muted); padding: var(--s4) var(--s2); text-align: center; border: 1px dashed var(--line); border-radius: 12px; }
+  .ocard {
+    background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: var(--s3); display: grid; gap: var(--s2);
+    cursor: grab; min-width: 0;
+  }
+  .ocard.dragging { opacity: .5; }
+  .ocard-top { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); }
+  .ocard-num { font-family: 'Fraunces', Georgia, serif; font-weight: 700; }
+  .pill { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: var(--r-pill); background: var(--mint); color: var(--ink); white-space: nowrap; }
+  .pill.envio { background: var(--pink); }
+  .pill.late { background: var(--err); color: #fff; }
+  :root[data-theme="dark"] .pill.late, :root:not([data-theme="light"]) .pill.late { color: #2b1d24; }
+  .due { font-size: 13px; font-weight: 700; }
+  .due.late { color: var(--err); }
+  .ocard-items { font-size: 13px; color: var(--muted); margin: 0; padding-left: 16px; }
+  .ocard-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s2); font-size: 14px; flex-wrap: wrap; }
+  .ocard-notes { font-size: 13px; background: var(--vanilla); color: var(--ink); border-radius: 10px; padding: 4px 8px; }
+  .ocard-btns { display: flex; gap: var(--s2); }
+  .ocard-btns .btn-sm { flex: 1; padding: 6px 8px; font-size: 13px; }
+  .ocard-name { font-weight: 700; font-size: 14px; overflow-wrap: anywhere; }
+
+  .cal-grid { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: var(--s2) var(--s3); align-items: start; }
+  .cal-hour { font-weight: 700; font-size: 14px; padding-top: var(--s2); color: var(--muted); }
+  .cal-slot { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: var(--s2) var(--s3); min-height: 48px; display: grid; gap: var(--s2); min-width: 0; }
+  .cal-item { display: flex; flex-wrap: wrap; gap: var(--s2); align-items: center; font-size: 14px; }
+  .cal-item strong { overflow-wrap: anywhere; }
+  .week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--s2); }
+  .week-day { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: var(--s2); min-width: 0; display: grid; gap: var(--s2); align-content: start; }
+  .week-day h3 { font-size: 14px; }
+  .week-day .it { font-size: 12px; background: var(--bg); border-radius: 10px; padding: 4px 6px; overflow-wrap: anywhere; }
+  .upcoming { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s2); }
+  .upcoming li { display: flex; justify-content: space-between; gap: var(--s2); font-size: 14px; border-bottom: 1px solid var(--line); padding-bottom: var(--s2); }
+
+  .ad-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); padding: var(--s4); box-shadow: var(--shadow); }
+  .ad-card + .ad-card { margin-top: var(--s4); }
+  .tbl { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: var(--r-card); overflow: hidden; }
+  .tbl th, .tbl td { text-align: left; padding: 12px var(--s3); border-bottom: 1px solid var(--line); vertical-align: middle; font-size: 14px; }
+  .tbl th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+  .tbl td .actions { display: flex; flex-wrap: wrap; gap: var(--s2); }
+  .sw { display: inline-block; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--line); vertical-align: middle; }
+  .toggle { position: relative; display: inline-flex; align-items: center; gap: var(--s2); cursor: pointer; font-size: 13px; }
+  .toggle input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .toggle .track-s { width: 40px; height: 22px; border-radius: var(--r-pill); background: var(--line); position: relative; transition: background .2s; }
+  .toggle .track-s::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--surface); transition: transform .2s var(--ease); box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+  .toggle input:checked + .track-s { background: var(--ok); }
+  .toggle input:checked + .track-s::after { transform: translateX(18px); }
+  .toggle input:focus-visible + .track-s { outline: 3px solid var(--brand); outline-offset: 2px; }
+  .form-grid { display: grid; gap: var(--s4); grid-template-columns: 1fr; }
+  .form-grid .full { grid-column: 1 / -1; }
+  .form-actions { display: flex; gap: var(--s2); flex-wrap: wrap; margin-top: var(--s4); }
+  .sizes-rows { display: grid; gap: var(--s2); }
+  .size-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: var(--s2); align-items: center; }
+  .hours-tbl td { padding: 8px var(--s2); }
+  .hours-tbl input[type="time"] { width: 130px; }
+  .inline-confirm { display: inline-flex; align-items: center; gap: var(--s2); flex-wrap: wrap; font-size: 14px; }
+  .ad-toast {
+    position: fixed; right: var(--s6); bottom: var(--s6); z-index: 80; max-width: min(360px, calc(100% - 32px));
+    background: var(--ink); color: var(--bg); padding: 12px var(--s4); border-radius: 14px; box-shadow: 0 12px 30px rgba(43,29,36,.3);
+    transform: translateY(20px); opacity: 0; transition: opacity .25s, transform .25s var(--ease); pointer-events: none; font-weight: 500;
+  }
+  .ad-toast.show { opacity: 1; transform: none; }
+  .ad-scrim { display: none; }
+
+  @media (max-width: 1100px) {
+    .ad-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .week { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+  @media (max-width: 860px) {
+    .ad-shell { grid-template-columns: minmax(0, 1fr); }
+    .ad-side {
+      position: fixed; left: 0; top: 0; bottom: 0; height: auto; width: min(280px, 86vw); z-index: 60;
+      transform: translateX(-105%); transition: transform .3s var(--ease); box-shadow: 0 0 40px rgba(0,0,0,.2);
+    }
+    .ad-side.open { transform: none; }
+    .ad-scrim { display: block; position: fixed; inset: 0; background: rgba(43,29,36,.4); z-index: 55; opacity: 0; visibility: hidden; transition: opacity .3s; }
+    .ad-scrim.show { opacity: 1; visibility: visible; }
+    .ad-menu-btn { display: inline-flex; }
+    .ad-main { padding: var(--s4) var(--s4) var(--s10); }
+    .ad-top h1 { font-size: 24px; }
+    .week { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .board { grid-template-columns: repeat(5, minmax(200px, 1fr)); }
+  }
+  @media (max-width: 699px) {
+    .cal-grid { grid-template-columns: 70px minmax(0, 1fr); }
+    .cal-hour { font-size: 13px; }
+    .tbl thead { display: none; }
+    .tbl, .tbl tbody, .tbl tr, .tbl td { display: block; width: 100%; }
+    .tbl tr { border-bottom: 1px solid var(--line); padding: var(--s3) 0; }
+    .tbl td { border: 0; padding: 4px var(--s3); }
+    .tbl td.hide-sm { display: none; }
+    .tbl td .actions { margin-top: var(--s2); }
+    .size-row { grid-template-columns: 1fr 1fr; }
+    .size-row .btn-sm { grid-column: 1 / -1; justify-self: start; }
+    .hours-tbl input[type="time"] { width: 110px; }
+    .hours-tbl tr { display: grid; grid-template-columns: 1fr; }
+  }
+  @media (min-width: 700px) {
+    .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 480px) {
+    .ad-kpis { grid-template-columns: 1fr 1fr; }
+    .ad-kpi .v { font-size: 20px; }
+    .week { grid-template-columns: 1fr; }
+    .ad-toast { left: var(--s3); right: var(--s3); }
+  }
 </style>
 </head>
 <body>
+<a href="#main" class="sr-skip">Ir al contenido</a>
+
+<!-- ===== STORE (customer) ===== -->
 <div id="app">
   <div class="ribbon" id="ribbon" role="region" aria-label="Aviso de demo">
     <p>Demo creada por Sundan Studio — ¿quieres una app así para tu negocio? <a href="index.html#contacto">Hablemos →</a></p>
     <button type="button" class="ribbon-close" id="ribbonClose" aria-label="Cerrar aviso">×</button>
   </div>
 
-  <div class="shell">
-    <div class="phone" id="phone">
-      <header class="top">
-        <div class="brand">
-          <span class="mini" aria-hidden="true"></span>
-          <div style="min-width:0">
-            <h1 class="wordmark">Bola de Nieve</h1>
-            <p class="loc">Recoge en C/ del Mar 12 · Abierto hasta 22:00</p>
-          </div>
-        </div>
-        <button type="button" class="cart-btn" id="cartBtn" aria-label="Ver carrito, 0 artículos">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6h15l-1.5 8.5a2 2 0 0 1-2 1.5H9.5a2 2 0 0 1-2-1.6L6 3H3"/><circle cx="9" cy="20" r="1.3"/><circle cx="17" cy="20" r="1.3"/></svg>
-          <span class="badge" id="badge" hidden>0</span>
-        </button>
-      </header>
+  <!-- Header -->
+  <header class="top">
+    <div class="top-inner">
+      <a class="brand" href="#" aria-label="Bola de Nieve, inicio">
+        <span class="mini" aria-hidden="true"></span>
+        <span class="brand-text">
+          <span class="wordmark" style="display:block">Bola de Nieve</span>
+          <span class="loc" id="locLine">Cargando horario…</span>
+        </span>
+      </a>
+      <nav class="nav" aria-label="Principal">
+        <a href="#helados">Helados</a>
+        <a href="#tortas">Tortas</a>
+        <a href="#como">Cómo funciona</a>
+        <a href="#contacto">Contacto</a>
+      </nav>
+      <span class="open-pill" id="openPill" data-state="open" role="status">Abierto</span>
+      <button type="button" class="cart-btn" id="cartBtn" aria-label="Ver carrito, 0 artículos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6h15l-1.5 8.5a2 2 0 0 1-2 1.5H9.5a2 2 0 0 1-2-1.6L6 3H3"/><circle cx="9" cy="20" r="1.3"/><circle cx="17" cy="20" r="1.3"/></svg>
+        <span class="badge" id="badge" hidden>0</span>
+      </button>
+    </div>
+  </header>
 
-      <main>
-        <!-- Menu -->
-        <section class="view" id="view-menu" aria-labelledby="menuTitle">
-          <div class="intro">
-            <h2 class="view-title" id="menuTitle" tabindex="-1">Hoy en la carta</h2>
+  <main id="main">
+    <div class="wrap main-grid">
+
+      <!-- Carta: hero, helados, tortas, cómo funciona -->
+      <section class="view content" id="view-menu" aria-label="Carta">
+        <section class="hero" aria-labelledby="heroTitle">
+          <div class="hero-copy">
+            <p class="kicker">Heladería artesana · hecha cada mañana</p>
+            <h1 class="hero-title" id="heroTitle">Helado de obrador, listo a tu hora.</h1>
+            <p>Elige tus sabores y la hora de recogida, o encarga una tarta para tu celebración.</p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="#helados">Ver la carta</a>
+              <a class="btn btn-ghost" href="#tortas">Encargar una tarta</a>
+            </div>
+          </div>
+          <div class="hero-art" id="heroArt" aria-hidden="true"></div>
+        </section>
+
+        <section class="section" id="helados" aria-labelledby="helados-title">
+          <div class="section-head">
+            <p class="kicker">La carta</p>
+            <h2 id="helados-title" tabindex="-1">Helados de hoy</h2>
             <p class="view-sub">Hechos a diario en nuestro obrador.</p>
           </div>
           <div class="search">
@@ -471,100 +754,104 @@
           <p class="empty" id="noResults" hidden></p>
         </section>
 
-        <!-- Cart -->
-        <section class="view" id="view-cart" aria-labelledby="cartTitle" hidden>
-          <button type="button" class="back" id="backToMenu">← Seguir con la carta</button>
-          <h2 class="view-title" id="cartTitle" tabindex="-1">Tu pedido</h2>
-
-          <div class="empty-state" id="cartEmpty" hidden>
-            <svg viewBox="0 0 120 120" aria-hidden="true">
-              <circle cx="60" cy="46" r="34" fill="#f7c6d0"/>
-              <path d="M34 68h52L60 116z" fill="#f3cd92"/>
-              <path d="M44 40q4-8 12-8" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none" opacity=".85"/>
-              <circle cx="50" cy="50" r="3.2" fill="#2b1d24"/>
-              <circle cx="70" cy="50" r="3.2" fill="#2b1d24"/>
-              <path d="M51 60q9 8 18 0" stroke="#2b1d24" stroke-width="3" fill="none" stroke-linecap="round"/>
-            </svg>
-            <h3>Tu carrito está vacío</h3>
-            <p>Todavía no has elegido sabor. ¡Hay diez esperándote!</p>
-            <button type="button" class="btn btn-primary" id="emptyToMenu">Ver la carta</button>
+        <section class="section" id="tortas" aria-labelledby="tortas-title">
+          <div class="section-head">
+            <p class="kicker">Por encargo</p>
+            <h2 id="tortas-title" tabindex="-1">Tortas heladas</h2>
+            <p class="view-sub" id="cakeLead">Elige tamaño, sabor y la fecha de entrega.</p>
           </div>
-
-          <div id="cartFull" hidden>
-            <ul class="lines" id="cartList"></ul>
-            <div class="subtotal"><span>Subtotal</span><span id="subtotal">0,00 €</span></div>
-
-            <form id="checkout" novalidate>
-              <div class="field">
-                <label for="pickup">Hora de recogida</label>
-                <p class="closed-msg" id="closedMsg" hidden>Hoy ya hemos cerrado — elige mañana</p>
-                <select class="input" id="pickup"></select>
-              </div>
-              <div class="field">
-                <label for="name">Tu nombre</label>
-                <input class="input" id="name" type="text" autocomplete="given-name" maxlength="40" required aria-required="true" aria-describedby="nameErr">
-                <p class="err" id="nameErr" role="alert" hidden></p>
-              </div>
-              <button type="submit" class="btn btn-primary">Confirmar pedido · <span id="checkoutTotal">0,00 €</span></button>
-            </form>
-          </div>
+          <div class="cakes" id="cakes"></div>
+          <p class="empty" id="noCakes" hidden>Ahora mismo no tenemos tortas por encargo.</p>
         </section>
 
-        <!-- Confirmation -->
-        <section class="view" id="view-confirm" aria-labelledby="confirmTitle" hidden>
+        <section class="section" id="como" aria-labelledby="como-title">
+          <div class="section-head">
+            <p class="kicker">Paso a paso</p>
+            <h2 id="como-title" tabindex="-1">Cómo funciona</h2>
+          </div>
+          <ol class="how">
+            <li class="how-card"><span class="num" aria-hidden="true">1</span><h3>Elige tu carta</h3><p>Sabores, formato y extras. Los helados se añaden al pedido en un toque.</p></li>
+            <li class="how-card"><span class="num" aria-hidden="true">2</span><h3>Pasa a recoger o envía</h3><p>Reserva tu hora de recogida o pide envío a domicilio para las tortas.</p></li>
+            <li class="how-card"><span class="num" aria-hidden="true">3</span><h3>Sigue tu pedido</h3><p>Verás cada paso en tiempo real: recibido, preparando, listo o en reparto.</p></li>
+          </ol>
+        </section>
+      </section>
+
+      <!-- Carrito (móvil y tablet) -->
+      <section class="view" id="view-cart" aria-labelledby="cartTitle" hidden>
+        <button type="button" class="back" id="backToMenu">← Seguir con la carta</button>
+        <h2 class="view-title" id="cartTitle" tabindex="-1">Tu pedido</h2>
+        <div class="cart-panel" id="cartPanelM" style="margin-top:var(--s4)"></div>
+      </section>
+
+      <!-- Confirmación y seguimiento -->
+      <section class="view" id="view-confirm" aria-labelledby="confirmTitle" hidden>
+        <div class="view-confirm-wide">
           <p class="kicker">Pedido confirmado</p>
           <h2 class="view-title" id="confirmTitle" tabindex="-1">¡Gracias, <span id="confName"></span>!</h2>
-
           <div class="code-card">
-            <p class="code-label">Tu código de recogida</p>
+            <p class="code-label">Tu número de pedido</p>
             <p class="code" id="orderCode">BN-0000</p>
+            <p class="code-label" id="orderWhen"></p>
           </div>
-
           <div class="tracker">
-            <ol class="steps" id="steps">
-              <li><span class="dot" aria-hidden="true"></span><span>Recibido</span></li>
-              <li><span class="dot" aria-hidden="true"></span><span>Preparando</span></li>
-              <li><span class="dot" aria-hidden="true"></span><span>Listo</span></li>
-            </ol>
+            <ol class="steps" id="steps"></ol>
             <div class="track"><div class="track-fill" id="trackFill"></div></div>
           </div>
           <p class="status" id="statusMsg" aria-live="polite"></p>
-
           <div class="sum-card">
             <h3 class="sum-title">Resumen</h3>
             <ul class="sum-list" id="sumList"></ul>
-            <div class="sum-row"><span>Recogida</span><span id="sumPickup"></span></div>
+            <div class="sum-row"><span id="sumTypeLbl">Recogida</span><span id="sumPlace"></span></div>
             <div class="sum-row total"><span>Total</span><span id="sumTotal"></span></div>
           </div>
           <button type="button" class="btn btn-primary" id="again">Hacer otro pedido</button>
-        </section>
-      </main>
+        </div>
+      </section>
 
-      <div class="cartbar" id="cartbar" hidden>
-        <button type="button" id="cartBar">Ver carrito</button>
+      <!-- Carrito lateral (escritorio) -->
+      <aside class="side-cart" id="sideCart" aria-labelledby="sideTitle">
+        <h2 id="sideTitle" style="font-size:22px;margin-bottom:var(--s4)">Tu pedido</h2>
+        <div class="cart-panel" id="cartPanelD"></div>
+      </aside>
+    </div>
+  </main>
+
+  <div class="cartbar" id="cartbar" hidden>
+    <button type="button" id="cartBar">Ver carrito</button>
+  </div>
+
+  <!-- Pie -->
+  <footer class="site-footer" id="contacto">
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <h3>Bola de Nieve</h3>
+          <p>Heladería artesana ficticia · C/ del Mar 12, Ciudad Ejemplo</p>
+          <p>Teléfono ficticio: 600 000 000</p>
+        </div>
+        <div>
+          <h3>Horario</h3>
+          <ul id="footHours"></ul>
+        </div>
+        <div>
+          <h3>Redes</h3>
+          <ul><li>Instagram (ficticio)</li><li>TikTok (ficticio)</li><li>Facebook (ficticio)</li></ul>
+        </div>
+      </div>
+      <div class="foot-legal">
+        <span>© Bola de Nieve · demo</span>
+        <span><a href="index.html" class="team-link">← Volver a Sundan Studio</a> · <a href="aviso-legal.html">Aviso legal</a> · <a href="privacidad.html">Privacidad</a> · <a href="#admin" class="team-link" id="teamLink">Acceso del equipo</a></span>
       </div>
     </div>
-
-    <aside class="pitch" aria-labelledby="pitchTitle">
-      <p class="kicker">Sobre esta demo</p>
-      <h2 id="pitchTitle">Qué demuestra esta demo</h2>
-      <p class="pitch-lead">Un pedido de principio a fin, desde la carta hasta la recogida.</p>
-      <ul class="pitch-list">
-        <li>Diseño mobile-first con aspecto de app</li>
-        <li>Carrito persistente y cálculo de precios</li>
-        <li>Formularios con validación accesible</li>
-        <li>Estados vacíos, carga y confirmación</li>
-        <li>Sin frameworks: rápida y ligera</li>
-      </ul>
-      <a class="btn btn-ghost" href="index.html#proyectos">← Volver a Sundan Studio</a>
-    </aside>
-  </div>
+  </footer>
 </div>
 
+<!-- Diálogo de producto / torta -->
 <div class="backdrop" id="backdrop"></div>
 <section class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
   <div class="sheet-top">
-    <span class="kicker">Personaliza tu helado</span>
+    <span class="kicker" id="sheetKicker">Personaliza tu helado</span>
     <button type="button" class="icon-btn" id="sheetClose" aria-label="Cerrar">×</button>
   </div>
   <div id="sheetBody"></div>
@@ -572,31 +859,143 @@
 <div class="toast" id="toast" aria-hidden="true"></div>
 <p class="sr-only" id="live" role="status" aria-live="polite"></p>
 
+<!-- ===== ADMIN (#admin) ===== -->
+<div id="adminRoot" hidden>
+  <div class="ad-login" id="adLogin">
+    <form class="ad-login-card" id="adLoginForm" novalidate>
+      <p class="kicker">Panel de administración</p>
+      <h1>Bola de Nieve</h1>
+      <p class="view-sub">Acceso del equipo</p>
+      <div class="field">
+        <label for="adUser">Usuario</label>
+        <input class="input" id="adUser" type="text" value="Marta · Encargada" autocomplete="username">
+      </div>
+      <button type="submit" class="btn btn-primary">Entrar</button>
+      <p class="notice">Demo: el acceso está simulado. No hay contraseña real.</p>
+      <a href="#" class="back">← Volver a la tienda</a>
+    </form>
+  </div>
+
+  <div class="ad-shell" id="adShell" hidden>
+    <aside class="ad-side" id="adSide" aria-label="Menú de administración">
+      <a class="brand" href="#" aria-label="Volver a la tienda">
+        <span class="mini" aria-hidden="true"></span>
+        <span class="brand-text"><span class="wordmark" style="display:block;font-size:19px">Bola de Nieve</span><span class="loc">Panel del equipo</span></span>
+      </a>
+      <nav class="ad-nav" aria-label="Secciones">
+        <button type="button" data-go="pedidos">Pedidos <span class="count" id="navCount">0</span></button>
+        <button type="button" data-go="calendario">Calendario de entregas</button>
+        <button type="button" data-go="productos">Productos</button>
+        <button type="button" data-go="tortas">Tortas</button>
+        <button type="button" data-go="ajustes">Ajustes</button>
+      </nav>
+      <div class="ad-side-foot">
+        <div class="ad-status" id="adStatus" role="status"><strong id="adStatusTxt">Tienda abierta</strong><span id="adStatusSub"></span></div>
+        <button type="button" class="btn-sm" id="adPause">Pausar pedidos online</button>
+        <a href="#" class="btn-sm" style="text-align:center;text-decoration:none;display:block">Ver la tienda</a>
+        <button type="button" class="btn-sm" id="adLogout">Salir</button>
+      </div>
+    </aside>
+    <div class="ad-scrim" id="adScrim"></div>
+
+    <div class="ad-main">
+      <header class="ad-top">
+        <div style="display:flex;gap:var(--s3);align-items:center;flex-wrap:wrap">
+          <button type="button" class="btn-sm ad-menu-btn" id="adMenuBtn" aria-controls="adSide" aria-expanded="false">☰ Menú</button>
+          <h1 id="adTitle" tabindex="-1">Pedidos</h1>
+        </div>
+        <p class="view-sub" id="adDate" style="font-size:14px"></p>
+      </header>
+
+      <!-- Pedidos -->
+      <section class="ad-panel" data-panel="pedidos" aria-label="Pedidos">
+        <div class="ad-toolbar">
+          <div class="seg" role="group" aria-label="Mostrar pedidos">
+            <button type="button" data-filter="hoy" aria-pressed="true">Hoy</button>
+            <button type="button" data-filter="todos" aria-pressed="false">Todos</button>
+          </div>
+          <label class="toggle"><input type="checkbox" id="adSound"><span class="track-s" aria-hidden="true"></span>Aviso sonoro al llegar un pedido</label>
+          <span class="view-sub" id="adSimInfo" style="font-size:13px"></span>
+        </div>
+        <div class="board" id="board" role="region" aria-label="Tablero de pedidos"></div>
+      </section>
+
+      <!-- Calendario -->
+      <section class="ad-panel" data-panel="calendario" aria-label="Calendario de entregas" hidden>
+        <div class="ad-kpis" id="kpis"></div>
+        <div class="ad-card">
+          <h2 style="font-size:20px;margin-bottom:var(--s3)">Hoy, por franjas horarias</h2>
+          <div class="cal-grid" id="calDay"></div>
+        </div>
+        <div class="ad-card">
+          <h2 style="font-size:20px;margin-bottom:var(--s3)">Próximas entregas</h2>
+          <ol class="upcoming" id="upcoming"></ol>
+        </div>
+        <div class="ad-card">
+          <h2 style="font-size:20px;margin-bottom:var(--s3)">Vista semanal</h2>
+          <div class="week" id="week"></div>
+        </div>
+      </section>
+
+      <!-- Productos -->
+      <section class="ad-panel" data-panel="productos" aria-label="Productos" hidden>
+        <div class="ad-toolbar">
+          <p class="view-sub">Los cambios se reflejan al instante en la tienda.</p>
+          <button type="button" class="btn-sm primary" id="prodAdd">+ Añadir producto</button>
+        </div>
+        <div class="ad-card" id="prodFormWrap" hidden></div>
+        <div id="prodTable"></div>
+      </section>
+
+      <!-- Tortas -->
+      <section class="ad-panel" data-panel="tortas" aria-label="Tortas" hidden>
+        <div class="ad-toolbar">
+          <p class="view-sub">Tamaños, precios y antelación mínima de cada torta.</p>
+          <button type="button" class="btn-sm primary" id="cakeAdd">+ Añadir torta</button>
+        </div>
+        <div class="ad-card" id="cakeFormWrap" hidden></div>
+        <div id="cakeTable"></div>
+      </section>
+
+      <!-- Ajustes -->
+      <section class="ad-panel" data-panel="ajustes" aria-label="Ajustes" hidden>
+        <div class="ad-card" id="settingsWrap"></div>
+        <div class="ad-card">
+          <h2 style="font-size:20px">Datos de demo</h2>
+          <p class="view-sub" style="margin:var(--s2) 0 var(--s3)">Vuelve a los datos de ejemplo: carta, tortas, ajustes y pedidos. Los pedidos hechos en la tienda se borran.</p>
+          <div id="resetWrap"><button type="button" class="btn-sm danger" id="resetBtn">Restablecer demo</button></div>
+        </div>
+      </section>
+    </div>
+  </div>
+  <div class="ad-toast" id="adToast" role="status" aria-live="polite"></div>
+</div>
 <script>
 (function () {
   'use strict';
 
-  /* ---------- Constants and data ---------- */
-  var STORE_KEY = 'bola-de-nieve-carrito-v1';
-  var SCOOP_STEP = 120;          // cents per extra scoop
-  var OPEN_MIN = 12 * 60;        // opens at 12:00
-  var LAST_MIN = 21 * 60 + 45;   // last pickup slot
-  var LEAD_MIN = 15;             // minimum lead time for pickup
+  /* ===== A) DATA: constants, helpers and the DB module ===== */
+  var DB_KEY = 'bola-de-nieve-db-v2';
+  var STORE_KEY = 'bola-de-nieve-carrito-v1';   // cart key kept from v1 (legacy arrays are migrated)
+  var LAST_KEY = 'bola-de-nieve-ultimo-pedido';
+  var ADMIN_KEY = 'bola-de-nieve-admin';
+  var SCOOP_STEP = 120;      // cents per extra scoop
   var MAX_QTY = 99;
-
-  var PRODUCTS = [
-    { id: 'fresa', name: 'Fresa de temporada', desc: 'Fresas maduras de Huelva, trituradas a mano.', price: 2.80, cats: ['frutales'], tags: ['sin gluten'], c1: '#ff8fa0', c2: '#d7334f' },
-    { id: 'pistacho', name: 'Pistacho de Bronte', desc: 'Pistacho siciliano tostado, con grano entero.', price: 3.40, cats: ['clasicos', 'especiales'], tags: ['sin gluten'], c1: '#d6e8a4', c2: '#7fa655' },
-    { id: 'chocolate', name: 'Chocolate 70%', desc: 'Cacao intenso con un fondo amargo y sedoso.', price: 3.00, cats: ['clasicos'], tags: ['sin gluten'], c1: '#a57259', c2: '#4e2c1f' },
-    { id: 'vainilla', name: 'Vainilla de Madagascar', desc: 'Vainas de Madagascar sobre nata fresca.', price: 2.60, cats: ['clasicos'], tags: ['sin gluten'], c1: '#fff4d6', c2: '#eccb6e' },
-    { id: 'mango', name: 'Mango y maracuyá', desc: 'Mango maduro y maracuyá con un toque ácido.', price: 3.10, cats: ['frutales', 'veganos'], tags: ['vegano', 'sin gluten'], c1: '#ffd66b', c2: '#f08a1c' },
-    { id: 'limon', name: 'Limón y albahaca', desc: 'Sorbete cítrico con hojas de albahaca fresca.', price: 2.90, cats: ['frutales', 'veganos'], tags: ['vegano'], c1: '#fff58f', c2: '#9fd16a' },
-    { id: 'dulce', name: 'Dulce de leche', desc: 'Caramelo cocido a fuego lento, como en Argentina.', price: 2.90, cats: ['clasicos'], tags: [], c1: '#f6cd95', c2: '#b8702f' },
-    { id: 'cookies', name: 'Cookies & cream', desc: 'Nata de vainilla con trozos de galleta crujiente.', price: 3.20, cats: ['clasicos', 'especiales'], tags: ['nuevo'], c1: '#fafafa', c2: '#4a4150' },
-    { id: 'frambuesa', name: 'Frambuesa y pimienta rosa', desc: 'Frambuesa madura con un toque de pimienta rosa.', price: 3.50, cats: ['especiales', 'frutales'], tags: ['especial', 'nuevo'], c1: '#ff9cc0', c2: '#c71f5c' },
-    { id: 'turron', name: 'Turrón de Jijona', desc: 'Turrón blando de almendra marcona, sin prisas.', price: 3.30, cats: ['especiales'], tags: ['especial'], c1: '#f6e2a8', c2: '#a9742f' }
+  var SLOT_MIN = 15;         // pickup slot interval (minutes)
+  var PICKUP_LEAD_MIN = 15;  // minimum lead time for an ice cream pickup
+  var MIN = 60000;
+  var HOUR = 60 * MIN;
+  var DAY = 24 * HOUR;
+  var DAYS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  var CATS = [['todos', 'Todos'], ['clasicos', 'Clásicos'], ['frutales', 'Frutales'], ['veganos', 'Veganos'], ['especiales', 'Especiales']];
+  var CAT_LABEL = { clasicos: 'Clásicos', frutales: 'Frutales', veganos: 'Veganos', especiales: 'Especiales' };
+  var STATUSES = [
+    { id: 'recibido', label: 'Recibido' },
+    { id: 'preparacion', label: 'En preparación' },
+    { id: 'listo', label: 'Listo' },
+    { id: 'reparto', label: 'En reparto' },
+    { id: 'entregado', label: 'Entregado' }
   ];
-
   var FORMATS = {
     tarrina: { name: 'Tarrina', extra: 0 },
     cucurucho: { name: 'Cucurucho', extra: 0 },
@@ -607,20 +1006,27 @@
     { id: 'sirope', name: 'Sirope', price: 40 },
     { id: 'almendra', name: 'Crujiente de almendra', price: 60 }
   ];
-  var CATS = [['todos', 'Todos'], ['clasicos', 'Clásicos'], ['frutales', 'Frutales'], ['veganos', 'Veganos'], ['especiales', 'Especiales']];
-  var STATUS_MSG = ['Hemos recibido tu pedido.', 'Estamos preparando tus helados.', '¡Listo! Ya puedes pasar a recogerlo.'];
-
   var reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   var eur = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 
-  /* ---------- Helpers ---------- */
   function $(id) { return document.getElementById(id); }
   function money(cents) { return eur.format(cents / 100); }
-  function toCents(euros) { return Math.round(euros * 100); }
+  function toCents(euros) { return Math.round(Number(euros) * 100); }
   function pad(n) { return (n < 10 ? '0' : '') + n; }
   function fold(s) { return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim(); }
-  function productById(id) { return PRODUCTS.find(function (p) { return p.id === id; }); }
-  function toppingById(id) { return TOPPINGS.find(function (t) { return t.id === id; }); }
+  function slug(s) { return fold(s).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'item'; }
+  function uid(prefix) { return prefix + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function hm(str) { var p = String(str).split(':'); return Number(p[0]) * 60 + Number(p[1]); }
+  function dayIdx(d) { return (d.getDay() + 6) % 7; }                 // 0 = lunes
+  function startOfDay(ms) { var d = new Date(ms); d.setHours(0, 0, 0, 0); return d; }
+  function sameDay(a, b) { return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
+  function fmtTime(ms) { var d = new Date(ms); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+  function fmtDate(ms) { return new Intl.DateTimeFormat('es-ES', { weekday: 'short', day: 'numeric', month: 'short' }).format(new Date(ms)); }
+  function dateValue(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function parseDateValue(v) { var p = String(v).split('-'); return new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2])); }
+  function clamp(n, a, b) { return Math.min(b, Math.max(a, n)); }
+  function rand(n) { return Math.floor(Math.random() * n); }
+  function fmtShort(ms) { return fmtDate(ms) + ' · ' + fmtTime(ms); }
 
   // Minimal DOM builder. Strings are always inserted as text nodes (never as HTML).
   function h(tag, attrs) {
@@ -643,110 +1049,321 @@
     if (Array.isArray(child)) { child.forEach(function (c) { append(node, c); }); return; }
     node.appendChild(child instanceof Node ? child : document.createTextNode(String(child)));
   }
-
-  // Scoop illustration built from CSS shapes. Colours come from the product data.
-  function scoopEl(p, size, count) {
-    var n = count || 1;
-    var wrap = h('div', { class: 'scoop', 'aria-hidden': 'true' });
-    wrap.style.width = size + 'px';
-    wrap.style.height = Math.round(size * (1.55 + 0.62 * (n - 1))) + 'px';
-    wrap.style.setProperty('--c1', p.c1);
-    wrap.style.setProperty('--c2', p.c2);
-    var cone = h('span', { class: 'cone' });
-    cone.style.width = Math.round(size * 0.72) + 'px';
-    cone.style.height = Math.round(size * 0.9) + 'px';
-    cone.style.left = Math.round(size * 0.14) + 'px';
-    wrap.appendChild(cone);
-    for (var i = 0; i < n; i++) {
-      var ball = h('span', { class: 'ball' });
-      ball.style.width = size + 'px';
-      ball.style.height = size + 'px';
-      ball.style.bottom = Math.round(size * (0.55 + i * 0.62)) + 'px';
-      wrap.appendChild(ball);
-    }
-    return wrap;
+  function setChildren(el, nodes) {
+    while (el.firstChild) el.removeChild(el.firstChild);
+    append(el, nodes);
   }
+  function colorOk(c) { return /^#[0-9a-f]{6}$/i.test(String(c || '')) ? c : '#e8516b'; }
 
-  function tagEl(t) { return h('span', { class: 'tag tag-' + t.replace(/\s+/g, '-') }, t); }
-
-  /* ---------- Cart state and storage ---------- */
-  function normalize(l) {
+  /* ---------- Seed data (fictional) ---------- */
+  function prod(id, name, category, price, allergens, color, available, description, tags) {
+    return { id: id, name: name, category: category, price: price, allergens: allergens, color: color, available: available, description: description, tags: tags };
+  }
+  function cake(id, name, description, sizes, flavours, color, minHoursAhead, available) {
+    return { id: id, name: name, description: description, sizes: sizes, flavours: flavours, color: color, minHoursAhead: minHoursAhead, available: available };
+  }
+  function item(kind, name, desc, qty, unit, dueAt) {
+    return { kind: kind, name: name, desc: desc, qty: qty, unit: unit, total: unit * qty, dueAt: dueAt };
+  }
+  function makeOrder(o) {
+    var sub = o.items.reduce(function (a, it) { return a + it.total; }, 0);
+    var fee = o.type === 'envio' ? toCents(3.5) : 0;
+    var dueAt = Math.min.apply(null, o.items.map(function (it) { return it.dueAt; }));
     return {
-      pid: l.pid,
-      format: l.format,
-      scoops: l.scoops,
-      toppings: Array.from(new Set(l.toppings || [])).sort()
+      id: o.id, createdAt: o.createdAt, customer: { name: o.name, phone: o.phone },
+      items: o.items, total: sub + fee, fee: fee, type: o.type, address: o.address || '',
+      dueAt: dueAt, status: o.status, notes: o.notes || ''
     };
   }
-  function isValidLine(l) {
-    return !!l && !!productById(l.pid) && !!FORMATS[l.format] &&
-      [1, 2, 3].indexOf(l.scoops) !== -1 &&
-      Number.isInteger(l.qty) && l.qty >= 1 && l.qty <= MAX_QTY &&
-      Array.isArray(l.toppings) && l.toppings.every(function (t) { return !!toppingById(t); });
+
+  function seedState() {
+    var now = Date.now();
+    var today = startOfDay(now);
+    function dayAt(off, hh, mm) { var d = new Date(today.getTime()); d.setDate(d.getDate() + off); d.setHours(hh, mm, 0, 0); return d.getTime(); }
+    function ago(min) { return now - min * MIN; }
+    function from(min) { return now + min * MIN; }
+
+    var products = [
+      prod('fresa', 'Fresa de temporada', 'frutales', 2.80, ['lácteos'], '#e8546f', true, 'Fresas maduras de Huelva, trituradas a mano.', ['sin gluten']),
+      prod('pistacho', 'Pistacho de Bronte', 'especiales', 3.40, ['frutos secos', 'lácteos'], '#8fb34f', true, 'Pistacho siciliano tostado, con grano entero.', ['sin gluten']),
+      prod('chocolate', 'Chocolate 70%', 'clasicos', 3.00, ['lácteos'], '#7b4a35', true, 'Cacao intenso con un fondo amargo y sedoso.', ['sin gluten']),
+      prod('vainilla', 'Vainilla de Madagascar', 'clasicos', 2.60, ['lácteos', 'huevo'], '#f0d27a', true, 'Vainas de Madagascar sobre nata fresca.', ['sin gluten']),
+      prod('mango', 'Mango y maracuyá', 'veganos', 3.10, [], '#f08a1c', true, 'Mango maduro y maracuyá con un toque ácido.', ['vegano', 'sin gluten']),
+      prod('limon', 'Limón y albahaca', 'veganos', 2.90, [], '#9fd16a', true, 'Sorbete cítrico con hojas de albahaca fresca.', ['vegano']),
+      prod('dulce', 'Dulce de leche', 'clasicos', 2.90, ['lácteos', 'gluten'], '#b8702f', true, 'Caramelo cocido a fuego lento, como en Argentina.', []),
+      prod('cookies', 'Cookies & cream', 'especiales', 3.20, ['gluten', 'lácteos'], '#7d7185', true, 'Nata de vainilla con trozos de galleta crujiente.', ['nuevo']),
+      prod('frambuesa', 'Frambuesa y pimienta rosa', 'especiales', 3.50, ['lácteos'], '#c71f5c', true, 'Frambuesa madura con un toque de pimienta rosa.', ['especial', 'nuevo']),
+      prod('turron', 'Turrón de Jijona', 'especiales', 3.30, ['frutos secos', 'huevo'], '#a9742f', true, 'Turrón blando de almendra marcona, sin prisas.', ['especial']),
+      prod('bosque', 'Frutos del bosque', 'frutales', 2.90, ['lácteos'], '#6f4aa8', true, 'Mora, arándano y frambuesa sobre base de yogur.', []),
+      prod('coco', 'Coco y lima', 'veganos', 3.00, [], '#cfc8b4', false, 'Coco tostado con lima recién exprimida.', ['vegano']),
+      prod('cafe', 'Café con leche', 'clasicos', 2.90, ['lácteos'], '#b07a52', true, 'Café de tueste medio con leche entera.', []),
+      prod('naranja', 'Naranja y jengibre', 'frutales', 2.90, [], '#ffa640', true, 'Naranja de Valencia con un hilo de jengibre.', ['sin gluten'])
+    ];
+
+    var cakes = [
+      cake('selva-negra', 'Tarta Selva Negra helada', 'Bizcocho de cacao, nata montada y cerezas, en versión helada.',
+        [{ raciones: 6, price: 34 }, { raciones: 8, price: 44 }, { raciones: 12, price: 60 }], ['Chocolate 70%', 'Cereza amarena'], '#5b2a3c', 24, true),
+      cake('turron', 'Tarta de turrón', 'Capas de turrón de Jijona y helado de turrón de yema.',
+        [{ raciones: 6, price: 36 }, { raciones: 8, price: 46 }, { raciones: 12, price: 62 }], ['Turrón de Jijona', 'Turrón de yema'], '#c9a06a', 48, true),
+      cake('tres-chocolates', 'Tarta tres chocolates', 'Chocolate blanco, con leche y negro 70%, en tres capas.',
+        [{ raciones: 6, price: 38 }, { raciones: 8, price: 48 }, { raciones: 12, price: 66 }], ['Blanco', 'Con leche', 'Negro 70%'], '#6b3f2c', 24, true),
+      cake('frutos-rojos', 'Tarta de frutos rojos', 'Base crujiente con helado de frutos rojos y coulis natural.',
+        [{ raciones: 6, price: 34 }, { raciones: 8, price: 44 }, { raciones: 12, price: 58 }], ['Fresa', 'Frambuesa', 'Mora'], '#d1365c', 24, true),
+      cake('cumple', 'Tarta de cumpleaños personalizable', 'Elige sabor y escribe un mensaje para la celebración.',
+        [{ raciones: 6, price: 32 }, { raciones: 8, price: 42 }, { raciones: 12, price: 56 }], ['Vainilla', 'Chocolate', 'Fresa'], '#f2a1b8', 48, true)
+    ];
+
+    var hours = [];
+    for (var d = 0; d < 7; d++) {
+      hours.push({ open: '12:00', close: d === 4 || d === 5 ? '23:00' : '22:00', closed: false });
+    }
+
+    var orders = [
+      makeOrder({ id: 'BN-1026', createdAt: ago(2 * 24 * 60), name: 'Luis V.', phone: '600 000 026', type: 'recogida', status: 'recibido', notes: '',
+        items: [item('torta', 'Tarta de turrón', '6 raciones · Turrón de Jijona', 1, 3600, dayAt(5, 17, 30))] }),
+      makeOrder({ id: 'BN-1029', createdAt: ago(24 * 60), name: 'Sergio A.', phone: '600 000 029', type: 'envio', address: 'C/ Ribera 3, 1.º', status: 'recibido', notes: 'Llamar al llegar.',
+        items: [item('torta', 'Tarta de cumpleaños personalizable', '12 raciones · Vainilla · «¡Feliz 30, Sergio!»', 1, 5600, dayAt(2, 18, 0))] }),
+      makeOrder({ id: 'BN-1031', createdAt: ago(20 * 60), name: 'Ana P.', phone: '600 000 031', type: 'recogida', status: 'recibido', notes: '',
+        items: [item('torta', 'Tarta de frutos rojos', '8 raciones · Fresa', 1, 4400, dayAt(3, 13, 0))] }),
+      makeOrder({ id: 'BN-1033', createdAt: ago(26 * 60), name: 'Carmen D.', phone: '600 000 033', type: 'envio', address: 'Av. del Parque 8, 2.º B', status: 'reparto', notes: '',
+        items: [item('torta', 'Tarta Selva Negra helada', '8 raciones · Cereza amarena · «Feliz 40, Carmen»', 1, 4400, from(-5))] }),
+      makeOrder({ id: 'BN-1034', createdAt: ago(95), name: 'Lucía M.', phone: '600 000 034', type: 'recogida', status: 'entregado', notes: '',
+        items: [item('helado', 'Fresa de temporada', 'Tarrina · 1 bola', 2, 280, from(-40))] }),
+      makeOrder({ id: 'BN-1035', createdAt: ago(70), name: 'Pablo R.', phone: '600 000 035', type: 'recogida', status: 'listo', notes: '',
+        items: [item('helado', 'Pistacho de Bronte', 'Tarrina · 1 bola', 1, 340, from(-10)), item('helado', 'Chocolate 70%', 'Cucurucho · 1 bola', 1, 300, from(-10))] }),
+      makeOrder({ id: 'BN-1036', createdAt: ago(55), name: 'Javier T.', phone: '600 000 036', type: 'recogida', status: 'preparacion', notes: '',
+        items: [item('helado', 'Frambuesa y pimienta rosa', 'Cucurucho · 2 bolas · Nata', 1, 720, from(10))] }),
+      makeOrder({ id: 'BN-1037', createdAt: ago(40), name: 'Elena S.', phone: '600 000 037', type: 'recogida', status: 'recibido', notes: '',
+        items: [item('helado', 'Mango y maracuyá', 'Tarrina XL · 1 bola · Sirope', 1, 500, from(20))] }),
+      makeOrder({ id: 'BN-1038', createdAt: ago(30), name: 'Marcos G.', phone: '600 000 038', type: 'recogida', status: 'recibido', notes: 'Sin cucharillas, gracias.',
+        items: [item('helado', 'Vainilla de Madagascar', 'Tarrina · 1 bola', 3, 260, from(35))] }),
+      makeOrder({ id: 'BN-1039', createdAt: ago(20), name: 'Irene L.', phone: '600 000 039', type: 'recogida', status: 'recibido', notes: '',
+        items: [item('helado', 'Dulce de leche', 'Cucurucho · 1 bola · Crujiente de almendra', 1, 350, from(50))] }),
+      makeOrder({ id: 'BN-1040', createdAt: ago(12), name: 'Diego F.', phone: '600 000 040', type: 'recogida', status: 'preparacion', notes: 'Para llevar, con bolsa térmica.',
+        items: [item('helado', 'Cookies & cream', 'Tarrina · 1 bola', 2, 320, from(-2)), item('helado', 'Limón y albahaca', 'Tarrina · 1 bola', 1, 290, from(-2))] }),
+      makeOrder({ id: 'BN-1041', createdAt: ago(5), name: 'Noa B.', phone: '600 000 041', type: 'recogida', status: 'recibido', notes: '',
+        items: [item('helado', 'Turrón de Jijona', 'Tarrina · 1 bola', 1, 330, from(60))] })
+    ];
+
+    /* Earlier deliveries today, spread from opening until an hour ago, so the day looks busy */
+    var pastNames = ['Raúl C.', 'Sofía H.', 'Teo N.', 'Marina P.', 'Hugo B.', 'Alba R.', 'Iván M.', 'Clara S.', 'Óscar L.', 'Nerea V.', 'Pau G.', 'Julia T.', 'Martín E.', 'Lola F.'];
+    var pastFlav = [['Fresa de temporada', 280], ['Pistacho de Bronte', 340], ['Chocolate 70%', 300], ['Vainilla de Madagascar', 260],
+      ['Dulce de leche', 350], ['Mango y maracuyá', 300], ['Cookies & cream', 320], ['Limón y albahaca', 290]];
+    var pastFormats = ['Tarrina · 1 bola', 'Cucurucho · 1 bola', 'Tarrina · 2 bolas', 'Cucurucho · 2 bolas · Nata'];
+    var openAt = new Date(); openAt.setHours(12, 15, 0, 0);
+    var tPast = openAt.getTime(), lastPast = Date.now() - 60 * 60000, kPast = 0;
+    while (tPast < lastPast && kPast < 14) {
+      var minsAgo = Math.round((Date.now() - tPast) / 60000), fl = pastFlav[kPast % pastFlav.length];
+      var fl2 = pastFlav[(kPast * 3 + 2) % pastFlav.length], two = kPast % 3 === 1;
+      var its = [item('helado', fl[0], pastFormats[kPast % pastFormats.length], 1 + (kPast % 2), fl[1], from(-minsAgo))];
+      if (two) its.push(item('helado', fl2[0], 'Tarrina · 1 bola', 1, fl2[1], from(-minsAgo)));
+      orders.push(makeOrder({ id: 'BN-' + (1012 + kPast), createdAt: ago(minsAgo + 18), name: pastNames[kPast], phone: '600 000 ' + String(100 + kPast),
+        type: 'recogida', status: 'entregado', notes: '', items: its }));
+      tPast += (28 + (kPast * 17) % 24) * 60000;
+      kPast++;
+    }
+
+    return {
+      version: 2,
+      counter: 1042,
+      products: products,
+      cakes: cakes,
+      orders: orders,
+      settings: {
+        shopName: 'Bola de Nieve',
+        address: 'C/ del Mar 12, Ciudad Ejemplo',
+        hours: hours,
+        cakeLeadHours: 24,
+        deliveryFee: 3.5,
+        deliveryRadiusKm: 4,
+        onlineOrders: true
+      }
+    };
   }
-  function loadCart() {
+
+  /* ---------- DB module: localStorage with in-memory fallback, synced across tabs ---------- */
+  var DB = (function () {
+    var state = null;
+    var storageOk = true;
+    var listeners = [];
+
+    function valid(d) {
+      return !!d && Array.isArray(d.products) && Array.isArray(d.cakes) && Array.isArray(d.orders) &&
+        !!d.settings && typeof d.settings === 'object' && typeof d.counter === 'number';
+    }
+    function readRaw() {
+      try {
+        var raw = window.localStorage.getItem(DB_KEY);
+        if (!raw) return null;
+        var data = JSON.parse(raw);
+        return valid(data) ? data : null;
+      } catch (e) {
+        storageOk = false;
+        return null;
+      }
+    }
+    function writeRaw() {
+      try { window.localStorage.setItem(DB_KEY, JSON.stringify(state)); }
+      catch (e) { storageOk = false; }
+    }
+    function emit(source) {
+      listeners.forEach(function (fn) { fn(source); });
+    }
+    function sync() {
+      var data = readRaw();
+      if (data) state = data;
+    }
+    function mutate(fn) {
+      sync();
+      var result = fn(state);
+      writeRaw();
+      emit('local');
+      return result;
+    }
+
     try {
-      var raw = window.localStorage.getItem(STORE_KEY);
-      var data = raw ? JSON.parse(raw) : [];
-      if (!Array.isArray(data)) return [];
-      return data.filter(isValidLine).map(function (l) {
-        var n = normalize(l);
-        n.qty = l.qty;
-        return n;
+      window.addEventListener('storage', function (e) {
+        if (e.key !== DB_KEY) return;
+        var data = readRaw();
+        if (data) { state = data; emit('remote'); }
       });
-    } catch (e) {
-      return [];
+    } catch (e) { /* no storage events: single tab only */ }
+
+    var existing = readRaw();
+    state = existing || seedState();
+    if (!existing) writeRaw();
+
+    return {
+      products: function () { return state.products; },
+      cakes: function () { return state.cakes; },
+      orders: function () { return state.orders; },
+      settings: function () { return state.settings; },
+      storageOk: function () { return storageOk; },
+      onChange: function (fn) { listeners.push(fn); },
+      getOrder: function (id) { sync(); return state.orders.find(function (o) { return o.id === id; }) || null; },
+      saveProduct: function (p) {
+        return mutate(function (s) {
+          var i = s.products.findIndex(function (x) { return x.id === p.id; });
+          if (i === -1) s.products.push(p); else s.products[i] = p;
+          return p;
+        });
+      },
+      deleteProduct: function (id) {
+        mutate(function (s) { s.products = s.products.filter(function (x) { return x.id !== id; }); });
+      },
+      saveCake: function (c) {
+        return mutate(function (s) {
+          var i = s.cakes.findIndex(function (x) { return x.id === c.id; });
+          if (i === -1) s.cakes.push(c); else s.cakes[i] = c;
+          return c;
+        });
+      },
+      deleteCake: function (id) {
+        mutate(function (s) { s.cakes = s.cakes.filter(function (x) { return x.id !== id; }); });
+      },
+      addOrder: function (draft) {
+        return mutate(function (s) {
+          var o = Object.assign({ id: 'BN-' + s.counter }, draft);
+          s.counter += 1;
+          s.orders.push(o);
+          return o;
+        });
+      },
+      setStatus: function (id, status) {
+        mutate(function (s) {
+          var o = s.orders.find(function (x) { return x.id === id; });
+          if (o) o.status = status;
+        });
+      },
+      saveSettings: function (patch) {
+        mutate(function (s) { s.settings = Object.assign({}, s.settings, patch); });
+      },
+      reset: function () {
+        state = seedState();
+        writeRaw();
+        emit('local');
+      }
+    };
+  })();
+
+  function productById(id) { return DB.products().find(function (p) { return p.id === id; }) || null; }
+  function cakeById(id) { return DB.cakes().find(function (c) { return c.id === id; }) || null; }
+  function statusOf(id) { return STATUSES.find(function (s) { return s.id === id; }) || STATUSES[0]; }
+  function stageOf(status) { return { recibido: 0, preparacion: 1, listo: 2, reparto: 2, entregado: 3 }[status] || 0; }
+
+  /* ---------- Opening hours ---------- */
+  function hoursFor(ms) { return DB.settings().hours[dayIdx(new Date(ms))]; }
+  function openInfo(now) {
+    var s = DB.settings();
+    if (!s.onlineOrders) {
+      return { state: 'paused', pill: 'Pedidos pausados', line: 'Pedidos online pausados ahora mismo' };
     }
-  }
-  function saveCart() {
-    try { window.localStorage.setItem(STORE_KEY, JSON.stringify(cart)); } catch (e) { /* storage unavailable: keep working in memory */ }
-  }
-
-  var cart = loadCart();
-  var filter = { cat: 'todos', q: '' };
-  var currentView = 'menu';
-  var lastOrder = null;
-  var timers = [];
-  var toastTimer = null;
-
-  function unitCents(l) {
-    var p = productById(l.pid);
-    var toppings = l.toppings.reduce(function (sum, id) { return sum + toppingById(id).price; }, 0);
-    return toCents(p.price) + FORMATS[l.format].extra + (l.scoops - 1) * SCOOP_STEP + toppings;
-  }
-  function lineTotal(l) { return unitCents(l) * l.qty; }
-  function cartTotals() {
-    return cart.reduce(function (acc, l) {
-      acc.count += l.qty;
-      acc.total += lineTotal(l);
-      return acc;
-    }, { count: 0, total: 0 });
-  }
-  function keyOf(l) { return [l.pid, l.format, l.scoops, l.toppings.join(',')].join('|'); }
-  function describe(l) {
-    var parts = [FORMATS[l.format].name, l.scoops === 1 ? '1 bola' : l.scoops + ' bolas'];
-    if (l.toppings.length) parts.push(l.toppings.map(function (id) { return toppingById(id).name; }).join(', '));
-    return parts.join(' · ');
-  }
-
-  function addToCart(line, qty) {
-    var n = normalize(line);
-    var found = cart.find(function (l) { return keyOf(l) === keyOf(n); });
-    if (found) {
-      found.qty = Math.min(MAX_QTY, found.qty + qty);
-    } else {
-      n.qty = Math.min(MAX_QTY, qty);
-      cart.push(n);
+    var hrs = hoursFor(now);
+    var mins = now.getHours() * 60 + now.getMinutes();
+    if (hrs && !hrs.closed && mins >= hm(hrs.open) && mins < hm(hrs.close)) {
+      return { state: 'open', pill: 'Abierto ahora · cierra ' + hrs.close, line: 'Abierto hoy ' + hrs.open + '–' + hrs.close };
     }
-    saveCart();
-    refresh();
-    bump();
-    toast('Añadido al carrito');
-    var t = cartTotals();
-    announce(productById(n.pid).name + ' añadido. En el carrito: ' + t.count + (t.count === 1 ? ' artículo' : ' artículos') + ', ' + money(t.total) + '.');
+    // find the next opening
+    var next = null;
+    for (var off = 0; off < 8 && !next; off++) {
+      var d = startOfDay(now.getTime() + off * DAY);
+      var hh = hoursFor(d.getTime());
+      if (!hh || hh.closed) continue;
+      if (off === 0 && mins >= hm(hh.open)) continue;
+      next = { day: off, open: hh.open, date: d };
+    }
+    var when = !next ? '' : (next.day === 0 ? 'hoy' : next.day === 1 ? 'mañana' : DAYS[dayIdx(next.date)].toLowerCase());
+    return {
+      state: 'closed',
+      pill: 'Cerrado · abre ' + when + ' ' + (next ? next.open : ''),
+      line: 'Cerrado ahora · abre ' + when + ' a las ' + (next ? next.open : '')
+    };
   }
 
-  /* ---------- Header, bar and feedback ---------- */
+  /* ---------- Timing rules ---------- */
+  function cakeLeadMs(c) {
+    var s = DB.settings();
+    return Math.max(Number(s.cakeLeadHours) || 0, Number(c.minHoursAhead) || 0) * HOUR;
+  }
+  // Pickup slots (ice creams): from now + lead, within today's hours; if none left today, tomorrow's.
+  function pickupSlots(now) {
+    var s = DB.settings();
+    if (!s.onlineOrders) return [];
+    var earliest = now.getTime() + PICKUP_LEAD_MIN * MIN;
+    for (var off = 0; off < 3; off++) {
+      var day = startOfDay(now.getTime() + off * DAY);
+      var hrs = hoursFor(day.getTime());
+      if (!hrs || hrs.closed) continue;
+      var out = [];
+      for (var m = hm(hrs.open); m <= hm(hrs.close) - SLOT_MIN; m += SLOT_MIN) {
+        var t = new Date(day.getTime()); t.setMinutes(m);
+        if (t.getTime() >= earliest) out.push({ ms: t.getTime(), label: (off === 0 ? 'Hoy' : 'Mañana') + ' · ' + fmtTime(t.getTime()) });
+      }
+      if (out.length) return out;
+    }
+    return [];
+  }
+  // Cake slots for one date: every 30 min within opening hours, at or after the earliest allowed moment.
+  function cakeSlots(dateObj, cake, now) {
+    var s = DB.settings();
+    if (!s.onlineOrders) return [];
+    var hrs = hoursFor(dateObj.getTime());
+    if (!hrs || hrs.closed) return [];
+    var minMs = now + cakeLeadMs(cake);
+    var out = [];
+    for (var m = hm(hrs.open); m <= hm(hrs.close) - 30; m += 30) {
+      var t = new Date(dateObj.getTime()); t.setHours(Math.floor(m / 60), m % 60, 0, 0);
+      if (t.getTime() >= minMs) out.push({ ms: t.getTime(), label: fmtTime(t.getTime()) });
+    }
+    return out;
+  }
+
+  function fulfilLabel(type) { return type === 'envio' ? 'Envío a domicilio' : 'Recogida en tienda'; }
+
+  /* ===== END A) DATA ===== */
+  /* ===== B) STORE: customer shop (carta, tortas, carrito, checkout, seguimiento) ===== */
+  var EMPTY_SVG = '<svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="46" r="34" fill="#f7c6d0"/><path d="M34 68h52L60 116z" fill="#f3cd92"/><path d="M44 40q4-8 12-8" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none" opacity=".85"/><circle cx="50" cy="50" r="3.2" fill="#2b1d24"/><circle cx="70" cy="50" r="3.2" fill="#2b1d24"/><path d="M51 60q9 8 18 0" stroke="#2b1d24" stroke-width="3" fill="none" stroke-linecap="round"/></svg>';
+
   var appEl = $('app');
   var cartBtn = $('cartBtn');
   var badge = $('badge');
@@ -754,17 +1371,142 @@
   var barBtn = $('cartBar');
   var toastEl = $('toast');
   var liveEl = $('live');
+  var chipsEl = $('chips');
+  var gridEl = $('grid');
+  var searchEl = $('search');
+  var noResults = $('noResults');
+  var sheetEl = $('sheet');
+  var backdropEl = $('backdrop');
+  var sheetBody = $('sheetBody');
+  var sheetKicker = $('sheetKicker');
+  var sheetClose = $('sheetClose');
 
+  var cart = loadCart();
+  var draft = { name: '', phone: '', notes: '' };
+  var formErr = {};
+  var filter = { cat: 'todos', q: '' };
+  var currentView = 'menu';
+  var lastOrderId = null;
+  var toastTimer = null;
+  var sheetOpen = false;
+  var sheetOpener = null;
+
+  function isDesktop() { return window.matchMedia('(min-width: 900px)').matches; }
+  function isTablet() { return window.matchMedia('(min-width: 600px) and (max-width: 899px)').matches; }
+
+  /* ---------- Cart storage ---------- */
+  function validLine(l) {
+    if (!l || typeof l !== 'object') return false;
+    if (l.type === 'helado') {
+      return typeof l.pid === 'string' && !!FORMATS[l.format] && [1, 2, 3].indexOf(l.scoops) !== -1 &&
+        Number.isInteger(l.qty) && l.qty >= 1 && l.qty <= MAX_QTY && Array.isArray(l.toppings);
+    }
+    if (l.type === 'torta') {
+      return typeof l.cid === 'string' && Number.isInteger(l.size) && typeof l.flavour === 'string' &&
+        typeof l.when === 'number' && (l.fulfil === 'recogida' || l.fulfil === 'envio') &&
+        typeof l.message === 'string' && l.message.length <= 30 && typeof l.address === 'string';
+    }
+    return false;
+  }
+  function loadCart() {
+    try {
+      var raw = window.localStorage.getItem(STORE_KEY);
+      var data = raw ? JSON.parse(raw) : null;
+      var legacy = Array.isArray(data);
+      var lines = legacy ? data : (data && Array.isArray(data.lines) ? data.lines : []);
+      lines = lines.map(function (l) { return l && !l.type ? Object.assign({ type: 'helado' }, l) : l; }).filter(validLine);
+      return { lines: lines, pickup: legacy || !data || !data.pickup ? '' : String(data.pickup) };
+    } catch (e) {
+      return { lines: [], pickup: '' };
+    }
+  }
+  function saveCart() {
+    try { window.localStorage.setItem(STORE_KEY, JSON.stringify(cart)); } catch (e) { /* storage unavailable: keep working in memory */ }
+  }
+
+  /* ---------- Pricing and line info ---------- */
+  function helUnit(p, l) {
+    var extras = l.toppings.reduce(function (sum, id) {
+      var t = TOPPINGS.find(function (x) { return x.id === id; });
+      return sum + (t ? t.price : 0);
+    }, 0);
+    return toCents(p.price) + FORMATS[l.format].extra + (l.scoops - 1) * SCOOP_STEP + extras;
+  }
+  function tortaDesc(l) {
+    return l.size + ' raciones · Sabor ' + l.flavour + (l.message ? ' · «' + l.message + '»' : '') +
+      ' · ' + fulfilLabel(l.fulfil) + ' · ' + fmtShort(l.when);
+  }
+  function helDesc(l) {
+    var parts = [FORMATS[l.format].name, l.scoops === 1 ? '1 bola' : l.scoops + ' bolas'];
+    if (l.toppings.length) parts.push(l.toppings.map(function (id) { return TOPPINGS.find(function (t) { return t.id === id; }).name; }).join(', '));
+    return parts.join(' · ');
+  }
+  function lineInfo(l, now) {
+    if (l.type === 'helado') {
+      var p = productById(l.pid);
+      if (!p) return { ok: false, name: 'Helado no disponible', desc: '', total: 0, warn: 'Ya no está en la carta.', color: '#cccccc' };
+      var unit = helUnit(p, l);
+      return {
+        ok: !!p.available, name: p.name, desc: helDesc(l), unit: unit, total: unit * l.qty, color: p.color,
+        scoops: l.scoops, warn: p.available ? '' : 'Agotado: quítalo para poder pedir.'
+      };
+    }
+    var c = cakeById(l.cid);
+    if (!c) return { ok: false, name: 'Torta no disponible', desc: '', total: 0, warn: 'Ya no está en la carta.', color: '#cccccc' };
+    var sz = c.sizes.find(function (s) { return s.raciones === l.size; });
+    var warn = '';
+    if (!c.available) warn = 'Ya no está disponible: quítala para continuar.';
+    else if (!sz) warn = 'Este tamaño ya no está disponible.';
+    else if (l.when < now + cakeLeadMs(c)) warn = 'La fecha ya no cumple la antelación mínima: elige otra.';
+    var u = sz ? sz.price * 100 : 0;
+    return { ok: !warn, name: c.name, desc: tortaDesc(l), unit: u, total: u, color: c.color, warn: warn };
+  }
+  function cartSummary(now) {
+    var out = { lines: [], sub: 0, count: 0, fee: 0, total: 0, envio: false, hasHelado: false, invalid: 0 };
+    cart.lines.forEach(function (l) {
+      var info = lineInfo(l, now);
+      out.lines.push({ line: l, info: info });
+      out.count += l.type === 'helado' ? l.qty : 1;
+      if (info.ok) out.sub += info.total; else out.invalid += 1;
+      if (l.type === 'helado') out.hasHelado = true;
+      if (l.type === 'torta' && l.fulfil === 'envio') out.envio = true;
+    });
+    out.fee = out.envio ? toCents(DB.settings().deliveryFee) : 0;
+    out.total = out.sub + out.fee;
+    return out;
+  }
+  function keyOf(l) { return [l.pid, l.format, l.scoops, l.toppings.join(',')].join('|'); }
+
+  function addToCart(line) {
+    var n = Object.assign({}, line);
+    if (n.type === 'helado') {
+      n.toppings = Array.from(new Set(n.toppings || [])).sort();
+      var found = cart.lines.find(function (l) { return l.type === 'helado' && keyOf(l) === keyOf(n); });
+      if (found) found.qty = Math.min(MAX_QTY, found.qty + n.qty);
+      else cart.lines.push(n);
+    } else {
+      cart.lines.push(n);
+    }
+    saveCart();
+    refresh();
+    renderCart();
+    bump();
+    toast(n.type === 'torta' ? 'Torta añadida al pedido' : 'Añadido al carrito');
+    var s = cartSummary(Date.now());
+    announce((n.type === 'torta' ? 'Torta' : 'Helado') + ' añadido. En el carrito: ' + s.count + (s.count === 1 ? ' artículo' : ' artículos') + ', ' + money(s.total) + '.');
+  }
+
+  /* ---------- Header, bar and feedback ---------- */
   function renderBadge() {
-    var t = cartTotals();
-    badge.textContent = String(t.count);
-    badge.hidden = t.count === 0;
-    cartBtn.setAttribute('aria-label', 'Ver carrito, ' + t.count + (t.count === 1 ? ' artículo' : ' artículos'));
+    var s = cartSummary(Date.now());
+    badge.textContent = String(s.count);
+    badge.hidden = s.count === 0;
+    cartBtn.setAttribute('aria-label', 'Ver carrito, ' + s.count + (s.count === 1 ? ' artículo' : ' artículos'));
   }
   function updateBar() {
-    var t = cartTotals();
-    cartbar.hidden = !(currentView === 'menu' && t.count > 0);
-    barBtn.textContent = 'Ver carrito · ' + t.count + ' · ' + money(t.total);
+    var s = cartSummary(Date.now());
+    cartbar.hidden = !(currentView === 'menu' && s.count > 0);
+    barBtn.textContent = 'Ver carrito · ' + s.count + ' · ' + money(s.total);
   }
   function refresh() { renderBadge(); updateBar(); }
   function bump() {
@@ -781,27 +1523,49 @@
   }
   function announce(msg) { liveEl.textContent = msg; }
 
+  function renderOpenInfo() {
+    var info = openInfo(new Date());
+    $('locLine').textContent = info.line;
+    var pill = $('openPill');
+    pill.textContent = info.pill;
+    pill.dataset.state = info.state;
+    var s = DB.settings();
+    setChildren($('footHours'), DAYS.map(function (d, i) {
+      var hh = s.hours[i];
+      return h('li', null, d + ': ' + (hh.closed ? 'cerrado' : hh.open + '–' + hh.close));
+    }));
+    $('cakeLead').textContent = 'Reserva con al menos ' + s.cakeLeadHours + ' h de antelación. Elige tamaño, sabor y fecha de entrega.';
+  }
+
   /* ---------- Views ---------- */
-  var VIEW_IDS = { menu: 'view-menu', cart: 'view-cart', confirm: 'view-confirm' };
-  var TITLE_IDS = { menu: 'menuTitle', cart: 'cartTitle', confirm: 'confirmTitle' };
+  var VIEWS = { menu: 'view-menu', cart: 'view-cart', confirm: 'view-confirm' };
+  var TITLES = { menu: 'helados-title', cart: 'cartTitle', confirm: 'confirmTitle' };
 
   function show(view, opts) {
     currentView = view;
-    Object.keys(VIEW_IDS).forEach(function (v) { $(VIEW_IDS[v]).hidden = v !== view; });
+    var wide = window.matchMedia('(min-width: 600px)').matches;
+    $(VIEWS.menu).hidden = view === 'confirm' || (view === 'cart' && !wide);
+    $(VIEWS.cart).hidden = view !== 'cart';
+    $(VIEWS.confirm).hidden = view !== 'confirm';
     if (view === 'cart') renderCart();
+    if (view === 'confirm') renderConfirm();
+    if (view === 'cart' && isTablet()) backdropEl.classList.add('show');
+    else if (!sheetOpen) backdropEl.classList.remove('show');
     refresh();
-    window.scrollTo(0, 0);
-    if (opts && opts.focus) $(TITLE_IDS[view]).focus({ preventScroll: true });
+    if (opts && opts.focus) {
+      var t = $(TITLES[view]);
+      if (t && t.offsetParent !== null) t.focus({ preventScroll: true });
+    }
   }
 
-  /* ---------- Menu: chips, search, grid ---------- */
-  var chipsEl = $('chips');
-  var gridEl = $('grid');
-  var searchEl = $('search');
-  var noResults = $('noResults');
+  /* ---------- Hero, chips, grid ---------- */
+  function renderHero() {
+    var list = DB.products().filter(function (p) { return p.available; }).slice(0, 3);
+    setChildren($('heroArt'), list.map(function (p, i) { return scoopEl(p.color, i === 1 ? 120 : 100, 1); }));
+  }
 
   function renderChips() {
-    chipsEl.replaceChildren.apply(chipsEl, CATS.map(function (c) {
+    setChildren(chipsEl, CATS.map(function (c) {
       var active = filter.cat === c[0];
       return h('button', {
         type: 'button', class: 'chip', 'aria-pressed': active ? 'true' : 'false',
@@ -811,31 +1575,37 @@
   }
 
   function card(p) {
-    var thumb = h('span', { class: 'thumb' }, scoopEl(p, 68, 1));
-    thumb.style.setProperty('--c1', p.c1);
+    var c1 = colorOk(p.color);
+    var thumb = h('span', { class: 'thumb' }, scoopEl(c1, 68, 1));
+    thumb.style.setProperty('--c1', c1);
+    if (!p.available) thumb.appendChild(h('span', { class: 'sold-badge' }, 'Agotado'));
     var openBtn = h('button', { type: 'button', class: 'card-open' },
       thumb,
       h('span', { class: 'card-name' }, p.name),
-      h('span', { class: 'tags' }, p.tags.map(tagEl))
+      h('span', { class: 'card-desc' }, p.description),
+      h('span', { class: 'tags' }, p.tags.map(tagEl), p.allergens.length ? h('span', { class: 'tag' }, 'Alérgenos: ' + p.allergens.join(', ')) : null)
     );
-    openBtn.setAttribute('aria-label', 'Ver detalles de ' + p.name);
+    openBtn.setAttribute('aria-label', 'Ver detalles de ' + p.name + (p.available ? '' : ', agotado'));
     openBtn.addEventListener('click', function () { openSheet(p.id, openBtn); });
     var addBtn = h('button', {
-      type: 'button', class: 'add', 'aria-label': 'Añadir ' + p.name + ' al carrito',
-      onclick: function () { addToCart({ pid: p.id, format: 'tarrina', scoops: 1, toppings: [] }, 1); }
-    }, '+');
-    return h('article', { class: 'card' }, openBtn,
+      type: 'button', class: 'add', disabled: !p.available,
+      'aria-label': p.available ? 'Añadir ' + p.name + ' al carrito' : p.name + ', agotado'
+    }, p.available ? '+' : 'Agotado');
+    addBtn.addEventListener('click', function () {
+      addToCart({ type: 'helado', pid: p.id, format: 'tarrina', scoops: 1, toppings: [], qty: 1 });
+    });
+    return h('article', { class: 'card' + (p.available ? '' : ' is-out') }, openBtn,
       h('div', { class: 'card-foot' }, h('span', { class: 'price' }, money(toCents(p.price))), addBtn));
   }
 
   function renderGrid() {
     var q = fold(filter.q);
-    var list = PRODUCTS.filter(function (p) {
-      var inCat = filter.cat === 'todos' || p.cats.indexOf(filter.cat) !== -1;
-      var hay = fold([p.name, p.desc].concat(p.tags).join(' '));
+    var list = DB.products().filter(function (p) {
+      var inCat = filter.cat === 'todos' || p.category === filter.cat;
+      var hay = fold([p.name, p.description, CAT_LABEL[p.category] || ''].concat(p.tags, p.allergens).join(' '));
       return inCat && (!q || hay.indexOf(q) !== -1);
     });
-    gridEl.replaceChildren.apply(gridEl, list.map(card));
+    setChildren(gridEl, list.map(function (p) { return card(p); }));
     noResults.hidden = list.length > 0;
     if (!list.length) noResults.textContent = 'No encontramos «' + filter.q.trim() + '» en esta categoría. Prueba con otro sabor.';
   }
@@ -845,15 +1615,33 @@
     renderGrid();
   });
 
-  /* ---------- Product sheet ---------- */
-  var sheetEl = $('sheet');
-  var backdropEl = $('backdrop');
-  var sheetBody = $('sheetBody');
-  var sheetClose = $('sheetClose');
-  var sheetOpen = false;
-  var sheet = null;       // { pid, format, scoops, toppings, qty, opener }
-  var sheetScoop = null, sheetAdd = null, sheetQty = null;
+  /* ---------- Tortas ---------- */
+  function cakeCard(c) {
+    var band = h('div', { class: 'cake-band', 'aria-hidden': 'true' });
+    band.style.setProperty('--c1', colorOk(c.color));
+    var sellable = c.available && DB.settings().onlineOrders;
+    var btn = h('button', {
+      type: 'button', class: 'btn btn-primary btn-small', disabled: !sellable,
+      'aria-label': sellable ? 'Personalizar ' + c.name : c.name + ', no disponible',
+      onclick: function () { openCake(c.id, btn); }
+    }, sellable ? 'Personalizar' : 'No disponible');
+    var minP = Math.min.apply(null, c.sizes.map(function (s) { return s.price; }));
+    return h('article', { class: 'cake' + (c.available ? '' : ' is-out') }, band,
+      h('div', { class: 'cake-body' },
+        h('h3', null, c.name),
+        h('p', null, c.description),
+        h('p', { class: 'cake-meta' }, 'Desde ' + money(toCents(minP)) + ' · ' + c.sizes.map(function (s) { return s.raciones; }).join(', ') + ' raciones'),
+        h('p', { class: 'cake-meta' }, 'Sabores: ' + c.flavours.join(', ')),
+        h('div', { class: 'cake-foot' }, h('span', { class: 'tag' }, c.available ? 'Por encargo' : 'Agotado'), btn)
+      ));
+  }
+  function renderCakes() {
+    var list = DB.cakes();
+    setChildren($('cakes'), list.map(function (c) { return cakeCard(c); }));
+    $('noCakes').hidden = list.length > 0;
+  }
 
+  /* ---------- Shared form controls ---------- */
   function stepper(value, min, max, labels, onChange) {
     var v = value;
     var out = h('output', { class: 'qty-val', 'aria-live': 'polite' }, String(v));
@@ -867,76 +1655,35 @@
     minus.addEventListener('click', function () { if (v > min) { v--; sync(); onChange(v); } });
     plus.addEventListener('click', function () { if (v < max) { v++; sync(); onChange(v); } });
     sync();
-    var el = h('div', { class: 'stepper', role: 'group', 'aria-label': labels[2] }, minus, out, plus);
-    return { el: el };
+    return { el: h('div', { class: 'stepper', role: 'group', 'aria-label': labels[2] }, minus, out, plus) };
   }
-
   function optGroup(legend, type, name, items, onChange) {
     return h('fieldset', { class: 'fs' },
       h('legend', { class: 'legend' }, legend),
       h('div', { class: 'opts' }, items.map(function (it) {
         return h('label', { class: 'opt' },
-          h('input', {
-            type: type, name: name, value: it.value, checked: it.checked,
-            onchange: function (e) { onChange(it.value, e.target.checked); }
-          }),
+          h('input', { type: type, name: name, value: it.value, checked: it.checked, onchange: function (e) { onChange(it.value, e.target.checked); } }),
           it.label);
       })));
   }
 
-  function updateSheet() {
-    var p = productById(sheet.pid);
-    sheetScoop.replaceChildren(scoopEl(p, 92, sheet.scoops));
-    sheetAdd.textContent = 'Añadir · ' + money(unitCents(sheet) * sheet.qty);
+  /* ---------- Dialog (product and cake configurators) ---------- */
+  function focusables(root) {
+    return Array.prototype.slice.call(root.querySelectorAll(
+      'button:not([disabled]):not([aria-disabled="true"]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href]'
+    ));
   }
-
-  function openSheet(pid, opener) {
-    var p = productById(pid);
-    if (!p) return;
-    sheet = { pid: pid, format: 'tarrina', scoops: 1, toppings: [], qty: 1, opener: opener };
-    sheetScoop = h('div', { class: 'sheet-scoop' });
-    sheetQty = stepper(1, 1, MAX_QTY, ['Quitar uno', 'Añadir uno', 'Cantidad de helados'], function (v) {
-      sheet.qty = v;
-      updateSheet();
-    });
-    sheetAdd = h('button', {
-      type: 'button', class: 'btn btn-primary sheet-add',
-      onclick: function () { addToCart(sheet, sheet.qty); closeSheet(); }
-    }, 'Añadir');
-
-    sheetBody.replaceChildren(
-      sheetScoop,
-      h('h2', { id: 'sheetTitle', class: 'view-title', style: 'font-size:26px' }, p.name),
-      h('p', { class: 'desc' }, p.desc),
-      h('div', { class: 'tags' }, p.tags.map(tagEl)),
-      optGroup('Formato', 'radio', 'fmt', Object.keys(FORMATS).map(function (k) {
-        var f = FORMATS[k];
-        return { value: k, label: f.extra ? f.name + ' · +' + money(f.extra) : f.name, checked: k === 'tarrina' };
-      }), function (v) { sheet.format = v; updateSheet(); }),
-      optGroup('Número de bolas', 'radio', 'scp', [1, 2, 3].map(function (n) {
-        return { value: String(n), label: n === 1 ? '1 bola' : n + ' bolas · +' + money((n - 1) * SCOOP_STEP), checked: n === 1 };
-      }), function (v) { sheet.scoops = Number(v); updateSheet(); }),
-      optGroup('Extras', 'checkbox', 'top', TOPPINGS.map(function (t) {
-        return { value: t.id, label: t.name + ' · +' + money(t.price), checked: false };
-      }), function (v, on) {
-        sheet.toppings = on
-          ? sheet.toppings.concat(sheet.toppings.indexOf(v) === -1 ? [v] : [])
-          : sheet.toppings.filter(function (x) { return x !== v; });
-        updateSheet();
-      }),
-      h('div', { class: 'row' }, h('span', { class: 'row-label' }, 'Cantidad'), sheetQty.el),
-      sheetAdd
-    );
-
-    updateSheet();
+  function openDialog(kicker, nodes, opener) {
+    sheetKicker.textContent = kicker;
+    setChildren(sheetBody, nodes);
     sheetOpen = true;
+    sheetOpener = opener;
     sheetEl.classList.add('open');
     backdropEl.classList.add('show');
     appEl.inert = true;
     document.body.classList.add('locked');
     sheetClose.focus();
   }
-
   function closeSheet() {
     if (!sheetOpen) return;
     sheetOpen = false;
@@ -944,221 +1691,1170 @@
     backdropEl.classList.remove('show');
     appEl.inert = false;
     document.body.classList.remove('locked');
-    var opener = sheet && sheet.opener;
-    sheet = null;
-    if (opener && document.body.contains(opener)) opener.focus({ preventScroll: true });
+    var opener = sheetOpener;
+    sheetOpener = null;
+    if (currentView === 'cart' && isTablet()) backdropEl.classList.add('show');
+    if (opener && document.body.contains(opener) && opener.offsetParent !== null) opener.focus({ preventScroll: true });
   }
 
-  function focusables(root) {
-    return Array.prototype.slice.call(root.querySelectorAll(
-      'button:not([disabled]):not([aria-disabled="true"]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href]'
-    ));
-  }
-
-  backdropEl.addEventListener('click', closeSheet);
-  sheetClose.addEventListener('click', closeSheet);
-
-  document.addEventListener('keydown', function (e) {
-    if (!sheetOpen) return;
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      closeSheet();
-    } else if (e.key === 'Tab') {
-      var f = focusables(sheetEl);
-      if (!f.length) return;
-      var first = f[0], last = f[f.length - 1];
-      var active = document.activeElement;
-      if (e.shiftKey && (active === first || !sheetEl.contains(active))) {
-        e.preventDefault(); last.focus();
-      } else if (!e.shiftKey && (active === last || !sheetEl.contains(active))) {
-        e.preventDefault(); first.focus();
-      }
+  function openSheet(pid, opener) {
+    var p = productById(pid);
+    if (!p) return;
+    var sel = { format: 'tarrina', scoops: 1, toppings: [], qty: 1 };
+    var scoopBox = h('div', { class: 'sheet-scoop' });
+    var addBtn = h('button', { type: 'button', class: 'btn btn-primary sheet-add', disabled: !p.available }, 'Añadir');
+    function upd() {
+      setChildren(scoopBox, scoopEl(colorOk(p.color), 92, sel.scoops));
+      addBtn.textContent = p.available ? 'Añadir · ' + money(helUnit(p, sel) * sel.qty) : 'Agotado';
     }
-  });
+    var qty = stepper(1, 1, MAX_QTY, ['Quitar uno', 'Añadir uno', 'Cantidad de helados'], function (v) { sel.qty = v; upd(); });
+    addBtn.addEventListener('click', function () {
+      addToCart({ type: 'helado', pid: p.id, format: sel.format, scoops: sel.scoops, toppings: sel.toppings.slice(), qty: sel.qty });
+      closeSheet();
+    });
+    upd();
+    openDialog('Personaliza tu helado', [
+      scoopBox,
+      h('h2', { id: 'sheetTitle', class: 'sheet-title' }, p.name),
+      h('p', { class: 'desc' }, p.description),
+      h('div', { class: 'tags' }, p.tags.map(tagEl)),
+      p.allergens.length ? h('p', { class: 'sheet-note' }, 'Alérgenos: ' + p.allergens.join(', ') + '.') : null,
+      optGroup('Formato', 'radio', 'fmt', Object.keys(FORMATS).map(function (k) {
+        var f = FORMATS[k];
+        return { value: k, label: f.extra ? f.name + ' · +' + money(f.extra) : f.name, checked: k === 'tarrina' };
+      }), function (v) { sel.format = v; upd(); }),
+      optGroup('Número de bolas', 'radio', 'scp', [1, 2, 3].map(function (n) {
+        return { value: String(n), label: n === 1 ? '1 bola' : n + ' bolas · +' + money((n - 1) * SCOOP_STEP), checked: n === 1 };
+      }), function (v) { sel.scoops = Number(v); upd(); }),
+      optGroup('Extras', 'checkbox', 'top', TOPPINGS.map(function (t) {
+        return { value: t.id, label: t.name + ' · +' + money(t.price), checked: false };
+      }), function (v, on) {
+        sel.toppings = on ? sel.toppings.concat(sel.toppings.indexOf(v) === -1 ? [v] : []) : sel.toppings.filter(function (x) { return x !== v; });
+        upd();
+      }),
+      h('div', { class: 'row' }, h('span', { class: 'row-label' }, 'Cantidad'), qty.el),
+      addBtn
+    ], opener);
+  }
 
-  /* ---------- Cart view ---------- */
-  var cartEmptyEl = $('cartEmpty');
-  var cartFullEl = $('cartFull');
-  var cartList = $('cartList');
-  var subtotalEl = $('subtotal');
-  var checkoutTotal = $('checkoutTotal');
-  var closedMsg = $('closedMsg');
-  var pickupSel = $('pickup');
-  var checkoutForm = $('checkout');
-  var nameEl = $('name');
-  var nameErr = $('nameErr');
+  function radioGroup(legend, name, options, value, onChange) {
+    return h('fieldset', { class: 'fs' },
+      h('legend', { class: 'legend' }, legend),
+      h('div', { class: 'opts' }, options.map(function (o) {
+        return h('label', { class: 'opt' },
+          h('input', { type: 'radio', name: name, value: o.value, checked: o.value === value, onchange: function (e) { if (e.target.checked) onChange(o.value); } }),
+          o.label);
+      })));
+  }
+  function field(id, label, control, hint) {
+    return h('div', { class: 'field' }, h('label', { for: id }, label), control, hint ? h('span', { class: 'hint' }, hint) : null);
+  }
 
-  function refreshTotals() {
-    var t = cartTotals();
-    subtotalEl.textContent = money(t.total);
-    checkoutTotal.textContent = money(t.total);
+  function openCake(cid, opener) {
+    var c = cakeById(cid);
+    if (!c || !c.available || !DB.settings().onlineOrders) return;
+    var now = Date.now();
+    var st = { size: c.sizes[0].raciones, flavour: c.flavours[0], message: '', fulfil: 'recogida', timeMs: '' };
+    var fee = toCents(DB.settings().deliveryFee);
+    var addBtn = h('button', { type: 'button', class: 'btn btn-primary sheet-add' }, 'Añadir');
+    var errEl = h('p', { class: 'err', role: 'alert', id: 'cakeErr', hidden: true });
+
+    function priceCents() { var sz = c.sizes.find(function (s) { return s.raciones === st.size; }); return sz ? sz.price * 100 : 0; }
+    function updAdd() { addBtn.textContent = 'Añadir torta · ' + money(priceCents() + (st.fulfil === 'envio' ? fee : 0)); }
+
+    var flavSel = h('select', { class: 'input', id: 'cakeFlavour' }, c.flavours.map(function (f) { return h('option', { value: f }, f); }));
+    flavSel.addEventListener('change', function () { st.flavour = flavSel.value; });
+
+    var msgIn = h('input', { class: 'input', id: 'cakeMsg', type: 'text', maxlength: '30', placeholder: 'Ej.: ¡Feliz cumple, Lucía!', autocomplete: 'off', 'aria-describedby': 'cakeMsgHint' });
+    var msgHint = h('span', { class: 'hint', id: 'cakeMsgHint' }, '0/30 caracteres · opcional');
+    msgIn.addEventListener('input', function () { msgHint.textContent = msgIn.value.length + '/30 caracteres · opcional'; });
+
+    var addrIn = h('input', { class: 'input', id: 'cakeAddr', type: 'text', maxlength: '80', autocomplete: 'street-address', placeholder: 'Calle, número, piso' });
+    var addrWrap = field('cakeAddr', 'Dirección de envío', addrIn, 'Reparto a domicilio hasta ' + DB.settings().deliveryRadiusKm + ' km de la tienda.');
+    addrWrap.hidden = true;
+
+    // date and time
+    var minDay = startOfDay(now + cakeLeadMs(c));
+    var dateIn = h('input', { class: 'input', id: 'cakeDate', type: 'date', min: dateValue(minDay), max: dateValue(startOfDay(now + 60 * DAY)), 'aria-describedby': 'cakeErr' });
+    var timeSel = h('select', { class: 'input', id: 'cakeTime' });
+    function fillTimes() {
+      var d = dateIn.value ? parseDateValue(dateIn.value) : null;
+      var slots = d ? cakeSlots(d, c, now) : [];
+      setChildren(timeSel, slots.length
+        ? slots.map(function (s) { return h('option', { value: String(s.ms) }, s.label); })
+        : h('option', { value: '' }, 'Sin horas este día'));
+      st.timeMs = slots.length ? String(slots[0].ms) : '';
+      timeSel.value = st.timeMs;
+    }
+    timeSel.addEventListener('change', function () { st.timeMs = timeSel.value; });
+    dateIn.addEventListener('change', fillTimes);
+    // first day with a free slot
+    var firstDay = minDay.getTime();
+    for (var k = 0; k < 60; k++) {
+      var cand = startOfDay(firstDay + k * DAY);
+      if (cakeSlots(cand, c, now).length) { dateIn.value = dateValue(cand); break; }
+    }
+    if (!dateIn.value) dateIn.value = dateValue(minDay);
+    fillTimes();
+
+    var sizeGroup = radioGroup('Tamaño', 'cakeSize', c.sizes.map(function (s) {
+      return { value: String(s.raciones), label: s.raciones + ' raciones · ' + money(s.price * 100) };
+    }), String(st.size), function (v) { st.size = Number(v); updAdd(); });
+
+    var fulfilGroup = radioGroup('Entrega', 'cakeFulfil', [
+      { value: 'recogida', label: 'Recoger en tienda' },
+      { value: 'envio', label: 'Envío a domicilio · +' + money(fee) }
+    ], 'recogida', function (v) { st.fulfil = v; addrWrap.hidden = v !== 'envio'; updAdd(); });
+
+    addBtn.addEventListener('click', function () {
+      var msgs = [];
+      if (!st.timeMs) msgs.push('Elige una fecha y una hora de entrega con horario disponible.');
+      if (st.fulfil === 'envio' && addrIn.value.trim().length < 5) msgs.push('Escribe la dirección de envío.');
+      if (msgs.length) { errEl.textContent = msgs.join(' '); errEl.hidden = false; return; }
+      addToCart({
+        type: 'torta', cid: c.id, size: st.size, flavour: st.flavour, message: msgIn.value.trim().slice(0, 30),
+        when: Number(st.timeMs), fulfil: st.fulfil, address: st.fulfil === 'envio' ? addrIn.value.trim() : '', qty: 1
+      });
+      closeSheet();
+    });
+    updAdd();
+
+    openDialog('Personaliza tu torta', [
+      h('h2', { id: 'sheetTitle', class: 'sheet-title' }, c.name),
+      h('p', { class: 'desc' }, c.description),
+      sizeGroup,
+      field('cakeFlavour', 'Sabor base', flavSel),
+      field('cakeMsg', 'Mensaje en la tarta (máx. 30 caracteres)', msgIn, null),
+      msgHint,
+      h('div', { class: 'field' }, h('span', { class: 'label' }, 'Fecha y hora de entrega'),
+        h('div', { class: 'radio-row' }, dateIn, timeSel),
+        h('span', { class: 'hint' }, 'Con al menos ' + Math.round(cakeLeadMs(c) / HOUR) + ' h de antelación y dentro del horario de la tienda.')),
+      fulfilGroup,
+      addrWrap,
+      errEl,
+      addBtn
+    ], opener);
+  }
+
+  /* ---------- Cart panels (móvil/tablet y escritorio) ---------- */
+  function renderCart() {
+    var focusLabel = null;
+    var ae = document.activeElement;
+    if (ae && ae.closest && ae.closest('.cart-panel') && ae.getAttribute('aria-label')) focusLabel = ae.getAttribute('aria-label');
+    renderPanel($('cartPanelM'), 'm');
+    renderPanel($('cartPanelD'), 'd');
+    if (focusLabel) {
+      var target = Array.prototype.slice.call(document.querySelectorAll('.cart-panel button')).find(function (b) {
+        return b.getAttribute('aria-label') === focusLabel && b.offsetParent !== null;
+      });
+      if (target) target.focus({ preventScroll: true });
+    }
     refresh();
   }
 
-  function lineEl(l, i) {
-    var p = productById(l.pid);
-    var totalEl = h('span', { class: 'line-total' }, money(lineTotal(l)));
-    var step = stepper(l.qty, 1, MAX_QTY, ['Quitar uno de ' + p.name, 'Añadir uno de ' + p.name, 'Cantidad de ' + p.name], function (v) {
-      l.qty = v;
-      saveCart();
-      totalEl.textContent = money(lineTotal(l));
-      refreshTotals();
-    });
-    var remove = h('button', { type: 'button', class: 'link-btn', 'aria-label': 'Quitar ' + p.name + ' del pedido', onclick: function () { removeLine(i); } }, 'Quitar');
-    return h('li', { class: 'line' },
-      h('div', { class: 'line-art' }, scoopEl(p, 32, l.scoops)),
-      h('div', { class: 'line-info' }, h('h3', null, p.name), h('p', null, describe(l)), remove),
-      h('div', { class: 'line-side' }, totalEl, step.el)
-    );
+  function renderPanel(root, pfx) {
+    if (!cart.lines.length) {
+      setChildren(root, h('div', { class: 'empty-state' },
+        h('span', { class: 'empty-art', 'aria-hidden': 'true' }, templateSvg()),
+        h('h3', null, 'Tu carrito está vacío'),
+        h('p', null, 'Todavía no has elegido sabor ni tarta. ¡Hay diez esperándote!'),
+        h('a', { class: 'btn btn-primary', href: '#helados' }, 'Ver la carta')));
+      return;
+    }
+    var now = new Date();
+    var sum = cartSummary(now.getTime());
+    var slots = pickupSlots(now);
+    if (sum.hasHelado && !slots.some(function (s) { return String(s.ms) === cart.pickup; })) cart.pickup = slots.length ? String(slots[0].ms) : '';
+    var paused = !DB.settings().onlineOrders;
+
+    var nodes = [h('ul', { class: 'lines' }, sum.lines.map(function (x, i) { return lineEl(x, i); }))];
+    nodes.push(h('div', { class: 'sum-lines' }, h('div', null, h('span', { class: 'muted' }, 'Subtotal'), h('span', null, money(sum.sub)))));
+    if (sum.fee) nodes.push(h('div', { class: 'sum-lines' }, h('div', null, h('span', { class: 'muted' }, 'Envío a domicilio'), h('span', null, money(sum.fee)))));
+    nodes.push(h('div', { class: 'subtotal' }, h('span', null, 'Total'), h('span', null, money(sum.total))));
+
+    var form = h('form', { novalidate: true, onsubmit: function (e) { e.preventDefault(); submitOrder(pfx); } });
+    if (paused) form.appendChild(h('p', { class: 'notice bad', role: 'status' }, 'Pedidos online pausados temporalmente. Vuelve pronto.'));
+    if (sum.invalid) form.appendChild(h('p', { class: 'notice bad', role: 'status' }, sum.invalid + (sum.invalid === 1 ? ' producto ya no está disponible' : ' productos ya no están disponibles') + ': quítalos para continuar.'));
+    if (sum.hasHelado) {
+      var sel = h('select', { class: 'input', id: pfx + '-pickup', 'aria-invalid': formErr.pickup ? 'true' : 'false', 'aria-describedby': pfx + '-pickupErr' },
+        slots.length ? slots.map(function (s) { return h('option', { value: String(s.ms), selected: String(s.ms) === cart.pickup }, s.label); })
+          : h('option', { value: '' }, 'Sin horas de recogida hoy ni mañana'));
+      sel.addEventListener('change', function () { cart.pickup = sel.value; saveCart(); });
+      form.appendChild(h('div', { class: 'field' },
+        h('label', { for: pfx + '-pickup' }, 'Hora de recogida de los helados'),
+        slots.length ? null : h('p', { class: 'notice' }, 'Hoy ya hemos cerrado. Elige mañana cuando abramos.'),
+        sel,
+        h('p', { class: 'err', id: pfx + '-pickupErr', role: 'alert' }, formErr.pickup || null)));
+    }
+    var nameIn = h('input', { class: 'input', id: pfx + '-name', type: 'text', autocomplete: 'name', maxlength: '40', required: true, 'aria-required': 'true', value: draft.name, 'aria-invalid': formErr.name ? 'true' : 'false', 'aria-describedby': pfx + '-nameErr' });
+    nameIn.addEventListener('input', function () { draft.name = nameIn.value; });
+    var phoneIn = h('input', { class: 'input', id: pfx + '-phone', type: 'tel', autocomplete: 'tel', maxlength: '15', placeholder: '600 000 000', required: true, 'aria-required': 'true', value: draft.phone, 'aria-invalid': formErr.phone ? 'true' : 'false', 'aria-describedby': pfx + '-phoneErr' });
+    phoneIn.addEventListener('input', function () { draft.phone = phoneIn.value; });
+    var notesIn = h('textarea', { class: 'input', id: pfx + '-notes', maxlength: '140', rows: '2', 'aria-describedby': pfx + '-notesHint' }, draft.notes);
+    notesIn.addEventListener('input', function () { draft.notes = notesIn.value; });
+    form.appendChild(h('div', { class: 'field' }, h('label', { for: pfx + '-name' }, 'Tu nombre'), nameIn,
+      h('p', { class: 'err', id: pfx + '-nameErr', role: 'alert' }, formErr.name || null)));
+    form.appendChild(h('div', { class: 'field' }, h('label', { for: pfx + '-phone' }, 'Teléfono de contacto'), phoneIn,
+      h('p', { class: 'err', id: pfx + '-phoneErr', role: 'alert' }, formErr.phone || null)));
+    form.appendChild(h('div', { class: 'field' }, h('label', { for: pfx + '-notes' }, 'Notas (opcional)'), notesIn,
+      h('span', { class: 'hint', id: pfx + '-notesHint' }, 'Alergias, detalles de la entrega…')));
+    if (sum.envio) form.appendChild(h('p', { class: 'hint' }, 'Tu pedido incluye envío a domicilio: se cobra el coste de envío una vez.'));
+    form.appendChild(h('button', { type: 'submit', class: 'btn btn-primary checkout-btn', disabled: paused || !sum.lines.length },
+      'Confirmar pedido · ' + money(sum.total)));
+    nodes.push(form);
+    setChildren(root, nodes);
+  }
+
+  function templateSvg() {
+    var t = document.createElement('template');
+    t.innerHTML = EMPTY_SVG;
+    return t.content.firstChild;
+  }
+
+  function lineEl(x, i) {
+    var l = x.line, inf = x.info;
+    var art;
+    if (l.type === 'helado') art = h('div', { class: 'line-art' }, scoopEl(colorOk(inf.color), 32, l.scoops));
+    else {
+      var chip = h('span', { class: 'cake-chip', 'aria-hidden': 'true' });
+      chip.style.background = colorOk(inf.color);
+      art = h('div', { class: 'line-art' }, chip);
+    }
+    var remove = h('button', { type: 'button', class: 'link-btn', 'aria-label': 'Quitar ' + inf.name + ' del pedido', onclick: function () { removeLine(i); } }, 'Quitar');
+    var info = h('div', { class: 'line-info' }, h('h3', null, inf.name), h('p', null, inf.desc),
+      inf.warn ? h('p', { class: 'err', role: 'status' }, inf.warn) : null, remove);
+    var side;
+    if (l.type === 'helado') {
+      var st = stepper(l.qty, 1, MAX_QTY, ['Quitar uno de ' + inf.name, 'Añadir uno de ' + inf.name, 'Cantidad de ' + inf.name], function (v) {
+        l.qty = v;
+        saveCart();
+        renderCart();
+      });
+      side = h('div', { class: 'line-side' }, h('span', { class: 'line-total' }, money(inf.total)), st.el);
+    } else {
+      side = h('div', { class: 'line-side' }, h('span', { class: 'line-total' }, money(inf.total)));
+    }
+    return h('li', { class: 'line' + (inf.warn ? ' is-warn' : '') }, art, info, side);
   }
 
   function removeLine(i) {
-    cart.splice(i, 1);
+    cart.lines.splice(i, 1);
     saveCart();
     renderCart();
-    refresh();
     announce('Producto quitado del pedido.');
-    $(TITLE_IDS.cart).focus({ preventScroll: true });
+    if (currentView === 'cart') { var t = $('cartTitle'); if (t.offsetParent !== null) t.focus({ preventScroll: true }); }
   }
 
-  // Slots every 15 min from the next valid slot until LAST_MIN. dayOffset 0 = today, 1 = tomorrow.
-  function slotsFor(dayOffset) {
-    var start = OPEN_MIN;
-    if (dayOffset === 0) {
-      var now = new Date();
-      var mins = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60 + LEAD_MIN;
-      start = Math.max(start, Math.ceil(mins / 15) * 15);
-    }
-    var out = [];
-    for (var m = start; m <= LAST_MIN; m += 15) {
-      out.push({ value: String(dayOffset * 1440 + m), label: pad(Math.floor(m / 60)) + ':' + pad(m % 60) });
-    }
-    return out;
+  /* ---------- Checkout ---------- */
+  function validateOrder() {
+    var e = {};
+    var sum = cartSummary(Date.now());
+    if (draft.name.trim().length < 2) e.name = 'Escribe tu nombre (al menos 2 letras) para avisarte al recoger.';
+    if (!/^[6789]\d{8}$/.test(draft.phone.replace(/[\s.-]/g, ''))) e.phone = 'Escribe un teléfono de 9 cifras, por ejemplo 600 000 000.';
+    if (sum.hasHelado && !pickupSlots(new Date()).some(function (s) { return String(s.ms) === cart.pickup; })) e.pickup = 'Elige una hora de recogida disponible.';
+    if (sum.invalid) e.lines = 'Quita los productos que ya no están disponibles.';
+    if (!DB.settings().onlineOrders) e.paused = 'Los pedidos online están pausados.';
+    return e;
   }
 
-  function renderPickup() {
-    var today = slotsFor(0);
-    var useToday = today.length > 0;
-    var list = useToday ? today : slotsFor(1);
-    var prev = pickupSel.value;
-    closedMsg.hidden = useToday;
-    pickupSel.replaceChildren.apply(pickupSel, list.map(function (s) {
-      return h('option', { value: s.value }, (useToday ? 'Hoy' : 'Mañana') + ' · ' + s.label);
-    }));
-    if (prev && list.some(function (s) { return s.value === prev; })) pickupSel.value = prev;
-  }
-
-  function renderCart() {
-    var hasItems = cart.length > 0;
-    cartEmptyEl.hidden = hasItems;
-    cartFullEl.hidden = !hasItems;
-    if (!hasItems) return;
-    cartList.replaceChildren.apply(cartList, cart.map(lineEl));
-    renderPickup();
-    refreshTotals();
-  }
-
-  function setNameError(msg) {
-    nameErr.textContent = msg;
-    nameErr.hidden = !msg;
-    nameEl.setAttribute('aria-invalid', msg ? 'true' : 'false');
-  }
-
-  nameEl.addEventListener('input', function () {
-    if (nameEl.value.trim().length >= 2) setNameError('');
-  });
-
-  checkoutForm.addEventListener('submit', function (e) {
-    e.preventDefault();
-    if (!cart.length) return;
-    var name = nameEl.value.trim();
-    if (name.length < 2) {
-      setNameError('Escribe tu nombre (al menos 2 letras) para avisarte al recoger.');
-      nameEl.focus();
+  function submitOrder(pfx) {
+    formErr = validateOrder();
+    var keys = ['name', 'phone', 'pickup'].filter(function (k) { return formErr[k]; });
+    if (Object.keys(formErr).length) {
+      renderCart();
+      if (keys.length && $(pfx + '-' + keys[0])) $(pfx + '-' + keys[0]).focus();
+      else announce(formErr.lines || formErr.paused || 'Revisa el pedido.');
       return;
     }
-    setNameError('');
-    placeOrder(name);
-  });
-
-  /* ---------- Confirmation and tracker ---------- */
-  var confName = $('confName');
-  var orderCode = $('orderCode');
-  var steps = Array.prototype.slice.call(document.querySelectorAll('#steps li'));
-  var trackFill = $('trackFill');
-  var statusMsg = $('statusMsg');
-  var sumList = $('sumList');
-  var sumPickup = $('sumPickup');
-  var sumTotal = $('sumTotal');
-
-  function placeOrder(name) {
-    var t = cartTotals();
-    var code = 'BN-' + String(1000 + Math.floor(Math.random() * 9000));
-    var pickup = pickupSel.options[pickupSel.selectedIndex] ? pickupSel.options[pickupSel.selectedIndex].textContent : '';
-    lastOrder = {
-      code: code, name: name, total: t.total, pickup: pickup,
-      lines: cart.map(function (l) {
-        return { name: productById(l.pid).name, desc: describe(l), qty: l.qty, total: lineTotal(l) };
-      })
-    };
-
-    confName.textContent = name;
-    orderCode.textContent = code;
-    sumList.replaceChildren.apply(sumList, lastOrder.lines.map(function (l) {
-      return h('li', null,
-        h('span', null, h('strong', null, l.qty + ' × ' + l.name), h('br'), h('small', null, l.desc)),
-        h('span', null, money(l.total)));
-    }));
-    sumPickup.textContent = pickup;
-    sumTotal.textContent = money(t.total);
-
-    show('confirm', { focus: true });
-    startTracker();
+    formErr = {};
+    placeOrder();
   }
 
-  function setStep(i) {
-    steps.forEach(function (li, idx) {
-      li.classList.toggle('done', idx < i);
-      li.classList.toggle('current', idx === i);
+  function placeOrder() {
+    var now = Date.now();
+    var sum = cartSummary(now);
+    var items = [];
+    var address = '';
+    var pickupMs = Number(cart.pickup) || 0;
+    sum.lines.forEach(function (x) {
+      if (!x.info.ok) return;
+      var l = x.line, inf = x.info;
+      if (l.type === 'helado') {
+        items.push(item('helado', inf.name, inf.desc, l.qty, inf.unit, pickupMs));
+      } else {
+        items.push(item('torta', inf.name, inf.desc, 1, inf.unit, l.when));
+        if (l.fulfil === 'envio' && !address) address = l.address;
+      }
     });
-    trackFill.style.width = (i / 2 * 100) + '%';
-    statusMsg.textContent = STATUS_MSG[i];
+    var type = sum.envio ? 'envio' : 'recogida';
+    var fee = sum.envio ? sum.fee : 0;
+    var subtotal = items.reduce(function (a, it) { return a + it.total; }, 0);
+    var order = DB.addOrder({
+      createdAt: now,
+      customer: { name: draft.name.trim(), phone: draft.phone.replace(/[\s.-]/g, '') },
+      items: items,
+      total: subtotal + fee,
+      fee: fee,
+      type: type,
+      address: address,
+      dueAt: Math.min.apply(null, items.map(function (it) { return it.dueAt; })),
+      status: 'recibido',
+      notes: draft.notes.trim()
+    });
+    cart = { lines: [], pickup: '' };
+    saveCart();
+    draft = { name: '', phone: '', notes: '' };
+    lastOrderId = order.id;
+    try { window.localStorage.setItem(LAST_KEY, order.id); } catch (e) { /* ok */ }
+    location.hash = '#seguimiento/' + order.id;
+    show('confirm', { focus: true });
   }
 
-  function startTracker() {
-    timers.forEach(clearTimeout);
-    timers = [];
-    setStep(0);
-    timers.push(setTimeout(function () { setStep(1); }, 3000));
-    timers.push(setTimeout(function () { setStep(2); }, 8000));
+  /* ---------- Confirmation and live tracking ---------- */
+  function renderConfirm() {
+    var o = lastOrderId ? DB.getOrder(lastOrderId) : null;
+    if (!o) {
+      $('confName').textContent = '';
+      $('orderCode').textContent = 'BN-????';
+      $('orderWhen').textContent = '';
+      setChildren($('steps'), []);
+      $('trackFill').style.width = '0%';
+      $('statusMsg').textContent = 'No encontramos este pedido. Revisa el número o haz un pedido nuevo.';
+      setChildren($('sumList'), []);
+      return;
+    }
+    var stage = stageOf(o.status);
+    var labels = ['Recibido', 'En preparación', o.type === 'envio' ? 'En reparto' : 'Listo para recoger', 'Entregado'];
+    $('confName').textContent = o.customer.name;
+    $('orderCode').textContent = o.id;
+    $('orderWhen').textContent = (o.type === 'envio' ? 'Entrega' : 'Recogida') + ' · ' + fmtShort(o.dueAt);
+    setChildren($('steps'), labels.map(function (lb, i) {
+      return h('li', { class: i < stage ? 'done' : i === stage ? 'current' : '', 'aria-current': i === stage ? 'step' : null },
+        h('span', { class: 'dot', 'aria-hidden': 'true' }), h('span', null, lb));
+    }));
+    $('trackFill').style.width = (stage / 3 * 100) + '%';
+    var msgs = ['Hemos recibido tu pedido.', 'Estamos preparando tus helados y tortas.',
+      o.type === 'envio' ? (o.status === 'listo' ? 'Tu pedido está listo y sale en breve.' : 'En camino: tu pedido sale hacia tu dirección.') : '¡Listo! Ya puedes pasar a recogerlo.',
+      '¡Entregado! Gracias por confiar en Bola de Nieve.'];
+    $('statusMsg').textContent = msgs[stage];
+    setChildren($('sumList'), o.items.map(function (it) {
+      return h('li', null,
+        h('span', null, h('strong', null, it.qty + ' × ' + it.name), h('br'), h('small', null, it.desc)),
+        h('span', null, money(it.total)));
+    }).concat(o.fee ? [h('li', null, h('span', null, 'Envío a domicilio'), h('span', null, money(o.fee)))] : []));
+    $('sumTypeLbl').textContent = fulfilLabel(o.type);
+    $('sumPlace').textContent = o.type === 'envio' ? o.address : DB.settings().address;
+    $('sumTotal').textContent = money(o.total);
   }
 
   $('again').addEventListener('click', function () {
-    timers.forEach(clearTimeout);
-    timers = [];
-    cart = [];
-    saveCart();
-    lastOrder = null;
-    refresh();
-    toast('Carrito vacío. ¡A por otro pedido!');
+    lastOrderId = null;
+    try { window.localStorage.removeItem(LAST_KEY); } catch (e) { /* ok */ }
+    location.hash = '';
     show('menu', { focus: true });
+    renderCart();
   });
 
   /* ---------- Navigation wiring ---------- */
   cartBtn.addEventListener('click', function () { show('cart', { focus: true }); });
   barBtn.addEventListener('click', function () { show('cart', { focus: true }); });
-  $('backToMenu').addEventListener('click', function () { show('menu', { focus: true }); });
-  $('emptyToMenu').addEventListener('click', function () { show('menu', { focus: true }); });
+  $('backToMenu').addEventListener('click', function () { show('menu'); });
   $('ribbonClose').addEventListener('click', function () { $('ribbon').hidden = true; });
+  backdropEl.addEventListener('click', function () {
+    if (sheetOpen) closeSheet();
+    else if (currentView === 'cart') show('menu');
+  });
+  sheetClose.addEventListener('click', closeSheet);
+
+  document.addEventListener('keydown', function (e) {
+    if (sheetOpen) {
+      if (e.key === 'Escape') { e.preventDefault(); closeSheet(); return; }
+      if (e.key === 'Tab') {
+        var f = focusables(sheetEl);
+        if (!f.length) return;
+        var first = f[0], last = f[f.length - 1];
+        var active = document.activeElement;
+        if (e.shiftKey && (active === first || !sheetEl.contains(active))) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && (active === last || !sheetEl.contains(active))) { e.preventDefault(); first.focus(); }
+      }
+      return;
+    }
+    if (e.key === 'Escape' && currentView === 'cart' && isTablet()) show('menu', { focus: true });
+  });
+
+  /* ===== END B) STORE ===== */
+  /* ===== C) ADMIN: panel at #admin (pedidos, calendario, productos, tortas, ajustes) ===== */
+  var adminRoot = $('adminRoot');
+  var adLogin = $('adLogin');
+  var adShell = $('adShell');
+  var adSide = $('adSide');
+  var adScrim = $('adScrim');
+  var adPanel = 'pedidos';
+  var adFilter = 'hoy';
+  var adVisible = false;
+  var adLoggedMem = false;
+  var adToastTimer = null;
+  var simTimer = null;
+  var soundOn = false;
+  var audioCtx = null;
+  var dragId = null;
+  var pendingDelete = null;     // { kind: 'product' | 'cake', id }
+  var PANEL_TITLES = { pedidos: 'Pedidos', calendario: 'Calendario de entregas', productos: 'Productos', tortas: 'Tortas', ajustes: 'Ajustes' };
+  var SIM_NAMES = ['Ana B.', 'Hugo M.', 'Lara S.', 'Álvaro P.', 'Sofía R.', 'Mario C.', 'Paula G.', 'Raúl T.', 'Berta F.'];
+
+  function adIsLogged() {
+    try { return window.sessionStorage.getItem(ADMIN_KEY) === '1'; } catch (e) { return adLoggedMem; }
+  }
+  function adSetLogged(v) {
+    adLoggedMem = v;
+    try { if (v) window.sessionStorage.setItem(ADMIN_KEY, '1'); else window.sessionStorage.removeItem(ADMIN_KEY); } catch (e) { /* memory only */ }
+  }
+  function toastAd(msg) {
+    var t = $('adToast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(adToastTimer);
+    adToastTimer = setTimeout(function () { t.classList.remove('show'); }, 2600);
+  }
+  function kpi(label, value) {
+    return h('div', { class: 'ad-kpi' }, h('div', { class: 'l' }, label), h('div', { class: 'v' }, value));
+  }
+  function th(label, cls) { return h('th', { class: cls || null, scope: 'col' }, label); }
+  function swatch(color) {
+    var s = h('span', { class: 'sw', 'aria-hidden': 'true' });
+    s.style.background = colorOk(color);
+    return s;
+  }
+  function availToggle(on, label, onChange) {
+    var input = h('input', { type: 'checkbox', role: 'switch', 'aria-checked': String(on), 'aria-label': label });
+    input.checked = !!on;
+    input.addEventListener('change', function () { onChange(input.checked); });
+    return h('label', { class: 'toggle' }, input, h('span', { class: 'track-s', 'aria-hidden': 'true' }), h('span', null, on ? 'Disponible' : 'Agotado'));
+  }
+  function summaryItems(o) {
+    return o.items.map(function (it) { return it.qty + '× ' + it.name; }).join(', ');
+  }
+  function relMin(m) { return m >= 60 ? Math.floor(m / 60) + ' h ' + pad(m % 60) + ' min' : m + ' min'; }
+  function dueText(o, now) {
+    if (o.status === 'entregado') return { text: 'Entregado · ' + fmtTime(o.dueAt), late: false };
+    var diff = o.dueAt - now;
+    if (diff >= 0) return { text: fmtTime(o.dueAt) + ' · en ' + relMin(Math.ceil(diff / MIN)), late: false };
+    return { text: fmtTime(o.dueAt) + ' · con retraso ' + Math.ceil(-diff / MIN) + ' min', late: true };
+  }
+
+  /* ---------- Entry, login and routing helpers ---------- */
+  function showAdmin() {
+    appEl.hidden = true;
+    adminRoot.hidden = false;
+    adVisible = true;
+    if (!adIsLogged()) {
+      adLogin.hidden = false;
+      adShell.hidden = true;
+      stopSim();
+      return;
+    }
+    adLogin.hidden = true;
+    adShell.hidden = false;
+    adGo(adPanel);
+    startSim();
+  }
+  function hideAdmin() {
+    if (!adVisible) return;
+    adVisible = false;
+    stopSim();
+    adminRoot.hidden = true;
+    appEl.hidden = false;
+  }
+
+  $('adLoginForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    adSetLogged(true);
+    adLogin.hidden = true;
+    adShell.hidden = false;
+    adGo('pedidos');
+    startSim();
+    toastAd('Sesión de demo iniciada');
+  });
+  $('adLogout').addEventListener('click', function () {
+    adSetLogged(false);
+    stopSim();
+    adShell.hidden = true;
+    adLogin.hidden = false;
+    adSide.classList.remove('open');
+    adScrim.classList.remove('show');
+  });
+
+  function adGo(panel) {
+    adPanel = panel;
+    Array.prototype.slice.call(document.querySelectorAll('.ad-panel')).forEach(function (p) {
+      p.hidden = p.getAttribute('data-panel') !== panel;
+    });
+    Array.prototype.slice.call(document.querySelectorAll('.ad-nav button')).forEach(function (b) {
+      if (b.getAttribute('data-go') === panel) b.setAttribute('aria-current', 'page');
+      else b.removeAttribute('aria-current');
+    });
+    $('adTitle').textContent = PANEL_TITLES[panel];
+    $('adDate').textContent = new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date());
+    adSide.classList.remove('open');
+    adScrim.classList.remove('show');
+    $('adMenuBtn').setAttribute('aria-expanded', 'false');
+    renderAdPanel();
+  }
+  function renderAdPanel() {
+    if (!adVisible) return;
+    if (adPanel === 'pedidos') renderBoard();
+    else if (adPanel === 'calendario') renderCalendar();
+    else if (adPanel === 'productos') renderProducts();
+    else if (adPanel === 'tortas') renderCakesAdmin();
+    else if (adPanel === 'ajustes') renderSettings();
+    renderAdStatus();
+  }
+
+  Array.prototype.slice.call(document.querySelectorAll('.ad-nav button')).forEach(function (b) {
+    b.addEventListener('click', function () { adGo(b.getAttribute('data-go')); });
+  });
+  $('adMenuBtn').addEventListener('click', function () {
+    var open = !adSide.classList.contains('open');
+    adSide.classList.toggle('open', open);
+    adScrim.classList.toggle('show', open);
+    this.setAttribute('aria-expanded', String(open));
+  });
+  adScrim.addEventListener('click', function () {
+    adSide.classList.remove('open');
+    adScrim.classList.remove('show');
+    $('adMenuBtn').setAttribute('aria-expanded', 'false');
+  });
+
+  function renderAdStatus() {
+    var info = openInfo(new Date());
+    var paused = !DB.settings().onlineOrders;
+    $('adStatusTxt').textContent = info.state === 'open' ? 'Tienda abierta' : info.state === 'paused' ? 'Pedidos pausados' : 'Tienda cerrada';
+    $('adStatusSub').textContent = info.line;
+    var pb = $('adPause');
+    pb.textContent = paused ? 'Reanudar pedidos online' : 'Pausar pedidos online';
+    pb.setAttribute('aria-pressed', String(paused));
+    $('navCount').textContent = String(DB.orders().filter(function (o) { return o.status !== 'entregado'; }).length);
+  }
+  $('adPause').addEventListener('click', function () {
+    var on = !DB.settings().onlineOrders;
+    DB.saveSettings({ onlineOrders: on });
+    toastAd(on ? 'Pedidos online reanudados' : 'Pedidos online pausados');
+  });
+
+  /* ---------- Pedidos: Kanban ---------- */
+  function isToday(o, now) {
+    var d = new Date(now);
+    return sameDay(new Date(o.dueAt), d) || sameDay(new Date(o.createdAt), d);
+  }
+  function renderBoard() {
+    var now = Date.now();
+    var list = DB.orders().filter(function (o) { return adFilter === 'todos' || isToday(o, now); });
+    setChildren($('board'), STATUSES.map(function (st) {
+      var items = list.filter(function (o) { return o.status === st.id; }).sort(function (a, b) { return a.dueAt - b.dueAt; });
+      return colEl(st, items);
+    }));
+    Array.prototype.slice.call(document.querySelectorAll('[data-filter]')).forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-filter') === adFilter));
+    });
+    $('adSimInfo').textContent = 'Llegan pedidos de prueba cada 40–60 s mientras este panel está abierto.';
+    tickDue();
+  }
+  Array.prototype.slice.call(document.querySelectorAll('[data-filter]')).forEach(function (b) {
+    b.addEventListener('click', function () { adFilter = b.getAttribute('data-filter'); renderBoard(); });
+  });
+
+  function colEl(st, items) {
+    var col = h('section', { class: 'col', 'data-status': st.id, 'aria-label': st.label + ', ' + items.length + ' pedidos' },
+      h('div', { class: 'col-head' }, h('span', null, st.label), h('span', { class: 'n' }, String(items.length))),
+      items.length ? items.map(function (o) { return orderCard(o); }) : h('p', { class: 'col-empty' }, 'Sin pedidos'));
+    col.addEventListener('dragover', function (e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      col.classList.add('over');
+    });
+    col.addEventListener('dragleave', function (e) {
+      if (!col.contains(e.relatedTarget)) col.classList.remove('over');
+    });
+    col.addEventListener('drop', function (e) {
+      e.preventDefault();
+      col.classList.remove('over');
+      var id = e.dataTransfer.getData('text/plain');
+      if (id) setOrderStatus(id, st.id);
+    });
+    return col;
+  }
+
+  function orderCard(o) {
+    var idx = STATUSES.findIndex(function (s) { return s.id === o.status; });
+    var prev = idx > 0 ? STATUSES[idx - 1] : null;
+    var next = idx < STATUSES.length - 1 ? STATUSES[idx + 1] : null;
+    var dueEl = h('span', { class: 'due', 'data-due-el': '' });
+    dueEl.dataset.due = String(o.dueAt);
+    dueEl.dataset.status = o.status;
+    var card = h('article', { class: 'ocard', draggable: 'true', 'data-id': o.id, 'aria-label': 'Pedido ' + o.id + ', ' + o.customer.name },
+      h('div', { class: 'ocard-top' },
+        h('span', { class: 'ocard-num' }, o.id),
+        h('span', { class: 'pill' + (o.type === 'envio' ? ' envio' : '') }, o.type === 'envio' ? 'Envío' : 'Recogida')),
+      h('div', { class: 'ocard-name' }, o.customer.name),
+      h('ul', { class: 'ocard-items' }, o.items.map(function (it) { return h('li', null, it.qty + ' × ' + it.name + ' · ' + it.desc); })),
+      o.type === 'envio' && o.address ? h('p', { class: 'view-sub', style: 'font-size:13px' }, 'Dirección: ' + o.address) : null,
+      o.notes ? h('p', { class: 'ocard-notes' }, o.notes) : null,
+      h('div', { class: 'ocard-foot' }, dueEl, h('strong', null, money(o.total))),
+      h('div', { class: 'ocard-btns' },
+        h('button', { type: 'button', class: 'btn-sm', disabled: !prev, 'aria-label': prev ? 'Retroceder ' + o.id + ' a ' + prev.label : 'Retroceder, ya está en la primera columna',
+          onclick: function () { setOrderStatus(o.id, prev.id); } }, 'Retroceder'),
+        h('button', { type: 'button', class: 'btn-sm primary', disabled: !next, 'aria-label': next ? 'Avanzar estado de ' + o.id + ' a ' + next.label : 'Avanzar estado, pedido entregado',
+          onclick: function () { setOrderStatus(o.id, next.id); } }, 'Avanzar estado')));
+    card.addEventListener('dragstart', function (e) {
+      dragId = o.id;
+      e.dataTransfer.setData('text/plain', o.id);
+      e.dataTransfer.effectAllowed = 'move';
+      card.classList.add('dragging');
+    });
+    card.addEventListener('dragend', function () {
+      card.classList.remove('dragging');
+      dragId = null;
+      renderBoard();
+    });
+    return card;
+  }
+
+  function tickDue() {
+    var now = Date.now();
+    Array.prototype.slice.call(document.querySelectorAll('[data-due-el]')).forEach(function (el) {
+      var d = dueText({ dueAt: Number(el.dataset.due), status: el.dataset.status }, now);
+      el.textContent = d.text;
+      el.classList.toggle('late', d.late);
+    });
+  }
+
+  function setOrderStatus(id, status) {
+    var o = DB.getOrder(id);
+    if (!o || o.status === status) return;
+    var keyboard = document.activeElement && document.activeElement.closest && document.activeElement.closest('#board');
+    DB.setStatus(id, status);
+    toastAd(id + ' → ' + statusOf(status).label);
+    if (keyboard) {
+      var card = Array.prototype.slice.call(document.querySelectorAll('.ocard')).find(function (c) { return c.dataset.id === id; });
+      var target = card && (card.querySelector('.btn-sm.primary:not([disabled])') || card.querySelector('.btn-sm:not([disabled])'));
+      if (target) target.focus();
+    }
+  }
+
+  /* ---------- Simulated orders (40–60 s while the panel is open) ---------- */
+  function simOrder() {
+    var prods = DB.products().filter(function (p) { return p.available; });
+    if (!prods.length) return;
+    var now = Date.now();
+    var due = now + (20 + rand(40)) * MIN;
+    var items = [];
+    var n = 1 + rand(2);
+    for (var i = 0; i < n; i++) {
+      var p = prods[rand(prods.length)];
+      var cone = rand(3) === 0;
+      items.push(item('helado', p.name, (cone ? 'Cucurucho' : 'Tarrina') + ' · 1 bola', 1 + rand(2), toCents(p.price), due));
+    }
+    var o = DB.addOrder({
+      createdAt: now,
+      customer: { name: SIM_NAMES[rand(SIM_NAMES.length)], phone: '6000000' + pad(rand(100)) },
+      items: items,
+      total: items.reduce(function (a, it) { return a + it.total; }, 0),
+      fee: 0,
+      type: 'recogida',
+      address: '',
+      dueAt: due,
+      status: 'recibido',
+      notes: rand(4) === 0 ? 'Sin azúcar extra, gracias.' : ''
+    });
+    toastAd('Nuevo pedido ' + o.id);
+    if (soundOn) beep();
+  }
+  function beep() {
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      var osc = audioCtx.createOscillator();
+      var gain = audioCtx.createGain();
+      osc.frequency.value = 880;
+      gain.gain.value = 0.05;
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.18);
+    } catch (e) { /* audio not available */ }
+  }
+  function startSim() { stopSim(); scheduleSim(); }
+  function scheduleSim() {
+    simTimer = setTimeout(function () {
+      if (adVisible && adIsLogged()) simOrder();
+      scheduleSim();
+    }, 40000 + rand(20000));
+  }
+  function stopSim() { clearTimeout(simTimer); simTimer = null; }
+
+  $('adSound').addEventListener('change', function (e) {
+    soundOn = e.target.checked;
+    if (soundOn) beep();
+  });
+
+  /* ---------- Calendario de entregas ---------- */
+  function renderCalendar() {
+    var now = new Date();
+    var nowMs = now.getTime();
+    var orders = DB.orders();
+    var today = orders.filter(function (o) { return sameDay(new Date(o.createdAt), now); });
+    var revenue = today.reduce(function (a, o) { return a + o.total; }, 0);
+    var ticket = today.length ? Math.round(revenue / today.length) : 0;
+    var upcoming = orders.filter(function (o) { return o.status !== 'entregado' && o.dueAt >= startOfDay(nowMs).getTime(); })
+      .sort(function (a, b) { return a.dueAt - b.dueAt; });
+
+    setChildren($('kpis'), [
+      kpi('Pedidos hoy', String(today.length)),
+      kpi('Ingresos hoy', money(revenue)),
+      kpi('Ticket medio', money(ticket)),
+      h('div', { class: 'ad-kpi' }, h('div', { class: 'l' }, 'Próximas 3 entregas'),
+        h('ol', { class: 'upcoming', style: 'margin-top:6px' },
+          upcoming.length ? upcoming.slice(0, 3).map(function (o) {
+            return h('li', null, h('span', null, fmtTime(o.dueAt) + ' · ' + o.customer.name), h('strong', null, o.id));
+          }) : h('li', null, 'Ninguna pendiente')))
+    ]);
+
+    var hrs = [];
+    for (var hh = 12; hh <= 23; hh++) hrs.push(hh);
+    orders.forEach(function (o) {
+      var d = new Date(o.dueAt);
+      if (sameDay(d, now) && hrs.indexOf(d.getHours()) === -1) hrs.push(d.getHours());
+    });
+    hrs.sort(function (a, b) { return a - b; });
+    var rows = [];
+    hrs.forEach(function (hour) {
+      var items = orders.filter(function (o) {
+        var d = new Date(o.dueAt);
+        return sameDay(d, now) && d.getHours() === hour;
+      }).sort(function (a, b) { return a.dueAt - b.dueAt; });
+      rows.push(h('div', { class: 'cal-hour' }, pad(hour) + ':00'));
+      rows.push(h('div', { class: 'cal-slot' }, items.length ? items.map(calItem) : h('span', { class: 'view-sub', style: 'font-size:13px' }, 'Libre')));
+    });
+    setChildren($('calDay'), rows);
+
+    setChildren($('upcoming'), upcoming.slice(0, 10).map(function (o) {
+      return h('li', null, h('span', null, fmtShort(o.dueAt) + ' · ' + o.customer.name + ' · ' + summaryItems(o)), h('strong', null, o.id));
+    }));
+    if (!upcoming.length) setChildren($('upcoming'), [h('li', null, 'No hay entregas pendientes.')]);
+
+    var monday = startOfDay(nowMs);
+    monday.setDate(monday.getDate() - dayIdx(monday));
+    var week = [];
+    for (var i = 0; i < 7; i++) {
+      var day = new Date(monday.getTime());
+      day.setDate(monday.getDate() + i);
+      week.push({ day: day, i: i });
+    }
+    setChildren($('week'), week.map(function (w) {
+      var list = orders.filter(function (o) { return sameDay(new Date(o.dueAt), w.day); })
+        .sort(function (a, b) { return a.dueAt - b.dueAt; });
+      return h('div', { class: 'week-day' },
+        h('h3', null, DAYS[w.i] + ' ' + w.day.getDate() + (sameDay(w.day, now) ? ' · hoy' : '')),
+        list.length ? list.map(function (o) {
+          return h('div', { class: 'it' }, fmtTime(o.dueAt) + ' · ' + o.customer.name + ' · ' + (o.type === 'envio' ? 'envío' : 'recogida') + ' · ' + summaryItems(o));
+        }) : h('p', { class: 'view-sub', style: 'font-size:12px' }, 'Sin entregas'));
+    }));
+  }
+  function calItem(o) {
+    return h('div', { class: 'cal-item' },
+      h('strong', null, fmtTime(o.dueAt) + ' · ' + o.customer.name),
+      h('span', { class: 'pill' + (o.type === 'envio' ? ' envio' : '') }, o.type === 'envio' ? 'Envío' : 'Recogida'),
+      h('span', { class: 'view-sub', style: 'font-size:13px' }, summaryItems(o)),
+      h('span', { class: 'pill' }, statusOf(o.status).label));
+  }
+
+  /* ---------- Productos ---------- */
+  function renderProducts() {
+    var rows = DB.products().map(productRow);
+    setChildren($('prodTable'), [h('table', { class: 'tbl' },
+      h('thead', null, h('tr', null, th('Color'), th('Producto'), th('Categoría'), th('Precio'), th('Alérgenos', 'hide-sm'), th('Disponible'), th('Acciones'))),
+      h('tbody', null, rows.length ? rows : h('tr', null, h('td', { colspan: '7' }, 'Sin productos todavía.'))))]);
+  }
+  function productRow(p) {
+    var confirming = pendingDelete && pendingDelete.kind === 'product' && pendingDelete.id === p.id;
+    var actions = confirming
+      ? h('span', { class: 'inline-confirm', role: 'group', 'aria-label': 'Confirmar eliminación' }, '¿Eliminar ' + p.name + '? No se puede deshacer.',
+          h('button', { type: 'button', class: 'btn-sm danger', onclick: function () { pendingDelete = null; DB.deleteProduct(p.id); toastAd('Producto eliminado'); } }, 'Sí, eliminar'),
+          h('button', { type: 'button', class: 'btn-sm', onclick: function () { pendingDelete = null; renderProducts(); } }, 'Cancelar'))
+      : h('span', { class: 'actions' },
+          h('button', { type: 'button', class: 'btn-sm', 'aria-label': 'Editar ' + p.name, onclick: function () { openProductForm(p); } }, 'Editar'),
+          h('button', { type: 'button', class: 'btn-sm danger', 'aria-label': 'Eliminar ' + p.name, onclick: function () { pendingDelete = { kind: 'product', id: p.id }; renderProducts(); } }, 'Eliminar'));
+    return h('tr', null,
+      h('td', null, swatch(p.color)),
+      h('td', null, h('strong', null, p.name), h('br'), h('span', { class: 'view-sub', style: 'font-size:13px' }, p.description)),
+      h('td', null, CAT_LABEL[p.category] || p.category),
+      h('td', null, money(toCents(p.price))),
+      h('td', { class: 'hide-sm' }, p.allergens.length ? p.allergens.join(', ') : '—'),
+      h('td', null, availToggle(p.available, 'Disponible: ' + p.name, function (v) {
+        DB.saveProduct(Object.assign({}, p, { available: v }));
+        toastAd(p.name + (v ? ' disponible en tienda' : ' marcado como agotado'));
+      })),
+      h('td', null, actions));
+  }
+
+  function formField(id, label, control, errKey) {
+    return h('div', { class: 'field' }, h('label', { for: id }, label), control,
+      h('p', { class: 'err', id: id + 'Err', role: 'alert' }, errKey || null));
+  }
+
+  function openProductForm(p) {
+    var base = p || { id: '', name: '', category: 'clasicos', price: 3, allergens: [], color: '#e8516b', available: true, description: '', tags: [] };
+    var wrap = $('prodFormWrap');
+    var nameIn = h('input', { class: 'input', id: 'pf-name', type: 'text', maxlength: '40', value: base.name, required: true, 'aria-describedby': 'pf-nameErr' });
+    var catSel = h('select', { class: 'input', id: 'pf-cat' }, CATS.slice(1).map(function (c) {
+      return h('option', { value: c[0], selected: c[0] === base.category }, c[1]);
+    }));
+    var priceIn = h('input', { class: 'input', id: 'pf-price', type: 'number', min: '0.5', max: '30', step: '0.05', value: Number(base.price).toFixed(2), required: true, 'aria-describedby': 'pf-priceErr' });
+    var allerIn = h('input', { class: 'input', id: 'pf-aller', type: 'text', maxlength: '120', value: base.allergens.join(', '), placeholder: 'lácteos, gluten…', 'aria-describedby': 'pf-allerHint' });
+    var colorIn = h('input', { class: 'input', id: 'pf-color', type: 'color', value: colorOk(base.color), style: 'height:46px;padding:4px' });
+    var descIn = h('textarea', { class: 'input', id: 'pf-desc', maxlength: '160', rows: '2', 'aria-describedby': 'pf-descErr' }, base.description);
+    var availIn = h('input', { type: 'checkbox', id: 'pf-avail' });
+    availIn.checked = !!base.available;
+    var form = h('form', { novalidate: true, 'aria-labelledby': 'pfTitle' },
+      h('h2', { id: 'pfTitle', style: 'font-size:22px;margin-bottom:var(--s3)' }, p ? 'Editar ' + p.name : 'Nuevo producto'),
+      h('div', { class: 'form-grid' },
+        formField('pf-name', 'Nombre', nameIn),
+        formField('pf-cat', 'Categoría', catSel),
+        formField('pf-price', 'Precio (€)', priceIn),
+        h('div', { class: 'field' }, h('label', { for: 'pf-aller' }, 'Alérgenos (separados por comas)'), allerIn, h('span', { class: 'view-sub', id: 'pf-allerHint', style: 'font-size:13px' }, 'Ej.: lácteos, gluten, frutos secos.'), h('p', { class: 'err', id: 'pf-allerErr', role: 'alert' })),
+        formField('pf-color', 'Color del helado', colorIn),
+        h('div', { class: 'field full' }, h('label', { for: 'pf-desc' }, 'Descripción'), descIn, h('p', { class: 'err', id: 'pf-descErr', role: 'alert' })),
+        h('label', { class: 'check' }, availIn, 'Disponible en la tienda')),
+      h('div', { class: 'form-actions' },
+        h('button', { type: 'submit', class: 'btn-sm primary' }, 'Guardar producto'),
+        h('button', { type: 'button', class: 'btn-sm', onclick: closeForm }, 'Cancelar')));
+    function closeForm() { wrap.hidden = true; setChildren(wrap, []); }
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var d = {
+        name: nameIn.value.trim(),
+        category: catSel.value,
+        price: Number(String(priceIn.value).replace(',', '.')),
+        allergens: Array.from(new Set(allerIn.value.split(',').map(function (s) { return s.trim(); }).filter(Boolean))),
+        color: colorOk(colorIn.value),
+        description: descIn.value.trim(),
+        available: availIn.checked
+      };
+      var errs = {};
+      if (d.name.length < 2) errs.name = 'El nombre debe tener entre 2 y 40 caracteres.';
+      if (!isFinite(d.price) || d.price < 0.5 || d.price > 30) errs.price = 'El precio debe estar entre 0,50 € y 30 €.';
+      if (d.allergens.length > 10) errs.aller = 'Máximo 10 alérgenos.';
+      setFieldErr('pf-name', errs.name);
+      setFieldErr('pf-price', errs.price);
+      setFieldErr('pf-aller', errs.aller);
+      if (Object.keys(errs).length) {
+        var first = errs.name ? nameIn : errs.price ? priceIn : allerIn;
+        first.setAttribute('aria-invalid', 'true');
+        first.focus();
+        return;
+      }
+      var rec = Object.assign({}, base, d, {
+        price: Math.round(d.price * 100) / 100,
+        id: base.id || slug(d.name) + '-' + Math.random().toString(36).slice(2, 6),
+        tags: base.tags || []
+      });
+      DB.saveProduct(rec);
+      toastAd('Producto guardado');
+      closeForm();
+    });
+    setChildren(wrap, [form]);
+    wrap.hidden = false;
+    nameIn.focus();
+  }
+  function setFieldErr(id, msg) {
+    var el = $(id + 'Err');
+    if (el) el.textContent = msg || '';
+    var input = $(id);
+    if (input) input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+  }
+  $('prodAdd').addEventListener('click', function () { openProductForm(null); });
+
+  /* ---------- Tortas ---------- */
+  function renderCakesAdmin() {
+    var rows = DB.cakes().map(cakeRow);
+    setChildren($('cakeTable'), [h('table', { class: 'tbl' },
+      h('thead', null, h('tr', null, th('Color'), th('Torta'), th('Tamaños y precios'), th('Sabores', 'hide-sm'), th('Antelación'), th('Disponible'), th('Acciones'))),
+      h('tbody', null, rows.length ? rows : h('tr', null, h('td', { colspan: '7' }, 'Sin tortas todavía.'))))]);
+  }
+  function cakeRow(c) {
+    var confirming = pendingDelete && pendingDelete.kind === 'cake' && pendingDelete.id === c.id;
+    var actions = confirming
+      ? h('span', { class: 'inline-confirm', role: 'group', 'aria-label': 'Confirmar eliminación' }, '¿Eliminar ' + c.name + '?',
+          h('button', { type: 'button', class: 'btn-sm danger', onclick: function () { pendingDelete = null; DB.deleteCake(c.id); toastAd('Torta eliminada'); } }, 'Sí, eliminar'),
+          h('button', { type: 'button', class: 'btn-sm', onclick: function () { pendingDelete = null; renderCakesAdmin(); } }, 'Cancelar'))
+      : h('span', { class: 'actions' },
+          h('button', { type: 'button', class: 'btn-sm', 'aria-label': 'Editar ' + c.name, onclick: function () { openCakeForm(c); } }, 'Editar'),
+          h('button', { type: 'button', class: 'btn-sm danger', 'aria-label': 'Eliminar ' + c.name, onclick: function () { pendingDelete = { kind: 'cake', id: c.id }; renderCakesAdmin(); } }, 'Eliminar'));
+    return h('tr', null,
+      h('td', null, swatch(c.color)),
+      h('td', null, h('strong', null, c.name), h('br'), h('span', { class: 'view-sub', style: 'font-size:13px' }, c.description)),
+      h('td', null, c.sizes.map(function (s) { return s.raciones + ' rac. · ' + money(toCents(s.price)); }).join(' · ')),
+      h('td', { class: 'hide-sm' }, c.flavours.join(', ')),
+      h('td', null, c.minHoursAhead + ' h'),
+      h('td', null, availToggle(c.available, 'Disponible: ' + c.name, function (v) {
+        DB.saveCake(Object.assign({}, c, { available: v }));
+        toastAd(c.name + (v ? ' disponible por encargo' : ' marcada como agotada'));
+      })),
+      h('td', null, actions));
+  }
+
+  function openCakeForm(c) {
+    var base = c || { id: '', name: '', description: '', sizes: [{ raciones: 8, price: 44 }], flavours: [], color: '#f2a1b8', minHoursAhead: 24, available: true };
+    var wrap = $('cakeFormWrap');
+    var nameIn = h('input', { class: 'input', id: 'cf-name', type: 'text', maxlength: '50', value: base.name, 'aria-describedby': 'cf-nameErr' });
+    var descIn = h('textarea', { class: 'input', id: 'cf-desc', maxlength: '160', rows: '2' }, base.description);
+    var colorIn = h('input', { class: 'input', id: 'cf-color', type: 'color', value: colorOk(base.color), style: 'height:46px;padding:4px' });
+    var leadIn = h('input', { class: 'input', id: 'cf-lead', type: 'number', min: '0', max: '168', step: '1', value: String(base.minHoursAhead) });
+    var flavIn = h('input', { class: 'input', id: 'cf-flav', type: 'text', maxlength: '200', value: base.flavours.join(', '), 'aria-describedby': 'cf-flavErr' });
+    var availIn = h('input', { type: 'checkbox', id: 'cf-avail' });
+    availIn.checked = !!base.available;
+    var rowsState = base.sizes.map(function (s) { return { raciones: s.raciones, price: s.price }; });
+    var rowsBox = h('div', { class: 'sizes-rows' });
+    var sizeErr = h('p', { class: 'err', id: 'cf-sizesErr', role: 'alert' });
+    var addSizeBtn = h('button', { type: 'button', class: 'btn-sm', onclick: function () {
+      if (rowsState.length >= 6) return;
+      var last = rowsState[rowsState.length - 1];
+      rowsState.push({ raciones: last ? Number(last.raciones) + 2 : 6, price: last ? Number(last.price) + 10 : 30 });
+      drawRows();
+    } }, '+ Añadir tamaño');
+    function drawRows() {
+      setChildren(rowsBox, rowsState.map(function (r, idx) {
+        var ri = h('input', { class: 'input', type: 'number', min: '1', max: '30', step: '1', value: String(r.raciones) });
+        var pi = h('input', { class: 'input', type: 'number', min: '1', max: '500', step: '0.5', value: String(r.price) });
+        ri.addEventListener('input', function () { r.raciones = ri.value; });
+        pi.addEventListener('input', function () { r.price = pi.value; });
+        return h('div', { class: 'size-row' },
+          h('label', { style: 'display:grid;gap:4px;font-size:13px' }, 'Raciones', ri),
+          h('label', { style: 'display:grid;gap:4px;font-size:13px' }, 'Precio (€)', pi),
+          h('button', { type: 'button', class: 'btn-sm danger', disabled: rowsState.length <= 1, 'aria-label': 'Quitar tamaño ' + (idx + 1),
+            onclick: function () { rowsState.splice(idx, 1); drawRows(); } }, 'Quitar'));
+      }));
+    }
+    drawRows();
+    function closeForm() { wrap.hidden = true; setChildren(wrap, []); }
+    var form = h('form', { novalidate: true, 'aria-labelledby': 'cfTitle' },
+      h('h2', { id: 'cfTitle', style: 'font-size:22px;margin-bottom:var(--s3)' }, c ? 'Editar ' + c.name : 'Nueva torta'),
+      h('div', { class: 'form-grid' },
+        formField('cf-name', 'Nombre', nameIn),
+        formField('cf-lead', 'Antelación mínima (horas)', leadIn),
+        h('div', { class: 'field full' }, h('label', { for: 'cf-desc' }, 'Descripción'), descIn),
+        formField('cf-flav', 'Sabores (separados por comas)', flavIn),
+        formField('cf-color', 'Color', colorIn),
+        h('div', { class: 'field full' }, h('span', { class: 'label' }, 'Tamaños y precios'), rowsBox, addSizeBtn, sizeErr),
+        h('label', { class: 'check' }, availIn, 'Disponible por encargo')),
+      h('div', { class: 'form-actions' },
+        h('button', { type: 'submit', class: 'btn-sm primary' }, 'Guardar torta'),
+        h('button', { type: 'button', class: 'btn-sm', onclick: closeForm }, 'Cancelar')));
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var flavours = Array.from(new Set(flavIn.value.split(',').map(function (s) { return s.trim(); }).filter(Boolean)));
+      var sizes = rowsState.map(function (r) { return { raciones: Math.round(Number(r.raciones)), price: Math.round(Number(String(r.price).replace(',', '.')) * 100) / 100 }; });
+      var lead = Math.round(Number(leadIn.value));
+      var errs = {};
+      if (nameIn.value.trim().length < 2) errs.name = 'El nombre debe tener al menos 2 caracteres.';
+      if (!flavours.length || flavours.length > 8) errs.flav = 'Escribe entre 1 y 8 sabores.';
+      if (!sizes.length) errs.sizes = 'Añade al menos un tamaño.';
+      else if (sizes.some(function (s) { return !(s.raciones >= 1 && s.raciones <= 30) || !(s.price >= 1 && s.price <= 500); })) errs.sizes = 'Raciones entre 1 y 30 y precios entre 1 € y 500 €.';
+      else if (new Set(sizes.map(function (s) { return s.raciones; })).size !== sizes.length) errs.sizes = 'No repitas el número de raciones.';
+      if (!(lead >= 0 && lead <= 168)) errs.lead = 'La antelación debe estar entre 0 y 168 horas.';
+      setFieldErr('cf-name', errs.name);
+      setFieldErr('cf-flav', errs.flav);
+      sizeErr.textContent = errs.sizes || '';
+      if (errs.lead) { leadIn.setAttribute('aria-invalid', 'true'); }
+      if (Object.keys(errs).length) {
+        var first = errs.name ? nameIn : errs.flav ? flavIn : errs.lead ? leadIn : rowsBox.querySelector('input');
+        if (first) first.focus();
+        return;
+      }
+      DB.saveCake(Object.assign({}, base, {
+        name: nameIn.value.trim(),
+        description: descIn.value.trim(),
+        color: colorOk(colorIn.value),
+        minHoursAhead: lead,
+        flavours: flavours,
+        sizes: sizes.sort(function (a, b) { return a.raciones - b.raciones; }),
+        available: availIn.checked,
+        id: base.id || slug(nameIn.value) + '-' + Math.random().toString(36).slice(2, 6)
+      }));
+      toastAd('Torta guardada');
+      closeForm();
+    });
+    setChildren(wrap, [form]);
+    wrap.hidden = false;
+    nameIn.focus();
+  }
+  $('cakeAdd').addEventListener('click', function () { openCakeForm(null); });
+
+  /* ---------- Ajustes ---------- */
+  function renderSettings() {
+    var s = DB.settings();
+    var dayRefs = [];
+    var table = h('table', { class: 'tbl hours-tbl' },
+      h('thead', null, h('tr', null, th('Día'), th('Abierto'), th('Apertura'), th('Cierre'))),
+      h('tbody', null, DAYS.map(function (d, i) {
+        var hh = s.hours[i];
+        var cb = h('input', { type: 'checkbox', 'aria-label': 'Abierto el ' + d.toLowerCase() });
+        cb.checked = !hh.closed;
+        var op = h('input', { class: 'input', type: 'time', value: hh.open, 'aria-label': 'Apertura ' + d.toLowerCase() });
+        var cl = h('input', { class: 'input', type: 'time', value: hh.close, 'aria-label': 'Cierre ' + d.toLowerCase() });
+        dayRefs.push({ cb: cb, op: op, cl: cl });
+        return h('tr', null, h('td', null, d), h('td', null, cb), h('td', null, op), h('td', null, cl));
+      })));
+    var leadIn = h('input', { class: 'input', id: 'st-lead', type: 'number', min: '0', max: '168', step: '1', value: String(s.cakeLeadHours) });
+    var feeIn = h('input', { class: 'input', id: 'st-fee', type: 'number', min: '0', max: '30', step: '0.5', value: Number(s.deliveryFee).toFixed(2) });
+    var radIn = h('input', { class: 'input', id: 'st-rad', type: 'number', min: '1', max: '50', step: '1', value: String(s.deliveryRadiusKm) });
+    var onIn = h('input', { type: 'checkbox', id: 'st-online' });
+    onIn.checked = !!s.onlineOrders;
+    var errBox = h('p', { class: 'err', role: 'alert', id: 'st-err' });
+    var form = h('form', { novalidate: true, 'aria-labelledby': 'stTitle' },
+      h('h2', { id: 'stTitle', style: 'font-size:20px;margin-bottom:var(--s3)' }, 'Horario y pedidos'),
+      h('div', { style: 'overflow-x:auto;margin-bottom:var(--s4)' }, table),
+      h('div', { class: 'form-grid' },
+        formField('st-lead', 'Antelación mínima para tortas (horas)', leadIn),
+        formField('st-fee', 'Coste de envío (€)', feeIn),
+        formField('st-rad', 'Radio de reparto (km)', radIn),
+        h('label', { class: 'check', style: 'align-self:end' }, onIn, 'Pedidos online activados')),
+      errBox,
+      h('div', { class: 'form-actions' }, h('button', { type: 'submit', class: 'btn-sm primary' }, 'Guardar ajustes')));
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var hours = [];
+      var bad = '';
+      dayRefs.forEach(function (r, i) {
+        var closed = !r.cb.checked;
+        if (!closed && (!r.op.value || !r.cl.value || hm(r.cl.value) <= hm(r.op.value))) bad = bad || 'Revisa el horario de ' + DAYS[i].toLowerCase() + ': la hora de cierre debe ser posterior a la de apertura.';
+        hours.push({ open: r.op.value || '12:00', close: r.cl.value || '22:00', closed: closed });
+      });
+      var lead = Math.round(Number(leadIn.value));
+      var fee = Number(String(feeIn.value).replace(',', '.'));
+      var rad = Math.round(Number(radIn.value));
+      if (!bad && !(lead >= 0 && lead <= 168)) bad = 'La antelación debe estar entre 0 y 168 horas.';
+      if (!bad && !(fee >= 0 && fee <= 30)) bad = 'El coste de envío debe estar entre 0 € y 30 €.';
+      if (!bad && !(rad >= 1 && rad <= 50)) bad = 'El radio de reparto debe estar entre 1 y 50 km.';
+      errBox.textContent = bad;
+      if (bad) return;
+      DB.saveSettings({ hours: hours, cakeLeadHours: lead, deliveryFee: Math.round(fee * 100) / 100, deliveryRadiusKm: rad, onlineOrders: onIn.checked });
+      toastAd('Ajustes guardados');
+    });
+    setChildren($('settingsWrap'), [h('h2', { style: 'font-size:20px;margin-bottom:var(--s3)' }, 'Ajustes de la tienda'), form]);
+  }
+
+  /* ---------- Restablecer demo ---------- */
+  function drawResetBtn(confirming) {
+    var wrap = $('resetWrap');
+    if (!confirming) {
+      setChildren(wrap, [h('button', { type: 'button', class: 'btn-sm danger', id: 'resetBtn', onclick: function () { drawResetBtn(true); } }, 'Restablecer demo')]);
+      return;
+    }
+    setChildren(wrap, [h('div', { class: 'inline-confirm', role: 'group', 'aria-label': 'Confirmar restablecer' },
+      '¿Volver a los datos de ejemplo? Se borran los pedidos hechos en la tienda.',
+      h('button', { type: 'button', class: 'btn-sm danger', onclick: function () {
+        DB.reset();
+        pendingDelete = null;
+        drawResetBtn(false);
+        toastAd('Demo restablecida');
+        renderAdPanel();
+      } }, 'Sí, restablecer'),
+      h('button', { type: 'button', class: 'btn-sm', onclick: function () { drawResetBtn(false); } }, 'Cancelar'))]);
+  }
+  drawResetBtn(false);
+
+  /* ---------- Live updates and clock ---------- */
+  DB.onChange(function () {
+    if (!adVisible || !adIsLogged()) return;
+    renderAdStatus();
+    if (dragId) return;                       // do not rebuild the board while dragging
+    if (adPanel === 'pedidos') renderBoard();
+    else if (adPanel === 'calendario') renderCalendar();
+    else if (adPanel === 'productos') renderProducts();
+    else if (adPanel === 'tortas') renderCakesAdmin();
+  });
+  setInterval(function () {
+    if (!adVisible || !adIsLogged()) return;
+    tickDue();
+    renderAdStatus();
+    if (adPanel === 'calendario') renderCalendar();
+  }, 10000);
+
+  /* ===== END C) ADMIN ===== */
+  /* ===== D) BOOT: shared UI helpers, routing and init ===== */
+  // Scoop illustration built from CSS shapes. The colour is validated before it reaches the style.
+  function scoopEl(color, size, count) {
+    var c1 = colorOk(color);
+    var n = count || 1;
+    var wrap = h('div', { class: 'scoop', 'aria-hidden': 'true' });
+    wrap.style.width = size + 'px';
+    wrap.style.height = Math.round(size * (1.55 + 0.62 * (n - 1))) + 'px';
+    wrap.style.setProperty('--c1', c1);
+    wrap.style.setProperty('--c2', 'color-mix(in srgb, ' + c1 + ' 62%, #000)');
+    var cone = h('span', { class: 'cone' });
+    cone.style.width = Math.round(size * 0.72) + 'px';
+    cone.style.height = Math.round(size * 0.9) + 'px';
+    cone.style.left = Math.round(size * 0.14) + 'px';
+    wrap.appendChild(cone);
+    for (var i = 0; i < n; i++) {
+      var ball = h('span', { class: 'ball' });
+      ball.style.width = size + 'px';
+      ball.style.height = size + 'px';
+      ball.style.bottom = Math.round(size * (0.55 + i * 0.62)) + 'px';
+      wrap.appendChild(ball);
+    }
+    return wrap;
+  }
+  function tagEl(t) { return h('span', { class: 'tag tag-' + String(t).replace(/\s+/g, '-') }, t); }
+
+  function refreshAll() {
+    renderHero();
+    renderGrid();
+    renderCakes();
+    renderOpenInfo();
+    renderCart();
+    if (currentView === 'confirm') renderConfirm();
+  }
+
+  /* ---------- Routing: #admin, #seguimiento/BN-xxxx, anchors ---------- */
+  function route() {
+    var hsh = location.hash || '';
+    if (hsh === '#admin') { showAdmin(); return; }
+    hideAdmin();
+    var m = hsh.match(/^#seguimiento\/(BN-\d+)$/);
+    if (m) {
+      lastOrderId = m[1];
+      show('confirm', { focus: true });
+      return;
+    }
+    if (hsh === '' || hsh === '#') {
+      if (currentView !== 'menu') show('menu');
+      return;
+    }
+    if (currentView !== 'menu') show('menu');
+    var el = document.getElementById(hsh.slice(1));
+    if (el) el.scrollIntoView({ block: 'start', behavior: reduceMotion ? 'auto' : 'smooth' });
+  }
+  window.addEventListener('hashchange', route);
+
+  // Keep the cart view consistent when the viewport crosses the tablet/mobile breakpoint.
+  window.addEventListener('resize', function () {
+    if (currentView === 'cart') show('cart');
+  });
 
   /* ---------- Init ---------- */
+  DB.onChange(function () { refreshAll(); });
+  setInterval(renderOpenInfo, 30000);
+
+  renderHero();
   renderChips();
   renderGrid();
-  show('menu');
+  renderCakes();
+  renderOpenInfo();
+  renderCart();
+  refresh();
+  route();
 })();
 </script>
-<footer style="text-align:center;padding:2rem 1rem;font-size:.8rem;opacity:.7;line-height:1.8">
-<a href="index.html" style="color:inherit">← Volver a Sundan Studio</a> · <a href="aviso-legal.html" style="color:inherit">Aviso legal</a> · <a href="privacidad.html" style="color:inherit">Privacidad</a>
-</footer>
 </body>
 </html>

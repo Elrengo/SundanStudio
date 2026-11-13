@@ -269,7 +269,21 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
 .projects .body{display:flex;flex-direction:column;gap:.8rem;min-width:0}
 .projects .tags{display:flex;flex-wrap:wrap;gap:.4rem}
 .projects .tags span{border:1px solid var(--teal);color:var(--teal);border-radius:999px;padding:.15rem .6rem;font-size:.75rem}
-.projects h3{font-family:var(--display);font-weight:400;font-size:1.5rem;line-height:1.15;margin:0;overflow-wrap:break-word}
+.projects .pcard h4{font-family:var(--display);font-weight:400;font-size:1.5rem;line-height:1.15;margin:0;overflow-wrap:break-word}
+.projects .pfilter{display:flex;flex-wrap:wrap;gap:.6rem;margin:0 0 .2rem}
+.projects .pf-btn{font-family:var(--body);font-size:.95rem;line-height:1;padding:.6rem 1.1rem;border:2px solid var(--gold);border-radius:999px;background:transparent;color:var(--bone);cursor:pointer;transition:background .25s ease,color .25s ease}
+.projects .pf-btn span{opacity:.7}
+.projects .pf-btn:hover{background:rgba(233,180,47,.15)}
+.projects .pf-btn[aria-pressed="true"]{background:var(--gold);color:var(--ink)}
+.projects .pf-btn:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.projects .pgroup{transition:opacity .35s ease,transform .35s ease}
+.projects .pgroup.is-out{opacity:0;transform:translateY(12px)}
+.projects .pgroup + .pgroup{margin-top:clamp(2.6rem,6vw,4rem)}
+.projects .pgroup-head{margin:2.2rem 0 0}
+.projects .pgroup-title{font-family:var(--display);font-weight:400;font-size:clamp(2rem,4.6vw,2.9rem);line-height:1.05;margin:0;display:flex;align-items:center;gap:1rem;color:var(--bone);overflow-wrap:break-word}
+.projects .pgroup-title::after{content:"";flex:1;min-width:2rem;border-bottom:2px dotted var(--gold);opacity:.8}
+.projects .pgroup-intro{margin:.6rem 0 0;opacity:.85;max-width:52ch;line-height:1.5}
+.projects .pgroup .grid{margin-top:1.6rem}
 .projects .desc{margin:0;opacity:.9}
 .projects .result{margin:0;font-size:.8rem;letter-spacing:.08em;font-variant:small-caps;color:var(--gold)}
 .projects .result strong{font-weight:600}
@@ -305,6 +319,7 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
 @media (prefers-reduced-motion:reduce){
   .projects .bulb,.projects .scoop,.projects .bolt,.projects .glow{animation:none}
   .projects .pcard,.projects .pcard:hover,.projects .pcard:focus-within{transform:none;transition:none}
+  .projects .pgroup,.projects .pf-btn{transition:none}
 }
 
 /* PROCESO */
@@ -462,8 +477,18 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
   <div class="wrap one">
     <h2 class="big">Proyectos</h2>
     <p class="lede">Hola, soy Sundan Studio: diseño y desarrollo webs y aplicaciones con carácter. Estas son algunas cosas que he construido. Ábrelas, tócalas, rómpelas.</p>
+    <nav class="pfilter" aria-label="Filtrar proyectos">
+      <button type="button" class="pf-btn" data-filter="all" aria-pressed="true">Todo <span>(7)</span></button>
+      <button type="button" class="pf-btn" data-filter="demos" aria-pressed="false">Demos profesionales <span>(5)</span></button>
+      <button type="button" class="pf-btn" data-filter="juegos" aria-pressed="false">Juegos <span>(2)</span></button>
+    </nav>
 
-    <div class="grid">
+    <div class="pgroup" id="grupo-demos" data-group="demos">
+      <div class="pgroup-head">
+        <h3 class="pgroup-title">Demos profesionales</h3>
+        <p class="pgroup-intro">Webs y aplicaciones que podrían estar funcionando mañana en tu negocio.</p>
+      </div>
+      <div class="grid">
       <article class="pcard feat" style="--r:-.5deg">
         <div class="shot" aria-hidden="true">
           <svg viewBox="0 0 640 300" preserveAspectRatio="xMidYMid slice" focusable="false" aria-hidden="true">
@@ -495,7 +520,7 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
         </div>
         <div class="body">
           <div class="tags"><span>Canvas 3D</span><span>Scroll</span><span>Configurador</span><span>Financiación</span></div>
-          <h3>Globo Negro · concesionario de motos</h3>
+          <h4>Globo Negro · concesionario de motos</h4>
           <p class="desc">Motos de carreras, de lujo y choppers presentadas como el número del globo de la muerte: esfera 3D, efecto vértigo, configurador con financiación en directo y reserva de prueba.</p>
           <p class="result">Resultado / qué demuestra: <strong>Una marca osada que nadie olvida.</strong></p>
           <div class="actions">
@@ -520,9 +545,9 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
           </svg>
         </div>
         <div class="body">
-          <div class="tags"><span>PWA</span><span>JavaScript</span><span>UX móvil</span><span>LocalStorage</span></div>
-          <h3>Bola de Nieve · app de pedidos</h3>
-          <p class="desc">Demo completa para una heladería: carta con filtros, carrito, hora de recogida y confirmación del pedido. Pensada primero para el móvil.</p>
+          <div class="tags"><span>Tienda online</span><span>Panel de gestión</span><span>Móvil y escritorio</span><span>JavaScript</span></div>
+          <h4>Bola de Nieve · tienda y panel de pedidos</h4>
+          <p class="desc">Heladería con tienda online para móvil y escritorio, tartas por encargo con fecha de entrega y seguimiento del pedido. Incluye panel del equipo: pedidos en vivo, calendario de entregas y gestión de productos.</p>
           <p class="result">Resultado / qué demuestra: <strong>Aplicación web real, de principio a fin.</strong></p>
           <div class="actions">
             <a class="pill main" href="demo-heladeria.html">Abrir la demo →</a>
@@ -572,7 +597,7 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
         </div>
         <div class="body">
           <div class="tags"><span>Calendario</span><span>Disponibilidad</span><span>Formularios</span><span>.ics</span></div>
-          <h3>Tijera &amp; Café · reservas online</h3>
+          <h4>Tijera &amp; Café · reservas online</h4>
           <p class="desc">Reservas para una barbería: servicio, profesional, día y hora según disponibilidad real, y la cita directa a tu calendario.</p>
           <p class="result">Resultado / qué demuestra: <strong>Lógica de negocio real en una interfaz sencilla.</strong></p>
           <div class="actions">
@@ -581,7 +606,7 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
         </div>
       </article>
 
-      <article class="pcard" style="--r:-.4deg">
+      <article class="pcard wide" style="--r:-.4deg">
         <div class="shot" aria-hidden="true">
           <svg viewBox="0 0 320 180" focusable="false" aria-hidden="true">
             <rect width="320" height="180" fill="#0b1020"/>
@@ -598,7 +623,7 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
         </div>
         <div class="body">
           <div class="tags"><span>SVG</span><span>Gráficos</span><span>Tablas</span><span>Modo oscuro</span></div>
-          <h3>Pulso · analítica de pagos</h3>
+          <h4>Pulso · analítica de pagos</h4>
           <p class="desc">Panel de analítica para Demopay, una pasarela de pagos ficticia: volumen, aprobación, contracargos, rentabilidad por comercio y partner, y un simulador “¿y si…?”. Datos en vivo simulados.</p>
           <p class="result">Resultado / qué demuestra: <strong>Datos complejos, interfaz tranquila.</strong></p>
           <div class="actions">
@@ -606,7 +631,43 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
           </div>
         </div>
       </article>
-
+      <article class="pcard wide" style="--r:-.4deg">
+        <div class="shot" aria-hidden="true">
+          <svg viewBox="0 0 320 180" focusable="false">
+            <rect width="320" height="180" fill="#0b0307"/>
+            <g>
+              <circle class="ring" cx="110" cy="90" r="44"/>
+              <circle class="iris" cx="110" cy="90" r="30"/>
+              <circle class="pupil" cx="110" cy="90" r="13"/>
+              <circle class="shine" cx="104" cy="84" r="3"/>
+            </g>
+            <g>
+              <circle class="ring" cx="210" cy="90" r="44"/>
+              <circle class="iris" cx="210" cy="90" r="30"/>
+              <circle class="pupil" cx="210" cy="90" r="13"/>
+              <circle class="shine" cx="204" cy="84" r="3"/>
+            </g>
+            <circle class="glow" cx="160" cy="160" r="4"/>
+          </svg>
+        </div>
+        <div class="body">
+          <div class="tags"><span>Canvas</span><span>SVG</span><span>Accesibilidad</span></div>
+          <h4>Esta misma web</h4>
+          <p class="desc">Búhos que te miran, luces que te siguen y una tarjeta de contacto con tormenta incluida.</p>
+          <p class="result">Resultado / qué demuestra: <strong>Identidad de marca hecha interacción.</strong></p>
+          <div class="actions">
+            <a class="pill" href="#hero">Volver arriba ↑</a>
+          </div>
+        </div>
+      </article>
+      </div>
+    </div>
+    <div class="pgroup" id="grupo-juegos" data-group="juegos">
+      <div class="pgroup-head">
+        <h3 class="pgroup-title">Juegos</h3>
+        <p class="pgroup-intro">Experimentos jugables: personajes, física y animación en el navegador.</p>
+      </div>
+      <div class="grid">
       <article class="pcard" style="--r:.5deg">
         <div class="shot" aria-hidden="true">
           <svg viewBox="0 0 320 180" focusable="false">
@@ -627,7 +688,7 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
         </div>
         <div class="body">
           <div class="tags"><span>Canvas</span><span>Física</span><span>Animación</span></div>
-          <h3>Afar · juego de navegador</h3>
+          <h4>Afar · juego de navegador</h4>
           <p class="desc">Un trapecista que gira entre palos bajo una tormenta. Física, controles táctiles y arte propio.</p>
           <p class="result">Resultado / qué demuestra: <strong>Rendimiento y animación a 60 fps.</strong></p>
           <div class="actions">
@@ -677,7 +738,7 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
         </div>
         <div class="body">
           <div class="tags"><span>Canvas</span><span>Animación</span><span>Web Audio</span></div>
-          <h3>Mumi Runner · juego de navegador</h3>
+          <h4>Mumi Runner · juego de navegador</h4>
           <p class="desc">Mumi, un mono de cuerda con platillos, corre por la pista del circo y salta tambores, bolos y cajas sorpresa. Personaje animado a mano en Canvas y sonido generado en el navegador.</p>
           <p class="result">Resultado / qué demuestra: <strong>Diseño de personaje y animación con carácter.</strong></p>
           <div class="actions">
@@ -685,36 +746,7 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
           </div>
         </div>
       </article>
-
-      <article class="pcard wide" style="--r:-.4deg">
-        <div class="shot" aria-hidden="true">
-          <svg viewBox="0 0 320 180" focusable="false">
-            <rect width="320" height="180" fill="#0b0307"/>
-            <g>
-              <circle class="ring" cx="110" cy="90" r="44"/>
-              <circle class="iris" cx="110" cy="90" r="30"/>
-              <circle class="pupil" cx="110" cy="90" r="13"/>
-              <circle class="shine" cx="104" cy="84" r="3"/>
-            </g>
-            <g>
-              <circle class="ring" cx="210" cy="90" r="44"/>
-              <circle class="iris" cx="210" cy="90" r="30"/>
-              <circle class="pupil" cx="210" cy="90" r="13"/>
-              <circle class="shine" cx="204" cy="84" r="3"/>
-            </g>
-            <circle class="glow" cx="160" cy="160" r="4"/>
-          </svg>
-        </div>
-        <div class="body">
-          <div class="tags"><span>Canvas</span><span>SVG</span><span>Accesibilidad</span></div>
-          <h3>Esta misma web</h3>
-          <p class="desc">Búhos que te miran, luces que te siguen y una tarjeta de contacto con tormenta incluida.</p>
-          <p class="result">Resultado / qué demuestra: <strong>Identidad de marca hecha interacción.</strong></p>
-          <div class="actions">
-            <a class="pill" href="#hero">Volver arriba ↑</a>
-          </div>
-        </div>
-      </article>
+      </div>
     </div>
 
     <p class="note">¿Tienes un proyecto parecido? Te enseño cómo lo haría en una llamada de 20 minutos. <a href="#contacto">Escríbeme</a>.</p>
@@ -2541,6 +2573,41 @@ function drawMumi(c, p){
     bind();
     card.scrollIntoView({behavior:reduce?"auto":"smooth",block:"center"});
     if(reduce)skipIntro();else beginIntro();
+  });
+})();
+</script>
+<script>
+(function () {
+  var bar = document.querySelector('.pfilter');
+  if (!bar) return;
+  var groups = { demos: document.getElementById('grupo-demos'), juegos: document.getElementById('grupo-juegos') };
+  var btns = bar.querySelectorAll('.pf-btn');
+  var timers = {};
+  function show(key, on) {
+    var g = groups[key];
+    if (!g) return;
+    clearTimeout(timers[key]);
+    if (on) {
+      g.hidden = false;
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () { g.classList.remove('is-out'); });
+      });
+    } else {
+      g.classList.add('is-out');
+      timers[key] = setTimeout(function () {
+        if (g.classList.contains('is-out')) g.hidden = true;
+      }, 360);
+    }
+  }
+  function apply(f) {
+    btns.forEach(function (b) {
+      b.setAttribute('aria-pressed', b.getAttribute('data-filter') === f ? 'true' : 'false');
+    });
+    show('demos', f === 'all' || f === 'demos');
+    show('juegos', f === 'all' || f === 'juegos');
+  }
+  btns.forEach(function (b) {
+    b.addEventListener('click', function () { apply(b.getAttribute('data-filter')); });
   });
 })();
 </script>
