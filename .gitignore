@@ -4,6 +4,7 @@
 # Excepto los archivos del proyecto
 !.gitignore
 !afar.html
+!mumi.html
 !index.html
 !indexa.html
 !.nojekyll

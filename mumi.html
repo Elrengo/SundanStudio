@@ -1,0 +1,876 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#14101a">
+<title>Mumi Runner</title>
+<meta name="description" content="Mumi Runner: un mono de cuerda con platillos corre por la pista del circo. Juego de navegador creado por Sundan Studio.">
+<link rel="canonical" href="https://sundanstudio.com/mumi.html">
+<meta property="og:title" content="Mumi Runner · Sundan Studio">
+<meta property="og:description" content="Mumi Runner: un mono de cuerda con platillos corre por la pista del circo. Juego de navegador creado por Sundan Studio.">
+<meta property="og:url" content="https://sundanstudio.com/mumi.html">
+<meta property="og:image" content="https://sundanstudio.com/assets/og-image.png">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<style>
+  :root{--tinta:#14101a;--ciruela:#2a1530;--sangre:#a3222f;--hueso:#efe4cf;--oro:#e0a93b;--verde:#2f7a72}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--tinta);overflow:hidden;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+  canvas{display:block;width:100vw;height:100vh;height:100dvh}
+  #mute{position:fixed;top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));width:44px;height:44px;border-radius:50%;
+    border:2px solid var(--oro);background:rgba(20,16,26,.75);color:var(--oro);cursor:pointer;display:grid;place-items:center;z-index:2}
+  #mute:focus-visible{outline:3px solid var(--hueso);outline-offset:2px}
+  #mute svg{width:22px;height:22px}
+</style>
+</head>
+<body>
+<canvas id="c" aria-label="Mumi Runner: juego de correr y saltar"></canvas>
+<button id="mute" type="button" aria-label="Silenciar platillos" aria-pressed="false"></button>
+<script>
+"use strict";
+/* ============================================================
+   MUMI RUNNER — juego original. Mumi: mono de juguete de cuerda.
+   ============================================================ */
+const cv = document.getElementById('c');
+const ctx = cv.getContext('2d');
+const muteBtn = document.getElementById('mute');
+
+const C = { tinta:'#14101a', ciruela:'#2a1530', ciruela2:'#3d1d45', sangre:'#a3222f', sangre2:'#6e1520',
+            hueso:'#efe4cf', oro:'#e0a93b', oro2:'#9c6b1c', verde:'#2f7a72', verde2:'#1b4a46' };
+
+/* ---------- almacenamiento seguro ---------- */
+const store = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v === null ? d : v; }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, String(v)); }catch(e){} }
+};
+
+/* ---------- tamaño lógico ---------- */
+const H = 360;           // alto lógico fijo
+let W = 640, scale = 1, dpr = 1;
+const GROUND = H - 64;   // línea del piso (pies de Mumi)
+function resize(){
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const vw = window.innerWidth, vh = window.innerHeight;
+  scale = vh / H;
+  W = Math.max(420, Math.round(vw / scale));
+  if (W > 1100) { W = 1100; }
+  scale = Math.min(vh / H, vw / W);
+  cv.width = Math.round(vw * dpr); cv.height = Math.round(vh * dpr);
+  offX = (vw - W * scale) / 2; offY = (vh - H * scale) / 2;
+}
+let offX = 0, offY = 0;
+window.addEventListener('resize', resize); resize();
+
+/* ============================================================
+   AUDIO — platillos sintetizados con Web Audio
+   ============================================================ */
+let actx = null, master = null, noiseBuf = null;
+let muted = store.get('mumi.muted', '0') === '1';
+function audioInit(){
+  if (actx) { if (actx.state === 'suspended') actx.resume(); return; }
+  const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+  actx = new AC();
+  master = actx.createGain(); master.gain.value = muted ? 0 : 0.55; master.connect(actx.destination);
+  const len = actx.sampleRate * 1.5; noiseBuf = actx.createBuffer(1, len, actx.sampleRate);
+  const d = noiseBuf.getChannelData(0); for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+}
+/* golpe de platillo: ruido filtrado + parciales metálicos inarmónicos */
+function cymbal(strength = 1, pitch = 1, detune = 0){
+  if (!actx || muted) return;
+  const t = actx.currentTime, dur = 0.12 + 0.75 * strength;
+  const out = actx.createGain(); out.connect(master);
+  out.gain.setValueAtTime(0.0001, t);
+  out.gain.exponentialRampToValueAtTime(0.35 * strength + 0.05, t + 0.004);
+  out.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  // ruido brillante
+  const n = actx.createBufferSource(); n.buffer = noiseBuf;
+  const hp = actx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 5200 * pitch;
+  const bp = actx.createBiquadFilter(); bp.type = 'peaking'; bp.frequency.value = 8000 * pitch; bp.gain.value = 8;
+  n.connect(hp); hp.connect(bp); bp.connect(out);
+  n.start(t, Math.random() * 0.5); n.stop(t + dur);
+  // "clang" metálico: osciladores cuadrados con ratios inarmónicos
+  const ratios = [1, 1.483, 1.932, 2.546, 2.630, 3.897];
+  const mg = actx.createGain(); mg.gain.value = 0.05 * strength;
+  const mf = actx.createBiquadFilter(); mf.type = 'highpass'; mf.frequency.value = 1800;
+  mg.connect(mf); mf.connect(out);
+  ratios.forEach((r, i) => {
+    const o = actx.createOscillator(); o.type = 'square';
+    o.frequency.value = 410 * pitch * r * (1 + detune * (i % 2 ? 1 : -1));
+    o.connect(mg); o.start(t); o.stop(t + dur * 0.6);
+  });
+}
+/* resorte que se suelta (game over) */
+function boing(){
+  if (!actx || muted) return;
+  const t = actx.currentTime;
+  const o = actx.createOscillator(); o.type = 'triangle';
+  const g = actx.createGain(); g.connect(master);
+  const lfo = actx.createOscillator(); lfo.frequency.value = 22; const lg = actx.createGain(); lg.gain.value = 40;
+  lfo.connect(lg); lg.connect(o.frequency);
+  o.frequency.setValueAtTime(520, t); o.frequency.exponentialRampToValueAtTime(70, t + 0.9);
+  g.gain.setValueAtTime(0.25, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 1);
+  o.connect(g); o.start(t); lfo.start(t); o.stop(t + 1); lfo.stop(t + 1);
+}
+/* "tonc" de hojalata (aterrizaje) */
+function tonk(v = 0.4){
+  if (!actx || muted) return;
+  const t = actx.currentTime;
+  const o = actx.createOscillator(); o.type = 'triangle';
+  o.frequency.setValueAtTime(240, t); o.frequency.exponentialRampToValueAtTime(120, t + 0.12);
+  const g = actx.createGain(); g.gain.setValueAtTime(v * 0.6, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.16);
+  const n = actx.createBufferSource(); n.buffer = noiseBuf;
+  const bp = actx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1400; bp.Q.value = 6;
+  const ng = actx.createGain(); ng.gain.setValueAtTime(v * 0.5, t); ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.07);
+  o.connect(g); g.connect(master); n.connect(bp); bp.connect(ng); ng.connect(master);
+  o.start(t); o.stop(t + 0.17); n.start(t); n.stop(t + 0.08);
+}
+/* tic de cuerda (pantalla inicio / cada 100 puntos) */
+function tick(pitch = 1){
+  if (!actx || muted) return;
+  const t = actx.currentTime;
+  const o = actx.createOscillator(); o.type = 'square'; o.frequency.value = 1900 * pitch;
+  const g = actx.createGain(); g.gain.setValueAtTime(0.08, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.04);
+  o.connect(g); g.connect(master); o.start(t); o.stop(t + 0.05);
+}
+function setMuted(m){
+  muted = m; store.set('mumi.muted', m ? '1' : '0');
+  if (master) master.gain.setTargetAtTime(m ? 0 : 0.55, actx.currentTime, 0.02);
+  muteBtn.setAttribute('aria-pressed', m ? 'true' : 'false');
+  muteBtn.setAttribute('aria-label', m ? 'Activar sonido de platillos' : 'Silenciar platillos');
+  muteBtn.innerHTML = m
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M17 9l5 6M22 9l-5 6"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
+}
+setMuted(muted);
+muteBtn.addEventListener('click', e => { e.stopPropagation(); audioInit(); setMuted(!muted); muteBtn.blur(); });
+muteBtn.addEventListener('pointerdown', e => e.stopPropagation());
+muteBtn.addEventListener('touchstart', e => e.stopPropagation(), {passive:true});
+
+/* ============================================================
+   MUMI — dibujo y animación según design/mumi-model-sheet.md
+   Unidades: 100 u = altura total; origen en los pies; y+ arriba.
+   ============================================================ */
+const MU = 0.84;                       // px por unidad
+const MP = { felpa:'#9A5632', felpaS:'#5E2F1C', felpaL:'#B8754A', hueso:'#F1E3C6', huesoS:'#D9C3A0',
+             sangre:'#B3192E', sangreS:'#7A1020', oro:'#E0A92E', oroS:'#9C6B1C', verde:'#3FB6A8',
+             brillo:'#FFF6D8', tinta:'#07050A', boca:'#3A0A12', pie:'#3B2416' };
+const MUMI_STEP_PHASES = [0.5];        // platillos se tocan en t = 0.5 de cada ciclo
+const TAU = Math.PI * 2, RAD = Math.PI / 180;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, u) => a + (b - a) * u;
+const smooth = u => u * u * (3 - 2 * u);
+let keyAng = 0;
+let crashParts = [];
+
+function basePose(){
+  return { dx:0, bodyY:0, bodyRot:0, sx:1, sy:1, headY:0, headRot:0, legL:0, legC:0, armL:15, armC:-15, g:1,
+           tail:0, tassel:0, ears:0, blink:1, spiral:false, mouthO:false, fezOn:true, cymOn:true, spring:0, ring:-1, vib:0 };
+}
+function runPose(t){
+  const p = basePose(), tq = Math.floor(t * 8) / 8, S = Math.sin;
+  p.bodyY = 2.5 * Math.abs(S(TAU * tq));
+  p.legC = 28 * S(TAU * tq); p.legL = -p.legC;
+  p.sy = 1 - 0.06 * Math.cos(2 * TAU * tq); p.sx = 1 / p.sy;
+  p.bodyRot = 6 + 2 * S(2 * TAU * t);
+  p.headY = 2.5 * Math.abs(S(TAU * (t - 0.08)));
+  p.headRot = -3 + 3 * S(2 * TAU * t - 0.6);
+  const g = Math.pow((1 - Math.cos(TAU * (t - 0.5))) / 2, 0.6);
+  p.g = g; p.armC = 75 - 60 * g; p.armL = 75 - 115 * g;
+  p.tail = 10 * S(TAU * (t - 0.2)); p.tassel = -25 + 12 * S(TAU * (t - 0.25)); p.ears = 3 * S(TAU * (t - 0.15));
+  return p;
+}
+// fotogramas clave del salto (j = 0 despegue … 1 aterrizaje)
+const JUMP_KEYS = [
+  { j:0.00, sy:1.14, legC:-20, legL:-20, armC:150, armL:120, tassel:-25, ears:0, g:1 },
+  { j:0.06, sy:1.14, legC:-20, legL:-20, armC:150, armL:120, tassel:-30, ears:0, g:1 },
+  { j:0.45, sy:1.05, legC: 35, legL:-15, armC:135, armL:120, tassel:-60, ears:4, g:0.9 },
+  { j:0.50, sy:1.00, legC: 35, legL:-15, armC:118, armL:118, tassel:-50, ears:8, g:0 },
+  { j:0.55, sy:1.00, legC: 30, legL:-12, armC:112, armL:108, tassel:-20, ears:8, g:0.1 },
+  { j:1.00, sy:1.04, legC: 10, legL:-10, armC:110, armL: 90, tassel: 40, ears:2, g:0.6 },
+];
+function jumpPose(j, t){
+  const p = basePose();
+  let a = JUMP_KEYS[0], b = JUMP_KEYS[JUMP_KEYS.length - 1];
+  for (let i = 0; i < JUMP_KEYS.length - 1; i++) if (j >= JUMP_KEYS[i].j && j <= JUMP_KEYS[i + 1].j) { a = JUMP_KEYS[i]; b = JUMP_KEYS[i + 1]; break; }
+  const u = smooth(clamp((j - a.j) / ((b.j - a.j) || 1), 0, 1));
+  for (const k of ['sy','legC','legL','armC','armL','tassel','ears','g']) p[k] = lerp(a[k], b[k], u);
+  p.sx = 1 / p.sy; p.bodyRot = 4; p.headRot = -4 + 4 * j; p.headY = j < 0.5 ? -1.5 : 1;
+  p.tail = 15 * Math.sin(TAU * (t * 2));
+  return p;
+}
+function idlePose(T){
+  const p = basePose(), t = (T / 1.6) % 1, cyc = Math.floor(T / 1.6);
+  p.sy = 1 + 0.02 * Math.sin(TAU * t); p.sx = 1 / p.sy;
+  p.headY = Math.sin(TAU * (t - 0.1)); p.tassel = 8 * Math.sin(TAU * (t - 0.3));
+  const c = cyc % 2 === 0 ? Math.exp(-Math.pow((t - 0.5) / 0.07, 2)) : 0;
+  p.armC = lerp(15, 80, c); p.armL = lerp(-15, 80, c); p.g = 1 - c;
+  p.blink = (t > 0.85 && t < 0.9) ? 0.1 : 1;
+  p.ears = 4 * Math.exp(-Math.pow((t - 0.2) / 0.05, 2));
+  p.tail = 6 * Math.sin(TAU * t); p.bodyRot = 1.5 * Math.sin(TAU * t * 0.5);
+  return p;
+}
+function crashPose(tau, T){
+  const p = basePose(), tc = Math.min(tau, 1.2);
+  p.cymOn = false; p.fezOn = false; p.spiral = true; p.mouthO = true; p.g = 1;
+  p.dx = -6 * clamp(tc / 0.1, 0, 1);
+  if (tc < 0.1) { p.bodyRot = lerp(0, -18, tc / 0.1); p.sx = 0.8; p.sy = 1.1; }
+  else if (tc < 0.5) { const u = (tc - 0.1) / 0.4; p.bodyRot = lerp(-18, -35, u); p.bodyY = 14 * 4 * u * (1 - u); }
+  else { const u = smooth(clamp((tc - 0.5) / 0.12, 0, 1)); p.bodyRot = lerp(-35, -10, u); p.bodyY = lerp(0, -12, u);
+         p.legC = lerp(0, 80, u); p.legL = lerp(0, 70, u); }
+  if (tc < 0.5) { p.armC = 140 + 30 * Math.sin(tau * 30); p.armL = 120 - 30 * Math.sin(tau * 26); p.legC = -25; p.legL = 20; }
+  else { const u = smooth(clamp((tc - 0.5) / 0.15, 0, 1)); p.armC = lerp(140, 30, u); p.armL = lerp(120, 30, u); }
+  p.headRot = tau > 0.5 ? 15 + 6 * Math.exp(-4 * (tau - 0.5)) * Math.sin(14 * (tau - 0.5)) : -10;
+  p.spring = 14 * (1 - Math.exp(-8 * tau) * Math.cos(18 * tau));
+  p.tail = 20 * Math.exp(-2 * tau) * Math.sin(tau * 12);
+  p.T = T;
+  return p;
+}
+function golpeOverride(p, gt){            // golpe de platillos de 0.22 s (cada 100 puntos)
+  const u = gt / 0.22; if (u < 0 || u >= 1) return p;
+  const run = { armC:p.armC, armL:p.armL, bodyRot:p.bodyRot, sy:p.sy, g:p.g };
+  if (u < 0.35) { const k = smooth(u / 0.35); p.armC = lerp(run.armC, 10, k); p.armL = lerp(run.armL, -60, k); p.bodyRot = lerp(run.bodyRot, -6, k); p.g = lerp(run.g, 1, k); }
+  else if (u < 0.45) { const k = Math.pow((u - 0.35) / 0.1, 3); p.armC = lerp(10, 80, k); p.armL = lerp(-60, 80, k); p.bodyRot = -6; p.g = 1 - k; }
+  else if (u < 0.6) { p.armC = p.armL = 80; p.bodyRot = -6; p.g = 0; p.sy = 0.95; p.sx = 1 / 0.95; p.vib = 1.5 * Math.sin(gt * TAU * 40); }
+  else { const k = smooth((u - 0.6) / 0.4); p.armC = lerp(80, run.armC, k); p.armL = lerp(80, run.armL, k); p.bodyRot = lerp(-6, run.bodyRot, k); p.g = lerp(0, run.g, k); }
+  return p;
+}
+function computePose(T){
+  if (state === 'start') return idlePose(T);
+  if (state === 'over') return crashPose(mumi.crashT, T);
+  let p;
+  if (mumi.onGround) {
+    p = runPose(mumi.runPhase);
+    if (mumi.landT < 0.18) {
+      const tau = mumi.landT, sq = 1 - 0.18 * Math.exp(-12 * tau) * Math.cos(30 * tau);
+      p.sy *= sq; p.sx /= sq; if (tau > 0.03) p.headY -= 3 * Math.max(0, 1 - (tau - 0.03) / 0.15);
+    }
+  } else {
+    const j = clamp((mumi.vy - JUMP_V) / (-2 * JUMP_V), 0, 1);
+    p = jumpPose(j, T);
+  }
+  golpeOverride(p, mumi.golpeT);
+  if (mumi.ringT < 0.12) p.ring = mumi.ringT / 0.12; else p.ring = -1;
+  return p;
+}
+
+/* ---------- primitivas ---------- */
+function stroke(c, w = 2.4){ c.strokeStyle = MP.tinta; c.lineWidth = w; c.lineJoin = 'round'; c.lineCap = 'round'; c.stroke(); }
+function circ(c, x, y, r, fill){ c.beginPath(); c.arc(x, y, r, 0, TAU); c.fillStyle = fill; c.fill(); stroke(c); }
+function ell(c, x, y, rx, ry, fill, w){ c.beginPath(); c.ellipse(x, y, rx, ry, 0, 0, TAU); c.fillStyle = fill; c.fill(); stroke(c, w); }
+
+function drawLeg(c, hx, ang, color){
+  c.save(); c.translate(hx, 17); c.rotate(ang * RAD);
+  c.beginPath(); c.roundRect(-3.5, -15, 7, 15, 2.5); c.fillStyle = color; c.fill(); stroke(c);
+  ell(c, 2, -15, 4.8, 2.4, MP.pie);
+  c.restore();
+}
+function drawCymbal(c, x, y, g, vib){
+  const ry = 3.2 + 6.8 * g;              // de canto (cerrado) a de frente (abierto)
+  c.save(); c.translate(x + vib, y);
+  c.beginPath(); c.ellipse(0, 0, 10, ry, 0, 0, TAU); c.fillStyle = MP.oro; c.fill(); stroke(c);
+  c.beginPath(); c.ellipse(0, 0, 7, ry * 0.7, 0, 0, TAU); c.strokeStyle = MP.oroS; c.lineWidth = 1; c.stroke();
+  c.beginPath(); c.ellipse(0, ry * 0.15, 3, Math.max(1.2, ry * 0.3), 0, 0, TAU); c.fillStyle = '#F2C55E'; c.fill(); stroke(c, 1.4);
+  c.beginPath(); c.ellipse(-4.5, ry * 0.35, 2.4, Math.max(0.6, ry * 0.15), -0.3, 0, TAU); c.fillStyle = MP.brillo; c.fill();
+  c.restore();
+}
+function drawArm(c, sx, ang, color, cymOn, g, vib, ring){
+  c.save(); c.translate(sx, 42); c.rotate(ang * RAD);
+  c.beginPath(); c.roundRect(-3, -16, 6, 16, 3); c.fillStyle = color; c.fill(); stroke(c);
+  if (cymOn) drawCymbal(c, 0, -18.5, g, vib);
+  circ(c, 0, -16, 3, MP.huesoS);
+  if (ring >= 0) {
+    c.globalAlpha = 1 - ring; c.beginPath(); c.arc(0, -18.5, lerp(6, 18, ring), 0, TAU);
+    c.strokeStyle = MP.brillo; c.lineWidth = 2.2; c.stroke();
+    for (let i = 0; i < 6; i++) { const a = i / 6 * TAU, r0 = lerp(10, 20, ring), r1 = r0 + 5;
+      c.beginPath(); c.moveTo(Math.cos(a) * r0, -18.5 + Math.sin(a) * r0); c.lineTo(Math.cos(a) * r1, -18.5 + Math.sin(a) * r1); c.strokeStyle = MP.oro; c.lineWidth = 1.8; c.stroke(); }
+    c.globalAlpha = 1;
+  }
+  c.restore();
+}
+function drawKey(c, spring){
+  c.save(); c.translate(-15, 34);
+  if (spring > 0.3) {                   // resorte que se suelta en el choque
+    c.beginPath(); c.moveTo(0, 0);
+    for (let i = 1; i <= 12; i++) c.lineTo(-spring * i / 12, (i % 2 ? 1 : -1) * 2);
+    c.strokeStyle = MP.tinta; c.lineWidth = 3.4; c.stroke(); c.strokeStyle = '#C9D2D0'; c.lineWidth = 1.6; c.stroke();
+    c.translate(-spring, 0);
+  }
+  c.beginPath(); c.rect(-6, -1, 6, 2); c.fillStyle = MP.verde; c.fill(); stroke(c, 1.6);
+  const k = Math.max(0.15, Math.abs(Math.cos(keyAng * RAD)));
+  c.save(); c.translate(-7, 0); c.scale(1, k);
+  c.beginPath(); c.arc(-1, 5, 5, 0, TAU); c.arc(-1, -5, 5, 0, TAU); c.fillStyle = MP.verde; c.fill(); stroke(c, 2.4 / k > 6 ? 1 : 2);
+  c.beginPath(); c.arc(-1, 5, 2, 0, TAU); c.arc(-1, -5, 2, 0, TAU); c.fillStyle = MP.tinta; c.fill();
+  c.restore(); c.restore();
+}
+function drawTail(c, ang){
+  c.save(); c.translate(-13, 18); c.rotate(-ang * RAD);
+  c.beginPath(); c.moveTo(0, 0);
+  c.quadraticCurveTo(-10, -4, -14, 3); c.quadraticCurveTo(-18, 10, -12, 13);
+  // espiral final
+  const cx = -12, cy = 8;
+  for (let a = 0; a <= TAU * 1.4; a += 0.25) { const r = 5 - a * 0.45; c.lineTo(cx + Math.cos(Math.PI / 2 + a) * r, cy + Math.sin(Math.PI / 2 + a) * r); }
+  c.strokeStyle = MP.tinta; c.lineWidth = 5.6; c.lineCap = 'round'; c.lineJoin = 'round'; c.stroke();
+  c.strokeStyle = MP.felpa; c.lineWidth = 3; c.stroke();
+  c.restore();
+}
+function drawEye(c, x, y, r, p){
+  c.save(); c.translate(x, y); c.scale(1, p.blink);
+  ell(c, 0, 0, r, r, '#FFFBF0', 1.6);
+  if (p.spiral) {
+    c.beginPath(); const rot = (p.T || 0) * TAU;
+    for (let a = 0; a <= TAU * 2.5; a += 0.2) { const rr = 4 * a / (TAU * 2.5) * (r / 6); c.lineTo(Math.cos(a + rot) * rr, Math.sin(a + rot) * rr); }
+    c.strokeStyle = MP.tinta; c.lineWidth = 1.2; c.stroke();
+  } else if (p.blink > 0.5) {
+    c.beginPath(); c.arc(1, 0, 3.2 * r / 6, 0, TAU); c.fillStyle = MP.tinta; c.fill();
+    c.beginPath(); c.arc(0, 1.5, 1.3, 0, TAU); c.fillStyle = MP.brillo; c.fill();
+    c.beginPath(); c.arc(2.2, -1, 0.6, 0, TAU); c.fill();
+  }
+  c.restore();
+}
+function drawHead(c, p){
+  c.save(); c.translate(2, 48 + p.headY); c.rotate(-p.headRot * RAD); c.translate(-2, -48);
+  // oreja lejana
+  c.save(); c.translate(0, p.ears * 0.4);
+  circ(c, -17, 76, 9, MP.felpaS); circ(c, -17, 76, 5, MP.huesoS); c.restore();
+  // cabeza
+  circ(c, 2, 67, 21, MP.felpa);
+  c.beginPath(); c.arc(2, 67, 18, Math.PI * 1.05, Math.PI * 1.45); c.strokeStyle = 'rgba(255,220,180,.25)'; c.lineWidth = 2.5; c.stroke();
+  // placa facial y hocico
+  ell(c, 8, 70, 13, 10, MP.hueso, 1.8);
+  ell(c, 10, 59, 12, 9, MP.hueso, 2.2);
+  ell(c, 15.5, 63.5, 3, 2, MP.tinta, 0.5);
+  c.beginPath(); c.arc(14.5, 64, 0.8, 0, TAU); c.fillStyle = '#6a5a5a'; c.fill();
+  // mejillas
+  c.globalAlpha = 0.35; ell(c, 20, 60, 2.6, 1.8, MP.sangre, 0); c.globalAlpha = 1;
+  // boca
+  if (p.mouthO) {
+    ell(c, 11, 56, 4, 4, MP.boca, 1.6);
+    c.save(); c.translate(11, 59); c.rotate(12 * RAD); c.fillStyle = MP.brillo; c.fillRect(-2.5, -2.6, 2.4, 2.6); c.rotate(-24 * RAD); c.fillRect(0.5, -2.6, 2.4, 2.6); c.restore();
+  } else {
+    const a0 = Math.PI + 20 * RAD, a1 = Math.PI * 2 - 20 * RAD, ch = 58 - 6 * Math.sin(20 * RAD);
+    c.beginPath(); c.arc(11, 58, 6, a0, a1); c.closePath(); c.fillStyle = MP.boca; c.fill(); stroke(c, 1.6);
+    c.fillStyle = MP.brillo; for (let i = 0; i < 3; i++) c.fillRect(7.6 + i * 2.6, ch - 2.6, 2.2, 2.6);
+    c.beginPath(); c.arc(11, 54.2, 2.4, Math.PI * 1.15, Math.PI * 1.85); c.strokeStyle = '#d9465a'; c.lineWidth = 1.6; c.stroke();
+  }
+  // ojos
+  drawEye(c, 4, 71, 5.5, p); drawEye(c, 14, 70, 6.5, p);
+  // cejas
+  c.beginPath(); c.moveTo(0, 78.5 + p.ears * 0.2); c.quadraticCurveTo(4, 80.5, 8, 78.5);
+  c.moveTo(10, 78.5 + p.ears * 0.2); c.quadraticCurveTo(14.5, 81, 19, 78); stroke(c, 1.6);
+  // oreja cercana
+  c.save(); c.translate(0, p.ears * 0.6);
+  circ(c, -9, 84, 8, MP.felpa); circ(c, -9, 84, 4.5, MP.hueso); c.restore();
+  if (p.fezOn) drawFez(c, 6, 86, -10, p.tassel);
+  c.restore();
+}
+function drawFez(c, x, y, rotDeg, tassel){
+  c.save(); c.translate(x, y); c.rotate(-rotDeg * RAD);
+  c.beginPath(); c.moveTo(-9, 0); c.lineTo(9, 0); c.lineTo(5.5, 13); c.lineTo(-5.5, 13); c.closePath();
+  c.fillStyle = MP.sangre; c.fill(); stroke(c);
+  c.beginPath(); c.moveTo(-8.4, 2); c.lineTo(8.4, 2); c.lineTo(7.7, 4.5); c.lineTo(-7.7, 4.5); c.closePath(); c.fillStyle = MP.oro; c.fill();
+  c.beginPath(); c.moveTo(4, 12); c.lineTo(7, 1); c.strokeStyle = 'rgba(0,0,0,.25)'; c.lineWidth = 2; c.stroke();
+  // borla
+  const a = (tassel - 90) * RAD, ex = Math.cos(a) * 7 * -1, ey = 13 + Math.sin(a) * 7;
+  c.beginPath(); c.moveTo(0, 13); c.quadraticCurveTo(ex * 0.5, 15, ex, ey); c.strokeStyle = MP.tinta; c.lineWidth = 2.8; c.stroke();
+  c.strokeStyle = MP.oro; c.lineWidth = 1.3; c.stroke();
+  circ(c, ex, ey, 2.5, MP.oro);
+  c.restore();
+}
+function drawBody(c){
+  ell(c, 0, 32, 15, 17, MP.felpa);
+  c.save(); c.beginPath(); c.ellipse(0, 32, 15, 17, 0, 0, TAU); c.clip();
+  // chaleco
+  c.beginPath(); c.moveTo(-6, 48); c.lineTo(16, 48); c.lineTo(16, 18); c.quadraticCurveTo(5, 14, -6, 18); c.closePath(); c.fillStyle = MP.sangre; c.fill();
+  c.beginPath(); c.moveTo(7, 50); c.lineTo(12, 33); c.lineTo(17, 50); c.closePath(); c.fillStyle = MP.felpaL; c.fill(); stroke(c, 1.6);
+  c.beginPath(); c.moveTo(-6, 48); c.lineTo(-6, 18); c.strokeStyle = MP.sangreS; c.lineWidth = 2; c.stroke();
+  // sombra inferior
+  c.beginPath(); c.ellipse(-3, 18, 18, 6, 0, 0, TAU); c.fillStyle = 'rgba(0,0,0,.22)'; c.fill();
+  c.restore();
+  ell(c, 0, 32, 15, 17, 'rgba(0,0,0,0)');
+  for (const [bx, by] of [[8, 40], [9, 32], [8.5, 24]]) { circ(c, bx, by, 1.8, MP.oro); }
+}
+/* dibuja a Mumi completo en c (ya trasladado a los pies, escala MU, y+ arriba) */
+function drawMumi(c, p){
+  c.save(); c.translate(p.dx, p.bodyY); c.scale(p.sx, p.sy);
+  const upper = () => { c.translate(0, 17); c.rotate(-p.bodyRot * RAD); c.translate(0, -17); };
+  c.save(); upper(); drawTail(c, p.tail); drawArm(c, -5, p.armL, MP.felpaS, p.cymOn, p.g, -p.vib, -1); c.restore();
+  drawLeg(c, -4, p.legL, MP.felpaS);
+  c.save(); upper(); drawKey(c, p.spring); drawBody(c); drawHead(c, p); c.restore();
+  drawLeg(c, 5, p.legC, MP.felpa);
+  c.save(); upper(); drawArm(c, 6, p.armC, MP.felpa, p.cymOn, p.g, p.vib, p.ring); c.restore();
+  c.restore();
+}
+
+/* ---------- halo turquesa: offscreen + tinte ---------- */
+const offA = document.createElement('canvas'), offB = document.createElement('canvas');
+const OFF = 140, OFX = 60, OFY = 125;  // caja lógica y origen de los pies dentro de ella
+function drawMumiState(T){
+  const p = computePose(T);
+  const k = scale * dpr, n = Math.ceil(OFF * k);
+  if (offA.width !== n) { offA.width = offA.height = offB.width = offB.height = n; }
+  const a = offA.getContext('2d'), b = offB.getContext('2d');
+  a.setTransform(1, 0, 0, 1, 0, 0); a.clearRect(0, 0, n, n);
+  a.setTransform(k, 0, 0, k, 0, 0); a.translate(OFX, OFY); a.scale(MU, -MU);
+  drawMumi(a, p);
+  b.setTransform(1, 0, 0, 1, 0, 0); b.globalCompositeOperation = 'source-over'; b.clearRect(0, 0, n, n);
+  b.drawImage(offA, 0, 0); b.globalCompositeOperation = 'source-in';
+  b.fillStyle = 'rgba(63,182,168,.6)'; b.fillRect(0, 0, n, n); b.globalCompositeOperation = 'source-over';
+  // sombra en el piso
+  const air = clamp((GROUND - mumi.y) / 120, 0, 1);
+  ctx.fillStyle = `rgba(0,0,0,${0.4 - air * 0.25})`;
+  ctx.beginPath(); ctx.ellipse(mumi.x + p.dx * MU, GROUND + 2, 20 * (1 - air * 0.4), 4.5 * (1 - air * 0.4), 0, 0, TAU); ctx.fill();
+  const x0 = mumi.x - OFX, y0 = mumi.y - OFY;
+  for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) ctx.drawImage(offB, x0 + dx, y0 + dy, OFF, OFF);
+  ctx.drawImage(offA, x0, y0, OFF, OFF);
+  // piezas que salen volando en el choque
+  for (const q of crashParts) {
+    ctx.save(); ctx.translate(mumi.x + q.x * MU, GROUND - q.y * MU); ctx.scale(MU, -MU); ctx.rotate(q.rot * RAD);
+    if (q.kind === 'cym') drawCymbal(ctx, 0, 0, 0.55, 0); else drawFez(ctx, 0, -6, 0, 30 * Math.sin(q.rot * RAD));
+    ctx.restore();
+  }
+}
+function startCrashParts(){
+  const h = (GROUND - mumi.y) / MU;      // altura de Mumi sobre el piso, en u
+  crashParts = [
+    { kind:'cym', x: 18, y: h + 42, vx:  30, vy:  90, rot: 0, vr:  720, b: 0 },
+    { kind:'cym', x: -12, y: h + 40, vx: -50, vy: 110, rot: 0, vr: -540, b: 0 },
+    { kind:'fez', x: 6, y: h + 92, vx: -10, vy:  70, rot: 0, vr:  200, b: 0 },
+  ];
+}
+function updateCrashParts(dt){
+  for (const q of crashParts) {
+    if (q.b >= 2) continue;
+    q.vy -= 400 * dt; q.x += q.vx * dt; q.y += q.vy * dt; q.rot += q.vr * dt;
+    const floor = q.kind === 'cym' ? 3 : 4;
+    if (q.y < floor) {
+      q.y = floor; q.b++;
+      if (q.b === 1) { q.vy = -q.vy * 0.3; q.vx *= 0.5; q.vr *= 0.4; if (q.kind === 'cym') cymbal(0.4, 1.05 + Math.random() * 0.1); else tonk(0.25); }
+      else { q.vy = 0; q.vx = 0; q.vr = 0; q.rot = q.kind === 'cym' ? 0 : -15; }
+    }
+  }
+}
+
+/* ============================================================
+   ESTADO DEL JUEGO
+   ============================================================ */
+const GRAV = 2300, JUMP_V = -670, HOLD_G = 0.45, MAX_HOLD = 0.16;
+const SPEED0 = 330, SPEED_MAX = 820;
+let state = 'start';       // start | run | over
+let best = parseInt(store.get('mumi.best', '0'), 10) || 0;
+let last = performance.now(), T = 0;
+let score = 0, speed = SPEED0, dist = 0, timeRun = 0, overT = 0, newBest = false;
+let flash = 0, shake = 0;
+const mumi = { x: 96, y: GROUND, vy: 0, onGround: true, holdT: 0, holding: false,
+               runPhase: 0, clapT: 1, landT: 1, crashT: 0, stepSide: 0, golpeT: 9, ringT: 9 };
+let obstacles = [], particles = [], nextGap = 0;
+const MUMI_HIT = { w: 34, h: 66 };   // caja de colisión (centrada en x, base en pies)
+
+function resetGame(){
+  score = 0; speed = SPEED0; dist = 0; timeRun = 0; newBest = false; flash = 0;
+  Object.assign(mumi, { y: GROUND, vy: 0, onGround: true, holdT: 0, holding: false, runPhase: 0, clapT: 1, landT: 1, crashT: 0, golpeT: 9, ringT: 9 });
+  crashParts = [];
+  obstacles = []; particles = []; nextGap = 520;
+}
+
+/* ---------- entrada ---------- */
+function press(){
+  audioInit();
+  if (state === 'start') { resetGame(); state = 'run'; jump(); return; }
+  if (state === 'over') { if (overT > 0.45) { resetGame(); state = 'run'; } return; }
+  jump();
+}
+function release(){ mumi.holding = false; }
+function jump(){
+  if (!mumi.onGround) { mumi.holding = true; return; }
+  mumi.vy = JUMP_V; mumi.onGround = false; mumi.holding = true; mumi.holdT = 0;
+  tick(0.7);                              // el choque fuerte llega en la cima (j = 0.5)
+  burst(mumi.x, GROUND, 6, C.hueso, 120);
+}
+window.addEventListener('keydown', e => {
+  if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') { e.preventDefault(); if (!e.repeat) press(); }
+  if (e.code === 'KeyM') { audioInit(); setMuted(!muted); }
+});
+window.addEventListener('keyup', e => { if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') release(); });
+cv.addEventListener('pointerdown', e => { e.preventDefault(); press(); });
+window.addEventListener('pointerup', release);
+window.addEventListener('pointercancel', release);
+cv.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('visibilitychange', () => { last = performance.now(); });
+
+/* ============================================================
+   OBSTÁCULOS (juguetes de circo)
+   ============================================================ */
+const KINDS = {
+  drum:   { w: 44, h: 40,  minScore: 0 },     // tambor de circo
+  pins:   { w: 30, h: 52,  minScore: 0 },     // trío de bolos de malabar
+  ball:   { w: 40, h: 40,  minScore: 60 },    // pelota de equilibrista que rueda
+  jack:   { w: 36, h: 50,  minScore: 150 },   // caja sorpresa (salta el payaso)
+  stack:  { w: 46, h: 70,  minScore: 300 },   // torre de tambores
+  bird:   { w: 46, h: 26,  minScore: 450 },   // pájaro de hojalata volador
+};
+function spawn(){
+  const pool = Object.keys(KINDS).filter(k => score >= KINDS[k].minScore);
+  const kind = pool[Math.floor(Math.random() * pool.length)];
+  const k = KINDS[kind];
+  const o = { kind, x: W + 40, w: k.w, h: k.h, y: GROUND, t: Math.random() * 10, spin: 0 };
+  if (kind === 'bird') o.y = GROUND - (Math.random() < 0.5 ? 90 : 22);   // alto: pasa por arriba del fez · bajo: hay que saltarlo
+  obstacles.push(o);
+  // a veces un par seguido
+  if (score > 200 && kind !== 'stack' && kind !== 'bird' && Math.random() < 0.25) {
+    obstacles.push({ kind: 'drum', x: W + 40 + k.w + 8, w: 44, h: 40, y: GROUND, t: 0, spin: 0 });
+  }
+  const sp = speed / SPEED0;
+  const minGap = 300 + sp * 150;          // distancia mínima saltable según velocidad
+  nextGap = minGap + Math.random() * (260 + sp * 60);
+}
+function hitbox(o){
+  if (o.kind === 'bird') return { x: o.x + 6, y: o.y - o.h + 4, w: o.w - 12, h: o.h - 8 };
+  return { x: o.x + 5, y: o.y - o.h + 5, w: o.w - 10, h: o.h - 5 };
+}
+
+/* ============================================================
+   PARTÍCULAS
+   ============================================================ */
+function burst(x, y, n, color, sp = 160, kind = 'dust'){
+  for (let i = 0; i < n; i++) {
+    const a = -Math.PI * Math.random();
+    particles.push({ x, y, vx: Math.cos(a) * sp * (0.4 + Math.random()), vy: Math.sin(a) * sp * (0.4 + Math.random()),
+                     life: 0.4 + Math.random() * 0.4, t: 0, color, kind, r: 1.5 + Math.random() * 2.5, rot: Math.random() * 6 });
+  }
+}
+
+/* ============================================================
+   UPDATE
+   ============================================================ */
+function update(dt){
+  // partículas siempre
+  for (const p of particles) { p.t += dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vy += (p.kind === 'dust' ? 90 : 600) * dt; if (p.kind === 'dust') { p.vx *= 0.96; p.vy *= 0.92; } p.rot += dt * 8; }
+  particles = particles.filter(p => p.t < p.life);
+  flash = Math.max(0, flash - dt); shake = Math.max(0, shake - dt * 3);
+
+  if (state === 'start') {
+    const ph = (T / 1.6) % 1, cyc = Math.floor(T / 1.6), prevPh = ((T - dt) / 1.6) % 1;
+    if (cyc % 2 === 0 && prevPh < 0.5 && ph >= 0.5) cymbal(0.15, 1.2);
+    keyAng = Math.floor(T / 0.1) * 9; return;
+  }
+  if (state === 'over') {
+    overT += dt; mumi.crashT += dt;
+    if (mumi.y < GROUND) { mumi.vy += GRAV * dt; mumi.y = Math.min(GROUND, mumi.y + mumi.vy * dt); }
+    keyAng -= 1440 * Math.exp(-3 * mumi.crashT) * dt;
+    updateCrashParts(dt); return;
+  }
+
+  timeRun += dt;
+  speed = Math.min(SPEED_MAX, SPEED0 + timeRun * 9);
+  dist += speed * dt;
+  const prev = Math.floor(score);
+  score = dist / 28;
+  if (Math.floor(score / 100) > Math.floor(prev / 100)) { flash = 0.6; tick(1.3); mumi.golpeT = 0; }
+  const gPrev = mumi.golpeT; mumi.golpeT += dt;
+  if (gPrev < 0.42 * 0.22 && mumi.golpeT >= 0.42 * 0.22) { cymbal(0.8, 1.02); mumi.ringT = 0; burst(mumi.x + 8, mumi.y - 50, 8, C.oro, 160, 'spark'); }
+  mumi.ringT += dt;
+  keyAng += 720 * (speed / SPEED0) * dt;
+
+  // física de Mumi
+  if (!mumi.onGround) {
+    let g = GRAV; const vPrev = mumi.vy;
+    if (mumi.holding && mumi.vy < 0 && mumi.holdT < MAX_HOLD) { g *= HOLD_G; mumi.holdT += dt; }
+    mumi.vy += g * dt; mumi.y += mumi.vy * dt;
+    if (vPrev < 0 && mumi.vy >= 0) {      // cima del salto: ¡CRASH! de platillos
+      cymbal(0.9, 1.0 + Math.random() * 0.05); mumi.ringT = 0;
+      burst(mumi.x + 6, mumi.y - 62, 8, C.oro, 180, 'spark');
+    }
+    if (mumi.y >= GROUND) { mumi.y = GROUND; mumi.vy = 0; mumi.onGround = true; mumi.landT = 0;
+      tonk(0.4); burst(mumi.x, GROUND, 8, C.hueso, 140); }
+  }
+  // ciclo de carrera: 1 ciclo = 2 pasos; platillos suenan en cada paso
+  const cycleRate = 1 / clamp(0.36 * SPEED0 / speed, 0.24, 0.36);  // ciclos por segundo
+  if (mumi.onGround) {
+    const before = mumi.runPhase;
+    mumi.runPhase = (mumi.runPhase + dt * cycleRate) % 1;
+    for (const f of MUMI_STEP_PHASES) {
+      if ((before < f && mumi.runPhase >= f) || (before > mumi.runPhase && (f > before || mumi.runPhase >= f))) {
+        cymbal(0.16, mumi.stepSide ? 1.12 : 1.0); mumi.clapT = 0.0001; mumi.stepSide ^= 1;
+        if (Math.random() < 0.5) burst(mumi.x - 10, GROUND, 2, C.hueso, 60);
+      }
+    }
+  }
+  mumi.clapT += dt; mumi.landT += dt;
+
+  // obstáculos
+  nextGap -= speed * dt;
+  if (nextGap <= 0) spawn();
+  for (const o of obstacles) {
+    o.x -= speed * dt * (o.kind === 'ball' ? 1.18 : o.kind === 'bird' ? 1.1 : 1);
+    o.t += dt; if (o.kind === 'ball') o.spin -= speed * dt * 1.18 / 20;
+  }
+  obstacles = obstacles.filter(o => o.x + o.w > -60);
+
+  // colisión
+  const mb = { x: mumi.x - MUMI_HIT.w / 2, y: mumi.y - MUMI_HIT.h, w: MUMI_HIT.w, h: MUMI_HIT.h };
+  for (const o of obstacles) {
+    const b = hitbox(o);
+    if (mb.x < b.x + b.w && mb.x + mb.w > b.x && mb.y < b.y + b.h && mb.y + mb.h > b.y) { crash(); break; }
+  }
+}
+function crash(){
+  state = 'over'; overT = 0; mumi.crashT = 0; shake = 1;
+  cymbal(1.3, 0.89, 0.04); setTimeout(() => cymbal(1.1, 0.94, 0.06), 15); setTimeout(boing, 150);
+  startCrashParts();
+  burst(mumi.x, mumi.y - 40, 14, C.oro, 260); burst(mumi.x, mumi.y - 40, 10, C.sangre, 220);
+  const s = Math.floor(score);
+  if (s > best) { best = s; newBest = true; store.set('mumi.best', best); }
+}
+
+/* ============================================================
+   ESCENARIO
+   ============================================================ */
+const stars = Array.from({ length: 60 }, () => ({ x: Math.random(), y: Math.random() * 0.55, r: Math.random() * 1.3 + 0.3, p: Math.random() * 6 }));
+let scroll = 0;
+function drawBackground(t){
+  // cielo nocturno
+  const g = ctx.createLinearGradient(0, 0, 0, GROUND);
+  g.addColorStop(0, '#0d0a12'); g.addColorStop(0.65, C.ciruela); g.addColorStop(1, '#4a1f3d');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, GROUND);
+  // estrellas
+  for (const s of stars) {
+    ctx.globalAlpha = 0.35 + 0.35 * Math.sin(t * 1.5 + s.p);
+    ctx.fillStyle = C.hueso; ctx.beginPath(); ctx.arc(s.x * W, s.y * H, s.r, 0, 7); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  // luna creciente
+  ctx.fillStyle = '#f3e3b8'; ctx.beginPath(); ctx.arc(W * 0.5, 58, 22, 0, 7); ctx.fill();
+  ctx.fillStyle = '#120d18'; ctx.beginPath(); ctx.arc(W * 0.5 + 9, 52, 20, 0, 7); ctx.fill();
+
+  // carpas lejanas (parallax lento)
+  const far = (scroll * 0.12) % 360;
+  for (let i = -1; i < W / 360 + 2; i++) drawTent(i * 360 - far + 60, GROUND - 6, 0.75, '#2c1433', '#3b1a40');
+  // banderines con luces (parallax medio)
+  const mid = (scroll * 0.35) % 220;
+  ctx.strokeStyle = '#120d16'; ctx.lineWidth = 1.5;
+  for (let i = -1; i < W / 220 + 2; i++) {
+    const x0 = i * 220 - mid, x1 = x0 + 220, y0 = 70;
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.quadraticCurveTo(x0 + 110, y0 + 40, x1, y0); ctx.stroke();
+    for (let j = 1; j < 8; j++) {
+      const u = j / 8, x = x0 + 220 * u, y = y0 + 40 * 2 * u * (1 - u) * 1;
+      const on = Math.sin(t * 4 + j + i * 3) > -0.2;
+      ctx.fillStyle = j % 2 ? C.sangre : C.verde;
+      ctx.beginPath(); ctx.moveTo(x - 7, y); ctx.lineTo(x + 7, y); ctx.lineTo(x, y + 14); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = on ? '#ffd27a' : '#6b4a25';
+      if (on) { ctx.shadowColor = '#ffb84a'; ctx.shadowBlur = 8; }
+      ctx.beginPath(); ctx.arc(x + 110 / 8, y + 2, 2.2, 0, 7); ctx.fill(); ctx.shadowBlur = 0;
+    }
+    // poste
+    ctx.fillStyle = '#1a1020'; ctx.fillRect(x0 - 3, y0 - 6, 6, GROUND - y0 + 6);
+    ctx.fillStyle = C.oro2; ctx.beginPath(); ctx.arc(x0, y0 - 8, 4, 0, 7); ctx.fill();
+  }
+  // carpa cercana grande ocasional
+  const near = (scroll * 0.55) % 900;
+  drawTent(900 - near - 120, GROUND, 1.25, C.sangre2, '#3f0f18', true);
+}
+function drawTent(x, base, s, c1, c2, flag){
+  const w = 220 * s, h = 120 * s;
+  ctx.save(); ctx.translate(x, base);
+  // franjas
+  const stripes = 7;
+  for (let i = 0; i < stripes; i++) {
+    const a = -w / 2 + (w / stripes) * i, b = a + w / stripes;
+    ctx.fillStyle = i % 2 ? c1 : c2;
+    ctx.beginPath(); ctx.moveTo(0, -h); ctx.lineTo(a * 0.9, -h * 0.45); ctx.lineTo(a, 0); ctx.lineTo(b, 0); ctx.lineTo(b * 0.9, -h * 0.45); ctx.closePath(); ctx.fill();
+  }
+  // festón
+  ctx.fillStyle = c2; ctx.beginPath(); ctx.moveTo(-w * 0.45, -h * 0.45);
+  for (let i = 0; i <= 8; i++) { const xx = -w * 0.45 + (w * 0.9 / 8) * i; ctx.quadraticCurveTo(xx - w * 0.9 / 16, -h * 0.45 + 10 * s, xx, -h * 0.45); }
+  ctx.fill();
+  if (flag) {
+    ctx.fillStyle = C.oro2; ctx.fillRect(-1.5, -h - 22 * s, 3, 22 * s);
+    ctx.fillStyle = C.oro; ctx.beginPath(); ctx.moveTo(1.5, -h - 22 * s); ctx.lineTo(18 * s, -h - 17 * s); ctx.lineTo(1.5, -h - 12 * s); ctx.fill();
+    // entrada
+    ctx.fillStyle = '#0f0a13'; ctx.beginPath(); ctx.moveTo(-18 * s, 0); ctx.quadraticCurveTo(0, -70 * s, 18 * s, 0); ctx.fill();
+    ctx.fillStyle = 'rgba(255,190,90,.18)'; ctx.beginPath(); ctx.moveTo(-12 * s, 0); ctx.quadraticCurveTo(0, -50 * s, 12 * s, 0); ctx.fill();
+  }
+  ctx.restore();
+}
+function drawGround(){
+  // pista: tablas de escenario
+  const g = ctx.createLinearGradient(0, GROUND, 0, H);
+  g.addColorStop(0, '#3a2016'); g.addColorStop(1, '#1a0e0b');
+  ctx.fillStyle = g; ctx.fillRect(0, GROUND, W, H - GROUND);
+  // borde de pista sangre/oro
+  ctx.fillStyle = C.sangre; ctx.fillRect(0, GROUND, W, 7);
+  const off = scroll % 40;
+  ctx.fillStyle = C.oro;
+  for (let x = -off; x < W + 40; x += 40) { ctx.beginPath(); ctx.arc(x, GROUND + 3.5, 2, 0, 7); ctx.fill(); }
+  ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(0, GROUND + 7, W, 3);
+  // vetas de tablas
+  ctx.strokeStyle = 'rgba(0,0,0,.35)'; ctx.lineWidth = 1;
+  const off2 = scroll % 120;
+  for (let x = -off2; x < W + 120; x += 120) { ctx.beginPath(); ctx.moveTo(x, GROUND + 10); ctx.lineTo(x - 30, H); ctx.stroke(); }
+  for (let y = GROUND + 26; y < H; y += 16) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+  // foco que ilumina a Mumi
+  const rg = ctx.createRadialGradient(mumi.x, GROUND + 4, 4, mumi.x, GROUND + 4, 120);
+  rg.addColorStop(0, 'rgba(255,214,140,.22)'); rg.addColorStop(1, 'rgba(255,214,140,0)');
+  ctx.fillStyle = rg; ctx.fillRect(mumi.x - 120, GROUND - 120, 240, 200);
+}
+
+/* ---------- obstáculos: dibujo ---------- */
+function outline(){ ctx.strokeStyle = C.tinta; ctx.lineWidth = 2.2; ctx.lineJoin = 'round'; ctx.stroke(); }
+function drawDrum(x, base, w, h){
+  ctx.fillStyle = C.sangre; ctx.beginPath(); ctx.roundRect(x, base - h, w, h, 3); ctx.fill(); outline();
+  ctx.save(); ctx.beginPath(); ctx.rect(x, base - h, w, h); ctx.clip();
+  ctx.strokeStyle = C.oro; ctx.lineWidth = 2; ctx.beginPath();
+  for (let i = 0; i < 4; i++) { const xx = x + (w / 3) * i; ctx.moveTo(xx - w / 6, base - h + 6); ctx.lineTo(xx + w / 6, base - 6); ctx.moveTo(xx + w / 6, base - h + 6); ctx.lineTo(xx - w / 6, base - 6); }
+  ctx.stroke(); ctx.restore();
+  ctx.fillStyle = C.hueso; ctx.beginPath(); ctx.roundRect(x - 2, base - h - 2, w + 4, 6, 2); ctx.fill(); outline();
+  ctx.beginPath(); ctx.roundRect(x - 2, base - 5, w + 4, 5, 2); ctx.fill(); outline();
+}
+function drawObstacle(o){
+  const x = o.x, b = o.y;
+  ctx.save();
+  // sombra
+  if (o.kind !== 'bird') { ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(x + o.w / 2, GROUND + 2, o.w * 0.55, 4, 0, 0, 7); ctx.fill(); }
+  switch (o.kind) {
+    case 'drum': drawDrum(x, b, o.w, o.h); break;
+    case 'stack':
+      drawDrum(x, b, o.w, 36); drawDrum(x + 6, b - 36, o.w - 12, 34);
+      ctx.fillStyle = C.oro; ctx.beginPath(); ctx.moveTo(x + o.w / 2, b - 82); ctx.lineTo(x + o.w / 2 + 5, b - 72); ctx.lineTo(x + o.w / 2 - 5, b - 72); ctx.fill(); break;
+    case 'pins': {
+      const cols = [C.hueso, C.verde, C.hueso];
+      for (let i = 0; i < 3; i++) {
+        const px = x + 5 + i * 10, wob = Math.sin(o.t * 6 + i) * 0.06;
+        ctx.save(); ctx.translate(px, b); ctx.rotate(wob);
+        ctx.fillStyle = cols[i]; ctx.beginPath();
+        ctx.moveTo(-3, 0); ctx.bezierCurveTo(-8, -18, -3, -28, -2.5, -36); ctx.arc(0, -40, 4.5, Math.PI * 0.75, Math.PI * 0.25); ctx.lineTo(2.5, -36);
+        ctx.bezierCurveTo(3, -28, 8, -18, 3, 0); ctx.closePath(); ctx.fill(); outline();
+        ctx.fillStyle = C.sangre; ctx.fillRect(-4.5, -24, 9, 3); ctx.restore();
+      }
+      break; }
+    case 'ball': {
+      const r = o.w / 2, cx = x + r, cy = b - r;
+      ctx.translate(cx, cy); ctx.rotate(o.spin);
+      ctx.beginPath(); ctx.arc(0, 0, r, 0, 7); ctx.fillStyle = C.hueso; ctx.fill();
+      ctx.save(); ctx.clip();
+      ctx.fillStyle = C.sangre; ctx.fillRect(-r, -r, r * 2, r * 0.66); ctx.fillStyle = C.verde; ctx.fillRect(-r, r * 0.33, r * 2, r);
+      ctx.fillStyle = C.oro; ctx.beginPath(); for (let i = 0; i < 5; i++) { const a = i * 1.2566 - 1.57, a2 = a + 0.628; ctx.lineTo(Math.cos(a) * 7, Math.sin(a) * 7); ctx.lineTo(Math.cos(a2) * 3, Math.sin(a2) * 3); } ctx.fill();
+      ctx.restore(); ctx.beginPath(); ctx.arc(0, 0, r, 0, 7); outline();
+      ctx.rotate(-o.spin); ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.beginPath(); ctx.ellipse(-r * 0.35, -r * 0.4, r * 0.25, r * 0.15, -0.6, 0, 7); ctx.fill();
+      break; }
+    case 'jack': {
+      const bw = o.w, bh = 30; const pop = Math.max(0, Math.sin(o.t * 5)) ;
+      // payaso de resorte
+      const sh = 6 + pop * 16;
+      ctx.strokeStyle = C.oro; ctx.lineWidth = 2; ctx.beginPath();
+      for (let i = 0; i <= 6; i++) { const yy = b - bh - (sh / 6) * i; ctx.lineTo(x + bw / 2 + (i % 2 ? 6 : -6), yy); } ctx.stroke();
+      const hy = b - bh - sh - 9;
+      ctx.fillStyle = C.hueso; ctx.beginPath(); ctx.arc(x + bw / 2, hy, 9, 0, 7); ctx.fill(); outline();
+      ctx.fillStyle = C.sangre; ctx.beginPath(); ctx.arc(x + bw / 2 + 1, hy + 1, 2.6, 0, 7); ctx.fill();
+      ctx.fillStyle = C.verde; ctx.beginPath(); ctx.moveTo(x + bw / 2 - 9, hy - 5); ctx.lineTo(x + bw / 2, hy - 20); ctx.lineTo(x + bw / 2 + 9, hy - 5); ctx.fill(); outline();
+      ctx.fillStyle = C.tinta; ctx.fillRect(x + bw / 2 - 5, hy - 3, 2, 2); ctx.fillRect(x + bw / 2 + 3, hy - 3, 2, 2);
+      // caja
+      ctx.fillStyle = C.verde; ctx.beginPath(); ctx.roundRect(x, b - bh, bw, bh, 2); ctx.fill(); outline();
+      ctx.fillStyle = C.oro; ctx.font = 'bold 15px Georgia, serif'; ctx.textAlign = 'center'; ctx.fillText('?', x + bw / 2, b - 9);
+      ctx.save(); ctx.translate(x, b - bh); ctx.rotate(-0.9 - pop * 0.3); ctx.fillStyle = C.verde2; ctx.fillRect(-bw, -3, bw, 4); ctx.restore();
+      break; }
+    case 'bird': {
+      const flap = Math.sin(o.t * 14);
+      ctx.translate(x + o.w / 2, b - o.h / 2 + Math.sin(o.t * 3) * 3);
+      ctx.fillStyle = C.oro2; ctx.beginPath(); ctx.moveTo(-4, -2); ctx.lineTo(-14, -2 - flap * 14); ctx.lineTo(6, -2); ctx.fill(); outline();
+      ctx.fillStyle = C.verde; ctx.beginPath(); ctx.ellipse(0, 0, 18, 9, 0, 0, 7); ctx.fill(); outline();
+      ctx.fillStyle = C.oro; ctx.beginPath(); ctx.moveTo(-17, 0); ctx.lineTo(-27, -3); ctx.lineTo(-17, 4); ctx.fill(); outline();
+      ctx.fillStyle = C.hueso; ctx.beginPath(); ctx.arc(-9, -3, 3, 0, 7); ctx.fill(); ctx.fillStyle = C.tinta; ctx.beginPath(); ctx.arc(-9.5, -3, 1.4, 0, 7); ctx.fill();
+      ctx.strokeStyle = C.oro; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(14, -2); ctx.lineTo(24, -6); ctx.moveTo(14, 2); ctx.lineTo(24, 4); ctx.stroke();
+      // llavecita
+      ctx.save(); ctx.translate(4, -9); ctx.rotate(o.t * 8); ctx.fillStyle = C.oro; ctx.fillRect(-5, -1, 10, 2); ctx.restore();
+      ctx.fillStyle = C.oro; ctx.beginPath(); ctx.moveTo(-10, 2); ctx.lineTo(-4, -2 + flap * 12); ctx.lineTo(8, 2); ctx.fill(); outline();
+      break; }
+  }
+  ctx.restore();
+}
+function drawParticles(){
+  for (const p of particles) {
+    const a = 1 - p.t / p.life; ctx.globalAlpha = a; ctx.fillStyle = p.color;
+    if (p.kind === 'dust') { ctx.beginPath(); ctx.arc(p.x, p.y, p.r * (1 + p.t), 0, 7); ctx.fill(); }
+    else { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillRect(-p.r, -p.r * 0.4, p.r * 2, p.r * 0.8); ctx.restore(); }
+  }
+  ctx.globalAlpha = 1;
+}
+
+/* ---------- HUD y pantallas ---------- */
+const SERIF = 'Gloock, "Playfair Display", Georgia, "Times New Roman", serif';
+const SANS = '"Instrument Sans", system-ui, -apple-system, "Segoe UI", sans-serif';
+function pad(n){ return String(Math.floor(n)).padStart(5, '0'); }
+function drawHUD(){
+  ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+  ctx.font = `600 13px ${SANS}`; ctx.fillStyle = 'rgba(239,228,207,.55)';
+  ctx.fillText(`RÉCORD ${pad(best)}`, W - 72, 22);
+  const blink = flash > 0 && Math.floor(flash * 10) % 2 === 0;
+  ctx.font = `26px ${SERIF}`; ctx.fillStyle = blink ? C.oro : C.hueso;
+  ctx.fillText(pad(score), W - 72, 38);
+}
+function panel(y, h){
+  ctx.fillStyle = 'rgba(20,16,26,.78)'; ctx.strokeStyle = C.oro; ctx.lineWidth = 2;
+  const w = Math.min(420, W - 40), x = (W - w) / 2;
+  ctx.beginPath(); ctx.roundRect(x, y, w, h, 14); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = 'rgba(224,169,59,.35)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.roundRect(x + 6, y + 6, w - 12, h - 12, 10); ctx.stroke();
+}
+function drawStart(t){
+  panel(40, 150);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  ctx.font = `13px ${SANS}`; ctx.fillStyle = C.oro; ctx.fillText('— EL GRAN CIRCO DE CUERDA PRESENTA —', W / 2, 74);
+  ctx.font = `54px ${SERIF}`; ctx.fillStyle = C.hueso; ctx.fillText('Mumi', W / 2, 126);
+  ctx.font = `600 15px ${SANS}`; ctx.fillStyle = C.sangre; ctx.fillText('RUNNER', W / 2, 146);
+  const a = 0.55 + 0.45 * Math.sin(t * 4);
+  ctx.globalAlpha = a; ctx.font = `600 14px ${SANS}`; ctx.fillStyle = C.hueso;
+  ctx.fillText(isTouch ? 'Tocá para darle cuerda' : 'Espacio / ↑ para darle cuerda', W / 2, 174); ctx.globalAlpha = 1;
+  if (H * scale < window.innerHeight * 0.6) { ctx.font = `12px ${SANS}`; ctx.fillStyle = 'rgba(224,169,59,.8)'; ctx.fillText('Tip: girá el teléfono para ver más pista', W / 2, 28); }
+  if (best > 0) { ctx.font = `12px ${SANS}`; ctx.fillStyle = 'rgba(239,228,207,.6)'; ctx.fillText(`Récord: ${best}`, W / 2, 212); }
+}
+function drawOver(){
+  const a = Math.min(1, overT * 3);
+  ctx.globalAlpha = a; ctx.fillStyle = 'rgba(10,6,12,.35)'; ctx.fillRect(0, 0, W, H);
+  panel(48, 150);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  ctx.font = `36px ${SERIF}`; ctx.fillStyle = C.hueso; ctx.fillText('¡Se acabó la cuerda!', W / 2, 96);
+  ctx.font = `600 15px ${SANS}`; ctx.fillStyle = C.oro; ctx.fillText(`${Math.floor(score)} puntos`, W / 2, 124);
+  ctx.font = `13px ${SANS}`; ctx.fillStyle = newBest ? C.oro : 'rgba(239,228,207,.65)';
+  ctx.fillText(newBest ? '★ ¡Nuevo récord! ★' : `Récord: ${best}`, W / 2, 146);
+  if (overT > 0.45) { ctx.globalAlpha = a * (0.55 + 0.45 * Math.sin(overT * 5)); ctx.font = `600 14px ${SANS}`; ctx.fillStyle = C.hueso;
+    ctx.fillText(isTouch ? 'Tocá para volver a darle cuerda' : 'Espacio para volver a darle cuerda', W / 2, 178); }
+  ctx.globalAlpha = 1;
+}
+const isTouch = matchMedia('(pointer: coarse)').matches;
+
+/* ============================================================
+   LOOP
+   ============================================================ */
+
+function frame(now){
+  let dt = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = now; T += dt;
+  update(dt);
+  if (state === 'run') scroll += speed * dt; else if (state === 'start') scroll += 40 * dt;
+
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  // franjas de letterbox (móvil vertical): continúan el cielo y el piso
+  const yTop = Math.round(offY * dpr) + 1, yBot = Math.round((offY + H * scale) * dpr) - 1;
+  ctx.fillStyle = '#0d0a12'; ctx.fillRect(0, 0, cv.width, Math.max(0, yTop));
+  ctx.fillStyle = '#1a0e0b'; ctx.fillRect(0, yBot, cv.width, cv.height - yBot);
+  if (offX > 0) { ctx.fillStyle = C.tinta; ctx.fillRect(0, 0, cv.width, cv.height); }
+  const sx = shake > 0 ? (Math.random() - 0.5) * 10 * shake : 0, sy = shake > 0 ? (Math.random() - 0.5) * 8 * shake : 0;
+  ctx.setTransform(scale * dpr, 0, 0, scale * dpr, (offX + sx * scale) * dpr, (offY + sy * scale) * dpr);
+  ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.clip();
+  drawBackground(T);
+  drawGround();
+  for (const o of obstacles) drawObstacle(o);
+  drawMumiState(T);
+  drawParticles();
+  if (state === 'run') drawHUD();
+  if (state === 'start') drawStart(T);
+  if (state === 'over') drawOver();
+  ctx.restore();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
