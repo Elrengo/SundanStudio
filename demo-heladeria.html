@@ -909,7 +909,7 @@
         <div class="ad-status" id="adStatus" role="status"><strong id="adStatusTxt">Tienda abierta</strong><span id="adStatusSub"></span></div>
         <button type="button" class="btn-sm" id="adPause">Pausar pedidos online</button>
         <a href="#" class="btn-sm" style="text-align:center;text-decoration:none;display:block">Ver la tienda</a>
-        <button type="button" class="btn-sm" id="adLogout">Salir</button>
+        <button type="button" class="btn-sm" id="adLogout" hidden>Salir</button>
       </div>
     </aside>
     <div class="ad-scrim" id="adScrim"></div>
@@ -2231,12 +2231,7 @@
     appEl.hidden = true;
     adminRoot.hidden = false;
     adVisible = true;
-    if (!adIsLogged()) {
-      adLogin.hidden = false;
-      adShell.hidden = true;
-      stopSim();
-      return;
-    }
+    adSetLogged(true);            // demo: no login screen, the team button opens the panel directly
     adLogin.hidden = true;
     adShell.hidden = false;
     adGo(adPanel);
@@ -2260,12 +2255,11 @@
     toastAd('Sesión de demo iniciada');
   });
   $('adLogout').addEventListener('click', function () {
-    adSetLogged(false);
-    stopSim();
-    adShell.hidden = true;
-    adLogin.hidden = false;
+    // demo: leaving the panel goes straight back to the shop
     adSide.classList.remove('open');
     adScrim.classList.remove('show');
+    location.hash = '';
+    hideAdmin();
   });
 
   function adGo(panel) {
