@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Sundan Studio</title>
-<meta name="description" content="Sundan Studio: diseño y desarrollo de webs y aplicaciones con personalidad. Webs a medida, aplicaciones web y experiencias interactivas.">
+<title>Sundan Studio · Desarrollo web y apps a medida en Barcelona</title>
+<meta name="description" content="Diseño y desarrollo de webs y apps a medida en Barcelona: tiendas online, paneles de gestión y experiencias interactivas.">
 <link rel="canonical" href="https://sundanstudio.com/">
 <meta name="theme-color" content="#14060f">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
@@ -15,14 +15,14 @@
 <meta property="og:locale" content="es_ES">
 <meta property="og:url" content="https://sundanstudio.com/">
 <meta property="og:title" content="Sundan Studio — Webs y aplicaciones con personalidad">
-<meta property="og:description" content="Sundan Studio: diseño y desarrollo de webs y aplicaciones con personalidad. Webs a medida, aplicaciones web y experiencias interactivas.">
+<meta property="og:description" content="Diseño y desarrollo de webs y apps a medida en Barcelona: tiendas online, paneles de gestión y experiencias interactivas.">
 <meta property="og:image" content="https://sundanstudio.com/assets/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Sundan Studio: webs y aplicaciones con personalidad">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Sundan Studio — Webs y aplicaciones con personalidad">
-<meta name="twitter:description" content="Sundan Studio: diseño y desarrollo de webs y aplicaciones con personalidad. Webs a medida, aplicaciones web y experiencias interactivas.">
+<meta name="twitter:description" content="Diseño y desarrollo de webs y apps a medida en Barcelona: tiendas online, paneles de gestión y experiencias interactivas.">
 <meta name="twitter:image" content="https://sundanstudio.com/assets/og-image.png">
 <script type="application/ld+json">
 {
@@ -32,11 +32,19 @@
   "url": "https://sundanstudio.com/",
   "image": "https://sundanstudio.com/assets/og-image.png",
   "email": "rafmoline@gmail.com",
-  "description": "Sundan Studio: diseño y desarrollo de webs y aplicaciones con personalidad. Webs a medida, aplicaciones web y experiencias interactivas.",
+  "description": "Diseño y desarrollo de webs y apps a medida en Barcelona: tiendas online, paneles de gestión y experiencias interactivas.",
   "areaServed": "Worldwide",
   "knowsLanguage": [
     "es",
     "en"
+  ],
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Barcelona",
+    "addressCountry": "ES"
+  },
+  "sameAs": [
+    "https://www.linkedin.com/in/molinerorafael"
   ],
   "priceRange": "€€"
 }
@@ -383,7 +391,7 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
 .pricing .pr-card:nth-child(3){--r:-.4deg}
 .pricing .pr-card:hover,.pricing .pr-card:focus-within{--r:0deg;transform:rotate(0deg) translateY(-6px)}
 .pricing .pr-card.pr-feat{--r:0deg;background:rgba(233,180,47,.08)}
-.pricing .pr-ribbon{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--ink);font-family:ui-monospace,Consolas,"Courier New",monospace;font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:.4rem .9rem;white-space:nowrap}
+.pricing .pr-ribbon{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--ink);font-family:ui-monospace,Consolas,"Courier New",monospace;font-size:.8rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:.4rem .9rem;white-space:nowrap}
 .pricing .pr-name{margin:0 0 .6rem;font-family:var(--display);font-weight:400;font-size:1.6rem;line-height:1.15;color:var(--bone)}
 .pricing .pr-price{margin:0 0 .9rem}
 .pricing .pr-from{display:block;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;opacity:.75}
@@ -444,6 +452,11 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
 .site-foot__nav{display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;width:100%}
 .site-foot a{color:var(--bone);text-underline-offset:.25em;overflow-wrap:anywhere}
 .site-foot a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+/* larger touch targets on phones (SEO / accessibility) */
+.site-foot__nav a{display:inline-flex;align-items:center;min-height:44px}
+.tb-logo{display:inline-flex;align-items:center;min-height:44px}
+.note a,a[href^="mailto:"]{padding-block:.7em}
+.panel .plink{display:inline-flex;align-items:center;min-height:44px}
 </style>
 </head>
 <body>
@@ -1239,6 +1252,7 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
       <a href="#faq">Preguntas</a>
       <a href="aviso-legal.html">Aviso legal</a>
       <a href="privacidad.html">Privacidad</a>
+      <a href="https://www.linkedin.com/in/molinerorafael" target="_blank" rel="me noopener">LinkedIn</a>
       <a href="mailto:rafmoline@gmail.com">rafmoline@gmail.com</a>
     </nav>
 </footer>
