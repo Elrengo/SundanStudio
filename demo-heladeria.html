@@ -987,6 +987,74 @@
   <div class="ad-toast" id="adToast" role="status" aria-live="polite"></div>
 </div>
 <script>
+/* Safety net: never leave a blank page. If start-up fails, or nothing is visible,
+   show a notice with the error and a button that clears this demo's saved data. */
+(function () {
+  window.__bnBooted = false;
+  var lastError = '';
+  function visibleContent() {
+    var app = document.getElementById('app'), adm = document.getElementById('adminRoot');
+    function shown(el) { return el && !el.hidden && getComputedStyle(el).display !== 'none' && el.innerText.trim().length > 20; }
+    return shown(app) || shown(adm);
+  }
+  function resetDemo() {
+    try { Object.keys(localStorage).forEach(function (k) { if (k.indexOf('bola-de-nieve') === 0) localStorage.removeItem(k); }); } catch (e) {}
+    try { Object.keys(sessionStorage).forEach(function (k) { if (k.indexOf('bola-de-nieve') === 0) sessionStorage.removeItem(k); }); } catch (e) {}
+    location.hash = '';
+    location.reload();
+  }
+  function showFallback(force) {
+    if (document.getElementById('bnFallback') || (!force && visibleContent())) return;
+    var box = document.createElement('div');
+    box.id = 'bnFallback';
+    box.setAttribute('role', 'alert');
+    box.style.cssText = 'position:fixed;inset:0;display:grid;place-items:center;padding:24px;background:#fff8f1;color:#2b1d24;z-index:9999;font-family:"DM Sans",system-ui,sans-serif';
+    var card = document.createElement('div');
+    card.style.cssText = 'max-width:440px;background:#fff;border-radius:20px;padding:28px;box-shadow:0 10px 40px rgba(43,29,36,.12);text-align:left';
+    var h = document.createElement('h1'); h.textContent = 'Algo no ha cargado bien';
+    h.style.cssText = 'font-family:Fraunces,Georgia,serif;font-size:26px;margin:0 0 10px';
+    var p = document.createElement('p'); p.textContent = 'Puede que tu navegador guarde datos de una versión anterior de esta demo. Restablecerla los borra y vuelve a cargar la página.';
+    p.style.cssText = 'margin:0 0 18px;line-height:1.5';
+    var b = document.createElement('button'); b.type = 'button'; b.textContent = 'Restablecer la demo';
+    b.style.cssText = 'background:#c8102e;color:#fff;border:0;border-radius:999px;padding:12px 20px;font:700 15px "DM Sans",system-ui,sans-serif;cursor:pointer';
+    b.addEventListener('click', resetDemo);
+    card.appendChild(h); card.appendChild(p); card.appendChild(b);
+    if (lastError) {
+      var d = document.createElement('p'); d.textContent = 'Detalle técnico: ' + lastError;
+      d.style.cssText = 'margin:16px 0 0;font-size:12px;color:#7a6470;word-break:break-word';
+      card.appendChild(d);
+    }
+    box.appendChild(card);
+    document.body.appendChild(box);
+    b.focus();
+  }
+  /* First start-up failure: clear this demo's saved data once and reload automatically */
+  function tryAutoRecover() {
+    var done = false;
+    try { done = sessionStorage.getItem('bn-recovered') === '1'; } catch (e) { done = true; }
+    if (done) return false;
+    try { sessionStorage.setItem('bn-recovered', '1'); } catch (e) { return false; }
+    try { Object.keys(localStorage).forEach(function (k) { if (k.indexOf('bola-de-nieve') === 0) localStorage.removeItem(k); }); } catch (e) { return false; }
+    location.reload();
+    return true;
+  }
+  window.addEventListener('error', function (e) {
+    lastError = (e && e.message ? e.message : 'error') + (e && e.lineno ? ' (línea ' + e.lineno + ')' : '');
+    if (!window.__bnBooted) {
+      if (tryAutoRecover()) return;
+      setTimeout(function () { showFallback(true); }, 50);
+    } else {
+      setTimeout(showFallback, 50);
+    }
+  });
+  window.addEventListener('hashchange', function () { setTimeout(showFallback, 600); });
+  setTimeout(function () {
+    if (!window.__bnBooted) { lastError = lastError || 'la aplicación no terminó de arrancar'; showFallback(true); }
+    else showFallback();
+  }, 2500);
+})();
+</script>
+<script>
 (function () {
   'use strict';
 
@@ -2870,6 +2938,7 @@
   renderCart();
   refresh();
   route();
+  window.__bnBooted = true;
 })();
 </script>
 </body>
