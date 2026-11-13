@@ -997,6 +997,20 @@
     function shown(el) { return el && !el.hidden && getComputedStyle(el).display !== 'none' && el.innerText.trim().length > 20; }
     return shown(app) || shown(adm);
   }
+  function diagnostics() {
+    function st(id) {
+      var el = document.getElementById(id);
+      if (!el) return id + ':no';
+      var cs = getComputedStyle(el), r = el.getBoundingClientRect();
+      return id + ':' + (el.hidden ? 'H' : '') + cs.display + '/' + cs.visibility + '/op' + cs.opacity +
+        '/t' + (el.innerText || '').trim().length + '/' + Math.round(r.width) + 'x' + Math.round(r.height);
+    }
+    var mm = function (q) { try { return matchMedia(q).matches ? 1 : 0; } catch (e) { return '?'; } };
+    var keys = 0; try { keys = Object.keys(localStorage).filter(function (k) { return k.indexOf('bola') === 0; }).length; } catch (e) { keys = 'x'; }
+    return ['boot=' + (window.__bnBooted ? 1 : 0), 'hash=' + location.hash, st('app'), st('adminRoot'), st('adLogin'), st('adShell'),
+      'vw=' + innerWidth + 'x' + innerHeight, 'dpr=' + devicePixelRatio, 'dark=' + mm('(prefers-color-scheme: dark)'),
+      'rm=' + mm('(prefers-reduced-motion: reduce)'), 'ls=' + keys, (navigator.userAgent.match(/(Chrome|Edg|Firefox|Version)\/[\d.]+/g) || []).join(' ')].join(' · ');
+  }
   function resetDemo() {
     try { Object.keys(localStorage).forEach(function (k) { if (k.indexOf('bola-de-nieve') === 0) localStorage.removeItem(k); }); } catch (e) {}
     try { Object.keys(sessionStorage).forEach(function (k) { if (k.indexOf('bola-de-nieve') === 0) sessionStorage.removeItem(k); }); } catch (e) {}
@@ -1008,9 +1022,10 @@
     var box = document.createElement('div');
     box.id = 'bnFallback';
     box.setAttribute('role', 'alert');
-    box.style.cssText = 'position:fixed;inset:0;display:grid;place-items:center;padding:24px;background:#fff8f1;color:#2b1d24;z-index:9999;font-family:"DM Sans",system-ui,sans-serif';
+    /* corner card, not a full-screen cover: if the page is actually visible it stays usable */
+    box.style.cssText = 'position:fixed;right:16px;bottom:16px;max-width:min(440px,calc(100vw - 32px));color:#2b1d24;z-index:9999;font-family:"DM Sans",system-ui,sans-serif';
     var card = document.createElement('div');
-    card.style.cssText = 'max-width:440px;background:#fff;border-radius:20px;padding:28px;box-shadow:0 10px 40px rgba(43,29,36,.12);text-align:left';
+    card.style.cssText = 'background:#fff;border-radius:20px;padding:24px;box-shadow:0 10px 40px rgba(43,29,36,.25);text-align:left;max-height:calc(100vh - 32px);overflow:auto';
     var h = document.createElement('h1'); h.textContent = 'Algo no ha cargado bien';
     h.style.cssText = 'font-family:Fraunces,Georgia,serif;font-size:26px;margin:0 0 10px';
     var p = document.createElement('p'); p.textContent = 'Puede que tu navegador guarde datos de una versión anterior de esta demo. Restablecerla los borra y vuelve a cargar la página.';
@@ -1019,11 +1034,14 @@
     b.style.cssText = 'background:#c8102e;color:#fff;border:0;border-radius:999px;padding:12px 20px;font:700 15px "DM Sans",system-ui,sans-serif;cursor:pointer';
     b.addEventListener('click', resetDemo);
     card.appendChild(h); card.appendChild(p); card.appendChild(b);
-    if (lastError) {
-      var d = document.createElement('p'); d.textContent = 'Detalle técnico: ' + lastError;
-      d.style.cssText = 'margin:16px 0 0;font-size:12px;color:#7a6470;word-break:break-word';
-      card.appendChild(d);
-    }
+    var d = document.createElement('p');
+    d.textContent = 'Detalle técnico: ' + (lastError || 'sin error de JavaScript') + ' · ' + diagnostics();
+    d.style.cssText = 'margin:16px 0 0;font-size:12px;color:#7a6470;word-break:break-word';
+    card.appendChild(d);
+    var x = document.createElement('button'); x.type = 'button'; x.textContent = 'Cerrar aviso';
+    x.style.cssText = 'margin-left:10px;background:transparent;border:0;color:#7a6470;font:600 14px "DM Sans",system-ui,sans-serif;cursor:pointer;text-decoration:underline';
+    x.addEventListener('click', function () { box.remove(); });
+    b.insertAdjacentElement('afterend', x);
     box.appendChild(card);
     document.body.appendChild(box);
     b.focus();
