@@ -124,9 +124,18 @@ button { cursor: pointer; }
 
 .main { min-width: 0; display: flex; flex-direction: column; }
 .topbar {
-  position: sticky; top: 0; z-index: 30; display: flex; align-items: center; flex-wrap: wrap; gap: 12px 16px;
+  display: flex; align-items: center; flex-wrap: wrap; gap: 12px 16px;
   padding: 12px 24px; background: var(--surface); border-bottom: 1px solid var(--line);
 }
+/* === STICKY BAR: cabecera + filtros fijos al hacer scroll === */
+.sticky-bar { position: sticky; top: 0; z-index: 30; background: var(--bg); min-width: 0; }
+.sticky-spacer { height: 0; pointer-events: none; }
+@media print { .sticky-spacer { display: none; } }
+.sticky-bar.is-stuck .topbar { padding-top: 8px; padding-bottom: 8px; }
+.sticky-bar.is-stuck h1 { font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sticky-bar.is-stuck .sub, .sticky-bar.is-stuck #data-note, .sticky-bar.is-stuck .incident { display: none; }
+.sticky-bar.is-stuck .controls { padding-top: 8px; padding-bottom: 8px; gap: 6px; box-shadow: 0 6px 16px rgba(var(--sh-rgb), .10); }
+.btn.filters-btn { display: none; }
 .menu-btn { display: none; }
 .title-wrap { min-width: 0; flex: 1 1 180px; }
 h1 { font-size: 20px; line-height: 1.25; font-weight: 700; letter-spacing: -.02em; }
@@ -201,10 +210,10 @@ html:not([data-theme="carpa"]) .i-moon { display: none; }
 .fsel .field { min-width: 132px; height: 38px; min-height: 38px; font-size: 13px; font-weight: 500; color: var(--ink); }
 /* >= 1280px: una sola línea para la fila de filtros, selects compactos con elipsis */
 @media (min-width: 1280px) {
-  .controls > .ctrl-row:first-child { flex-wrap: nowrap; gap: 8px; }
-  .controls > .ctrl-row:first-child .seg button { padding: 0 10px; }
-  .controls > .ctrl-row:first-child .fsel { flex: 0 1 auto; }
-  .controls > .ctrl-row:first-child .fsel .field { width: auto; min-width: 110px; max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .controls > .filters-row { flex-wrap: nowrap; gap: 8px; }
+  .controls > .filters-row .seg button { padding: 0 10px; }
+  .controls > .filters-row .fsel { flex: 0 1 auto; }
+  .controls > .filters-row .fsel .field { width: auto; min-width: 110px; max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
 .fsel-inline { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
 .fsel-inline .field { min-height: 36px; width: auto; font-size: 13px; }
@@ -677,6 +686,107 @@ html[data-theme="carpa"] .kpi { box-shadow: inset 0 1px 0 var(--gold), var(--sha
 html[data-theme="carpa"] .logo { color: #e9b42f; box-shadow: inset 0 0 0 1px #e9b42f; }
 html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
 
+/* === TABLAS: cabeceras con elegir / ordenar / filtrar y popover de filtro === */
+.keep-head thead { display: table-header-group; }
+@media (max-width: 760px) {
+  .data-table.keep-head thead { position: static; width: auto; height: auto; overflow: visible; clip: auto; white-space: nowrap; }
+}
+.th-tools { display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; }
+.colbtn { background: none; border: 0; padding: 2px 4px; margin-left: -4px; font: inherit; color: inherit; border-radius: 6px; }
+.colbtn:hover { color: var(--ink); background: var(--hover); }
+.ibtn-s { width: 26px; height: 26px; border: 0; background: none; border-radius: 6px; color: var(--muted); display: inline-grid; place-items: center; padding: 0; }
+.ibtn-s:hover { background: var(--hover); color: var(--ink); }
+.ibtn-s .i { width: 14px; height: 14px; }
+.colsort .arrow { font-family: var(--mono); font-size: 12px; }
+th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
+.colfilt.on { color: var(--accent); background: var(--accent-soft); }
+.colfilt.on .i { fill: currentColor; }
+.colpop {
+  position: fixed; z-index: 85; width: min(320px, calc(100vw - 16px)); max-height: 70vh; overflow-y: auto; display: grid; gap: 10px;
+  padding: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(var(--sh-rgb), .18); font-size: 13px; font-weight: 400; color: var(--ink);
+}
+.colpop[hidden] { display: none; }
+.cf-title { font-weight: 700; font-size: 14px; }
+.cf-body { display: grid; gap: 10px; }
+.cf-list { max-height: 220px; overflow-y: auto; display: grid; gap: 2px; }
+.cf-list label { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-radius: 6px; cursor: pointer; font-weight: 400; }
+.cf-list label:hover { background: var(--hover); }
+.cf-list label small { margin-left: auto; }
+.cf-hist { display: flex; align-items: flex-end; gap: 2px; height: 40px; }
+.cf-hist span { flex: 1; background: var(--accent); opacity: .55; border-radius: 2px 2px 0 0; min-height: 3px; }
+.cf-foot { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+@media (max-width: 760px) {
+  .colpop { left: 0 !important; right: 0; bottom: 0; top: auto !important; width: auto; max-height: 75vh; border-radius: 16px 16px 0 0; }
+}
+
+/* === Móvil: filtros plegados === */
+@media (max-width: 760px) {
+  .controls .filters-row { display: none; }
+  .controls.filters-open .filters-row { display: flex; }
+  .btn.filters-btn { display: inline-flex; height: 36px; min-height: 36px; padding: 6px 12px; }
+  .chips-row { align-items: center; }
+  .sticky-bar.is-stuck .top-actions { display: none; }
+}
+
+/* === ROLES: entrada, bloque de usuario, navegación y estados === */
+.login {
+  position: fixed; inset: 0; z-index: 200; background: var(--bg); overflow-y: auto;
+  display: flex; align-items: flex-start; justify-content: center; padding: 40px 16px;
+}
+.login[hidden] { display: none !important; }
+.login-box { width: min(880px, 100%); display: grid; gap: 24px; min-width: 0; }
+.login-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.login-brand { display: flex; align-items: center; gap: 12px; }
+.login-brand strong { display: block; font-size: 18px; font-family: var(--font-head); }
+.login-brand small { display: block; color: var(--muted); font-size: 12.5px; }
+.login h1 { font-size: 26px; }
+.login-note { font-size: 13px; color: var(--muted); padding: 10px 14px; border: 1px dashed var(--line); border-radius: 10px; margin: 0; }
+.who-group { display: grid; gap: 10px; }
+.who-group h2 { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0; }
+.who-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.who-card {
+  display: flex; align-items: center; gap: 12px; padding: 14px; text-align: left; min-width: 0; min-height: 64px;
+  border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--ink);
+  transition: background-color var(--ease), border-color var(--ease);
+}
+.who-card:hover { background: var(--hover); border-color: var(--accent); }
+.who-card.suggested { box-shadow: 0 0 0 2px var(--accent); }
+.who-txt { display: grid; gap: 2px; min-width: 0; flex: 1; }
+.who-txt strong { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.who-txt small { color: var(--muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.who-tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 4px; }
+.av {
+  width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; flex: none;
+  background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 13px; letter-spacing: .02em;
+}
+.role-badge { display: inline-block; font-size: 11px; padding: 1px 8px; border-radius: 999px; background: var(--hover); color: var(--muted); font-weight: 600; }
+.last-tag { font-size: 11px; font-weight: 600; color: var(--accent); }
+.user-block { margin-top: auto; display: grid; gap: 10px; padding: 12px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--bg); min-width: 0; }
+.user-head { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.user-txt { display: grid; min-width: 0; }
+.user-txt strong { font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.user-txt small { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.user-change { width: 100%; min-height: 34px; font-size: 13px; gap: 8px; }
+.demo-card { margin-top: 0; }
+.nav-badge {
+  margin-left: auto; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; display: inline-grid; place-items: center;
+  background: var(--bad); color: var(--on-accent); font-size: 11.5px; font-weight: 700;
+}
+.nav-badge[hidden] { display: none !important; }
+.app.collapsed .user-head { justify-content: center; }
+.app.collapsed .user-change { padding: 8px; }
+.app.collapsed .nav-badge { position: absolute; top: 4px; right: 4px; min-width: 16px; height: 16px; padding: 0 4px; font-size: 10px; }
+.cbs-abierto { --b: var(--warn); } .cbs-rev { --b: var(--accent); } .cbs-ganado { --b: var(--ok); } .cbs-perdido { --b: var(--bad); }
+.matrix-yes { color: var(--ok); font-weight: 700; }
+.matrix-no { color: var(--muted); }
+.perm-key { font-family: var(--mono); font-size: 12px; }
+.inline-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.inline-form .field { width: auto; min-width: 180px; min-height: 36px; font-size: 13px; }
+.act-list { display: grid; gap: 10px; }
+.appr-item { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 16px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; }
+.appr-item p { font-size: 13px; color: var(--muted); margin: 2px 0 0; }
+
 @media print {
   :root, html[data-theme] {
     --bg:#ffffff; --surface:#ffffff; --ink:#1b0812; --muted:#5b4a50; --line:#d8ccb4;
@@ -715,15 +825,9 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
       <button type="button" class="collapse-btn" id="collapse" aria-expanded="true" aria-controls="sidebar" aria-label="Contraer menú"><span class="ico" data-icon="collapse"></span></button>
     </div>
     <nav aria-label="Secciones">
-      <ul class="nav-list">
-        <li><button type="button" class="nav-item" data-view="resumen" aria-current="page"><span class="ico" data-icon="resumen"></span><span class="nav-text">Resumen</span></button></li>
-        <li><button type="button" class="nav-item" data-view="transacciones"><span class="ico" data-icon="list"></span><span class="nav-text">Transacciones</span></button></li>
-        <li><button type="button" class="nav-item" data-view="comercios"><span class="ico" data-icon="store"></span><span class="nav-text">Comercios</span></button></li>
-        <li><button type="button" class="nav-item" data-view="rentabilidad"><span class="ico" data-icon="trend"></span><span class="nav-text">Rentabilidad</span></button></li>
-        <li><button type="button" class="nav-item" data-view="riesgo"><span class="ico" data-icon="shield"></span><span class="nav-text">Riesgo</span></button></li>
-        <li><button type="button" class="nav-item" data-view="ajustes"><span class="ico" data-icon="ajustes"></span><span class="nav-text">Ajustes</span></button></li>
-      </ul>
+      <ul class="nav-list" id="nav-list"></ul>
     </nav>
+    <div class="user-block" id="user-block"></div>
     <div class="demo-card">
       <p><strong>Demopay</strong> es una pasarela de pagos ficticia. Los datos se generan de forma determinista en tu navegador.</p>
       <a href="index.html#proyectos">← Volver a Sundan Studio</a>
@@ -731,6 +835,7 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
   </aside>
 
   <div class="main">
+    <div class="sticky-bar" id="stickybar">
     <header class="topbar">
       <button type="button" class="icon-btn menu-btn" id="menu" aria-label="Abrir menú" aria-controls="sidebar" aria-expanded="false"><span class="ico" data-icon="menu"></span></button>
       <div class="title-wrap">
@@ -745,7 +850,7 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
             <option value="GBP">GBP £</option>
           </select>
         </label>
-        <div class="search-wrap">
+        <div class="search-wrap" data-perm="view.search">
           <label class="search">
             <span class="sr-only">Buscar comercio o transacción por ID o nombre</span>
             <span class="ico" data-icon="search"></span>
@@ -753,7 +858,7 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
           </label>
           <div class="dropdown" id="q-results" hidden></div>
         </div>
-        <button type="button" class="toggle" id="live" aria-pressed="false" title="Añade una transacción simulada cada 2 segundos"><span class="live-dot" aria-hidden="true"></span><span>En vivo</span></button>
+        <button type="button" class="toggle" id="live" data-perm="view.live" aria-pressed="false" title="Añade una transacción simulada cada 2 segundos"><span class="live-dot" aria-hidden="true"></span><span>En vivo</span></button>
         <div class="help-wrap">
           <button type="button" class="icon-btn" id="help" aria-haspopup="true" aria-expanded="false" aria-controls="help-menu" aria-label="Ayuda"><span class="ico" data-icon="help"></span></button>
           <div class="dropdown help-menu" id="help-menu" role="menu" hidden>
@@ -761,7 +866,7 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
             <button type="button" class="dd-item" role="menuitem" id="help-keys"><span>Atajos de teclado</span><small>?</small></button>
           </div>
         </div>
-        <button type="button" class="btn" id="regen" title="Genera un nuevo conjunto de datos ficticios"><span class="ico" data-icon="refresh"></span><span>Generar nuevos datos</span></button>
+        <button type="button" class="btn" id="regen" data-perm="view.regen" title="Genera un nuevo conjunto de datos ficticios"><span class="ico" data-icon="refresh"></span><span>Generar nuevos datos</span></button>
         <button type="button" class="icon-btn" id="theme" aria-label="Tema Carpa" title="Tema Carpa">
           <span class="ico i-tent" data-icon="tent"></span><span class="ico i-moon" data-icon="moon"></span>
         </button>
@@ -774,7 +879,7 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
     </div>
 
     <div class="controls" role="region" aria-label="Controles globales">
-      <div class="ctrl-row">
+      <div class="ctrl-row filters-row" id="filters-row">
         <div class="seg" role="group" aria-label="Rango de fechas">
           <button type="button" data-range="7d" aria-pressed="false">7 días</button>
           <button type="button" data-range="30d" aria-pressed="true">30 días</button>
@@ -783,10 +888,10 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
         </div>
         <button type="button" class="toggle" id="cmp" aria-pressed="true" title="Comparar con periodo anterior" aria-label="Comparar con periodo anterior"><span class="sw-box" aria-hidden="true"></span><span>Comparar</span></button>
         <label class="fsel"><span>Canal</span><select class="field" id="f-channel"></select></label>
-        <label class="fsel"><span>País</span><select class="field" id="f-country"></select></label>
-        <label class="fsel"><span>Partner</span><select class="field" id="f-partner"></select></label>
-        <label class="fsel"><span>Plan</span><select class="field" id="f-plan"></select></label>
-        <label class="fsel"><span>Escenario de datos</span>
+        <label class="fsel" data-perm="filter.country"><span>País</span><select class="field" id="f-country"></select></label>
+        <label class="fsel" data-perm="filter.partner"><span>Partner</span><select class="field" id="f-partner"></select></label>
+        <label class="fsel" data-perm="filter.plan"><span>Plan</span><select class="field" id="f-plan"></select></label>
+        <label class="fsel" data-perm="view.scenario"><span>Escenario de datos</span>
           <select class="field" id="scenario">
             <option value="normal">Normal</option>
             <option value="blackfriday">Black Friday</option>
@@ -796,10 +901,12 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
         </label>
         <button type="button" class="btn btn-ghost" id="clear">Limpiar filtros</button>
       </div>
-      <div class="ctrl-row">
+      <div class="ctrl-row chips-row">
+        <button type="button" class="btn filters-btn" id="filters-btn" aria-expanded="false" aria-controls="filters-row">Filtros (0)</button>
         <div class="chips" id="chips" aria-live="polite"></div>
       </div>
       <p class="hint" id="data-note"></p>
+    </div>
     </div>
 
     <main id="main" tabindex="-1" class="content">
@@ -818,7 +925,7 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
               <button type="button" data-metric="vol" aria-pressed="true">Volumen</button>
               <button type="button" data-metric="n" aria-pressed="false">Transacciones</button>
               <button type="button" data-metric="appr" aria-pressed="false">Aprobación</button>
-              <button type="button" data-metric="margin" aria-pressed="false">Margen</button>
+              <button type="button" data-metric="margin" data-perm="see.margin" aria-pressed="false">Margen</button>
             </div>
           </div>
           <div class="chart-box" id="trend-box">
@@ -828,6 +935,31 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
           <p class="chart-hint">Pasa el cursor sobre el gráfico o usa las flechas ← → cuando tenga el foco.</p>
         </article>
 
+        <article class="card" id="res-share" aria-labelledby="t-share" data-perm="view.share">
+          <div class="card-head">
+            <div>
+              <h2 id="t-share">Revenue share devengado</h2>
+              <p>Tu parte de las comisiones de los comercios que has referido, por mes</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table" id="share-table">
+              <caption class="sr-only">Revenue share por mes de los últimos 12 meses</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Mes</th>
+                  <th scope="col" class="num-col">Operaciones</th>
+                  <th scope="col" class="num-col">Volumen</th>
+                  <th scope="col" class="num-col">Comisiones generadas</th>
+                  <th scope="col" class="num-col">Revenue share</th>
+                </tr>
+              </thead>
+              <tbody id="share-body"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <div id="res-detail" data-perm="view.detail">
         <div class="grid-a">
           <article class="card" aria-labelledby="t-funnel">
             <div class="card-head">
@@ -872,8 +1004,9 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
             <div class="heat chart-mount" id="heat"></div>
           </article>
         </div>
+        </div>
 
-        <article class="card" aria-labelledby="t-feed">
+        <article class="card" aria-labelledby="t-feed" data-perm="view.transacciones">
           <div class="card-head">
             <div>
               <h2 id="t-feed">Últimas transacciones</h2>
@@ -911,25 +1044,26 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
                   <option value="100">100</option>
                 </select>
               </label>
-              <button type="button" class="btn" id="tx-bulk" disabled>Marcar revisadas</button>
-              <button type="button" class="btn" id="tx-csv"><span class="ico" data-icon="download"></span><span>Exportar CSV</span></button>
+              <button type="button" class="btn" id="tx-bulk" data-perm-dis="act.review" disabled>Marcar revisadas</button>
+              <button type="button" class="btn" id="tx-csv" data-perm-dis="act.export"><span class="ico" data-icon="download"></span><span>Exportar CSV</span></button>
             </div>
           </div>
           <p class="hint" id="tx-note"></p>
           <div class="table-wrap">
-            <table class="data-table stack" id="tx-table">
+            <table class="data-table keep-head" id="tx-table">
               <caption class="sr-only">Transacciones filtradas. Pulsa un identificador para ver el detalle.</caption>
               <thead>
                 <tr>
-                  <th scope="col" class="chk-col"><input type="checkbox" id="tx-all" aria-label="Seleccionar todas las transacciones de esta página"></th>
+                  <th scope="col" class="chk-col" data-perm="act.review"><input type="checkbox" id="tx-all" aria-label="Seleccionar todas las transacciones de esta página"></th>
                   <th scope="col">ID</th>
                   <th scope="col"><button type="button" class="sort-btn" data-sort="date">Fecha <span class="arrow" aria-hidden="true">↓</span></button></th>
                   <th scope="col"><button type="button" class="sort-btn" data-sort="merchant">Comercio <span class="arrow" aria-hidden="true">↕</span></button></th>
                   <th scope="col">Canal</th>
                   <th scope="col">Método</th>
                   <th scope="col" class="num-col"><button type="button" class="sort-btn" data-sort="amount">Importe <span class="arrow" aria-hidden="true">↕</span></button></th>
+                  <th scope="col" class="num-col" data-perm="see.fee">Comisión</th>
                   <th scope="col">Estado</th>
-                  <th scope="col" class="num-col"><button type="button" class="sort-btn" data-sort="risk">Riesgo <span class="arrow" aria-hidden="true">↕</span></button></th>
+                  <th scope="col" class="num-col" data-perm="see.risk"><button type="button" class="sort-btn" data-sort="risk">Riesgo <span class="arrow" aria-hidden="true">↕</span></button></th>
                 </tr>
               </thead>
               <tbody id="tx-body"></tbody>
@@ -957,19 +1091,19 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
             <div class="tx-filters">
               <label class="fsel"><span>Sector</span><select class="field" id="mer-sector"></select></label>
               <label class="fsel"><span>Plan</span><select class="field" id="mer-plan"></select></label>
-              <label class="fsel"><span>Riesgo de churn</span><select class="field" id="mer-churn"></select></label>
+              <label class="fsel" data-perm="see.health"><span>Riesgo de churn</span><select class="field" id="mer-churn"></select></label>
             </div>
           </div>
           <div class="seg mer-seg" role="group" aria-label="Segmentos rápidos" id="mer-seg">
             <button type="button" data-seg="" aria-pressed="true">Todos</button>
-            <button type="button" data-seg="churn" aria-pressed="false">En riesgo de churn</button>
-            <button type="button" data-seg="top10" aria-pressed="false">Top 10 por margen</button>
+            <button type="button" data-seg="churn" data-perm="see.health" aria-pressed="false">En riesgo de churn</button>
+            <button type="button" data-seg="top10" data-perm="see.margin" aria-pressed="false">Top 10 por margen</button>
             <button type="button" data-seg="nuevos" aria-pressed="false">Nuevos este trimestre</button>
           </div>
           <div class="tx-bar"><p id="mer-summary" class="muted"></p></div>
           <p class="hint">Se aplican también los filtros de canal, país, partner y plan de la barra superior. Pulsa un comercio para abrir su ficha.</p>
           <div class="table-wrap">
-            <table class="data-table stack" id="mer-table">
+            <table class="data-table keep-head" id="mer-table">
               <caption class="sr-only">Comercios del periodo seleccionado</caption>
               <thead>
                 <tr>
@@ -979,9 +1113,9 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
                   <th scope="col" class="num-col"><button type="button" class="sort-btn" data-msort="vol">Volumen <span class="arrow" aria-hidden="true">↕</span></button></th>
                   <th scope="col" class="num-col"><button type="button" class="sort-btn" data-msort="n">Transacciones <span class="arrow" aria-hidden="true">↕</span></button></th>
                   <th scope="col" class="num-col"><button type="button" class="sort-btn" data-msort="appr">Aprobación <span class="arrow" aria-hidden="true">↕</span></button></th>
-                  <th scope="col" class="num-col"><button type="button" class="sort-btn" data-msort="margin">Margen <span class="arrow" aria-hidden="true">↕</span></button></th>
-                  <th scope="col"><button type="button" class="sort-btn" data-msort="health">Salud <span class="arrow" aria-hidden="true">↕</span></button></th>
-                  <th scope="col"><button type="button" class="sort-btn" data-msort="churn">Riesgo de churn <span class="arrow" aria-hidden="true">↕</span></button></th>
+                  <th scope="col" class="num-col" data-perm="see.margin"><button type="button" class="sort-btn" data-msort="margin">Margen <span class="arrow" aria-hidden="true">↕</span></button></th>
+                  <th scope="col" data-perm="see.health"><button type="button" class="sort-btn" data-msort="health">Salud <span class="arrow" aria-hidden="true">↕</span></button></th>
+                  <th scope="col" data-perm="see.health"><button type="button" class="sort-btn" data-msort="churn">Riesgo de churn <span class="arrow" aria-hidden="true">↕</span></button></th>
                 </tr>
               </thead>
               <tbody id="mer-body"></tbody>
@@ -1069,7 +1203,7 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
               <h2 id="t-cb">Ratio de contracargos</h2>
               <p id="cb-sub"></p>
             </div>
-            <label class="range-field thr"><span>Umbral interno <output id="o-thr"></output></span><input type="range" id="thr" min="0.2" max="2" step="0.05"></label>
+            <label class="range-field thr"><span>Umbral interno <output id="o-thr"></output></span><input type="range" id="thr" data-perm-dis="act.threshold" min="0.2" max="2" step="0.05"></label>
           </div>
           <div class="chart-mount" id="cb-chart"></div>
           <p class="chart-hint">La línea discontinua marca el umbral interno configurable. Los días por encima aparecen marcados en rojo.</p>
@@ -1099,15 +1233,15 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
           <div class="rule-list" id="rule-list">
             <div class="rule">
               <div><strong>3DS obligatorio por encima de 250 €</strong><p>Autenticación reforzada para tarjetas con importe alto.</p></div>
-              <button type="button" class="toggle" data-rule="threeds" aria-pressed="false"><span class="sw-box" aria-hidden="true"></span><span>Desactivada</span></button>
+              <button type="button" class="toggle" data-rule="threeds" data-perm-dis="act.rules" aria-pressed="false"><span class="sw-box" aria-hidden="true"></span><span>Desactivada</span></button>
             </div>
             <div class="rule">
               <div><strong>Bloquear BIN de fuera de la UE en MOTO</strong><p>Rechaza operaciones telefónicas con tarjetas emitidas fuera de la UE.</p></div>
-              <button type="button" class="toggle" data-rule="bin" aria-pressed="false"><span class="sw-box" aria-hidden="true"></span><span>Desactivada</span></button>
+              <button type="button" class="toggle" data-rule="bin" data-perm-dis="act.rules" aria-pressed="false"><span class="sw-box" aria-hidden="true"></span><span>Desactivada</span></button>
             </div>
             <div class="rule">
               <div><strong>Límite de 5 intentos por tarjeta y hora</strong><p>Frena las pruebas de tarjetas automatizadas.</p></div>
-              <button type="button" class="toggle" data-rule="limit" aria-pressed="false"><span class="sw-box" aria-hidden="true"></span><span>Desactivada</span></button>
+              <button type="button" class="toggle" data-rule="limit" data-perm-dis="act.rules" aria-pressed="false"><span class="sw-box" aria-hidden="true"></span><span>Desactivada</span></button>
             </div>
           </div>
           <div class="two-fig" aria-live="polite">
@@ -1131,9 +1265,9 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
         <article class="card" aria-labelledby="t-goals">
           <div class="card-head"><div><h2 id="t-goals">Objetivos de KPI</h2><p>Los indicadores del Resumen se colorean según estos objetivos. Se guardan en este navegador.</p></div></div>
           <div class="form-grid">
-            <label class="fsel"><span>Tasa de aprobación, mínimo (%)</span><input class="field" type="number" id="t-appr" min="0" max="100" step="0.1"></label>
-            <label class="fsel"><span>Contracargos, máximo (%)</span><input class="field" type="number" id="t-cb" min="0" max="5" step="0.01"></label>
-            <label class="fsel"><span>Margen neto, mínimo (€ cada 30 días, se ajusta al rango)</span><input class="field" type="number" id="t-margin" min="0" step="100"></label>
+            <label class="fsel"><span>Tasa de aprobación, mínimo (%)</span><input class="field" type="number" id="t-appr" data-perm-dis="act.targets" min="0" max="100" step="0.1"></label>
+            <label class="fsel"><span>Contracargos, máximo (%)</span><input class="field" type="number" id="t-cb" data-perm-dis="act.targets" min="0" max="5" step="0.01"></label>
+            <label class="fsel"><span>Margen neto, mínimo (€ cada 30 días, se ajusta al rango)</span><input class="field" type="number" id="t-margin" data-perm-dis="act.targets" min="0" step="100"></label>
           </div>
         </article>
         <article class="card" aria-labelledby="t-prefs">
@@ -1168,12 +1302,150 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
             </label>
           </div>
         </article>
-        <article class="card" aria-labelledby="t-demo">
+        <article class="card" aria-labelledby="t-users" data-perm="act.users">
+          <div class="card-head"><div><h2 id="t-users">Usuarios y roles</h2><p>Cambio de rol simulado, guardado en este navegador. Tu propio rol no se cambia desde aquí.</p></div></div>
+          <div class="table-wrap">
+            <table class="data-table" id="users-table">
+              <caption class="sr-only">Usuarios de la demo, con su rol y ámbito</caption>
+              <thead><tr><th scope="col">Usuario</th><th scope="col">Cargo</th><th scope="col">Rol</th><th scope="col">Ámbito</th></tr></thead>
+              <tbody id="users-body"></tbody>
+            </table>
+          </div>
+          <h3 style="margin-top:20px">Matriz de permisos (solo lectura)</h3>
+          <div class="table-wrap">
+            <table class="data-table" id="perm-table">
+              <caption class="sr-only">Permisos por rol</caption>
+              <thead id="perm-head"></thead>
+              <tbody id="perm-body"></tbody>
+            </table>
+          </div>
+        </article>
+        <article class="card" aria-labelledby="t-act" data-perm="act.users" id="card-activity">
+          <div class="card-head">
+            <div><h2 id="t-act">Registro de actividad</h2><p>Últimas 200 acciones de esta demo, más recientes primero.</p></div>
+            <label class="fsel-inline">Usuario <select class="field" id="act-user"></select></label>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table" id="act-table">
+              <caption class="sr-only">Registro de actividad</caption>
+              <thead><tr><th scope="col">Fecha y hora</th><th scope="col">Usuario</th><th scope="col">Acción</th><th scope="col">Detalle</th></tr></thead>
+              <tbody id="act-body"></tbody>
+            </table>
+          </div>
+        </article>
+        <article class="card" aria-labelledby="t-demo" data-perm="act.users">
           <div class="card-head"><div><h2 id="t-demo">Datos de la demo</h2><p>Los datos son ficticios y se generan a partir de una semilla. Restablecer borra las preferencias guardadas y vuelve a los valores iniciales.</p></div></div>
           <div class="row"><button type="button" class="btn btn-danger" id="reset-demo">Restablecer demo</button></div>
         </article>
       </section>
+
+      <!-- VISTA: APROBACIONES (Administración y Dirección) -->
+      <section id="view-aprobaciones" class="view" aria-label="Aprobaciones" hidden>
+        <article class="card" aria-labelledby="t-appr-list">
+          <div class="card-head">
+            <div>
+              <h2 id="t-appr-list">Propuestas de tarifa MDR</h2>
+              <p>Las propuestas de Comercial no se aplican hasta que Administración o Dirección las aprueban.</p>
+            </div>
+          </div>
+          <div id="approvals-list" class="act-list"></div>
+          <h3 style="margin-top:22px">Historial de tarifas</h3>
+          <div class="act-list" id="approvals-hist"></div>
+        </article>
+      </section>
+
+      <!-- VISTA: LIQUIDACIONES (portal de comercio) -->
+      <section id="view-liquidaciones" class="view" aria-label="Liquidaciones" hidden>
+        <article class="card" aria-labelledby="t-liq">
+          <div class="card-head">
+            <div>
+              <h2 id="t-liq">Liquidaciones</h2>
+              <p id="liq-sub"></p>
+            </div>
+            <button type="button" class="btn" id="liq-csv"><span class="ico" data-icon="download"></span><span>Exportar CSV</span></button>
+          </div>
+          <p class="hint">Neto abonado = bruto − comisiones − reembolsos − contracargos. Los contracargos se estiman con el importe medio de la operación.</p>
+          <div class="table-wrap">
+            <table class="data-table keep-head" id="liq-table">
+              <caption class="sr-only">Abonos diarios del periodo seleccionado</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Fecha</th>
+                  <th scope="col" class="num-col">Bruto</th>
+                  <th scope="col" class="num-col">Comisiones</th>
+                  <th scope="col" class="num-col">Reembolsos</th>
+                  <th scope="col" class="num-col">Contracargos</th>
+                  <th scope="col" class="num-col">Neto abonado</th>
+                  <th scope="col">Estado</th>
+                </tr>
+              </thead>
+              <tbody id="liq-body"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- VISTA: CONTRACARGOS (portal de comercio) -->
+      <section id="view-contracargos" class="view" aria-label="Contracargos" hidden>
+        <article class="card" aria-labelledby="t-cbm-list">
+          <div class="card-head">
+            <div>
+              <h2 id="t-cbm-list">Contracargos</h2>
+              <p id="cbm-sub"></p>
+            </div>
+          </div>
+          <p class="hint">Plazo para responder: 21 días desde la operación. Si vence sin documentación, el contracargo queda como perdido.</p>
+          <div class="table-wrap">
+            <table class="data-table" id="cbm-table">
+              <caption class="sr-only">Contracargos abiertos y su plazo</caption>
+              <thead>
+                <tr>
+                  <th scope="col">ID</th>
+                  <th scope="col">Fecha</th>
+                  <th scope="col" class="num-col">Importe</th>
+                  <th scope="col">Motivo</th>
+                  <th scope="col">Estado</th>
+                  <th scope="col">Plazo para responder</th>
+                  <th scope="col">Acción</th>
+                </tr>
+              </thead>
+              <tbody id="cbm-body"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- VISTA: MI CUENTA (portal de comercio) -->
+      <section id="view-cuenta" class="view" aria-label="Mi cuenta" hidden>
+        <div class="grid-a">
+          <article class="card" aria-labelledby="t-acc1">
+            <div class="card-head"><div><h2 id="t-acc1">Datos del comercio</h2><p>Datos ficticios de demostración</p></div></div>
+            <dl class="dl" id="acc-data"></dl>
+          </article>
+          <article class="card" aria-labelledby="t-acc2">
+            <div class="card-head"><div><h2 id="t-acc2">Tarifa y abono</h2><p>Condiciones vigentes</p></div></div>
+            <dl class="dl" id="acc-fees"></dl>
+          </article>
+        </div>
+      </section>
     </main>
+  </div>
+</div>
+
+<div class="login" id="login" role="dialog" aria-modal="true" aria-labelledby="login-title" hidden>
+  <div class="login-box">
+    <header class="login-head">
+      <div class="login-brand">
+        <span class="logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false"><path d="M6 4h6.5a8 8 0 0 1 0 16H6z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M9.5 12h5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+        </span>
+        <div><strong>Demopay</strong><small>Analítica · Pulso</small></div>
+      </div>
+      <button type="button" class="btn" id="login-close" hidden>Volver al panel</button>
+    </header>
+    <h1 id="login-title">Entrar como…</h1>
+    <p class="login-note">Demo: los permisos se simulan en tu navegador. Elige un perfil para ver el panel tal como lo ve cada rol.</p>
+    <div id="login-body" class="login-body"></div>
   </div>
 </div>
 
@@ -1196,12 +1468,16 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
   <div class="drawer-body">
     <dl class="dl">
       <div><dt><span class="kbd">/</span></dt><dd>Buscar comercio o transacción</dd></div>
-      <div><dt><span class="kbd">g</span> <span class="kbd">r</span></dt><dd>Ir a Resumen</dd></div>
-      <div><dt><span class="kbd">g</span> <span class="kbd">t</span></dt><dd>Ir a Transacciones</dd></div>
-      <div><dt><span class="kbd">g</span> <span class="kbd">c</span></dt><dd>Ir a Comercios</dd></div>
-      <div><dt><span class="kbd">g</span> <span class="kbd">p</span></dt><dd>Ir a Rentabilidad</dd></div>
-      <div><dt><span class="kbd">g</span> <span class="kbd">k</span></dt><dd>Ir a Riesgo</dd></div>
-      <div><dt><span class="kbd">g</span> <span class="kbd">a</span></dt><dd>Ir a Ajustes</dd></div>
+      <div data-perm="view.resumen"><dt><span class="kbd">g</span> <span class="kbd">r</span></dt><dd>Ir a Resumen</dd></div>
+      <div data-perm="view.transacciones"><dt><span class="kbd">g</span> <span class="kbd">t</span></dt><dd>Ir a Transacciones</dd></div>
+      <div data-perm="view.comercios"><dt><span class="kbd">g</span> <span class="kbd">c</span></dt><dd>Ir a Comercios</dd></div>
+      <div data-perm="view.rentabilidad"><dt><span class="kbd">g</span> <span class="kbd">p</span></dt><dd>Ir a Rentabilidad</dd></div>
+      <div data-perm="view.riesgo"><dt><span class="kbd">g</span> <span class="kbd">k</span></dt><dd>Ir a Riesgo</dd></div>
+      <div data-perm="view.aprobaciones"><dt><span class="kbd">g</span> <span class="kbd">o</span></dt><dd>Ir a Aprobaciones</dd></div>
+      <div data-perm="view.ajustes"><dt><span class="kbd">g</span> <span class="kbd">a</span></dt><dd>Ir a Ajustes</dd></div>
+      <div data-perm="view.liquidaciones"><dt><span class="kbd">g</span> <span class="kbd">l</span></dt><dd>Ir a Liquidaciones</dd></div>
+      <div data-perm="view.contracargos"><dt><span class="kbd">g</span> <span class="kbd">b</span></dt><dd>Ir a Contracargos</dd></div>
+      <div data-perm="view.cuenta"><dt><span class="kbd">g</span> <span class="kbd">u</span></dt><dd>Ir a Mi cuenta</dd></div>
       <div><dt><span class="kbd">?</span></dt><dd>Mostrar estos atajos</dd></div>
       <div><dt><span class="kbd">Esc</span></dt><dd>Cerrar cajones, diálogos y menús</dd></div>
     </dl>
@@ -1281,7 +1557,13 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
     collapse: '<path d="m15 18-6-6 6-6"/>',
     refresh: '<path d="M21 12a9 9 0 1 1-2.6-6.4L21 8"/><path d="M21 3v5h-5"/>',
     download: '<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>',
-    help: '<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>'
+    help: '<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>',
+    funnel: '<path d="M3 4h18l-7 9v6l-4 2v-8z"/>',
+    wallet: '<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 14.5h2"/>',
+    alert: '<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>',
+    user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+    switch: '<path d="M7 7h11l-3-3M17 17H6l3 3"/>',
+    check: '<path d="M20 6 9 17l-5-5"/>'
   };
   function svgIcon(name) {
     return '<svg class="i" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + (ICONS[name] || '') + '</svg>';
@@ -1560,14 +1842,18 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
   }
 
   /* === STATE === */
-  var VIEW_IDS = ['resumen', 'transacciones', 'comercios', 'rentabilidad', 'riesgo', 'ajustes'];
+  var VIEW_IDS = ['resumen', 'transacciones', 'comercios', 'rentabilidad', 'riesgo', 'aprobaciones', 'ajustes', 'liquidaciones', 'contracargos', 'cuenta'];
   var VIEW_TITLES = {
     resumen: ['Resumen', 'Panorama de la actividad de pagos'],
     transacciones: ['Transacciones', 'Detalle de operaciones de los últimos 90 días'],
     comercios: ['Comercios', 'Cartera de comercios y salud de la cuenta'],
     rentabilidad: ['Rentabilidad', 'Margen por partner, canal y plan'],
     riesgo: ['Riesgo', 'Contracargos, reglas y puntuación antifraude'],
-    ajustes: ['Ajustes', 'Objetivos, preferencias y datos de la demo']
+    aprobaciones: ['Aprobaciones', 'Propuestas de tarifa MDR pendientes de aprobación'],
+    ajustes: ['Ajustes', 'Objetivos, preferencias, usuarios y registro de actividad'],
+    liquidaciones: ['Liquidaciones', 'Abonos diarios: bruto, comisiones, reembolsos, contracargos y neto'],
+    contracargos: ['Contracargos', 'Disputas abiertas, plazos de respuesta y documentación'],
+    cuenta: ['Mi cuenta', 'Datos del comercio, tarifa vigente y abono']
   };
   var FILTER_KEYS = ['channel', 'country', 'partner', 'plan'];
   var FILTER_PARAM = { channel: 'canal', country: 'pais', partner: 'partner', plan: 'plan' };
@@ -1611,12 +1897,229 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
     incidentHidden: false
   };
 
-  /* Máscara de comercios que cumplen los filtros globales */
+  /* === ROLES: usuarios, permisos, ámbito, registro y entrada (simulado en el navegador) === */
+  var ROLE_LABEL = {
+    admin: 'Administración', direccion: 'Dirección', bi: 'Analítica BI', ops: 'Operaciones y soporte',
+    riesgo: 'Riesgo y fraude', comercial: 'Comercial', partner: 'Partner', comercio: 'Comercio'
+  };
+  var ROLE_ORDER = ['admin', 'direccion', 'bi', 'ops', 'riesgo', 'comercial', 'partner', 'comercio'];
+  var PERM_ALL = [
+    'view.resumen', 'view.detail', 'view.transacciones', 'view.comercios', 'view.rentabilidad', 'view.riesgo',
+    'view.aprobaciones', 'view.ajustes', 'view.liquidaciones', 'view.contracargos', 'view.cuenta', 'view.share',
+    'view.search', 'view.live', 'view.regen', 'view.scenario',
+    'filter.country', 'filter.partner', 'filter.plan',
+    'see.margin', 'see.costs', 'see.health', 'see.risk', 'see.fee',
+    'act.refund', 'act.review', 'act.rules', 'act.threshold', 'act.mdr.propose', 'act.mdr.approve',
+    'act.targets', 'act.export', 'act.users', 'act.simulator', 'act.chargeback'
+  ];
+  /* Mapa rol -> permisos */
+  var ROLES = {
+    /* Administración lo ve todo menos las secciones propias de los portales externos */
+    admin: PERM_ALL.filter(function (p) {
+      return ['view.liquidaciones', 'view.contracargos', 'view.cuenta', 'view.share', 'act.chargeback'].indexOf(p) < 0;
+    }),
+    direccion: ['view.resumen', 'view.detail', 'view.comercios', 'view.rentabilidad', 'view.riesgo', 'view.aprobaciones',
+      'view.search', 'view.live', 'filter.country', 'filter.partner', 'filter.plan',
+      'see.margin', 'see.costs', 'see.health', 'see.risk', 'act.simulator', 'act.mdr.approve'],
+    bi: ['view.resumen', 'view.detail', 'view.transacciones', 'view.comercios', 'view.rentabilidad', 'view.riesgo', 'view.ajustes',
+      'view.search', 'view.live', 'view.scenario', 'view.regen', 'filter.country', 'filter.partner', 'filter.plan',
+      'see.margin', 'see.costs', 'see.health', 'see.risk', 'act.export', 'act.simulator', 'act.targets'],
+    ops: ['view.resumen', 'view.detail', 'view.transacciones', 'view.comercios', 'view.search', 'view.live',
+      'filter.country', 'filter.partner', 'filter.plan', 'see.health', 'see.risk', 'act.refund', 'act.review'],
+    riesgo: ['view.resumen', 'view.detail', 'view.transacciones', 'view.riesgo', 'view.search', 'view.live',
+      'filter.country', 'filter.partner', 'filter.plan', 'see.risk', 'act.review', 'act.rules', 'act.threshold'],
+    comercial: ['view.resumen', 'view.detail', 'view.transacciones', 'view.comercios', 'view.search', 'view.live',
+      'filter.country', 'filter.partner', 'filter.plan', 'see.margin', 'see.health', 'act.mdr.propose'],
+    partner: ['view.resumen', 'view.share', 'view.comercios', 'filter.country', 'filter.plan'],
+    comercio: ['view.resumen', 'view.transacciones', 'view.liquidaciones', 'view.contracargos', 'view.cuenta',
+      'see.fee', 'act.export', 'act.chargeback']
+  };
+  /* Usuarios ficticios. scope: índice de comercio (comercio), índice de partner (partner) */
+  function mIdx(name) {
+    for (var i = 0; i < MERCH_DEF.length; i++) if (MERCH_DEF[i].split('|')[0] === name) return i;
+    return 0;
+  }
+  var CARTERA = [];                       /* ~10 comercios de la cartera de Comercial */
+  MERCH_DEF.forEach(function (line, i) { if (i % 4 === 1) CARTERA.push(i); });
+  var USERS = [
+    { id: 'laura', name: 'Laura Méndez', title: 'Head of Platform', initials: 'LM', role: 'admin', group: 'team' },
+    { id: 'jordi', name: 'Jordi Puig', title: 'CFO', initials: 'JP', role: 'direccion', group: 'team' },
+    { id: 'rafael', name: 'Rafael M.', title: 'BI Analyst', initials: 'RM', role: 'bi', group: 'team' },
+    { id: 'nuria', name: 'Nuria Vidal', title: 'Operations', initials: 'NV', role: 'ops', group: 'team' },
+    { id: 'iker', name: 'Iker Sanz', title: 'Risk Analyst', initials: 'IS', role: 'riesgo', group: 'team' },
+    { id: 'marta', name: 'Marta Ruiz', title: 'Account Manager', initials: 'MR', role: 'comercial', group: 'team' },
+    { id: 'p0', name: 'Equipo Nexo TPV', title: 'Partner · Nexo TPV', initials: 'NT', role: 'partner', group: 'partner', scope: 0 },
+    { id: 'p1', name: 'Equipo CajaFácil', title: 'Partner · CajaFácil', initials: 'CF', role: 'partner', group: 'partner', scope: 1 },
+    { id: 'p2', name: 'Equipo Agencia Pixel', title: 'Partner · Agencia Pixel', initials: 'AP', role: 'partner', group: 'partner', scope: 2 },
+    { id: 'p3', name: 'Equipo ERP Lince', title: 'Partner · ERP Lince', initials: 'EL', role: 'partner', group: 'partner', scope: 3 },
+    { id: 'p4', name: 'Equipo Marketplace Mosaico', title: 'Partner · Marketplace Mosaico', initials: 'MM', role: 'partner', group: 'partner', scope: 4 },
+    { id: 'c-cafe', name: 'Alejandro Vidal', title: 'Titular · Café Trébol', initials: 'AV', role: 'comercio', group: 'comercio', scope: mIdx('Café Trébol') },
+    { id: 'c-hostal', name: 'Lucía Martín', title: 'Titular · Hostal Brisa Gótica', initials: 'LM', role: 'comercio', group: 'comercio', scope: mIdx('Hostal Brisa Gótica') },
+    { id: 'c-faro', name: 'Javier Ruiz', title: 'Titular · Librería Faro', initials: 'JR', role: 'comercio', group: 'comercio', scope: mIdx('Librería Faro') },
+    { id: 'c-rueda', name: 'Carmen Ortega', title: 'Titular · Taller Rueda', initials: 'CO', role: 'comercio', group: 'comercio', scope: mIdx('Taller Rueda') }
+  ];
+  var USER = null, loginEl = null, offeredTour = false;
+  var NAV_DEF = [
+    { id: 'resumen', label: 'Resumen', icon: 'resumen' },
+    { id: 'transacciones', label: 'Transacciones', icon: 'list' },
+    { id: 'comercios', label: 'Comercios', icon: 'store' },
+    { id: 'rentabilidad', label: 'Rentabilidad', icon: 'trend' },
+    { id: 'riesgo', label: 'Riesgo', icon: 'shield' },
+    { id: 'aprobaciones', label: 'Aprobaciones', icon: 'check' },
+    { id: 'ajustes', label: 'Ajustes', icon: 'ajustes' },
+    { id: 'liquidaciones', label: 'Liquidaciones', icon: 'wallet' },
+    { id: 'contracargos', label: 'Contracargos', icon: 'alert' },
+    { id: 'cuenta', label: 'Mi cuenta', icon: 'user' }
+  ];
+  var ACT_LABEL = {
+    refund: 'Reembolso', review: 'Revisión', rule: 'Regla antifraude', mdr: 'Cambio de tarifa',
+    'mdr-propose': 'Propuesta de tarifa', 'mdr-approve': 'Aprobación de tarifa', 'mdr-reject': 'Rechazo de tarifa',
+    'cb-doc': 'Documentación de contracargo', role: 'Cambio de rol', target: 'Objetivo de KPI'
+  };
+  function lsGet(key, def) {
+    try { var v = JSON.parse(localStorage.getItem(key)); return v === null || v === undefined ? def : v; } catch (e) { return def; }
+  }
+  function lsSet(key, v) { try { localStorage.setItem(key, JSON.stringify(v)); } catch (e) {} }
+  var ROLE_STORE = lsGet('pulso-roles', {});
+  var ACT = lsGet('pulso-activity', []);
+  var PENDING = lsGet('pulso-approvals', []);
+  var LAST_KEY = 'pulso-last-user';
+  function lastUserId() { try { return localStorage.getItem(LAST_KEY) || ''; } catch (e) { return ''; } }
+  function rememberUser(id) { try { localStorage.setItem(LAST_KEY, id); } catch (e) {} }
+  function userById(id) {
+    for (var i = 0; i < USERS.length; i++) if (USERS[i].id === id) return USERS[i];
+    return null;
+  }
+  function userName(id) { var u = userById(id); return u ? u.name : id; }
+  function roleOfUser(u) { var o = ROLE_STORE[u.id]; return o && ROLES[o] ? o : u.role; }
+  function curRole() { return USER ? roleOfUser(USER) : null; }
+  function can(p) { var r = curRole(); return !!r && ROLES[r].indexOf(p) >= 0; }
+  /* Ámbito de datos: comercial (cartera), partner (sus comercios) o comercio (el suyo) */
+  function scopeOk(mi) {
+    if (!USER || !DATA) return false;
+    var r = curRole();
+    if (r === 'comercial') return CARTERA.indexOf(mi) >= 0;
+    if (r === 'partner') return DATA.merchants[mi].partner === USER.scope;
+    if (r === 'comercio') return mi === USER.scope;
+    return true;
+  }
+  function logAct(a, d) {
+    ACT.unshift({ t: new Date().toISOString(), u: USER ? USER.id : '—', a: a, d: d });
+    if (ACT.length > 200) ACT.length = 200;
+    lsSet('pulso-activity', ACT);
+  }
+  function savePending() { lsSet('pulso-approvals', PENDING); }
+  /* Oculta o deshabilita (con motivo) según permisos */
+  function applyPerms(root) {
+    var scope = root || document;
+    $$('[data-perm]', scope).forEach(function (el) { el.hidden = !can(el.getAttribute('data-perm')); });
+    $$('[data-perm-dis]', scope).forEach(function (el) {
+      var p = el.getAttribute('data-perm-dis');
+      if (!can(p)) {
+        el.disabled = true;
+        el.setAttribute('data-perm-off', '');
+        el.setAttribute('title', 'Tu rol no permite esta acción');
+      } else if (el.hasAttribute('data-perm-off')) {
+        el.removeAttribute('data-perm-off');
+        el.disabled = false;
+        el.removeAttribute('title');
+      }
+    });
+  }
+  function firstView() {
+    for (var i = 0; i < NAV_DEF.length; i++) if (can('view.' + NAV_DEF[i].id)) return NAV_DEF[i].id;
+    return 'resumen';
+  }
+  function buildNav() {
+    var ul = $('#nav-list');
+    ul.textContent = '';
+    NAV_DEF.forEach(function (n) {
+      if (!can('view.' + n.id)) return;
+      var kids = [h('span', { class: 'ico', 'data-icon': n.icon }), h('span', { class: 'nav-text' }, n.label)];
+      if (n.id === 'aprobaciones') kids.push(h('span', { class: 'nav-badge', id: 'nav-badge', hidden: true }, '0'));
+      ul.appendChild(h('li', null, h('button', { type: 'button', class: 'nav-item', 'data-view': n.id }, kids)));
+    });
+    hydrateIcons(ul);
+  }
+  function updateBadge() {
+    var b = $('#nav-badge');
+    if (!b) return;
+    b.textContent = String(PENDING.length);
+    b.hidden = !PENDING.length;
+    b.setAttribute('aria-label', PENDING.length + ' propuestas pendientes');
+  }
+  function buildUserBlock() {
+    var box = $('#user-block');
+    box.textContent = '';
+    if (!USER) return;
+    var r = curRole(), tip = USER.name + ' · ' + ROLE_LABEL[r];
+    box.appendChild(h('div', { class: 'user-head', title: tip },
+      h('span', { class: 'av', 'aria-hidden': 'true' }, USER.initials),
+      h('span', { class: 'user-txt nav-text' }, h('strong', null, USER.name), h('small', null, ROLE_LABEL[r]))));
+    box.appendChild(h('button', { type: 'button', class: 'btn user-change', id: 'user-change', title: 'Cambiar de usuario' },
+      h('span', { class: 'ico', 'data-icon': 'switch' }), h('span', { class: 'nav-text' }, 'Cambiar de usuario')));
+    hydrateIcons(box);
+  }
+  /* Entrada: cada carga muestra "Entrar como…" salvo que la URL traiga como=<id> */
+  function buildLogin(cancelable) {
+    var body = $('#login-body'), last = lastUserId();
+    body.textContent = '';
+    [['team', 'Equipo Demopay'], ['partner', 'Partners'], ['comercio', 'Comercios']].forEach(function (g) {
+      var list = USERS.filter(function (u) { return u.group === g[0]; });
+      body.appendChild(h('section', { class: 'who-group' }, h('h2', null, g[1]),
+        h('div', { class: 'who-grid' }, list.map(function (u) {
+          var r = roleOfUser(u), sug = u.id === 'laura', isLast = u.id === last;
+          return h('button', {
+            type: 'button', class: 'who-card' + (sug ? ' suggested' : ''), 'data-user': u.id,
+            'aria-label': u.name + ', ' + u.title + ', ' + ROLE_LABEL[r] + (isLast ? ', último acceso' : '')
+          },
+            h('span', { class: 'av', 'aria-hidden': 'true' }, u.initials),
+            h('span', { class: 'who-txt' }, h('strong', null, u.name), h('small', null, u.title),
+              h('span', { class: 'who-tags' }, h('span', { class: 'role-badge' }, ROLE_LABEL[r]),
+                isLast ? h('span', { class: 'last-tag' }, 'Último acceso') : null)));
+        }))));
+    });
+    $('#login-close').hidden = !cancelable;
+  }
+  function showLogin(cancelable) {
+    buildLogin(!!cancelable && !!USER);
+    loginEl.hidden = false;
+    var s = $('#login .suggested');
+    if (s) s.focus();
+  }
+  function hideLogin() { loginEl.hidden = true; }
+  /* Cambia de usuario: ajusta vistas, filtros y navegación al rol */
+  function setUser(id) {
+    var u = userById(id);
+    if (!u) return;
+    if (panelOpen) closePanel();
+    closeDialog();
+    setHelp(false);
+    if (tourIdx >= 0) endTour();
+    if (state.live) { state.live = false; clearInterval(liveTimer); liveTimer = null; }
+    USER = u;
+    rememberUser(id);
+    hideLogin();
+    FILTER_KEYS.forEach(function (k) { if (k !== 'channel' && !can('filter.' + k)) state.filters[k] = []; });
+    if (VIEW_IDS.indexOf(state.view) < 0 || !can('view.' + state.view)) state.view = firstView();
+    if (state.metric === 'margin' && !can('see.margin')) state.metric = 'vol';
+    if (!can('see.margin') && state.mer.sort.key === 'margin') state.mer.sort = { key: 'vol', dir: 'desc' };
+    if (state.mer.seg === 'top10' && !can('see.margin')) state.mer.seg = '';
+    buildNav();
+    buildUserBlock();
+    var brand = $('.brand small');
+    if (brand) brand.textContent = curRole() === 'comercio' ? 'Demopay · Portal de comercio' : 'Analítica · Pulso';
+    if (!DATA) return;
+    render();
+    if (!offeredTour) { offeredTour = true; offerTour(); }
+  }
+
+  /* Máscara de comercios que cumplen los filtros globales (ámbito incluido) */
   function allowedMask() {
     var f = state.filters;
-    return DATA.merchants.map(function (m) {
+    return DATA.merchants.map(function (m, mi) {
       var pid = DATA.partners[m.partner].id;
-      return (!f.channel.length || f.channel.indexOf(m.channel) >= 0) &&
+      return scopeOk(mi) && (!f.channel.length || f.channel.indexOf(m.channel) >= 0) &&
         (!f.country.length || f.country.indexOf(m.country) >= 0) &&
         (!f.partner.length || f.partner.indexOf(pid) >= 0) &&
         (!f.plan.length || f.plan.indexOf(m.plan) >= 0);
@@ -1641,7 +2144,7 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
   function apprOf(t) { var base = t.n - t.pend; return base ? t.ok / base * 100 : 0; }
   function kpisOf(t) {
     return {
-      tpv: t.vol, n: t.n, appr: apprOf(t), margin: t.margin,
+      tpv: t.vol, n: t.n, appr: apprOf(t), margin: t.margin, fee: t.fee, par: t.par,
       ticket: t.ok ? t.vol / t.ok : 0,
       cb: t.cap ? t.cb / t.cap * 100 : 0,
       ref: t.refAmt
@@ -1688,6 +2191,26 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
     if (params.comp === '0' || params.comp === '1') state.compare = params.comp === '1';
     if (RATES[params.moneda]) state.currency = params.moneda;
     if (params.esc && SCENARIOS[params.esc]) state.scenario = params.esc;
+    state.comoParam = params.como || '';
+    if (params.cf) {
+      var cfi = b64Dec(params.cf) || {};
+      CF = {};
+      Object.keys(cfi).forEach(function (id) {
+        if (!COLS[id] || !cfi[id]) return;
+        Object.keys(cfi[id]).forEach(function (key) {
+          var col = colOf(id, key), sp = cfi[id][key];
+          if (col && col.type !== 'none' && !col.bind && sp && sp.type) { CF[id] = CF[id] || {}; CF[id][key] = sp; }
+        });
+      });
+    }
+    if (params.cs) {
+      var soi = b64Dec(params.cs) || {};
+      Object.keys(soi).forEach(function (id) {
+        var parts = String(soi[id]).split('.');
+        if (!COLS[id] || parts.length !== 2 || !colOf(id, parts[0])) return;
+        SORT[id] = { key: parts[0], dir: parts[1] === 'asc' ? 'asc' : 'desc' };
+      });
+    }
     FILTER_KEYS.forEach(function (k) {
       if (params[FILTER_PARAM[k]] === undefined) return;
       var vals = params[FILTER_PARAM[k]].split(',').filter(function (x) { return x; });
@@ -1703,10 +2226,36 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
     FILTER_KEYS.forEach(function (k) {
       if (state.filters[k].length) p.push(FILTER_PARAM[k] + '=' + state.filters[k].map(encodeURIComponent).join(','));
     });
+    if (USER) p.push('como=' + USER.id);
+    /* Filtros y orden de columna: JSON compacto en base64url */
+    var cfo = {}, so = {}, anyCf = false, anySo = false;
+    Object.keys(CF).forEach(function (id) {
+      Object.keys(CF[id]).forEach(function (key) {
+        if (!cfo[id]) cfo[id] = {};
+        cfo[id][key] = CF[id][key];
+        anyCf = true;
+      });
+    });
+    Object.keys(TBLS).forEach(function (id) {
+      var s = SORT[id];
+      if (s && s.key && s.dir) { so[id] = s.key + '.' + s.dir; anySo = true; }
+    });
+    if (anyCf) p.push('cf=' + b64Enc(JSON.stringify(cfo)));
+    if (anySo) p.push('cs=' + b64Enc(JSON.stringify(so)));
     var s = '#' + state.view + '?' + p.join('&');
     if (location.hash !== s) {
       try { history.replaceState(null, '', s); } catch (e) {}
     }
+  }
+  function b64Enc(s) {
+    return btoa(unescape(encodeURIComponent(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function b64Dec(s) {
+    try {
+      var t = s.replace(/-/g, '+').replace(/_/g, '/');
+      while (t.length % 4) t += '=';
+      return JSON.parse(decodeURIComponent(escape(atob(t))));
+    } catch (e) { return null; }
   }
   function filterLabel(key, val) {
     if (key === 'channel') return CHANNELS[val] || null;
@@ -2035,12 +2584,28 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
     { key: 'ref', label: 'Reembolsos', fmt: function (v) { return money(v, 0); }, kind: 'pct', bad: 'up' }
   ];
 
+  /* KPIs visibles según el rol: sin margen para quien no lo ve; portal de comercio y partner con su propio conjunto */
+  function kpiDefs() {
+    var r = curRole(), by = {};
+    KPI_DEFS.forEach(function (d) { by[d.key] = d; });
+    if (r === 'comercio') return [
+      { key: 'tpv', label: 'Ventas', fmt: by.tpv.fmt, kind: 'pct' },
+      { key: 'n', label: 'Operaciones', fmt: by.n.fmt, kind: 'pct' },
+      by.appr, by.ticket,
+      { key: 'fee', label: 'Comisiones pagadas', fmt: function (v) { return money(v, 0); }, kind: 'pct' }
+    ];
+    if (r === 'partner') return [
+      by.tpv, by.n, by.appr, by.ticket,
+      { key: 'par', label: 'Revenue share devengado', fmt: function (v) { return money(v, 0); }, kind: 'pct' }
+    ];
+    return KPI_DEFS.filter(function (d) { return d.key !== 'margin' || can('see.margin'); });
+  }
   function renderKpis(F, t, p) {
     var grid = $('#kpis');
     grid.textContent = '';
     var cur = kpisOf(t), prev = p ? kpisOf(p) : null;
     var series = F.cur.map(kpisOf);
-    KPI_DEFS.forEach(function (def) {
+    kpiDefs().forEach(function (def) {
       var valEl = h('p', { class: 'kpi-value' }, '—');
       var deltaEl = h('div', { class: 'delta' });
       if (prev) {
@@ -2081,62 +2646,101 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
     });
   }
 
+  /* Filas mensuales (últimos 12 meses) de los comercios del ámbito, base del revenue share */
+  function shareRows() {
+    var F = filtered(), nm = DATA.nm, now = dayDate(DAYS - 1), keys = [], acc = [], i, d, idx, dt;
+    for (i = 11; i >= 0; i--) { keys.push(new Date(now.getFullYear(), now.getMonth() - i, 1)); acc.push(emptyRow(-1, -1)); }
+    for (d = Math.max(0, DAYS - 365); d < DAYS; d++) {
+      dt = dayDate(d);
+      idx = (dt.getFullYear() - keys[0].getFullYear()) * 12 + dt.getMonth() - keys[0].getMonth();
+      if (idx < 0 || idx > 11) continue;
+      for (var mi = 0; mi < nm; mi++) if (F.mask[mi]) addRow(acc[idx], DATA.daily[d * nm + mi]);
+    }
+    var rows = [];
+    for (i = 11; i >= 0; i--) rows.push({ label: fmtMonth.format(keys[i]) + ' ' + keys[i].getFullYear(), n: acc[i].n, vol: acc[i].vol, fee: acc[i].fee, par: acc[i].par });
+    return rows;
+  }
+  /* Revenue share por mes (solo partner): últimos 12 meses de sus comercios */
+  function renderShare(F) {
+    if (!can('view.share')) return;
+    var nm = DATA.nm, now = dayDate(DAYS - 1), keys = [], acc = [], i, d, idx, dt, body = $('#share-body');
+    for (i = 11; i >= 0; i--) { keys.push(new Date(now.getFullYear(), now.getMonth() - i, 1)); acc.push(emptyRow(-1, -1)); }
+    for (d = Math.max(0, DAYS - 365); d < DAYS; d++) {
+      dt = dayDate(d);
+      idx = (dt.getFullYear() - keys[0].getFullYear()) * 12 + dt.getMonth() - keys[0].getMonth();
+      if (idx < 0 || idx > 11) continue;
+      for (var mi = 0; mi < nm; mi++) if (F.mask[mi]) addRow(acc[idx], DATA.daily[d * nm + mi]);
+    }
+    var tot = emptyRow(-1, -1), rows = [];
+    for (i = 11; i >= 0; i--) {
+      addRow(tot, acc[i]);
+      rows.push({ label: fmtMonth.format(keys[i]) + ' ' + keys[i].getFullYear(), n: acc[i].n, vol: acc[i].vol, fee: acc[i].fee, par: acc[i].par });
+    }
+    body.textContent = '';
+    applyCols('share', rows).forEach(function (a) {
+      body.appendChild(h('tr', null,
+        h('td', { 'data-label': 'Mes' }, a.label),
+        h('td', { 'data-label': 'Operaciones', class: 'amount' }, fmtInt(a.n)),
+        h('td', { 'data-label': 'Volumen', class: 'amount' }, money(a.vol, 0)),
+        h('td', { 'data-label': 'Comisiones generadas', class: 'amount' }, money(a.fee, 0)),
+        h('td', { 'data-label': 'Revenue share', class: 'amount' }, money(a.par, 0))));
+    });
+    body.appendChild(h('tr', { class: 'tot' },
+      h('td', { 'data-label': 'Total' }, 'Total 12 meses'),
+      h('td', { 'data-label': 'Operaciones', class: 'amount' }, fmtInt(tot.n)),
+      h('td', { 'data-label': 'Volumen', class: 'amount' }, money(tot.vol, 0)),
+      h('td', { 'data-label': 'Comisiones generadas', class: 'amount' }, money(tot.fee, 0)),
+      h('td', { 'data-label': 'Revenue share', class: 'amount' }, money(tot.par, 0))));
+  }
+
   function renderResumen() {
     var F = filtered();
     var t = sumDays(F.cur);
     var p = F.prev ? sumDays(F.prev) : null;
     var rangeTxt = RANGE_LABEL[state.range];
+    if (state.metric === 'margin' && !can('see.margin')) state.metric = 'vol';
     $('#trend-sub').textContent = 'Últimos ' + rangeTxt + (F.hasPrev && state.compare ? ' frente al periodo anterior' : '') +
       (F.hasPrev ? '' : '. Sin histórico suficiente para comparar este rango');
     renderKpis(F, t, F.hasPrev && state.compare ? p : null);
     renderTrend(F);
-    renderFunnel(t);
-    renderDonut(t);
-    renderDeclines(t);
-    renderHeat(F);
+    renderShare(F);
+    if (can('view.detail')) {
+      renderFunnel(t);
+      renderDonut(t);
+      renderDeclines(t);
+      renderHeat(F);
+    }
     renderFeed(F);
   }
 
   /* === VIEW: TRANSACCIONES === */
   function pctChange(cur, prev) { return prev ? (cur - prev) / prev * 100 : 0; }
 
-  function txFiltered(F) {
+  /* Transacciones base: rango, ámbito, filtros globales y búsqueda libre (antes de los filtros de columna) */
+  function txBaseRows() {
     var q = norm(state.txQ.trim());
-    var f = state.txF;
-    var min = parseFloat(f.min), max = parseFloat(f.max);
-    var list = F.tx.filter(function (t) {
-      if (f.status && t.status !== f.status) return false;
-      if (f.method && t.method !== f.method) return false;
-      if (f.channel && t.channel !== f.channel) return false;
-      if (!isNaN(min) && t.amount < min) return false;
-      if (!isNaN(max) && t.amount > max) return false;
+    return filtered().tx.filter(function (t) {
       if (q && norm(t.id + ' ' + merchantOf(t).name + ' ' + t.card).indexOf(q) === -1) return false;
       return true;
     });
-    var key = state.txSort.key, dir = state.txSort.dir === 'asc' ? 1 : -1;
-    list.sort(function (a, b) {
-      if (key === 'merchant') return dir * merchantOf(a).name.localeCompare(merchantOf(b).name, 'es');
-      var va = key === 'amount' ? a.amount : key === 'risk' ? a.risk : a.date.getTime();
-      var vb = key === 'amount' ? b.amount : key === 'risk' ? b.risk : b.date.getTime();
-      return dir * (va - vb);
-    });
-    return list;
   }
+  function txFiltered(F) { return applyCols('tx', txBaseRows()); }
 
   function txRow(t) {
     var m = merchantOf(t), sel = !!state.selected[t.id];
     var chk = h('input', { type: 'checkbox', 'data-sel': t.id, 'aria-label': 'Seleccionar ' + t.id });
     chk.checked = sel;
     return h('tr', { 'data-id': t.id, class: ([sel ? 'sel' : '', state.fresh === t.id ? 'fresh' : ''].join(' ').trim()) || null },
-      h('td', { class: 'chk-col', 'data-label': 'Selección' }, chk),
+      h('td', { class: 'chk-col', 'data-label': 'Selección', 'data-perm': 'act.review' }, chk),
       h('td', { 'data-label': 'ID' }, h('button', { type: 'button', class: 'id-btn', 'data-open': t.id }, t.id)),
       h('td', { 'data-label': 'Fecha' }, fmtDateTime.format(t.date)),
       h('td', { 'data-label': 'Comercio', class: 'cust' }, m.name),
       h('td', { 'data-label': 'Canal' }, CHANNELS[t.channel]),
       h('td', { 'data-label': 'Método' }, t.method),
       h('td', { 'data-label': 'Importe', class: 'amount' }, money(t.amount, 2)),
+      h('td', { 'data-label': 'Comisión', class: 'amount', 'data-perm': 'see.fee' }, money(t.fee, 2)),
       h('td', { 'data-label': 'Estado' }, h('span', { class: 'badge st-' + t.status }, t.status)),
-      h('td', { 'data-label': 'Riesgo', class: 'amount' + (t.risk >= 70 ? ' risk-hi' : '') }, String(t.risk)));
+      h('td', { 'data-label': 'Riesgo', class: 'amount' + (t.risk >= 70 ? ' risk-hi' : ''), 'data-perm': 'see.risk' }, String(t.risk)));
   }
 
   function renderTransacciones() {
@@ -2190,11 +2794,11 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
   }
 
   /* --- Detalle de transacción (panel lateral) --- */
-  function sectionEl(title, kids) { return h('section', { class: 'dsec' }, h('h3', null, title), kids); }
+  function sectionEl(title, kids, perm) { return h('section', { class: 'dsec', 'data-perm': perm || null }, h('h3', null, title), kids); }
   function dlEl(rows) {
     var dl = h('dl', { class: 'dl' });
     rows.forEach(function (r) {
-      dl.appendChild(h('div', { class: r[2] || null }, h('dt', null, r[0]), h('dd', null, r[1])));
+      dl.appendChild(h('div', { class: r[2] || null, 'data-perm': r[3] || null }, h('dt', null, r[0]), h('dd', null, r[1])));
     });
     return dl;
   }
@@ -2230,15 +2834,16 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
       h('span', { class: 'badge st-' + t.status }, t.status),
       h('span', { class: 'muted' }, fmtDateTime.format(t.date))));
     if (t.decline) nodes.push(h('p', { class: 'alert-note' }, 'Motivo de denegación: ' + t.decline));
+    var netAb = APPROVED[t.status] ? round2(t.amount - t.fee - t.refunded) : 0;
     nodes.push(sectionEl('Datos', [
       dlEl([
         ['Comercio', m.name], ['ID comercio', m.id], ['Canal', CHANNELS[t.channel]], ['Método', t.method],
         ['Tarjeta', t.card + ' · BIN ' + t.bin + (t.bin !== m.country ? ' (extranjera)' : '')],
         ['Importe', money(t.amount, 2)],
         ['Reembolsado', t.refunded ? money(t.refunded, 2) : '—'],
-        ['Revisada', t.reviewed ? 'Sí' : 'No']
+        ['Revisada', t.reviewed ? 'Sí' : 'No', null, 'act.review']
       ]),
-      h('div', null, h('button', { type: 'button', class: 'btn btn-ghost', 'data-merchant': t.mi }, 'Ver ficha del comercio →'))
+      h('div', { 'data-perm': 'view.comercios' }, h('button', { type: 'button', class: 'btn btn-ghost', 'data-merchant': t.mi }, 'Ver ficha del comercio →'))
     ]));
     nodes.push(sectionEl('Autenticación 3DS', dlEl([
       ['Solicitado', t.s3d ? 'Sí' : 'No'], ['Resultado', t.s3r]
@@ -2249,23 +2854,24 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
       h('div', { class: 'risk-line' }, h('span', null, 'Riesgo ' + rl.toLowerCase()), h('strong', null, t.risk + ' / 100')),
       h('div', { class: 'meter' + rc, role: 'meter', 'aria-label': 'Score de riesgo', 'aria-valuemin': '0', 'aria-valuemax': '100', 'aria-valuenow': String(t.risk) },
         h('span', { style: 'width:' + t.risk + '%' }))
-    ]));
+    ], 'see.risk'));
     nodes.push(sectionEl('Desglose económico', dlEl([
       ['Importe bruto', money(t.amount, 2)],
-      ['Comisión MDR (' + fmtNum(m.mdr, 2) + ' % + 0,12 €)', money(t.fee, 2)],
-      ['Interchange', '−' + money(t.icx, 2), 'neg'],
-      ['Cuota de esquema', '−' + money(t.sch, 2), 'neg'],
-      ['Share ' + P.name, '−' + money(t.par, 2), 'neg'],
-      ['Margen bruto', money(t.margin, 2)],
-      ['Ajuste por reembolso', adj > 0.001 ? '−' + money(adj, 2) : '—', adj > 0.001 ? 'neg' : null],
-      ['Margen neto', money(marginOf(t), 2), 'total']
+      ['Comisión' + (can('see.margin') ? ' MDR (' + fmtNum(m.mdr, 2) + ' % + 0,12 €)' : ''), money(t.fee, 2)],
+      ['Interchange', '−' + money(t.icx, 2), 'neg', 'see.costs'],
+      ['Cuota de esquema', '−' + money(t.sch, 2), 'neg', 'see.costs'],
+      ['Share ' + P.name, '−' + money(t.par, 2), 'neg', 'see.costs'],
+      ['Margen bruto', money(t.margin, 2), null, 'see.margin'],
+      ['Ajuste por reembolso', adj > 0.001 ? '−' + money(adj, 2) : '—', adj > 0.001 ? 'neg' : null, 'see.margin'],
+      ['Margen neto', money(marginOf(t), 2), 'total', 'see.margin'],
+      ['Neto abonado', money(netAb, 2), 'total', 'see.fee']
     ])));
     var ev = eventsOf(t);
     nodes.push(sectionEl('Línea de tiempo', h('ol', { class: 'timeline' },
       ev.map(function (e) {
         return h('li', null, h('time', { datetime: e.t.toISOString() }, fmtTimeFull.format(e.t)), e.label);
       }))));
-    if (refundOpen && canRefund(t)) nodes.push(refundForm(t));
+    if (refundOpen && canRefund(t) && can('act.refund')) nodes.push(refundForm(t));
     return nodes;
   }
 
@@ -2312,7 +2918,7 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
     var t = state.openTx && findTx(state.openTx);
     if (!t) return;
     var canR = canRefund(t);
-    var rb = h('button', { type: 'button', class: 'btn btn-primary', id: 'd-refund', disabled: !canR },
+    var rb = h('button', { type: 'button', class: 'btn btn-primary', id: 'd-refund', disabled: !canR, 'data-perm-dis': 'act.refund' },
       refundOpen ? 'Ocultar reembolso' : 'Reembolsar');
     rb.addEventListener('click', function () {
       refundOpen = !refundOpen;
@@ -2320,16 +2926,19 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
       var target = refundOpen ? $('#refund-amt') : $('#d-refund');
       if (target) target.focus();
     });
-    var rv = h('button', { type: 'button', class: 'btn', id: 'd-review' }, t.reviewed ? 'Quitar revisión' : 'Marcar como revisada');
+    var rv = h('button', { type: 'button', class: 'btn', id: 'd-review', 'data-perm-dis': 'act.review' }, t.reviewed ? 'Quitar revisión' : 'Marcar como revisada');
     rv.addEventListener('click', function () { toggleReview(t); });
+    var hint = canR && can('act.refund') ? 'Los reembolsos se aplican al instante en esta demo y se pueden deshacer.'
+      : canR ? 'Tu rol no permite reembolsar operaciones.' : refundHint(t);
     var foot = [
       h('div', { class: 'row' }, rb, rv),
-      h('p', { class: 'hint' }, canR ? 'Los reembolsos se aplican al instante en esta demo y se pueden deshacer.' : refundHint(t))
+      h('p', { class: 'hint' }, hint)
     ];
     openPanel('Transacción ' + t.id, txBody(t), foot, opener, keepFocus);
   }
   function openTxPanel(id, opener) {
-    if (!findTx(id)) return;
+    var tx = findTx(id);
+    if (!tx || !can('view.transacciones') || !scopeOk(tx.mi)) return;
     state.openTx = id;
     state.openMer = null;
     refundOpen = false;
@@ -2377,10 +2986,12 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
       if (x.amount - x.refunded < 0.005) { x.refunded = x.amount; x.status = 'Reembolsada'; }
       x.log.push({ t: new Date(), label: (total ? 'Reembolso total' : 'Reembolso parcial') + ' de ' + money(amount, 2) });
     });
+    logAct('refund', t.id + ' · ' + (total ? 'total' : 'parcial') + ' de ' + money(amount, 2));
     afterChange(t.id + ': ' + (total ? 'reembolso total' : 'reembolso parcial') + ' de ' + money(amount, 2), undo);
   }
   function toggleReview(t) {
     var was = t.reviewed;
+    logAct('review', t.id + (was ? ' · revisión retirada' : ' · marcada como revisada'));
     var undo = mutateTx(t, function (x) {
       x.reviewed = !was;
       x.log.push({ t: new Date(), label: was ? 'Revisión retirada' : 'Marcada como revisada' });
@@ -2400,6 +3011,7 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
     });
     state.selected = {};
     if (!n) { render(); toast('Las transacciones seleccionadas ya estaban revisadas'); return; }
+    logAct('review', n + (n === 1 ? ' transacción' : ' transacciones') + ' marcadas como revisadas');
     afterChange(n + (n === 1 ? ' transacción marcada' : ' transacciones marcadas') + ' como revisadas', function () {
       undos.reverse().forEach(function (u) { u(); });
     });
@@ -2411,8 +3023,28 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
     return /[;"\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
   }
   function csvNum(v) { return (Math.round(v * 100) / 100).toFixed(2).replace('.', ','); }
+  /* Exportación del portal de comercio: sin márgenes, interchange ni cuotas */
+  function saveCsv(lines, prefix) {
+    var blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = h('a', { href: url, download: prefix + ddmmyyyy(TODAY).split('/').reverse().join('') + '.csv' });
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+  function exportPortalCsv(list) {
+    var lines = ['ID;Fecha;Hora;Comercio;Canal;Método;Importe;Divisa;Estado;Comisión;Reembolsado'];
+    list.forEach(function (t) {
+      lines.push([t.id, ddmmyyyy(t.date), pad(t.date.getHours(), 2) + ':' + pad(t.date.getMinutes(), 2) + ':' + pad(t.date.getSeconds(), 2),
+        merchantOf(t).name, CHANNELS[t.channel], t.method, csvNum(t.amount), 'EUR', t.status, csvNum(t.fee), csvNum(t.refunded)].map(csvCell).join(';'));
+    });
+    saveCsv(lines, 'pulso-mis-transacciones-');
+    toast(fmtInt(list.length) + ' transacciones exportadas en CSV (EUR)');
+  }
   function exportCsv() {
     var list = txFiltered(filtered());
+    if (!can('see.margin')) { exportPortalCsv(list); return; }
     var head = ['ID', 'Fecha', 'Hora', 'Comercio', 'ID comercio', 'Canal', 'Método', 'Tarjeta', 'BIN', 'Importe', 'Divisa',
       'Estado', 'Motivo', '3DS', 'Riesgo', 'Comisión', 'Margen neto', 'Reembolsado'];
     var lines = [head.join(';')];
@@ -2468,6 +3100,7 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
     appendKids(foot, footNodes || []);
     if (!panelOpen) panelOpener = opener || document.activeElement;
     panelOpen = true;
+    applyPerms(drawerEl);
     drawerEl.inert = false;
     drawerEl.classList.add('open');
     updateScrim();
@@ -2543,7 +3176,13 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
             'aria-label': 'Quitar filtro ' + FILTER_TITLE[k] + ' ' + label }, '×')));
       });
     });
-    if (!any) box.appendChild(h('span', { class: 'muted' }, 'Sin filtros: se muestran todos los comercios.'));
+    viewColChips(box);
+    if (!any && !colFilterCount()) box.appendChild(h('span', { class: 'muted' }, 'Sin filtros: se muestran todos los comercios.'));
+  }
+  function colFilterCount() {
+    var n = 0;
+    (VIEW_TBLS[state.view] || []).forEach(function (id) { COLS[id].forEach(function (c) { if (!c.bind && cfGet(id, c.key)) n++; }); });
+    return n;
   }
   function renderControls() {
     $$('.controls [data-range]').forEach(function (b) {
@@ -2555,20 +3194,25 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
       b.setAttribute('aria-pressed', String(b.getAttribute('data-metric') === state.metric));
     });
     renderChips();
-    $('#clear').disabled = !FILTER_KEYS.some(function (k) { return state.filters[k].length; });
-    $('#data-note').textContent = 'Datos ficticios · semilla ' + state.seed + ' · ' + DATA.merchants.length +
-      ' comercios · ' + fmtInt(DATA.tx.length) + ' transacciones detalladas (90 días) · cifras en ' + state.currency +
-      ' a tipos fijos de demo (1 € = 1,08 $ = 0,86 £)';
+    $('#clear').disabled = !FILTER_KEYS.some(function (k) { return state.filters[k].length; }) && !colFilterCount();
+    var nChips = FILTER_KEYS.reduce(function (a, k) { return a + state.filters[k].length; }, 0) + colFilterCount();
+    $('#filters-btn').textContent = 'Filtros (' + nChips + ')';
+    $('#data-note').textContent = can('view.regen')
+      ? 'Datos ficticios · semilla ' + state.seed + ' · ' + DATA.merchants.length +
+        ' comercios · ' + fmtInt(DATA.tx.length) + ' transacciones detalladas (90 días) · cifras en ' + state.currency +
+        ' a tipos fijos de demo (1 € = 1,08 $ = 0,86 £)'
+      : 'Datos ficticios de demostración · cifras en ' + state.currency + ' a tipos fijos de demo (1 € = 1,08 $ = 0,86 £)';
     setVal($('#scenario'), state.scenario);
     $('#live').setAttribute('aria-pressed', String(state.live));
     $('#incident').hidden = !(state.scenario === 'incident' && !state.incidentHidden);
     if (state.live) $('#data-note').textContent += ' · En vivo: ' + state.liveCount + ' operaciones nuevas desde que se activó';
     setVal($('#tx-q'), state.txQ);
-    setVal($('#tx-min'), state.txF.min);
-    setVal($('#tx-max'), state.txF.max);
-    setVal($('#tx-status'), state.txF.status);
-    setVal($('#tx-method'), state.txF.method);
-    setVal($('#tx-channel'), state.txF.channel);
+    var numOf = function (k, w) { var sp = cfGet('tx', k); return sp && sp.type === 'num' && sp[w] !== undefined ? String(sp[w]) : ''; };
+    setVal($('#tx-min'), numOf('importe', 'min'));
+    setVal($('#tx-max'), numOf('importe', 'max'));
+    setVal($('#tx-status'), selVal('tx', 'estado'));
+    setVal($('#tx-method'), selVal('tx', 'metodo'));
+    setVal($('#tx-channel'), selVal('tx', 'canal'));
     setVal($('#tx-size'), String(state.txSize));
   }
   function renderHeader() {
@@ -2586,15 +3230,19 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
 
   /* Despachador: actualiza cabecera, controles, vista activa y URL */
   function render() {
-    if (!DATA) return;
+    if (!DATA || !USER) return;
     renderHeader();
     renderControls();
+    applyPerms();
     var fn = VIEW_RENDER[state.view];
     if (fn) fn();
+    applyPerms();
+    refreshHeads();
+    updateBadge();
     writeHash();
   }
   function showView(name) {
-    if (VIEW_IDS.indexOf(name) < 0) return;
+    if (VIEW_IDS.indexOf(name) < 0 || !can('view.' + name)) return;
     state.view = name;
     setMenu(false);
     render();
@@ -2619,8 +3267,8 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
     qBox.textContent = '';
     if (!nq) { closeSearch(); return; }
     var ms = DATA.merchants.map(function (m, i) { return { m: m, i: i }; })
-      .filter(function (o) { return norm(o.m.id + ' ' + o.m.name).indexOf(nq) >= 0; }).slice(0, 5);
-    var ts = DATA.tx.filter(function (t) { return norm(t.id + ' ' + merchantOf(t).name).indexOf(nq) >= 0; })
+      .filter(function (o) { return scopeOk(o.i) && norm(o.m.id + ' ' + o.m.name).indexOf(nq) >= 0; }).slice(0, 5);
+    var ts = DATA.tx.filter(function (t) { return scopeOk(t.mi) && norm(t.id + ' ' + merchantOf(t).name).indexOf(nq) >= 0; })
       .slice(-5).reverse();
     if (ms.length) {
       qBox.appendChild(h('div', { class: 'dd-grp' }, 'Comercios'));
@@ -2662,6 +3310,19 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
   function bind() {
     document.addEventListener('click', function (e) {
       var t = e.target;
+      var who = t.closest && t.closest('[data-user]');
+      if (who) { setUser(who.getAttribute('data-user')); return; }
+      var ct = t.closest && t.closest('.colsort, .colbtn, .colfilt');
+      if (ct) { colToolClick(ct); return; }
+      if (colPop && !(t.closest && t.closest('.colpop'))) closeColPop(false);
+      var rc = t.closest && t.closest('[data-rmcol]');
+      if (rc) {
+        var pr = rc.getAttribute('data-rmcol').split('|');
+        applyColSpec(pr[0], pr[1], null);
+        return;
+      }
+      if (t.closest && t.closest('#user-change')) { showLogin(true); return; }
+      if (t.closest && t.closest('#login-close')) { hideLogin(); return; }
       if (!t.closest || t.closest('#q-results') === null && t.closest('.search-wrap') === null) closeSearch();
       var nav = t.closest('[data-view]');
       if (nav) { showView(nav.getAttribute('data-view')); return; }
@@ -2703,6 +3364,7 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
     });
     $('#clear').addEventListener('click', function () {
       FILTER_KEYS.forEach(function (k) { state.filters[k] = []; });
+      CF = {};
       render();
     });
     FILTER_KEYS.forEach(function (k) {
@@ -2724,6 +3386,10 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
       prefs.theme = next; savePrefs();
     });
     $('#regen').addEventListener('click', regenerate);
+    $('#filters-btn').addEventListener('click', function (e) {
+      var open = $('.controls').classList.toggle('filters-open');
+      e.currentTarget.setAttribute('aria-expanded', String(open));
+    });
 
     /* Búsqueda global */
     qEl.addEventListener('input', function () { runSearch(qEl.value); });
@@ -2742,11 +3408,12 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
 
     /* Transacciones: filtros, orden, paginación, selección y acciones */
     $('#tx-q').addEventListener('input', function (e) { state.txQ = e.target.value; state.txPage = 1; render(); });
-    $('#tx-status').addEventListener('change', function (e) { state.txF.status = e.target.value; state.txPage = 1; render(); });
-    $('#tx-method').addEventListener('change', function (e) { state.txF.method = e.target.value; state.txPage = 1; render(); });
-    $('#tx-channel').addEventListener('change', function (e) { state.txF.channel = e.target.value; state.txPage = 1; render(); });
-    $('#tx-min').addEventListener('input', function (e) { state.txF.min = e.target.value; state.txPage = 1; render(); });
-    $('#tx-max').addEventListener('input', function (e) { state.txF.max = e.target.value; state.txPage = 1; render(); });
+    var catSel = function (v) { return v ? { type: 'cat', vals: [v] } : null; };
+    $('#tx-status').addEventListener('change', function (e) { applyColSpec('tx', 'estado', catSel(e.target.value)); });
+    $('#tx-method').addEventListener('change', function (e) { applyColSpec('tx', 'metodo', catSel(e.target.value)); });
+    $('#tx-channel').addEventListener('change', function (e) { applyColSpec('tx', 'canal', catSel(e.target.value)); });
+    $('#tx-min').addEventListener('input', function (e) { numSet('tx', 'importe', 'min', e.target.value); });
+    $('#tx-max').addEventListener('input', function (e) { numSet('tx', 'importe', 'max', e.target.value); });
     $('#tx-size').addEventListener('change', function (e) { state.txSize = parseInt(e.target.value, 10) || 25; state.txPage = 1; render(); });
     $('#tx-prev').addEventListener('click', function () { state.txPage--; render(); });
     $('#tx-next').addEventListener('click', function () { state.txPage++; render(); });
@@ -2797,6 +3464,11 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
     /* Atajos: / busca, g + letra navega, ? muestra atajos, Esc cierra */
     document.addEventListener('keydown', function (e) {
       var typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+      if (loginEl && !loginEl.hidden) {
+        if (e.key === 'Escape' && USER) hideLogin();
+        else if (e.key === 'Tab') trapIn(loginEl, e);
+        return;
+      }
       if (tourIdx >= 0) { handleTourKey(e); return; }
       if (dlgEl && e.key === 'Tab') { trapIn(dlgEl, e); return; }
       if (e.key === 'Escape') {
@@ -2812,7 +3484,8 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
       if (e.key === '?') { e.preventDefault(); openDialog($('#shortcuts')); return; }
       if (gWaiting && Date.now() - gWaiting < 1200) {
         gWaiting = 0;
-        var map = { r: 'resumen', t: 'transacciones', c: 'comercios', p: 'rentabilidad', k: 'riesgo', a: 'ajustes' };
+        var map = { r: 'resumen', t: 'transacciones', c: 'comercios', p: 'rentabilidad', k: 'riesgo', a: 'ajustes',
+          o: 'aprobaciones', l: 'liquidaciones', b: 'contracargos', u: 'cuenta' };
         var target = map[e.key.toLowerCase()];
         if (target) { e.preventDefault(); showView(target); }
         return;
@@ -2852,13 +3525,21 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
   var dlgEl = null, dlgOpener = null, pendingRender = false;
   var liveTimer = null, liveSeq = 0;
   var tourIdx = -1, tourBoxEl = null, tourRet = null;
-  var TOUR = [
+  var TOUR_ALL = [
     { sel: '#kpis', view: 'resumen', title: 'Indicadores clave', text: 'Volumen, transacciones, aprobación, margen y contracargos, con su variación frente al periodo anterior y su color según tus objetivos.' },
     { sel: '.controls', view: 'resumen', title: 'Controles globales', text: 'Elige el rango, activa la comparación, filtra por canal, país, partner o plan y cambia el escenario de datos.' },
     { sel: '#view-comercios .toolbar', view: 'comercios', title: 'Comercios', text: 'Busca, usa los segmentos rápidos y abre una ficha para simular un cambio de tarifa MDR. Las vistas se cambian desde el menú lateral.' },
     { sel: '#live', view: 'resumen', title: 'Modo en vivo', text: 'Activa el modo en vivo para ver entrar transacciones simuladas cada pocos segundos. Puedes pausarlo cuando quieras.' },
     { sel: '#help', view: 'resumen', title: 'Ayuda y atajos', text: 'Pulsa ? para ver los atajos de teclado. Desde el menú de ayuda puedes repetir este recorrido en cualquier momento.' }
   ];
+  var TOUR = TOUR_ALL;
+  /* Pasos del tour solo para vistas y controles visibles con el rol actual */
+  function tourOk(s) {
+    if (!can('view.' + s.view)) return false;
+    if (s.sel === '#live') return can('view.live');
+    if (s.sel === '.controls' || s.sel === '#kpis') return true;
+    return true;
+  }
 
   function numOr(v, d) { var x = parseFloat(v); return isFinite(x) ? x : d; }
   function targets() {
@@ -2880,7 +3561,7 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
   function fraudProb(risk) { return risk >= 80 ? 0.35 : risk >= 60 ? 0.12 : risk >= 40 ? 0.03 : 0.004; }
   function syncIf(el, v) { if (el && document.activeElement !== el) setVal(el, v); }
   function signedMoney(v) { return (v >= 0 ? '+' : '−') + money(Math.abs(v), 0); }
-  function statEl(label, value) { return h('div', { class: 'stat' }, h('span', null, label), h('strong', null, value)); }
+  function statEl(label, value, perm) { return h('div', { class: 'stat', 'data-perm': perm || null }, h('span', null, label), h('strong', null, value)); }
   function quarterStartIdx() {
     var qs = new Date(TODAY.getFullYear(), Math.floor(TODAY.getMonth() / 3) * 3, 1);
     return DAYS - 1 - Math.round((TODAY - qs) / 86400000);
@@ -2924,6 +3605,389 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
     });
   }
 
+  /* === TABLAS: filtros y orden por columna (cabeceras con elegir / ordenar / filtrar) === */
+  var TBLS = { tx: '#tx-table', mer: '#mer-table', liq: '#liq-table', cbm: '#cbm-table', share: '#share-table', pt: '#pt-table', act: '#act-table' };
+  var VIEW_TBLS = { transacciones: ['tx'], comercios: ['mer'], liquidaciones: ['liq'], contracargos: ['cbm'], resumen: ['share'], rentabilidad: ['pt'], ajustes: ['act'] };
+  var CF = {};                                              /* filtros de columna: CF[tabla][clave] = especificación */
+  var SORT = { tx: { key: 'date', dir: 'desc' }, mer: { key: 'margen', dir: 'desc' } };
+  var COLS = {
+    tx: [
+      { key: 'id', label: 'ID', type: 'text', get: function (t) { return t.id; } },
+      { key: 'date', label: 'Fecha', type: 'date', get: function (t) { return t.date; } },
+      { key: 'merchant', label: 'Comercio', type: 'text', get: function (t) { return merchantOf(t).name; } },
+      { key: 'canal', label: 'Canal', type: 'cat', bind: 'channel', get: function (t) { return t.channel; }, lab: function (v) { return CHANNELS[v]; } },
+      { key: 'metodo', label: 'Método', type: 'cat', get: function (t) { return t.method; } },
+      { key: 'importe', label: 'Importe', type: 'num', unit: '€', num: true, get: function (t) { return t.amount; }, presets: [['> 250 €', { min: 250 }], ['< 50 €', { max: 50 }]] },
+      { key: 'comision', label: 'Comisión', type: 'num', unit: '€', num: true, perm: 'see.fee', get: function (t) { return t.fee; } },
+      { key: 'estado', label: 'Estado', type: 'cat', get: function (t) { return t.status; } },
+      { key: 'riesgo', label: 'Riesgo', type: 'num', unit: 'pts', num: true, perm: 'see.risk', get: function (t) { return t.risk; } }
+    ],
+    mer: [
+      { key: 'comercio', label: 'Comercio', type: 'text', get: function (r) { return r.m.name; } },
+      { key: 'sector', label: 'Sector', type: 'cat', get: function (r) { return r.m.sector; } },
+      { key: 'plan', label: 'Plan', type: 'cat', bind: 'plan', get: function (r) { return r.m.plan; } },
+      { key: 'volumen', label: 'Volumen', type: 'num', unit: '€', num: true, get: function (r) { return r.vol; } },
+      { key: 'transacciones', label: 'Transacciones', type: 'num', num: true, get: function (r) { return r.n; } },
+      { key: 'aprobacion', label: 'Aprobación', type: 'num', unit: '%', num: true, get: function (r) { return r.appr; } },
+      { key: 'margen', label: 'Margen', type: 'num', unit: '€', num: true, perm: 'see.margin', get: function (r) { return r.margin; } },
+      { key: 'salud', label: 'Salud', type: 'num', num: true, perm: 'see.health', get: function (r) { return r.health; } },
+      { key: 'churn', label: 'Riesgo de churn', type: 'cat', perm: 'see.health', get: function (r) { return r.churn; } }
+    ],
+    liq: [
+      { key: 'fecha', label: 'Fecha', type: 'date', get: function (r) { return r.date; } },
+      { key: 'bruto', label: 'Bruto', type: 'num', unit: '€', num: true, get: function (r) { return r.gross; } },
+      { key: 'comisiones', label: 'Comisiones', type: 'num', unit: '€', num: true, get: function (r) { return r.fee; } },
+      { key: 'reembolsos', label: 'Reembolsos', type: 'num', unit: '€', num: true, get: function (r) { return r.ref; } },
+      { key: 'contracargos', label: 'Contracargos', type: 'num', unit: '€', num: true, get: function (r) { return r.cb; } },
+      { key: 'neto', label: 'Neto abonado', type: 'num', unit: '€', num: true, get: function (r) { return r.net; } },
+      { key: 'estado', label: 'Estado', type: 'cat', get: function (r) { return r.estado; } }
+    ],
+    cbm: [
+      { key: 'id', label: 'ID', type: 'text', get: function (r) { return r.t.id; } },
+      { key: 'fecha', label: 'Fecha', type: 'date', get: function (r) { return r.t.date; } },
+      { key: 'importe', label: 'Importe', type: 'num', unit: '€', num: true, get: function (r) { return r.t.amount; } },
+      { key: 'motivo', label: 'Motivo', type: 'cat', get: function (r) { return r.motivo; } },
+      { key: 'estado', label: 'Estado', type: 'cat', get: function (r) { return r.st; } },
+      { key: 'plazo', label: 'Plazo para responder', type: 'date', get: function (r) { return r.due; } },
+      { key: 'accion', label: 'Acción', type: 'none', get: function () { return ''; } }
+    ],
+    share: [
+      { key: 'mes', label: 'Mes', type: 'text', get: function (r) { return r.label; } },
+      { key: 'operaciones', label: 'Operaciones', type: 'num', num: true, get: function (r) { return r.n; } },
+      { key: 'volumen', label: 'Volumen', type: 'num', unit: '€', num: true, get: function (r) { return r.vol; } },
+      { key: 'comisiones', label: 'Comisiones generadas', type: 'num', unit: '€', num: true, get: function (r) { return r.fee; } },
+      { key: 'revshare', label: 'Revenue share', type: 'num', unit: '€', num: true, get: function (r) { return r.par; } }
+    ],
+    pt: [
+      { key: 'partner', label: 'Partner', type: 'text', get: function (r) { return r.name; } },
+      { key: 'rs', label: 'Revenue share', type: 'num', unit: '%', num: true, get: function (r) { return r.share; } },
+      { key: 'volumen', label: 'Volumen', type: 'num', unit: '€', num: true, get: function (r) { return r.vol; } },
+      { key: 'ingresos', label: 'Ingresos', type: 'num', unit: '€', num: true, get: function (r) { return r.fee; } },
+      { key: 'sharepag', label: 'Share pagado', type: 'num', unit: '€', num: true, get: function (r) { return r.par; } },
+      { key: 'margen', label: 'Margen', type: 'num', unit: '€', num: true, perm: 'see.margin', get: function (r) { return r.margin; } }
+    ],
+    act: [
+      { key: 'fecha', label: 'Fecha y hora', type: 'date', get: function (r) { return r.date; } },
+      { key: 'usuario', label: 'Usuario', type: 'cat', bind: 'act', get: function (r) { return r.uid; }, lab: function (v) { return userName(v); } },
+      { key: 'accion', label: 'Acción', type: 'cat', get: function (r) { return r.akey; }, lab: function (v) { return ACT_LABEL[v] || v; } },
+      { key: 'detalle', label: 'Detalle', type: 'text', get: function (r) { return r.d; } }
+    ]
+  };
+  function ymd(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1, 2) + '-' + pad(d.getDate(), 2); }
+  function addDays(d, n) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); }
+  function colOf(id, key) {
+    var a = COLS[id] || [];
+    for (var i = 0; i < a.length; i++) if (a[i].key === key) return a[i];
+    return null;
+  }
+  function colAllowed(col) { return !col.perm || can(col.perm); }
+  /* Especificación activa de una columna (los filtros de canal, plan y usuario son el mismo estado que la barra) */
+  function cfGet(id, key) {
+    var col = colOf(id, key);
+    if (!col || !colAllowed(col)) return null;
+    if (col.bind === 'channel') return state.filters.channel.length ? { type: 'cat', vals: state.filters.channel.slice() } : null;
+    if (col.bind === 'plan') return state.filters.plan.length ? { type: 'cat', vals: state.filters.plan.slice() } : null;
+    return (CF[id] && CF[id][key]) || null;
+  }
+  /* Valor de un selector de una sola opción ligado a un filtro de columna */
+  function selVal(id, key) {
+    var sp = cfGet(id, key);
+    return sp && sp.type === 'cat' && sp.vals.length === 1 ? sp.vals[0] : '';
+  }
+  /* Mínimo o máximo de un filtro numérico (texto tal cual se escribe) */
+  function numSet(id, key, which, raw) {
+    var sp = cfGet(id, key), cur = sp && sp.type === 'num' ? { min: sp.min, max: sp.max } : { min: '', max: '' };
+    cur[which] = raw;
+    applyColSpec(id, key, cur.min === '' && cur.max === '' ? null : { type: 'num', min: cur.min, max: cur.max });
+  }
+  function applyCols(id, rows) {
+    var cols = COLS[id] || [];
+    var out = rows.filter(function (r) {
+      return cols.every(function (col) {
+        var sp = cfGet(id, col.key);
+        if (!sp) return true;
+        var v = col.get(r);
+        if (sp.type === 'cat') return sp.vals.indexOf(String(v)) >= 0;
+        if (sp.type === 'date') { var ds = ymd(v); return (!sp.from || ds >= sp.from) && (!sp.to || ds <= sp.to); }
+        if (sp.type === 'num') {
+          if (sp.min !== '' && sp.min !== undefined && v < sp.min) return false;
+          if (sp.max !== '' && sp.max !== undefined && v > sp.max) return false;
+          return true;
+        }
+        if (sp.type === 'text') return norm(String(v)).indexOf(norm(sp.q)) >= 0;
+        return true;
+      });
+    });
+    var s = SORT[id], col = s && s.key ? colOf(id, s.key) : null;
+    if (col && colAllowed(col) && s.dir) {
+      var dir = s.dir === 'asc' ? 1 : -1;
+      out.sort(function (a, b) {
+        var va = col.get(a), vb = col.get(b);
+        if (va instanceof Date) { va = va.getTime(); vb = vb.getTime(); }
+        if (typeof va === 'string') return dir * va.localeCompare(vb, 'es');
+        return dir * (va - vb);
+      });
+    }
+    return out;
+  }
+  /* Filas base (antes de los filtros de columna) de cada tabla */
+  function baseRowsFor(id) {
+    if (id === 'tx') return txBaseRows();
+    if (id === 'mer') return merBaseRows();
+    if (id === 'liq') return liqRows();
+    if (id === 'cbm') return cbmRows();
+    if (id === 'share') return shareRows();
+    if (id === 'pt') return ptRows();
+    if (id === 'act') return actRows();
+    return [];
+  }
+  function specLabel(id, key, sp) {
+    var col = colOf(id, key), name = col.label;
+    if (sp.type === 'cat') return name + ': ' + sp.vals.map(function (v) { return col.lab ? col.lab(v) : v; }).join(', ');
+    if (sp.type === 'date') return name + ': ' + (sp.from ? ddmmyyyy(new Date(sp.from + 'T00:00')) : '…') + ' – ' + (sp.to ? ddmmyyyy(new Date(sp.to + 'T00:00')) : '…');
+    if (sp.type === 'num') {
+      var u = col.unit ? ' ' + col.unit : '';
+      if (sp.min !== '' && sp.max !== '') return name + ': ' + sp.min + '–' + sp.max + u;
+      return name + (sp.min !== '' ? ': ≥ ' + sp.min : ': ≤ ' + sp.max) + u;
+    }
+    return name + ': contiene «' + sp.q + '»';
+  }
+  function applyColSpec(id, key, spec) {
+    var col = colOf(id, key);
+    if (!col) return;
+    closeColPop(true);
+    if (col.bind === 'channel') state.filters.channel = spec ? spec.vals : [];
+    else if (col.bind === 'plan') state.filters.plan = spec ? spec.vals : [];
+    else {
+      CF[id] = CF[id] || {};
+      if (spec) CF[id][key] = spec; else delete CF[id][key];
+    }
+    if (id === 'tx') state.txPage = 1;
+    render();
+  }
+  function colSortCycle(id, key) {
+    var s = SORT[id] || {}, next;
+    if (s.key === key) next = s.dir === 'asc' ? 'desc' : s.dir === 'desc' ? null : 'asc';
+    else next = 'asc';
+    SORT[id] = next ? { key: key, dir: next } : { key: null, dir: null };
+    if (id === 'tx') state.txPage = 1;
+    render();
+  }
+  /* Cabeceras: nombre (elegir), ordenar y filtrar; se construyen una vez y se refrescan en cada render */
+  function buildHeads() {
+    Object.keys(TBLS).forEach(function (id) {
+      var tb = $(TBLS[id]), tr = tb && tb.querySelector('thead tr');
+      if (!tr) return;
+      tb.classList.add('keep-head');
+      var keep = tr.querySelector('th.chk-col');
+      if (keep) tr.removeChild(keep);
+      tr.textContent = '';
+      if (keep) tr.appendChild(keep);
+      COLS[id].forEach(function (col) {
+        var th = h('th', { scope: 'col', 'data-col': col.key, 'data-tbl': id, 'data-perm': col.perm || null, class: col.num ? 'num-col' : null });
+        if (col.type === 'none') th.textContent = col.label;
+        else {
+          th.appendChild(h('span', { class: 'th-tools' },
+            h('button', { type: 'button', class: 'colbtn', 'data-tbl': id, 'data-col': col.key, 'aria-haspopup': 'dialog', title: 'Elegir filtro de ' + col.label }, col.label),
+            h('button', { type: 'button', class: 'ibtn-s colsort', 'data-tbl': id, 'data-col': col.key, 'aria-label': 'Ordenar por ' + col.label },
+              h('span', { class: 'arrow', 'aria-hidden': 'true' }, '↕')),
+            h('button', { type: 'button', class: 'ibtn-s colfilt', 'data-tbl': id, 'data-col': col.key, 'aria-haspopup': 'dialog', 'aria-label': 'Filtrar ' + col.label },
+              h('span', { class: 'ico', 'data-icon': 'funnel' }))));
+        }
+        tr.appendChild(th);
+      });
+    });
+    hydrateIcons(document);
+  }
+  function refreshHeads() {
+    Object.keys(TBLS).forEach(function (id) {
+      var tb = $(TBLS[id]);
+      if (!tb) return;
+      $$('thead th[data-col]', tb).forEach(function (th) {
+        var key = th.getAttribute('data-col'), s = SORT[id] || {}, on = s.key === key && s.dir;
+        var sp = cfGet(id, key), col = colOf(id, key);
+        th.setAttribute('aria-sort', on ? (s.dir === 'asc' ? 'ascending' : 'descending') : 'none');
+        th.classList.toggle('cf-active', !!sp);
+        var arrow = th.querySelector('.arrow');
+        if (arrow) arrow.textContent = on ? (s.dir === 'asc' ? '↑' : '↓') : '↕';
+        var ff = th.querySelector('.colfilt');
+        if (ff) ff.classList.toggle('on', !!sp);
+        var so = th.querySelector('.colsort');
+        if (so) so.setAttribute('aria-label', 'Ordenar por ' + col.label + (on ? (s.dir === 'asc' ? ', ascendente' : ', descendente') : ''));
+      });
+    });
+  }
+  /* Columnas de filtro activas de la vista actual (para los chips) */
+  function viewColChips(box) {
+    (VIEW_TBLS[state.view] || []).forEach(function (id) {
+      COLS[id].forEach(function (col) {
+        var sp = col.bind ? null : cfGet(id, col.key);   /* canal y plan ya salen como chips globales */
+        if (!sp) return;
+        box.appendChild(h('span', { class: 'tag' }, specLabel(id, col.key, sp),
+          h('button', { type: 'button', class: 'tag-x', 'data-rmcol': id + '|' + col.key,
+            'aria-label': 'Quitar filtro ' + col.label }, '×')));
+      });
+    });
+  }
+  /* Popover de filtro: bottom sheet en móvil */
+  var colPop = null, colPopBtn = null;
+  function closeColPop(restore) {
+    if (!colPop) return;
+    var b = colPopBtn;
+    colPop.remove();
+    colPop = null;
+    colPopBtn = null;
+    if (restore && b && document.body.contains(b)) b.focus();
+  }
+  function placePop(box, btn) {
+    if (window.innerWidth < 760) return;
+    var r = btn.getBoundingClientRect(), w = box.offsetWidth || 300, hh = box.offsetHeight || 320;
+    var left = Math.min(Math.max(8, r.left), window.innerWidth - w - 8), top = r.bottom + 6;
+    if (top + hh > window.innerHeight - 8) top = Math.max(8, r.top - hh - 6);
+    box.style.left = left + 'px';
+    box.style.top = top + 'px';
+  }
+  function openColPop(btn) {
+    var id = btn.getAttribute('data-tbl'), key = btn.getAttribute('data-col'), col = colOf(id, key);
+    if (!col || col.type === 'none') return;
+    if (colPopBtn === btn) { closeColPop(true); return; }
+    closeColPop(false);
+    var sp = cfGet(id, key), base = baseRowsFor(id), body = h('div', { class: 'cf-body' }), getSpec;
+    if (col.type === 'cat') getSpec = buildCatFilter(body, col, base, sp);
+    else if (col.type === 'date') getSpec = buildDateFilter(body, col, base, sp);
+    else if (col.type === 'num') getSpec = buildNumFilter(body, col, base, sp);
+    else getSpec = buildTextFilter(body, col, sp);
+    var box = h('div', { class: 'colpop', role: 'dialog', 'aria-label': 'Filtro de ' + col.label },
+      h('p', { class: 'cf-title' }, 'Filtrar ' + col.label),
+      body,
+      h('div', { class: 'cf-foot' },
+        h('button', { type: 'button', class: 'btn', 'data-cf-clear': '' }, 'Limpiar'),
+        h('button', { type: 'button', class: 'btn btn-primary', 'data-cf-apply': '' }, 'Aplicar')));
+    box.querySelector('[data-cf-clear]').addEventListener('click', function () { applyColSpec(id, key, null); });
+    box.querySelector('[data-cf-apply]').addEventListener('click', function () { applyColSpec(id, key, getSpec()); });
+    box.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { e.preventDefault(); closeColPop(true); }
+      else if (e.key === 'Enter' && e.target.tagName === 'INPUT' && e.target.type !== 'checkbox') { e.preventDefault(); applyColSpec(id, key, getSpec()); }
+      else if (e.key === 'Tab') trapIn(box, e);
+    });
+    document.body.appendChild(box);
+    colPop = box;
+    colPopBtn = btn;
+    placePop(box, btn);
+    var first = box.querySelector('input, button');
+    if (first) first.focus();
+  }
+  function buildCatFilter(body, col, base, sp) {
+    var counts = {}, sel = sp ? sp.vals.slice() : [], all = !sel.length;
+    base.forEach(function (r) { var v = String(col.get(r)); counts[v] = (counts[v] || 0) + 1; });
+    var labOf = function (v) { return col.lab ? col.lab(v) : v; };
+    var vals = Object.keys(counts).sort(function (a, b) { return labOf(a).localeCompare(labOf(b), 'es'); });
+    var search = null, checks = [];
+    if (vals.length > 8) {
+      search = h('input', { type: 'search', class: 'field', placeholder: 'Buscar valor…', 'aria-label': 'Buscar valor en ' + col.label });
+      body.appendChild(search);
+    }
+    var list = h('div', { class: 'cf-list' });
+    vals.forEach(function (v) {
+      var cb = h('input', { type: 'checkbox', value: v });
+      cb.checked = all || sel.indexOf(v) >= 0;
+      var lab = h('label', null, cb, h('span', null, labOf(v)), h('small', { class: 'muted' }, ' · ' + fmtInt(counts[v])));
+      list.appendChild(lab);
+      checks.push({ cb: cb, lab: lab, v: v });
+    });
+    if (search) search.addEventListener('input', function () {
+      var q = norm(search.value);
+      checks.forEach(function (c) { c.lab.hidden = !!q && norm(labOf(c.v)).indexOf(q) < 0; });
+    });
+    var bAll = h('button', { type: 'button', class: 'btn btn-ghost' }, 'Seleccionar todo');
+    var bNone = h('button', { type: 'button', class: 'btn btn-ghost' }, 'Ninguno');
+    bAll.addEventListener('click', function () { checks.forEach(function (c) { c.cb.checked = true; }); });
+    bNone.addEventListener('click', function () { checks.forEach(function (c) { c.cb.checked = false; }); });
+    body.appendChild(h('div', { class: 'row' }, bAll, bNone));
+    body.appendChild(list);
+    if (!vals.length) body.appendChild(h('p', { class: 'muted' }, 'Sin valores en los datos actuales.'));
+    return function () {
+      var on = checks.filter(function (c) { return c.cb.checked; }).map(function (c) { return c.v; });
+      if (!on.length || on.length === vals.length) return null;
+      return { type: 'cat', vals: on };
+    };
+  }
+  function buildDateFilter(body, col, base, sp) {
+    var ds = base.map(function (r) { return ymd(col.get(r)); }).sort();
+    var minD = ds[0] || ymd(dayDate(0)), maxD = ds[ds.length - 1] || ymd(TODAY);
+    var from = h('input', { type: 'date', class: 'field', min: minD, max: maxD, 'aria-label': 'Desde' });
+    var to = h('input', { type: 'date', class: 'field', min: minD, max: maxD, 'aria-label': 'Hasta' });
+    from.value = sp && sp.from || '';
+    to.value = sp && sp.to || '';
+    var clampF = function (v) { return v ? (v < minD ? minD : v > maxD ? maxD : v) : v; };
+    var presets = [
+      ['Hoy', function () { return [ymd(TODAY), ymd(TODAY)]; }],
+      ['Últimos 7 días', function () { return [ymd(addDays(TODAY, -6)), ymd(TODAY)]; }],
+      ['Este mes', function () { return [ymd(new Date(TODAY.getFullYear(), TODAY.getMonth(), 1)), ymd(TODAY)]; }],
+      ['Mes pasado', function () { return [ymd(new Date(TODAY.getFullYear(), TODAY.getMonth() - 1, 1)), ymd(new Date(TODAY.getFullYear(), TODAY.getMonth(), 0))]; }]
+    ];
+    var pw = h('div', { class: 'row' });
+    presets.forEach(function (p) {
+      var b = h('button', { type: 'button', class: 'btn btn-ghost' }, p[0]);
+      b.addEventListener('click', function () { var r = p[1](); from.value = clampF(r[0]); to.value = clampF(r[1]); });
+      pw.appendChild(b);
+    });
+    body.appendChild(pw);
+    body.appendChild(h('label', { class: 'fsel' }, h('span', null, 'Desde'), from));
+    body.appendChild(h('label', { class: 'fsel' }, h('span', null, 'Hasta'), to));
+    body.appendChild(h('p', { class: 'hint' }, 'Datos disponibles: ' + ddmmyyyy(new Date(minD + 'T00:00')) + ' – ' + ddmmyyyy(new Date(maxD + 'T00:00')) + '.'));
+    return function () {
+      var f = from.value, t = to.value;
+      if (!f && !t) return null;
+      return { type: 'date', from: f, to: t };
+    };
+  }
+  function buildNumFilter(body, col, base, sp) {
+    var vals = base.map(function (r) { return col.get(r); }).filter(isFinite);
+    var lo = Math.min.apply(null, vals.concat([0])), hi = Math.max.apply(null, vals.concat([1]));
+    var span = (hi - lo) || 1, bins = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    vals.forEach(function (v) { bins[Math.min(9, Math.floor((v - lo) / span * 10))]++; });
+    var mx = Math.max.apply(null, bins) || 1, hist = h('div', { class: 'cf-hist', 'aria-hidden': 'true' });
+    bins.forEach(function (c, i) {
+      hist.appendChild(h('span', { style: 'height:' + Math.max(4, c / mx * 100).toFixed(0) + '%', title: fmtInt(c) + ' registros' }));
+    });
+    var unit = col.unit ? ' (' + col.unit + ')' : '';
+    var min = h('input', { type: 'number', class: 'field', step: 'any', inputmode: 'decimal', 'aria-label': 'Mínimo de ' + col.label, value: sp && sp.min !== undefined && sp.min !== '' ? String(sp.min) : '' });
+    var max = h('input', { type: 'number', class: 'field', step: 'any', inputmode: 'decimal', 'aria-label': 'Máximo de ' + col.label, value: sp && sp.max !== undefined && sp.max !== '' ? String(sp.max) : '' });
+    body.appendChild(hist);
+    body.appendChild(h('p', { class: 'hint' }, 'Rango de ' + fmtNum(lo, 0) + ' a ' + fmtNum(hi, 0) + (col.unit ? ' ' + col.unit : '') + ' en ' + fmtInt(vals.length) + ' registros.'));
+    body.appendChild(h('div', { class: 'form-grid' },
+      h('label', { class: 'fsel' }, h('span', null, 'Mínimo' + unit), min),
+      h('label', { class: 'fsel' }, h('span', null, 'Máximo' + unit), max)));
+    if (col.presets) {
+      var pw = h('div', { class: 'row' });
+      col.presets.forEach(function (p) {
+        var b = h('button', { type: 'button', class: 'btn btn-ghost' }, p[0]);
+        b.addEventListener('click', function () { min.value = p[1].min !== undefined ? String(p[1].min) : ''; max.value = p[1].max !== undefined ? String(p[1].max) : ''; });
+        pw.appendChild(b);
+      });
+      body.appendChild(pw);
+    }
+    return function () {
+      var a = min.value.trim() === '' ? '' : Number(min.value.replace(',', '.'));
+      var b = max.value.trim() === '' ? '' : Number(max.value.replace(',', '.'));
+      if (a === '' && b === '') return null;
+      if ((a !== '' && !isFinite(a)) || (b !== '' && !isFinite(b))) return null;
+      return { type: 'num', min: a, max: b };
+    };
+  }
+  function buildTextFilter(body, col, sp) {
+    var q = h('input', { type: 'search', class: 'field', placeholder: 'Contiene…', 'aria-label': 'Texto que contiene ' + col.label, value: sp && sp.q || '' });
+    body.appendChild(q);
+    return function () { var v = q.value.trim(); return v ? { type: 'text', q: v } : null; };
+  }
+  /* Teclado y ratón fuera del popover */
+  function colToolClick(btn) {
+    var id = btn.getAttribute('data-tbl'), key = btn.getAttribute('data-col');
+    if (btn.classList.contains('colsort')) colSortCycle(id, key);
+    else openColPop(btn);
+  }
+
   /* --- Comercios --- */
   function merchRows() {
     var F = filtered(), tots = merchTotals(F.curFrom, F.curTo), rows = [];
@@ -2934,26 +3998,25 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
     });
     return rows;
   }
-  function merchView(rows) {
+  /* Comercios: búsqueda y segmentos (base); los filtros de columna y el orden se aplican después */
+  function merBase(rows) {
     var M = state.mer, qn = norm(M.q.trim()), qIdx = quarterStartIdx();
-    var list = rows.filter(function (r) {
+    return rows.filter(function (r) {
       var m = r.m;
       if (qn && norm(m.id + ' ' + m.name + ' ' + m.city).indexOf(qn) < 0) return false;
-      if (M.sector && m.sector !== M.sector) return false;
-      if (M.plan && m.plan !== M.plan) return false;
-      if (M.churn && m.churn !== M.churn) return false;
       if (M.seg === 'churn' && m.churn !== 'Alto') return false;
       if (M.seg === 'nuevos' && m.joinIdx < qIdx) return false;
       return true;
     });
-    if (M.seg === 'top10') list = list.slice().sort(function (a, b) { return b.margin - a.margin; }).slice(0, 10);
-    var dir = M.sort.dir === 'asc' ? 1 : -1, key = M.sort.key;
-    list.sort(function (a, b) {
-      if (key === 'name') return dir * a.m.name.localeCompare(b.m.name, 'es');
-      if (key === 'churn') return dir * (CHURN_ORDER[a.churn] - CHURN_ORDER[b.churn]);
-      return dir * (a[key] - b[key]);
-    });
-    return list;
+  }
+  function merBaseRows() { return merBase(merchRows()); }
+  function merchView(rows) {
+    var list = merBase(rows);
+    if (state.mer.seg === 'top10') {
+      var sk = can('see.margin') ? 'margin' : 'vol';
+      list = list.slice().sort(function (a, b) { return b[sk] - a[sk]; }).slice(0, 10);
+    }
+    return applyCols('mer', list);
   }
   function merRow(r) {
     var m = r.m, hc = r.health >= 78 ? '' : r.health >= 66 ? ' mid' : ' hi';
@@ -2964,18 +4027,20 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
       h('td', { 'data-label': 'Volumen', class: 'amount' }, money(r.vol, 0)),
       h('td', { 'data-label': 'Transacciones', class: 'amount' }, fmtInt(r.n)),
       h('td', { 'data-label': 'Aprobación', class: 'amount' }, fmtPct(r.appr, 1)),
-      h('td', { 'data-label': 'Margen', class: 'amount' }, money(r.margin, 0)),
-      h('td', { 'data-label': 'Salud' }, h('span', { class: 'hwrap' },
+      h('td', { 'data-label': 'Margen', class: 'amount', 'data-perm': 'see.margin' }, money(r.margin, 0)),
+      h('td', { 'data-label': 'Salud', 'data-perm': 'see.health' }, h('span', { class: 'hwrap' },
         h('span', { class: 'hbar' + hc, 'aria-hidden': 'true' }, h('span', { style: 'width:' + m.health + '%' })),
         h('span', { class: 'hnum' }, String(m.health)))),
-      h('td', { 'data-label': 'Riesgo de churn' }, h('span', { class: 'badge ch-' + m.churn }, m.churn)));
+      h('td', { 'data-label': 'Riesgo de churn', 'data-perm': 'see.health' }, h('span', { class: 'badge ch-' + m.churn }, m.churn)));
   }
   function renderComercios() {
-    var M = state.mer, rows = merchRows(), list = merchView(rows);
+    var M = state.mer;
+    if (!can('see.margin') && M.sort.key === 'margin') M.sort = { key: 'vol', dir: 'desc' };
+    var rows = merchRows(), list = merchView(rows);
     syncIf($('#mer-q'), M.q);
-    syncIf($('#mer-sector'), M.sector);
-    syncIf($('#mer-plan'), M.plan);
-    syncIf($('#mer-churn'), M.churn);
+    syncIf($('#mer-sector'), selVal('mer', 'sector'));
+    syncIf($('#mer-plan'), selVal('mer', 'plan'));
+    syncIf($('#mer-churn'), selVal('mer', 'churn'));
     $$('#mer-seg [data-seg]').forEach(function (b) {
       b.setAttribute('aria-pressed', String(b.getAttribute('data-seg') === M.seg));
     });
@@ -2988,7 +4053,8 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
     body.textContent = '';
     if (!list.length) body.appendChild(h('tr', null, h('td', { colspan: '9', class: 'empty-cell' }, 'Ningún comercio coincide con estos filtros.')));
     list.forEach(function (r) { body.appendChild(merRow(r)); vol += r.vol; mg += r.margin; });
-    $('#mer-summary').textContent = fmtInt(list.length) + ' de ' + fmtInt(rows.length) + ' comercios · volumen ' + money(vol, 0) + ' · margen ' + money(mg, 0);
+    $('#mer-summary').textContent = fmtInt(list.length) + ' de ' + fmtInt(rows.length) + ' comercios · volumen ' + money(vol, 0) +
+      (can('see.margin') ? ' · margen ' + money(mg, 0) : '');
   }
 
   /* --- Ficha de comercio (cajón) y tarifa MDR simulada --- */
@@ -3017,7 +4083,7 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
   }
   function openMerchant(mi, keep) {
     var m = DATA && DATA.merchants[mi];
-    if (!m) return;
+    if (!m || !can('view.comercios') || !scopeOk(mi)) return;
     var F = filtered(), P = DATA.partners[m.partner], t = merSum(mi, F.curFrom, F.curTo), k = kpisOf(t);
     var mon = merMonthly(mi), sumM = t.meth.reduce(function (a, b) { return a + b; }, 0) || 1, nodes = [];
     state.openMer = mi;
@@ -3029,7 +4095,7 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
       h('span', { class: 'muted' }, m.sector + ' · ' + m.city + ' (' + COUNTRY_NAMES[m.country] + ')')));
     nodes.push(sectionEl('Periodo: ' + RANGE_LABEL[state.range], h('div', { class: 'stat-grid' },
       statEl('Volumen', money(t.vol, 0)), statEl('Transacciones', fmtInt(t.n)), statEl('Aprobación', fmtPct(k.appr, 1)),
-      statEl('Margen neto', money(t.margin, 0)), statEl('Ticket medio', money(k.ticket, 2)), statEl('Contracargos', fmtPct(k.cb, 2)))));
+      statEl('Margen neto', money(t.margin, 0), 'see.margin'), statEl('Ticket medio', money(k.ticket, 2)), statEl('Contracargos', fmtPct(k.cb, 2)))));
 
     var spark = h('div', { class: 'spark merch-spark', 'aria-hidden': 'true' });
     spark.innerHTML = sparkSvg(mon.vals);
@@ -3047,7 +4113,7 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
     nodes.push(sectionEl('Partner y tarifa', dlEl([
       ['Partner', P.name], ['Revenue share', fmtPct(P.share * 100, 0)], ['Tarifa MDR actual', fmtNum(m.mdr, 2) + ' % + 0,12 €'],
       ['Comisiones del periodo', money(t.fee, 0)], ['Share pagado', money(t.par, 0)]
-    ])));
+    ]), 'see.costs'));
 
     var rng = h('input', { type: 'range', id: 'mdr-range', min: '0.5', max: '3.5', step: '0.01', value: String(m.mdr), 'aria-label': 'Nueva tarifa MDR en porcentaje' });
     var out = h('output', { id: 'mdr-out' });
@@ -3063,18 +4129,32 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
       ]));
     }
     rng.addEventListener('input', calc);
-    var applyBtn = h('button', { type: 'button', class: 'btn btn-primary', id: 'mdr-apply' }, 'Aplicar tarifa');
+    /* Administración y Dirección aplican; Comercial propone (queda pendiente de aprobación) */
+    var canApply = can('act.mdr.approve'), mdrOk = canApply || can('act.mdr.propose');
+    var pendM = PENDING.filter(function (p) { return p.mi === mi; })[0];
+    var applyBtn = h('button', { type: 'button', class: 'btn btn-primary', id: 'mdr-apply' }, canApply ? 'Aplicar tarifa' : 'Proponer tarifa');
     var resetBtn = h('button', { type: 'button', class: 'btn', id: 'mdr-reset' }, 'Restablecer');
     applyBtn.addEventListener('click', function () {
       var nv = round2(parseFloat(rng.value));
       if (!(nv > 0)) return;
       if (Math.abs(nv - m.mdr) < 0.005) { toast('La tarifa ya es ' + fmtNum(m.mdr, 2) + ' %'); return; }
+      if (!canApply) {
+        PENDING.push({ id: 'AP-' + Date.now().toString(36), mi: mi, from: m.mdr, to: nv, by: USER.id, t: new Date().toISOString() });
+        savePending();
+        logAct('mdr-propose', m.name + ': ' + fmtNum(m.mdr, 2) + ' % → ' + fmtNum(nv, 2) + ' %');
+        updateBadge();
+        toast('Propuesta de ' + fmtNum(nv, 2) + ' % enviada a aprobación');
+        refreshAll();
+        return;
+      }
       var old = m.mdr;
       applyMdr(mi, nv);
+      logAct('mdr', m.name + ': ' + fmtNum(old, 2) + ' % → ' + fmtNum(nv, 2) + ' %');
       afterMerchantChange(m.name + ': tarifa MDR ' + fmtNum(nv, 2) + ' %', function () { applyMdr(mi, old); });
     });
     resetBtn.addEventListener('click', function () { rng.value = String(m.mdr); calc(); });
-    nodes.push(sectionEl('Simular tarifa MDR', [
+    if (mdrOk) nodes.push(sectionEl('Simular tarifa MDR', [
+      pendM ? h('p', { class: 'alert-note' }, 'Propuesta pendiente de aprobación: ' + fmtNum(pendM.to, 2) + ' % (enviada por ' + userName(pendM.by) + ')') : null,
       h('p', { class: 'hint' }, 'Mueve el deslizador para ver el efecto en el margen del periodo. No cambia nada hasta que aplicas la tarifa.'),
       h('label', { class: 'range-field' }, h('span', null, 'Tarifa MDR propuesta ', out), rng),
       resWrap,
@@ -3161,14 +4241,21 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
       h('td', { 'data-label': 'Share pagado', class: 'amount' }, money(a.par, 0)),
       h('td', { 'data-label': 'Margen', class: 'amount' }, money(a.margin, 0)));
   }
-  function renderPartnerTable(F, tots) {
-    var acc = DATA.partners.map(function () { return emptyRow(-1, -1); }), tot = emptyRow(-1, -1), body = $('#pt-body');
+  /* Filas por partner (base); el total no depende de los filtros de columna */
+  function ptRows(F, tots) {
+    F = F || filtered();
+    tots = tots || merchTotals(F.curFrom, F.curTo);
+    var acc = DATA.partners.map(function () { return emptyRow(-1, -1); });
     DATA.merchants.forEach(function (m, mi) { if (F.mask[mi]) addRow(acc[m.partner], tots[mi]); });
-    body.textContent = '';
-    DATA.partners.forEach(function (p, i) {
-      addRow(tot, acc[i]);
-      body.appendChild(ptRow(p.name, fmtPct(p.share * 100, 0), acc[i], false));
+    return DATA.partners.map(function (p, i) {
+      return { name: p.name, share: p.share * 100, vol: acc[i].vol, fee: acc[i].fee, par: acc[i].par, margin: acc[i].margin, acc: acc[i] };
     });
+  }
+  function renderPartnerTable(F, tots) {
+    var all = ptRows(F, tots), tot = emptyRow(-1, -1), body = $('#pt-body');
+    all.forEach(function (r) { addRow(tot, r.acc); });
+    body.textContent = '';
+    applyCols('pt', all).forEach(function (r) { body.appendChild(ptRow(r.name, fmtPct(r.share, 0), r.acc, false)); });
     body.appendChild(ptRow('Total', '—', tot, true));
   }
   function syncSimSliders(p) {
@@ -3303,7 +4390,7 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
         h('button', { type: 'button', class: 'feed-btn', 'data-open': x.id },
           h('span', { class: 'feed-main' }, h('strong', null, x.id), h('span', { class: 'muted' }, ' · ' + merchantOf(x).name)),
           h('span', { class: 'feed-side' }, h('span', { class: 'amount risk-hi' }, String(x.risk)), h('span', { class: 'badge st-' + x.status }, x.status))),
-        x.reviewed ? h('span', { class: 'muted flag-done' }, 'Revisada') : h('button', { type: 'button', class: 'btn', 'data-review': x.id }, 'Revisar'));
+        x.reviewed ? h('span', { class: 'muted flag-done' }, 'Revisada') : h('button', { type: 'button', class: 'btn', 'data-review': x.id, 'data-perm-dis': 'act.review' }, 'Revisar'));
     })));
   }
   function renderRiesgo() {
@@ -3344,7 +4431,196 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
   }
 
   /* --- Ajustes --- */
+  /* --- Aprobaciones, liquidaciones, contracargos, cuenta, usuarios y registro --- */
+  function renderAprobaciones() {
+    var box = $('#approvals-list');
+    box.textContent = '';
+    if (!PENDING.length) box.appendChild(h('p', { class: 'muted' }, 'No hay propuestas pendientes.'));
+    PENDING.forEach(function (p) {
+      var m = DATA.merchants[p.mi];
+      box.appendChild(h('div', { class: 'appr-item' },
+        h('div', null, h('strong', null, m.name + ' · ' + m.id),
+          h('p', null, 'Tarifa ' + fmtNum(p.from, 2) + ' % → ' + fmtNum(p.to, 2) + ' % · propuesta por ' + userName(p.by) + ' · ' + fmtDateTime.format(new Date(p.t)))),
+        h('div', { class: 'row' },
+          h('button', { type: 'button', class: 'btn btn-primary', 'data-approve': p.id, 'data-perm-dis': 'act.mdr.approve' }, 'Aprobar'),
+          h('button', { type: 'button', class: 'btn', 'data-reject': p.id, 'data-perm-dis': 'act.mdr.approve' }, 'Rechazar'))));
+    });
+    var hist = $('#approvals-hist');
+    hist.textContent = '';
+    var rows = ACT.filter(function (x) { return x.a === 'mdr' || x.a === 'mdr-approve' || x.a === 'mdr-reject' || x.a === 'mdr-propose'; }).slice(0, 10);
+    if (!rows.length) hist.appendChild(h('p', { class: 'muted' }, 'Sin movimientos todavía.'));
+    rows.forEach(function (x) {
+      hist.appendChild(h('div', { class: 'appr-item' }, h('div', null, h('strong', null, ACT_LABEL[x.a]), h('p', null, x.d)),
+        h('span', { class: 'muted' }, fmtDateTime.format(new Date(x.t)) + ' · ' + userName(x.u))));
+    });
+  }
+  function approveMdr(id, approve) {
+    var idx = -1, p = null;
+    PENDING.forEach(function (x, i) { if (x.id === id) { idx = i; p = x; } });
+    if (!p) return;
+    PENDING.splice(idx, 1);
+    savePending();
+    var m = DATA.merchants[p.mi];
+    if (approve) {
+      var old = m.mdr;
+      applyMdr(p.mi, p.to);
+      logAct('mdr-approve', m.name + ': ' + fmtNum(old, 2) + ' % → ' + fmtNum(p.to, 2) + ' % (propuesto por ' + userName(p.by) + ')');
+      toast(m.name + ': tarifa aprobada en ' + fmtNum(p.to, 2) + ' %');
+    } else {
+      logAct('mdr-reject', m.name + ': propuesta de ' + fmtNum(p.to, 2) + ' % rechazada');
+      toast(m.name + ': propuesta rechazada');
+    }
+    updateBadge();
+    refreshAll();
+  }
+  /* Liquidaciones diarias: neto = bruto − comisiones − reembolsos − contracargos */
+  function liqRows() {
+    var F = filtered();
+    return F.cur.map(function (d) {
+      var cbAmt = d.cb * (d.ok ? d.vol / d.ok : 0);
+      return { d: d.d, date: dayDate(d.d), gross: d.vol, fee: d.fee, ref: d.refAmt, cb: cbAmt, net: d.vol - d.fee - d.refAmt - cbAmt,
+        today: d.d === DAYS - 1, estado: d.d === DAYS - 1 ? 'Programada' : 'Pagada' };
+    }).reverse();
+  }
+  function negMoney(v) { return v > 0.004 ? '−' + money(v, 2) : money(0, 2); }
+  function renderLiquidaciones() {
+    var rows = applyCols('liq', liqRows()), body = $('#liq-body'), tot = { gross: 0, fee: 0, ref: 0, cb: 0, net: 0 };
+    $('#liq-sub').textContent = 'Abonos de ' + RANGE_LABEL[state.range] + ' · ' + fmtDayShort.format(dayDate(filtered().curFrom)) + ' a ' + fmtDayShort.format(dayDate(DAYS - 1));
+    body.textContent = '';
+    rows.forEach(function (r) {
+      ['gross', 'fee', 'ref', 'cb', 'net'].forEach(function (k) { tot[k] += r[k]; });
+      body.appendChild(h('tr', null,
+        h('td', { 'data-label': 'Fecha' }, fmtDateLong.format(dayDate(r.d))),
+        h('td', { 'data-label': 'Bruto', class: 'amount' }, money(r.gross, 2)),
+        h('td', { 'data-label': 'Comisiones', class: 'amount' }, '−' + money(r.fee, 2)),
+        h('td', { 'data-label': 'Reembolsos', class: 'amount' }, negMoney(r.ref)),
+        h('td', { 'data-label': 'Contracargos', class: 'amount' }, negMoney(r.cb)),
+        h('td', { 'data-label': 'Neto abonado', class: 'amount' }, money(r.net, 2)),
+        h('td', { 'data-label': 'Estado' }, h('span', { class: 'badge ' + (r.today ? 'cbs-abierto' : 'st-Capturada') }, r.today ? 'Programada' : 'Pagada'))));
+    });
+    if (!rows.length) body.appendChild(h('tr', null, h('td', { colspan: '7', class: 'empty-cell' }, 'Sin liquidaciones en el periodo.')));
+    body.appendChild(h('tr', { class: 'tot' },
+      h('td', { 'data-label': 'Total' }, 'Total del periodo'),
+      h('td', { 'data-label': 'Bruto', class: 'amount' }, money(tot.gross, 2)),
+      h('td', { 'data-label': 'Comisiones', class: 'amount' }, '−' + money(tot.fee, 2)),
+      h('td', { 'data-label': 'Reembolsos', class: 'amount' }, negMoney(tot.ref)),
+      h('td', { 'data-label': 'Contracargos', class: 'amount' }, negMoney(tot.cb)),
+      h('td', { 'data-label': 'Neto abonado', class: 'amount' }, money(tot.net, 2)),
+      h('td', { 'data-label': 'Estado' }, '')));
+  }
+  function exportLiqCsv() {
+    var lines = ['Fecha;Bruto;Comisiones;Reembolsos;Contracargos;Neto abonado;Estado'];
+    applyCols('liq', liqRows()).forEach(function (r) {
+      lines.push([ddmmyyyy(dayDate(r.d)), csvNum(r.gross), csvNum(r.fee), csvNum(r.ref), csvNum(r.cb), csvNum(r.net), r.today ? 'Programada' : 'Pagada'].join(';'));
+    });
+    saveCsv(lines, 'pulso-liquidaciones-');
+    toast('Liquidaciones exportadas en CSV (EUR)');
+  }
+  /* Contracargos: plazo de 21 días; sin documentación al vencer = perdido */
+  function cbState(t) {
+    var due = new Date(t.date.getTime() + 21 * 86400000);
+    var left = Math.ceil((due - TODAY) / 86400000);
+    var st = t.cbState || (left < 0 ? 'Perdido' : 'Abierto');
+    return { due: due, left: left, st: st };
+  }
+  function cbmRows() {
+    return filtered().tx.filter(function (t) { return t.status === 'Contracargo'; }).map(function (t) {
+      var c = cbState(t);
+      return { t: t, due: c.due, st: c.st, left: c.left, motivo: 'Disputa del titular' };
+    }).sort(function (a, b) { return b.t.date - a.t.date; });
+  }
+  function renderContracargos() {
+    var F = filtered(), list = applyCols('cbm', cbmRows());
+    var body = $('#cbm-body'), open = 0;
+    $('#cbm-sub').textContent = fmtInt(list.length) + ' contracargos en ' + RANGE_LABEL[state.range] + (F.clipped ? ' (detalle de 90 días)' : '');
+    body.textContent = '';
+    if (!list.length) body.appendChild(h('tr', null, h('td', { colspan: '7', class: 'empty-cell' }, 'No tienes contracargos en este periodo.')));
+    list.forEach(function (row) {
+      var t = row.t, c = row, cls = { 'Abierto': 'cbs-abierto', 'En revisión': 'cbs-rev', 'Ganado': 'cbs-ganado', 'Perdido': 'cbs-perdido' }[c.st];
+      if (c.st === 'Abierto' || c.st === 'En revisión') open++;
+      var canDoc = c.st === 'Abierto' && c.left >= 0;
+      body.appendChild(h('tr', null,
+        h('td', { 'data-label': 'ID', class: 'amount' }, t.id),
+        h('td', { 'data-label': 'Fecha' }, fmtDateLong.format(t.date)),
+        h('td', { 'data-label': 'Importe', class: 'amount' }, money(t.amount, 2)),
+        h('td', { 'data-label': 'Motivo' }, 'Disputa del titular'),
+        h('td', { 'data-label': 'Estado' }, h('span', { class: 'badge ' + cls }, c.st)),
+        h('td', { 'data-label': 'Plazo' }, fmtDateLong.format(c.due) + (c.left >= 0 ? ' · ' + c.left + ' días restantes' : ' · vencido')),
+        h('td', { 'data-label': 'Acción' }, h('button', { type: 'button', class: 'btn', 'data-cbdoc': t.id, disabled: !canDoc, 'data-perm-dis': 'act.chargeback' }, c.st === 'En revisión' ? 'En revisión' : 'Aportar documentación'))));
+    });
+  }
+  function renderCuenta() {
+    var m = DATA.merchants[USER.scope], P = DATA.partners[m.partner];
+    $('#acc-data').textContent = '';
+    appendKids($('#acc-data'), [
+      ['Comercio', m.name], ['ID de comercio', m.id], ['Sector', m.sector + ' · MCC ' + m.mcc], ['Ubicación', m.city + ' (' + COUNTRY_NAMES[m.country] + ')'],
+      ['Plan', m.plan], ['Alta', m.joinIdx ? fmtDateLong.format(dayDate(m.joinIdx)) : 'Anterior a ' + fmtDateLong.format(dayDate(0))],
+      ['Persona de contacto', m.contact], ['Email', m.email]
+    ].map(function (r) { return h('div', null, h('dt', null, r[0]), h('dd', null, r[1])); }));
+    $('#acc-fees').textContent = '';
+    appendKids($('#acc-fees'), [
+      ['Tarifa MDR vigente', fmtNum(m.mdr, 2) + ' % + 0,12 € por operación'],
+      ['Abono de liquidaciones', 'Diario, T+1'],
+      ['Cuenta de abono', 'IBAN ES•• •••• •••• •••• 1234'],
+      ['Titular de la cuenta', m.name],
+      ['Canal principal', CHANNELS[m.channel]]
+    ].map(function (r) { return h('div', null, h('dt', null, r[0]), h('dd', null, r[1])); }));
+  }
+  function renderUsersCard() {
+    if (!can('act.users')) return;
+    var body = $('#users-body'), me = USER;
+    body.textContent = '';
+    USERS.forEach(function (u) {
+      var r = roleOfUser(u), sel = h('select', { class: 'field', 'data-role-sel': u.id, 'aria-label': 'Rol de ' + u.name });
+      ROLE_ORDER.forEach(function (k) { sel.appendChild(h('option', { value: k }, ROLE_LABEL[k])); });
+      sel.value = r;
+      if (u.id === me.id) sel.disabled = true;
+      var scope = u.group === 'team' ? (r === 'comercial' ? 'Cartera · ' + CARTERA.length + ' comercios' : 'Todo el panel')
+        : u.group === 'partner' ? 'Partner · ' + PARTNERS_DEF[u.scope].name + (DATA ? ' · ' + DATA.merchants.filter(function (m) { return m.partner === u.scope; }).length + ' comercios' : '')
+        : 'Comercio · ' + MERCH_DEF[u.scope].split('|')[0];
+      body.appendChild(h('tr', null,
+        h('td', { 'data-label': 'Usuario' }, h('span', { class: 'hwrap' }, h('span', { class: 'av', style: 'width:30px;height:30px;font-size:11px' }, u.initials), h('strong', null, u.name))),
+        h('td', { 'data-label': 'Cargo' }, u.title),
+        h('td', { 'data-label': 'Rol' }, sel),
+        h('td', { 'data-label': 'Ámbito' }, scope)));
+    });
+    var head = $('#perm-head'), pb = $('#perm-body');
+    head.textContent = '';
+    head.appendChild(h('tr', null, h('th', { scope: 'col' }, 'Permiso'), ROLE_ORDER.map(function (k) { return h('th', { scope: 'col' }, ROLE_LABEL[k]); })));
+    pb.textContent = '';
+    PERM_ALL.forEach(function (p) {
+      pb.appendChild(h('tr', null, h('td', null, h('span', { class: 'perm-key' }, p)),
+        ROLE_ORDER.map(function (k) {
+          var ok = ROLES[k].indexOf(p) >= 0;
+          return h('td', { class: ok ? 'matrix-yes' : 'matrix-no', 'aria-label': ok ? 'Sí' : 'No' }, ok ? '✓' : '—');
+        })));
+    });
+    renderActivity();
+  }
+  function actRows() {
+    return ACT.map(function (x) { return { date: new Date(x.t), uid: x.u, akey: x.a, d: x.d }; });
+  }
+  function renderActivity() {
+    var sel = $('#act-user'), body = $('#act-body');
+    if (!sel.options.length) {
+      sel.appendChild(h('option', { value: '' }, 'Todos'));
+      USERS.forEach(function (u) { sel.appendChild(h('option', { value: u.id }, u.name)); });
+    }
+    sel.value = selVal('act', 'usuario');
+    body.textContent = '';
+    var rows = applyCols('act', actRows()).map(function (r) { return { t: r.date, u: r.uid, a: r.akey, d: r.d }; });
+    if (!rows.length) body.appendChild(h('tr', null, h('td', { colspan: '4', class: 'empty-cell' }, 'Sin actividad registrada.')));
+    rows.forEach(function (x) {
+      body.appendChild(h('tr', null,
+        h('td', { 'data-label': 'Fecha y hora' }, fmtDateTime.format(new Date(x.t))),
+        h('td', { 'data-label': 'Usuario' }, userName(x.u)),
+        h('td', { 'data-label': 'Acción' }, ACT_LABEL[x.a] || x.a),
+        h('td', { 'data-label': 'Detalle' }, x.d)));
+    });
+  }
+
   function renderAjustes() {
+    renderUsersCard();
     var T = targets();
     syncIf($('#t-appr'), String(T.appr));
     syncIf($('#t-cb'), String(T.cb));
@@ -3356,6 +4632,9 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
   }
   function resetDemo() {
     try { localStorage.removeItem(PREFS_KEY); } catch (e) {}
+    ROLE_STORE = {}; lsSet('pulso-roles', {});
+    ACT.length = 0; lsSet('pulso-activity', ACT);
+    PENDING.length = 0; savePending();
     prefs = {};
     applyTheme('dark');
     document.documentElement.setAttribute('data-density', 'comoda');
@@ -3367,6 +4646,7 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
     state.selected = {}; state.openTx = null; state.openMer = null;
     state.mer = { q: '', sector: '', plan: '', churn: '', seg: '', sort: { key: 'margin', dir: 'desc' } };
     state.sim = null; state.rules = { threeds: false, bin: false, limit: false }; state.riskThr = 0.75; state.incidentHidden = false;
+    CF = {}; SORT = { tx: { key: 'date', dir: 'desc' }, mer: { key: 'margen', dir: 'desc' } };
     closePanel();
     closeDialog();
     setLive(false);
@@ -3431,6 +4711,10 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
   function onHashChange() {
     if (!DATA) return;
     readHash();
+    if (state.comoParam && userById(state.comoParam) && (!USER || USER.id !== state.comoParam)) {
+      setUser(state.comoParam);
+      return;
+    }
     if (state.scenario !== DATA.scenario) {
       DATA = generate(state.seed, state.scenario);
       state.selected = {};
@@ -3492,6 +4776,8 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
     setHelp(false);
     closePanel();
     tourRet = document.activeElement;
+    TOUR = TOUR_ALL.filter(tourOk);
+    if (!TOUR.length) return;
     window.addEventListener('scroll', placeCoach, true);
     window.addEventListener('resize', placeCoach);
     showTourStep(0);
@@ -3568,7 +4854,10 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
   function bindFase() {
     $('#mer-q').addEventListener('input', function (e) { state.mer.q = e.target.value; renderComercios(); });
     ['sector', 'plan', 'churn'].forEach(function (k) {
-      $('#mer-' + k).addEventListener('change', function (e) { state.mer[k] = e.target.value; renderComercios(); });
+      $('#mer-' + k).addEventListener('change', function (e) {
+        var v = e.target.value;
+        applyColSpec('mer', k, v ? { type: 'cat', vals: [v] } : null);
+      });
     });
     $$('#mer-seg [data-seg]').forEach(function (b) {
       b.addEventListener('click', function () { state.mer.seg = b.getAttribute('data-seg'); renderComercios(); });
@@ -3596,7 +4885,9 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
       var b = e.target.closest('[data-rule]');
       if (!b) return;
       var k = b.getAttribute('data-rule');
+      if (!can('act.rules')) return;
       state.rules[k] = !state.rules[k];
+      logAct('rule', k + ' ' + (state.rules[k] ? 'activada' : 'desactivada'));
       render();
     });
     $('#view-riesgo').addEventListener('click', function (e) {
@@ -3613,6 +4904,7 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
         prefs.targets = prefs.targets || {};
         prefs.targets[p[0]] = v;
         savePrefs();
+        logAct('target', p[0] + ' = ' + v);
         render();
       });
     });
@@ -3657,6 +4949,63 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
     });
   }
 
+  /* === STICKY: barra fija compacta sin mover el contenido === */
+  var stickyEl = null, stuckOn = false, stickyRaf = 0, stickySpacer = null;
+  function setStuck(v) {
+    if (stuckOn === v || !stickyEl) return;
+    stuckOn = v;
+    /* Espaciador justo debajo de la barra: crece lo que la barra encoge, así la altura
+       total no cambia, el contenido no salta y no hace falta tocar el scroll */
+    if (!stickySpacer) {
+      stickySpacer = document.createElement('div');
+      stickySpacer.setAttribute('aria-hidden', 'true');
+      stickySpacer.className = 'sticky-spacer';
+      stickyEl.parentNode.insertBefore(stickySpacer, stickyEl.nextSibling);
+    }
+    var h0 = stickyEl.offsetHeight + stickySpacer.offsetHeight;
+    stickyEl.classList.toggle('is-stuck', v);
+    stickySpacer.style.height = v ? Math.max(0, h0 - stickyEl.offsetHeight) + 'px' : '0px';
+  }
+  function onStickyScroll() {
+    var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+    if (!stuckOn && y > 24) setStuck(true);
+    else if (stuckOn && y < 8) setStuck(false);
+  }
+
+  /* === ROLES: eventos de las vistas nuevas === */
+  function bindRoles() {
+    $('#login').addEventListener('keydown', function (e) { if (e.key === 'Escape' && USER) hideLogin(); });
+    $('#view-aprobaciones').addEventListener('click', function (e) {
+      var ap = e.target.closest('[data-approve]'), rj = e.target.closest('[data-reject]');
+      if (ap) approveMdr(ap.getAttribute('data-approve'), true);
+      else if (rj) approveMdr(rj.getAttribute('data-reject'), false);
+    });
+    $('#liq-csv').addEventListener('click', exportLiqCsv);
+    $('#cbm-body').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-cbdoc]');
+      if (!b || b.disabled) return;
+      var t = findTx(b.getAttribute('data-cbdoc'));
+      if (!t || t.cbState) return;
+      t.cbState = 'En revisión';
+      logAct('cb-doc', t.id + ' · documentación aportada');
+      toast('Documentación enviada: ' + t.id + ' pasa a En revisión');
+      render();
+    });
+    $('#users-body').addEventListener('change', function (e) {
+      var id = e.target.getAttribute('data-role-sel');
+      if (!id || !can('act.users')) return;
+      var u = userById(id), old = roleOfUser(u);
+      ROLE_STORE[id] = e.target.value;
+      lsSet('pulso-roles', ROLE_STORE);
+      logAct('role', u.name + ': ' + ROLE_LABEL[old] + ' → ' + ROLE_LABEL[e.target.value]);
+      toast(u.name + ': rol cambiado a ' + ROLE_LABEL[e.target.value]);
+      render();
+    });
+    $('#act-user').addEventListener('change', function (e) {
+      applyColSpec('act', 'usuario', e.target.value ? { type: 'cat', vals: [e.target.value] } : null);
+    });
+  }
+
   /* === INIT === */
   function init() {
     hydrateIcons();
@@ -3674,11 +5023,23 @@ html[data-theme="carpa"] .tag-x:hover { background: rgba(27,8,18,.12); }
     registerView('rentabilidad', renderRentab);
     registerView('riesgo', renderRiesgo);
     registerView('ajustes', renderAjustes);
+    registerView('aprobaciones', renderAprobaciones);
+    registerView('liquidaciones', renderLiquidaciones);
+    registerView('contracargos', renderContracargos);
+    registerView('cuenta', renderCuenta);
     bind();
     bindFase();
+    bindRoles();
+    buildHeads();
+    window.addEventListener('scroll', function () { if (colPop && colPopBtn) placePop(colPop, colPopBtn); }, { passive: true });
     window.addEventListener('hashchange', onHashChange);
-    render();
-    offerTour();
+    stickyEl = $('#stickybar');
+    loginEl = $('#login');
+    window.addEventListener('scroll', onStickyScroll, { passive: true });
+    /* Cada carga muestra "Entrar como…"; solo un enlace con como=<id> entra directamente */
+    var direct = userById(state.comoParam);
+    if (direct) setUser(direct.id);
+    else showLogin(false);
   }
   init();
 
