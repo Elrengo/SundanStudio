@@ -213,6 +213,57 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
 .tm{padding:.6rem 0;border:2px solid var(--gold);background:transparent;color:var(--bone);font:inherit;cursor:pointer}
 .tz{font-size:.85rem;opacity:.65;margin:.7rem 0 1rem}
 .sum{font-family:var(--display);font-size:1.5rem;color:var(--gold)}
+/* CONTACTO · formulario (cf-) */
+.contact .wrap{grid-template-columns:minmax(0,1.5fr) minmax(0,.9fr)}
+.cf-main,.cf-side{min-width:0}
+@media (max-width:760px){.contact .wrap{grid-template-columns:minmax(0,1fr)}}
+.cf-form{display:grid;gap:1.2rem;margin:1.6rem 0 0}
+.cf-form[hidden],.cf-done[hidden],.cf-alert[hidden],.cf-slot[hidden]{display:none!important}
+.cf-title{font-family:var(--display);font-weight:400;font-size:clamp(1.6rem,3.6vw,2.1rem);line-height:1.1;margin:0;color:var(--bone)}
+.cf-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.1rem}
+.cf-field{display:grid;gap:.4rem;min-width:0;margin:0;padding:0;border:0}
+.cf-fs{display:grid;gap:.5rem;min-width:0;margin:0;padding:0;border:0}
+.cf-field>label,.cf-fs>legend{font-size:.95rem;font-weight:600;padding:0;margin:0}
+.cf-req{color:var(--gold)}
+.cf-input{width:100%;min-width:0;min-height:44px;padding:.65rem .8rem;font:inherit;font-size:1rem;color:var(--bone);background:rgba(239,227,200,.06);border:2px solid rgba(239,227,200,.32);border-radius:0;box-sizing:border-box}
+.cf-input::placeholder{color:rgba(239,227,200,.45)}
+.cf-input:focus{border-color:var(--gold)}
+.cf-input[aria-invalid="true"]{border-color:#ff9b8a}
+.cf-area{resize:vertical;min-height:132px;line-height:1.5}
+select.cf-input option{background:var(--plum);color:var(--bone)}
+.cf-input:focus-visible,.cf-x:focus-visible,.cf-chip input:focus-visible+span{outline:3px solid var(--bone);outline-offset:2px}
+.cf-err{margin:0;font-size:.9rem;line-height:1.4;color:#ff9b8a}
+.cf-err:empty{display:none}
+.cf-count{margin:0;font-size:.85rem;opacity:.65;text-align:right;font-variant-numeric:tabular-nums}
+.cf-count.cf-near{color:var(--gold);opacity:1}
+.cf-chips{display:flex;flex-wrap:wrap;gap:.5rem}
+.cf-chip{position:relative;display:inline-flex}
+.cf-chip input{position:absolute;opacity:0;width:1px;height:1px;margin:0;pointer-events:none}
+.cf-chip span{display:inline-flex;align-items:center;min-height:44px;padding:.5rem 1rem;border:2px solid var(--gold);color:var(--bone);font-size:1rem;cursor:pointer;user-select:none}
+.cf-chip span:hover{background:rgba(233,180,47,.12)}
+.cf-chip input:checked+span{background:var(--gold);color:var(--ink)}
+.cf-bad .cf-chip span{border-color:#ff9b8a}
+.cf-slot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem .8rem;padding:.6rem .8rem;border:1px dashed var(--gold);background:rgba(233,180,47,.08);font-size:.95rem}
+.cf-slot-text{overflow-wrap:anywhere;min-width:0}
+.cf-x{min-height:44px;padding:0 .9rem;border:2px solid var(--gold);border-radius:999px;background:transparent;color:var(--bone);font:inherit;font-size:.95rem;cursor:pointer}
+.cf-x:hover{background:rgba(233,180,47,.12)}
+.cf-privacy{margin:0;font-size:.85rem;line-height:1.5;opacity:.75}
+.cf-privacy a{color:var(--gold);text-underline-offset:.2em}
+.cf-actions{display:flex;flex-wrap:wrap;gap:1rem;align-items:center}
+.cf-send{min-height:48px;cursor:pointer}
+.cf-send:disabled{opacity:.5;cursor:wait}
+.cf-alert{display:grid;gap:.6rem;padding:.9rem 1rem;border:2px solid #ff9b8a;background:rgba(193,18,31,.18);font-size:.95rem;line-height:1.5}
+.cf-alert p{margin:0}
+.cf-alert .copybtn{justify-self:start}
+.cf-done{margin-top:1.6rem;padding:clamp(1.1rem,3vw,1.6rem);border:2px solid var(--gold);background:rgba(233,180,47,.06)}
+.cf-done:focus{outline:3px solid var(--gold);outline-offset:4px}
+.cf-done h3{font-family:var(--display);font-weight:400;font-size:clamp(1.8rem,4vw,2.4rem);line-height:1.1;color:var(--gold);margin:0 0 .5rem}
+.cf-done>p{margin:0 0 .6rem;line-height:1.5}
+.cf-sum{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);gap:.5rem 1rem;margin:1.2rem 0;font-size:.95rem}
+.cf-sum dt{opacity:.7}
+.cf-sum dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.cf-msgout{white-space:pre-wrap}
+@media (max-width:600px){.cf-row{grid-template-columns:minmax(0,1fr)}.cf-sum{grid-template-columns:minmax(0,1fr)}.cf-sum dt{margin-top:.4rem}}
 @media (prefers-reduced-motion:reduce){.marquee::before,.marquee::after{animation:none}.arrow.on{animation:none}.card.shake{animation:none}.pum{animation-duration:.01s}.qh.zap{animation:none}.arena.pop .yeswrap,.arena.pop #no{animation:none}.bar{transition:none}}
 
 
@@ -1222,22 +1273,107 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
 <section class="contact" id="contacto">
   <div class="marquee"></div>
   <div class="wrap">
-    <div>
+    <div class="cf-main">
       <h2 class="big">Contacto</h2>
       <p class="lede">Si algo de lo que ves aquí te sirve para tu proyecto, hablemos.</p>
       <p class="cx-expect">Respondo en menos de 24 h laborables.</p>
       <p class="cx-steps">1. Me cuentas tu idea · 2. Charlamos 20 minutos · 3. Te envío una propuesta con precio cerrado en 48 h.</p>
+
+      <form class="cf-form" id="cf-form" novalidate>
+        <h3 class="cf-title">Cuéntame tu proyecto</h3>
+
+        <div class="cf-row">
+          <div class="cf-field">
+            <label for="cf-name">Nombre <span class="cf-req" aria-hidden="true">*</span></label>
+            <input class="cf-input" id="cf-name" name="name" type="text" autocomplete="name" maxlength="120" required aria-required="true" aria-describedby="cf-name-err">
+            <p class="cf-err" id="cf-name-err" aria-live="polite"></p>
+          </div>
+          <div class="cf-field">
+            <label for="cf-email">Correo <span class="cf-req" aria-hidden="true">*</span></label>
+            <input class="cf-input" id="cf-email" name="email" type="email" autocomplete="email" inputmode="email" maxlength="160" required aria-required="true" aria-describedby="cf-email-err">
+            <p class="cf-err" id="cf-email-err" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <fieldset class="cf-fs" id="cf-tipo-wrap">
+          <legend>Tipo de proyecto <span class="cf-req" aria-hidden="true">*</span></legend>
+          <div class="cf-chips">
+            <label class="cf-chip"><input type="radio" name="tipo" value="Web a medida"><span>Web a medida</span></label>
+            <label class="cf-chip"><input type="radio" name="tipo" value="Aplicación web"><span>Aplicación web</span></label>
+            <label class="cf-chip"><input type="radio" name="tipo" value="Panel de datos / dashboard"><span>Panel de datos / dashboard</span></label>
+            <label class="cf-chip"><input type="radio" name="tipo" value="Otro"><span>Otro</span></label>
+          </div>
+          <p class="cf-err" id="cf-tipo-err" aria-live="polite"></p>
+        </fieldset>
+
+        <div class="cf-row">
+          <div class="cf-field">
+            <label for="cf-budget">Presupuesto orientativo</label>
+            <select class="cf-input" id="cf-budget" name="presupuesto">
+              <option value="">Elige una opción</option>
+              <option>Básico · desde 450 €</option>
+              <option>Profesional · desde 1.200 €</option>
+              <option>A medida · según alcance</option>
+              <option>Aún no lo sé</option>
+            </select>
+          </div>
+          <div class="cf-field">
+            <label for="cf-plazo">Plazo</label>
+            <select class="cf-input" id="cf-plazo" name="plazo">
+              <option value="">Elige una opción</option>
+              <option>Lo antes posible</option>
+              <option>1–2 meses</option>
+              <option>3 meses o más</option>
+              <option>Sin prisa</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="cf-field">
+          <label for="cf-msg">Mensaje <span class="cf-req" aria-hidden="true">*</span></label>
+          <textarea class="cf-input cf-area" id="cf-msg" name="message" rows="6" maxlength="1500" required aria-required="true" aria-describedby="cf-count cf-msg-err"></textarea>
+          <p class="cf-count" id="cf-count">0 / 1500</p>
+          <p class="cf-err" id="cf-msg-err" aria-live="polite"></p>
+        </div>
+
+        <div class="cf-slot" id="cf-slot" hidden>
+          <span class="cf-slot-text" id="cf-slot-text"></span>
+          <button type="button" class="cf-x" id="cf-slot-x">Quitar</button>
+        </div>
+
+        <input type="checkbox" name="botcheck" class="cf-hp" tabindex="-1" aria-hidden="true" autocomplete="off" style="display:none">
+
+        <p class="cf-privacy">Usaré tus datos solo para responder a tu mensaje. Más información en la <a href="privacidad.html">política de privacidad</a>.</p>
+
+        <div class="cf-alert" id="cf-alert" role="alert" hidden>
+          <p id="cf-alert-msg"></p>
+          <button type="button" class="copybtn" id="cf-copy">Copiar correo</button>
+        </div>
+
+        <div class="cf-actions">
+          <button type="submit" class="pill main cf-send" id="cf-send">Enviar mensaje</button>
+        </div>
+      </form>
+
+      <div class="cf-done" id="cf-done" role="status" tabindex="-1" hidden>
+        <h3>¡Mensaje enviado!</h3>
+        <p>Te respondo en menos de 24 h laborables.</p>
+        <dl class="cf-sum" id="cf-sum"></dl>
+        <button type="button" class="pill" id="cf-reset">Enviar otro mensaje</button>
+      </div>
+    </div>
+
+    <div class="cf-side">
       <ul class="how">
         <li><strong>Correo</strong>
           <span class="mailrow"><a href="mailto:rafmoline@gmail.com" id="mailtxt">rafmoline@gmail.com</a><button class="copybtn" id="copy" type="button">Copiar correo</button></span>
           <span class="copy-live" id="copystatus" role="status" aria-live="polite"></span>
         </li>
         <li><strong>LinkedIn</strong><a href="https://www.linkedin.com/in/molinerorafael" target="_blank" rel="me noopener">Rafael Molinero</a></li>
-        <li><strong>Videollamada</strong>Elige día y hora en el recuadro.</li>
+        <li><strong>Videollamada</strong>Elige día y hora en el recuadro y lo añado al formulario.</li>
       </ul>
       <button class="pill replay" id="replay" type="button">↻ Ver la tormenta otra vez</button>
-    </div>
-    <div class="card" id="card">
+      <div class="card" id="card">
       <canvas id="storm" aria-hidden="true"></canvas>
       <div id="cardbody">
         <h3 class="qh hide">¿Querrías contratarme?</h3>
@@ -1246,6 +1382,7 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
       </div>
       <div class="bar t" aria-hidden="true"></div><div class="bar b" aria-hidden="true"></div>
       <button class="skip" id="skip" type="button">Saltar animación</button>
+    </div>
     </div>
   </div>
   <a class="next" href="#hero">El taller de los búhos</a>
@@ -2572,10 +2709,16 @@ function drawMumi(c, p){
     body.innerHTML='<h3>¡Gracias! Eso me alegra.</h3><p>Elige cuándo hablamos.</p><div id="cal"></div>';
     renderCal();
   }
+  var fmtS=new Intl.DateTimeFormat("es",{weekday:"long",day:"numeric",month:"short"});
   function done(){
     var raw=cap(fmtD.format(cal.date)),txt=raw+" a las "+cal.time;
-    var sub=encodeURIComponent("Quiero contratarte: "+txt),msg=encodeURIComponent("Hola, me gustaría hablar contigo: "+txt+" (hora de Barcelona).");
-    body.innerHTML='<h3>Listo, queda así.</h3><p class="sum">'+txt+'</p><p>Hora de Barcelona. Falta un paso: envíame esta propuesta por correo para confirmarla.</p><div class="btns"><a class="pill main" href="mailto:'+MAIL+'?subject='+sub+'&amp;body='+msg+'">Enviar por correo</a><button class="pill" id="again">Cambiar</button></div><p class="tz">O escríbeme a '+MAIL+'</p>';
+    // hand the slot to the contact form as a chip, then take the visitor there
+    var slotTxt=fmtS.format(cal.date).replace(/[,.]/g,"")+", "+cal.time+" (hora de Barcelona)";
+    document.dispatchEvent(new CustomEvent("cf:slot",{detail:{text:slotTxt}}));
+    body.innerHTML='<h3>Listo, queda así.</h3><p class="sum">'+txt+'</p><p>Hora de Barcelona. La he añadido al formulario de contacto: completa tus datos y envíalo.</p><div class="btns"><button class="pill" id="again">Cambiar</button></div>';
+    var f=document.getElementById("cf-form"),n=document.getElementById("cf-name");
+    if(f)f.scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});
+    if(n)n.focus({preventScroll:true});
   }
   function go(){
     if(mode==="cal")return;
@@ -2697,6 +2840,272 @@ function drawMumi(c, p){
   }
   btns.forEach(function (b) {
     b.addEventListener('click', function () { apply(b.getAttribute('data-filter')); });
+  });
+})();
+</script>
+<script>
+// contact form (Web3Forms). Dev hooks: ?cf=dry simulates success, ?cf=fail simulates an error. Neither sends anything.
+(function () {
+  var form = document.getElementById('cf-form');
+  if (!form) return;
+  var CF_KEY = '057dee94-7eae-4c2d-b88e-697d0c53ae58';
+  var CF_URL = 'https://api.web3forms.com/submit';
+  var TIMEOUT_MS = 12000;
+  var RL_KEY = 'cf_sent', RL_MAX = 3, RL_WIN = 3600000;
+  var MSG_MIN = 20, MSG_MAX = 1500;
+  var MAIL = 'rafmoline@gmail.com';
+  var DRY = location.search.indexOf('cf=dry') !== -1;
+  var FAIL = location.search.indexOf('cf=fail') !== -1;
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function $(id) { return document.getElementById(id); }
+  var nameI = $('cf-name'), emailI = $('cf-email'), msgI = $('cf-msg'), budgetI = $('cf-budget'), plazoI = $('cf-plazo');
+  var countEl = $('cf-count'), send = $('cf-send'), alertBox = $('cf-alert'), alertMsg = $('cf-alert-msg'), copyBtn = $('cf-copy');
+  var doneBox = $('cf-done'), sumEl = $('cf-sum'), resetBtn = $('cf-reset');
+  var slot = $('cf-slot'), slotText = $('cf-slot-text'), slotX = $('cf-slot-x'), hp = form.querySelector('input[name="botcheck"]');
+  var tipoWrap = $('cf-tipo-wrap'), radios = form.querySelectorAll('input[name="tipo"]');
+  var slotVal = '';
+
+  function tipoVal() { var r = form.querySelector('input[name="tipo"]:checked'); return r ? r.value : ''; }
+
+  // validators return an error message, or '' when valid
+  function vName() { return nameI.value.trim() ? '' : 'Escribe tu nombre.'; }
+  function vEmail() {
+    var v = emailI.value.trim();
+    if (!v) return 'Escribe tu correo.';
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v) ? '' : 'Revisa el correo: parece incompleto (por ejemplo, nombre@dominio.com).';
+  }
+  function vTipo() { return tipoVal() ? '' : 'Elige un tipo de proyecto.'; }
+  function vMsg() {
+    var n = msgI.value.trim().length;
+    if (!n) return 'Cuéntame en qué consiste tu proyecto.';
+    if (n < MSG_MIN) return 'Escribe al menos ' + MSG_MIN + ' caracteres (llevas ' + n + ').';
+    return '';
+  }
+
+  // [control, error element, validator]
+  var checks = [
+    [nameI, $('cf-name-err'), vName],
+    [emailI, $('cf-email-err'), vEmail],
+    [radios[0], $('cf-tipo-err'), vTipo],
+    [msgI, $('cf-msg-err'), vMsg]
+  ];
+  for (var r = 0; r < radios.length; r++) radios[r].setAttribute('aria-describedby', 'cf-tipo-err');
+
+  function setErr(i, msg) {
+    var c = checks[i], ctrl = c[0];
+    c[1].textContent = msg || '';
+    if (msg) ctrl.setAttribute('aria-invalid', 'true'); else ctrl.removeAttribute('aria-invalid');
+    if (ctrl === radios[0]) tipoWrap.classList.toggle('cf-bad', !!msg);
+  }
+  function check(i) { var m = checks[i][2](); setErr(i, m); return m; }
+  function isInvalid(i) { return checks[i][0].getAttribute('aria-invalid') === 'true'; }
+
+  nameI.addEventListener('blur', function () { check(0); });
+  emailI.addEventListener('blur', function () { check(1); });
+  msgI.addEventListener('blur', function () { check(3); });
+  tipoWrap.addEventListener('focusout', function (e) {
+    if (!tipoWrap.contains(e.relatedTarget)) check(2);
+  });
+  // re-check a field once it shows an error, so the message clears as soon as it is fixed
+  nameI.addEventListener('input', function () { if (isInvalid(0)) check(0); });
+  emailI.addEventListener('input', function () { if (isInvalid(1)) check(1); });
+  msgI.addEventListener('input', function () {
+    if (isInvalid(3)) check(3);
+    var n = msgI.value.length;
+    countEl.textContent = n + ' / ' + MSG_MAX;
+    countEl.classList.toggle('cf-near', n >= MSG_MAX - 100);
+  });
+  for (var k = 0; k < radios.length; k++) {
+    radios[k].addEventListener('change', function () { if (isInvalid(2)) check(2); });
+  }
+
+  function validateAll() {
+    var first = null;
+    for (var i = 0; i < checks.length; i++) {
+      if (check(i) && !first) first = checks[i][0];
+    }
+    return first;
+  }
+
+  // visit slot (from the calendar)
+  function setSlot(text) {
+    slotVal = text || '';
+    slotText.textContent = slotVal ? 'Videollamada: ' + slotVal : '';
+    slot.hidden = !slotVal;
+  }
+  document.addEventListener('cf:slot', function (e) {
+    setSlot(e.detail && e.detail.text ? e.detail.text : '');
+  });
+  slotX.addEventListener('click', function () { setSlot(''); msgI.focus(); });
+
+  function showAlert(msg) { alertMsg.textContent = msg; alertBox.hidden = false; }
+  function hideAlert() { alertMsg.textContent = ''; alertBox.hidden = true; }
+  copyBtn.addEventListener('click', function () {
+    var c = $('copy');
+    if (c) c.click();
+  });
+
+  // rate limit: 3 successful sends per browser per hour
+  function recentSends() {
+    try {
+      var a = JSON.parse(localStorage.getItem(RL_KEY) || '[]'), now = Date.now();
+      return a.filter(function (t) { return now - t < RL_WIN; });
+    } catch (e) { return []; }
+  }
+  function recordSend() {
+    try {
+      var a = recentSends();
+      a.push(Date.now());
+      localStorage.setItem(RL_KEY, JSON.stringify(a));
+    } catch (e) {}
+  }
+
+  function collect() {
+    var d = {
+      name: nameI.value.trim(),
+      email: emailI.value.trim(),
+      tipo: tipoVal(),
+      presupuesto: budgetI.value || 'Sin indicar',
+      plazo: plazoI.value || 'Sin indicar',
+      videollamada: slotVal || 'No solicitada',
+      mensaje: msgI.value.trim()
+    };
+    d.summary = [
+      'Nombre: ' + d.name,
+      'Correo: ' + d.email,
+      'Tipo de proyecto: ' + d.tipo,
+      'Presupuesto orientativo: ' + d.presupuesto,
+      'Plazo: ' + d.plazo,
+      'Videollamada: ' + d.videollamada,
+      '',
+      'Mensaje:',
+      d.mensaje
+    ].join('\n');
+    return d;
+  }
+
+  function buildPayload(d) {
+    return {
+      access_key: CF_KEY,
+      subject: 'Nuevo contacto desde sundanstudio.com — ' + d.tipo,
+      from_name: 'Web Sundan Studio',
+      name: d.name,
+      email: d.email,
+      replyto: d.email,
+      message: d.summary,
+      tipo: d.tipo,
+      presupuesto: d.presupuesto,
+      plazo: d.plazo,
+      videollamada: d.videollamada,
+      botcheck: false
+    };
+  }
+
+  function setBusy(on) {
+    send.disabled = on;
+    send.textContent = on ? 'Enviando…' : 'Enviar mensaje';
+    form.setAttribute('aria-busy', on ? 'true' : 'false');
+  }
+
+  function onSuccess(d, record) {
+    if (record) recordSend();
+    setBusy(false);
+    hideAlert();
+    sumEl.textContent = '';
+    var rows = [
+      ['Nombre', d.name], ['Correo', d.email], ['Tipo de proyecto', d.tipo],
+      ['Presupuesto', d.presupuesto], ['Plazo', d.plazo], ['Videollamada', d.videollamada],
+      ['Mensaje', d.mensaje]
+    ];
+    rows.forEach(function (row) {
+      var dt = document.createElement('dt'), dd = document.createElement('dd');
+      dt.textContent = row[0];
+      dd.textContent = row[1];
+      if (row[0] === 'Mensaje') dd.className = 'cf-msgout';
+      sumEl.appendChild(dt);
+      sumEl.appendChild(dd);
+    });
+    form.hidden = true;
+    doneBox.hidden = false;
+    doneBox.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block: 'start'});
+    doneBox.focus({preventScroll: true});
+  }
+
+  function onFail() {
+    setBusy(false);
+    showAlert('No se ha podido enviar. Puedes intentarlo de nuevo o escribirme a ' + MAIL + '.');
+    alertBox.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block: 'nearest'});
+  }
+
+  resetBtn.addEventListener('click', function () {
+    form.reset();
+    setSlot('');
+    for (var i = 0; i < checks.length; i++) setErr(i, '');
+    countEl.textContent = '0 / ' + MSG_MAX;
+    countEl.classList.remove('cf-near');
+    hideAlert();
+    doneBox.hidden = true;
+    form.hidden = false;
+    setBusy(false);
+    nameI.focus();
+  });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (send.disabled) return;
+    hideAlert();
+
+    // honeypot: pretend it worked, send nothing
+    if (hp && hp.checked) {
+      onSuccess(collect(), false);
+      return;
+    }
+
+    if (recentSends().length >= RL_MAX) {
+      showAlert('Ya has enviado varios mensajes hace poco. Puedes escribirme a ' + MAIL + ' directamente.');
+      return;
+    }
+
+    var first = validateAll();
+    if (first) {
+      first.focus();
+      return;
+    }
+
+    var d = collect();
+    if (navigator.onLine === false) {
+      onFail();
+      return;
+    }
+
+    setBusy(true);
+    var payload = buildPayload(d);
+
+    if (DRY || FAIL) {
+      console.debug('[cf dry] would POST ' + CF_URL + ' with body:', JSON.stringify(payload));
+      setTimeout(function () {
+        if (FAIL) onFail(); else onSuccess(d, true);
+      }, 800);
+      return;
+    }
+
+    var ctrl = window.AbortController ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, TIMEOUT_MS);
+    fetch(CF_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+      body: JSON.stringify(payload),
+      signal: ctrl ? ctrl.signal : undefined
+    }).then(function (res) {
+      return res.json().then(function (j) { return j; }, function () { return null; });
+    }).then(function (j) {
+      clearTimeout(timer);
+      if (j && j.success === true) onSuccess(d, true); else onFail();
+    }, function () {
+      clearTimeout(timer);
+      onFail();
+    });
   });
 })();
 </script>
