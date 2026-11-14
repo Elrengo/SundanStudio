@@ -466,6 +466,9 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
 /* larger touch targets on phones (SEO / accessibility) */
 .site-foot__nav a{display:inline-flex;align-items:center;min-height:44px}
 .tb-logo{display:inline-flex;align-items:center;min-height:44px}
+.tb-logo img{display:block;height:36px;width:auto}
+.site-foot__mark img{display:block;height:40px;width:auto}
+@media (max-width:420px){.tb-logo img{height:30px}}
 .note a,a[href^="mailto:"]{padding-block:.7em}
 .panel .plink{display:inline-flex;align-items:center;min-height:44px}
 </style>
@@ -473,7 +476,7 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
 <body>
 <canvas id="fx" aria-hidden="true"></canvas>
 <header class="topbar">
-  <a class="tb-logo" href="#proyectos">Sundan Studio</a>
+  <a class="tb-logo" href="#proyectos"><img src="assets/logo/logo-horizontal-oscuro.svg" alt="Sundan Studio" width="211" height="36"></a>
   <nav aria-label="Principal">
     <a href="#proyectos">Proyectos</a>
     <a href="#servicios">Servicios</a>
@@ -1261,7 +1264,7 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
   </div>
 </section>
 <footer class="site-foot">
-  <p class="site-foot__mark">Sundan Studio</p>
+  <p class="site-foot__mark"><img src="assets/logo/logo-horizontal-oscuro.svg" alt="Sundan Studio" width="235" height="40"></p>
   <p class="site-foot__copy">© 2026 Sundan Studio</p>
   <nav class="site-foot__nav" aria-label="Pie de página">
       <a href="#servicios">Servicios</a>

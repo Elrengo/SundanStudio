@@ -45,6 +45,9 @@
     homeHref = base.charAt(base.length - 1) === '/' ? base : base + '/';
   }
   var contactHref = homeHref + '#contacto';
+  /* logo icon: same folder layout as the site (assets/logo/icono.svg) */
+  var assetBase = base ? (base.charAt(base.length - 1) === '/' ? base : base + '/') : '';
+  var markSrc = assetBase + 'assets/logo/icono.svg';
 
   /* ---------- estilos (todos bajo #ss-bar) ---------- */
   var css = [
@@ -69,7 +72,7 @@
     '#ss-bar .ss-bar-home{color:#efe3c8;background:transparent}',
     '#ss-bar .ss-bar-home:hover{background:rgba(233,180,47,.14)}',
     '#ss-bar .ss-bar-brand{font-family:Gloock,Georgia,serif;font-weight:400;font-size:15px;letter-spacing:.01em}',
-    '#ss-bar .ss-bar-mark{width:18px;height:18px;flex:none;display:block}',
+    '#ss-bar .ss-bar-mark{width:26px;height:26px;flex:none;display:block;border-radius:6px}',
     '#ss-bar .ss-bar-contact{color:#14060f;background:#e9b42f}',
     '#ss-bar .ss-bar-contact:hover{background:#f2c95a}',
     '#ss-bar .ss-bar-ico{display:none;width:18px;height:18px;flex:none}',
@@ -136,10 +139,7 @@
 
   bar.innerHTML =
     '<a class="ss-bar-home" href="' + homeHref + '" aria-label="Volver a Sundan Studio">' +
-      '<svg class="ss-bar-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
-        '<path d="M3 19 12 5l9 14z" fill="none" stroke="#e9b42f" stroke-width="2.2" stroke-linejoin="round"/>' +
-        '<circle cx="12" cy="13.5" r="2.3" fill="#e9b42f"/>' +
-      '</svg>' +
+      '<img class="ss-bar-mark" src="' + markSrc + '" alt="" width="26" height="26">' +
       '<span class="ss-bar-txt ss-bar-brand">Sundan Studio</span>' +
     '</a>' +
     '<a class="ss-bar-contact" href="' + contactHref + '" aria-label="Ir a contacto en Sundan Studio">' +

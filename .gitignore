@@ -24,3 +24,6 @@
 !assets/apple-touch-icon.png
 !assets/site.webmanifest
 !assets/sundan-bar.js
+!assets/logo/
+!assets/logo/*.svg
+!assets/logo/icono-32.png

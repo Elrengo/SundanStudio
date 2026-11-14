@@ -1,23 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <defs>
-    <radialGradient id="iris" cx="50%" cy="50%" r="50%">
-      <stop offset="0" stop-color="#f6c453"/>
-      <stop offset=".6" stop-color="#e9961f"/>
-      <stop offset="1" stop-color="#a8470f"/>
-    </radialGradient>
-  </defs>
-  <rect width="64" height="64" rx="14" fill="#14060f"/>
-  <g transform="translate(0 3)">
-    <circle cx="22" cy="25" r="11" fill="#3a0a14" stroke="#e9b42f" stroke-width="1.5"/>
-    <circle cx="22" cy="25" r="8.5" fill="#14060f"/>
-    <circle cx="22" cy="25" r="7" fill="url(#iris)"/>
-    <circle cx="22" cy="25" r="3.6" fill="#000"/>
-    <circle cx="20.6" cy="23.6" r="1.1" fill="#efe3c8"/>
-    <circle cx="42" cy="25" r="11" fill="#3a0a14" stroke="#e9b42f" stroke-width="1.5"/>
-    <circle cx="42" cy="25" r="8.5" fill="#14060f"/>
-    <circle cx="42" cy="25" r="7" fill="url(#iris)"/>
-    <circle cx="42" cy="25" r="3.6" fill="#000"/>
-    <circle cx="40.6" cy="23.6" r="1.1" fill="#efe3c8"/>
-    <path d="M28 36 L36 36 L32 44 Z" fill="#e9b42f"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Sundan Studio icono">
+<title>Sundan Studio icono</title>
+<rect width="512" height="512" rx="112" fill="#14060f"/>
+<path fill="none" stroke="#efe3c8" stroke-width="24" stroke-linecap="round" d="M256 190V96"/>
+<path fill="#c1121f" stroke="#efe3c8" stroke-width="16" stroke-linejoin="round" d="M256 104C300 90 354 98 398 124C354 138 300 150 256 164Z"/>
+<path fill="#c1121f" d="M256 190C236 230 170 290 112 336L400 336C342 290 276 230 256 190Z"/>
+<path fill="none" stroke="#efe3c8" stroke-width="18" stroke-linecap="round" d="M256 190L186 336M256 190L326 336"/>
+<path fill="#efe3c8" d="M150 336L362 336L398 430L114 430Z"/>
+<path fill="#14060f" d="M256 262L206 430L306 430Z"/>
+<rect x="82" y="430" width="348" height="28" rx="14" fill="#e9b42f"/>
 </svg>
