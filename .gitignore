@@ -29,3 +29,5 @@
 !assets/logo/
 !assets/logo/*.svg
 !assets/logo/icono-32.png
+!malt-tmp/
+!malt-tmp/*.png
