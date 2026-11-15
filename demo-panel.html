@@ -742,9 +742,17 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
 .login-brand small { display: block; color: var(--muted); font-size: 12.5px; }
 .login h1 { font-size: 26px; }
 .login-note { font-size: 13px; color: var(--muted); padding: 10px 14px; border: 1px dashed var(--line); border-radius: 10px; margin: 0; }
-.who-group { display: grid; gap: 10px; }
-.who-group h2 { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0; }
-.who-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.login-body { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+.who-group, .who-grid { display: contents; }
+.who-group h2 { grid-column: 1 / -1; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0; }
+.who-group[data-g="team"] .who-card { grid-column: span 2; }
+.who-group[data-g="partner"] h2 { grid-column: 2 / span 2; grid-row: 3; }
+.who-group[data-g="partner"] .who-card { grid-column: 2 / span 2; grid-row: 4; }
+.who-group[data-g="comercio"] h2 { grid-column: 4 / span 2; grid-row: 3; }
+.who-group[data-g="comercio"] .who-card { grid-column: 4 / span 2; grid-row: 4; }
+@media (max-width: 640px) {
+  .who-group h2, .who-group .who-card { grid-column: 1 / -1 !important; grid-row: auto !important; }
+}
 .who-card {
   display: flex; align-items: center; gap: 12px; padding: 14px; text-align: left; min-width: 0; min-height: 64px;
   border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); color: var(--ink);
@@ -1945,18 +1953,8 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     { id: 'laura', name: 'Laura Méndez', title: 'Head of Platform', initials: 'LM', role: 'admin', group: 'team' },
     { id: 'jordi', name: 'Jordi Puig', title: 'CFO', initials: 'JP', role: 'direccion', group: 'team' },
     { id: 'rafael', name: 'Rafael M.', title: 'BI Analyst', initials: 'RM', role: 'bi', group: 'team' },
-    { id: 'nuria', name: 'Nuria Vidal', title: 'Operations', initials: 'NV', role: 'ops', group: 'team' },
-    { id: 'iker', name: 'Iker Sanz', title: 'Risk Analyst', initials: 'IS', role: 'riesgo', group: 'team' },
-    { id: 'marta', name: 'Marta Ruiz', title: 'Account Manager', initials: 'MR', role: 'comercial', group: 'team' },
     { id: 'p0', name: 'Equipo Nexo TPV', title: 'Partner · Nexo TPV', initials: 'NT', role: 'partner', group: 'partner', scope: 0 },
-    { id: 'p1', name: 'Equipo CajaFácil', title: 'Partner · CajaFácil', initials: 'CF', role: 'partner', group: 'partner', scope: 1 },
-    { id: 'p2', name: 'Equipo Agencia Pixel', title: 'Partner · Agencia Pixel', initials: 'AP', role: 'partner', group: 'partner', scope: 2 },
-    { id: 'p3', name: 'Equipo ERP Lince', title: 'Partner · ERP Lince', initials: 'EL', role: 'partner', group: 'partner', scope: 3 },
-    { id: 'p4', name: 'Equipo Marketplace Mosaico', title: 'Partner · Marketplace Mosaico', initials: 'MM', role: 'partner', group: 'partner', scope: 4 },
-    { id: 'c-cafe', name: 'Alejandro Vidal', title: 'Titular · Café Trébol', initials: 'AV', role: 'comercio', group: 'comercio', scope: mIdx('Café Trébol') },
-    { id: 'c-hostal', name: 'Lucía Martín', title: 'Titular · Hostal Brisa Gótica', initials: 'LM', role: 'comercio', group: 'comercio', scope: mIdx('Hostal Brisa Gótica') },
-    { id: 'c-faro', name: 'Javier Ruiz', title: 'Titular · Librería Faro', initials: 'JR', role: 'comercio', group: 'comercio', scope: mIdx('Librería Faro') },
-    { id: 'c-rueda', name: 'Carmen Ortega', title: 'Titular · Taller Rueda', initials: 'CO', role: 'comercio', group: 'comercio', scope: mIdx('Taller Rueda') }
+    { id: 'c-cafe', name: 'Alejandro Vidal', title: 'Titular · Café Trébol', initials: 'AV', role: 'comercio', group: 'comercio', scope: mIdx('Café Trébol') }
   ];
   var USER = null, loginEl = null, offeredTour = false;
   var NAV_DEF = [
@@ -2066,7 +2064,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     body.textContent = '';
     [['team', 'Equipo Demopay'], ['partner', 'Partners'], ['comercio', 'Comercios']].forEach(function (g) {
       var list = USERS.filter(function (u) { return u.group === g[0]; });
-      body.appendChild(h('section', { class: 'who-group' }, h('h2', null, g[1]),
+      body.appendChild(h('section', { class: 'who-group', 'data-g': g[0] }, h('h2', null, g[1]),
         h('div', { class: 'who-grid' }, list.map(function (u) {
           var r = roleOfUser(u), sug = u.id === 'laura', isLast = u.id === last;
           return h('button', {
