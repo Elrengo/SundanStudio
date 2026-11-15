@@ -32,6 +32,7 @@
   "url": "https://sundanstudio.com/",
   "image": "https://sundanstudio.com/assets/og-image.png",
   "email": "rafmoline@gmail.com",
+  "telephone": "+34623448706",
   "description": "Diseño y desarrollo de webs y apps a medida en Barcelona: tiendas online, paneles de gestión y experiencias interactivas.",
   "areaServed": "Worldwide",
   "knowsLanguage": [
@@ -44,7 +45,8 @@
     "addressCountry": "ES"
   },
   "sameAs": [
-    "https://www.linkedin.com/in/molinerorafael"
+    "https://www.linkedin.com/in/molinerorafael",
+    "https://www.malt.com/profile/rafaelmolinero"
   ],
   "priceRange": "€€"
 }
@@ -197,6 +199,14 @@ h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8r
 .copybtn:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 .copy-live{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .how a:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
+.wa-btn{display:flex;align-items:center;gap:.8rem;width:100%;box-sizing:border-box;min-height:44px;padding:.9rem 1.1rem;border:2px solid var(--gold);border-radius:14px;background:rgba(233,180,47,.08);color:var(--bone);text-decoration:none;line-height:1.35;transition:background .25s ease}
+.wa-btn:hover{background:rgba(233,180,47,.18)}
+.wa-btn:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
+.wa-ico{flex:none;width:40px;height:40px;padding:8px;border-radius:50%;background:var(--ink);color:#25D366;box-sizing:border-box}
+.wa-txt{display:grid;gap:.15rem;min-width:0}
+.wa-txt strong{font-family:var(--display);font-weight:400;font-size:1.3rem;color:var(--gold)}
+.wa-txt small{font-size:.9rem;opacity:.8;overflow-wrap:anywhere}
+.cf-side .how{margin-top:1.2rem}
 .skip:focus-visible{outline:3px solid var(--gold)}
 .replay{margin-top:1.8rem;font-size:1.1rem}
 .replay:hover{background:rgba(233,180,47,.15)}
@@ -263,6 +273,15 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 .cf-sum dt{opacity:.7}
 .cf-sum dd{margin:0;min-width:0;overflow-wrap:anywhere}
 .cf-msgout{white-space:pre-wrap}
+.cf-person{display:flex;align-items:center;gap:1rem 1.2rem;margin:0;padding:1rem 1.1rem;border:1px solid rgba(233,180,47,.35);background:rgba(239,227,200,.04);min-width:0}
+.cf-photo{flex:0 0 80px;width:80px;height:80px;border-radius:50%;border:2px solid var(--gold);object-fit:cover;display:block;background:rgba(239,227,200,.08)}
+.cf-person-txt{min-width:0}
+.cf-person-txt p{margin:0;font-size:.95rem;line-height:1.5;opacity:.85}
+.cf-hola{font-family:var(--display);font-weight:400;font-size:1.5rem;line-height:1.1;margin:0 0 .35rem;color:var(--gold)}
+.cf-guar{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.5rem .8rem;font-size:.92rem;line-height:1.35}
+.cf-guar li{display:flex;align-items:flex-start;gap:.45rem;min-width:0;overflow-wrap:anywhere}
+.cf-ico{flex:0 0 16px;width:16px;height:16px;margin-top:.12rem;color:var(--gold)}
+@media (max-width:520px){.cf-guar{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:600px){.cf-row{grid-template-columns:minmax(0,1fr)}.cf-sum{grid-template-columns:minmax(0,1fr)}.cf-sum dt{margin-top:.4rem}}
 @media (prefers-reduced-motion:reduce){.marquee::before,.marquee::after{animation:none}.arrow.on{animation:none}.card.shake{animation:none}.pum{animation-duration:.01s}.qh.zap{animation:none}.arena.pop .yeswrap,.arena.pop #no{animation:none}.bar{transition:none}}
 
@@ -520,9 +539,11 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 .tb-logo img{display:block;height:36px;width:auto}
 .site-foot__mark img{display:block;height:40px;width:auto}
 @media (max-width:420px){.tb-logo img{height:30px}}
+@media (min-width:640px) and (max-width:900px){.tb-logo img{height:30px}.topbar nav{gap:.8rem}.topbar nav a{font-size:.85rem}.topbar{gap:.6rem}}
 .note a,a[href^="mailto:"]{padding-block:.7em}
 .panel .plink{display:inline-flex;align-items:center;min-height:44px}
 </style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="1377f8f1-df62-427b-bc7d-eec5c112cc00" data-domains="sundanstudio.com"></script>
 </head>
 <body>
 <canvas id="fx" aria-hidden="true"></canvas>
@@ -534,7 +555,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
     <a href="#precios">Precios</a>
     <a href="#contacto">Contacto</a>
   </nav>
-  <a class="pill main tb-cta" href="#contacto">Pide presupuesto</a>
+  <a class="pill main tb-cta" href="#contacto" data-umami-event="clic-pide-presupuesto">Pide presupuesto</a>
 </header>
 <section class="projects" id="proyectos">
   <div class="lights" aria-hidden="true">
@@ -571,9 +592,9 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
     <h2 class="big">Proyectos</h2>
     <p class="lede">Hola, soy Sundan Studio: diseño y desarrollo webs y aplicaciones con carácter. Estas son algunas cosas que he construido. Ábrelas, tócalas, rómpelas.</p>
     <nav class="pfilter" aria-label="Filtrar proyectos">
-      <button type="button" class="pf-btn" data-filter="all" aria-pressed="true">Todo <span>(7)</span></button>
-      <button type="button" class="pf-btn" data-filter="demos" aria-pressed="false">Demos profesionales <span>(5)</span></button>
-      <button type="button" class="pf-btn" data-filter="juegos" aria-pressed="false">Juegos <span>(2)</span></button>
+      <button type="button" class="pf-btn" data-filter="all" aria-pressed="true" data-umami-event="filtro-proyectos" data-umami-event-grupo="all">Todo <span>(7)</span></button>
+      <button type="button" class="pf-btn" data-filter="demos" aria-pressed="false" data-umami-event="filtro-proyectos" data-umami-event-grupo="demos">Demos profesionales <span>(5)</span></button>
+      <button type="button" class="pf-btn" data-filter="juegos" aria-pressed="false" data-umami-event="filtro-proyectos" data-umami-event-grupo="juegos">Juegos <span>(2)</span></button>
     </nav>
 
     <div class="pgroup" id="grupo-demos" data-group="demos">
@@ -676,7 +697,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
           <p class="desc">Panel de analítica para Demopay, una pasarela ficticia: volumen, aprobación, contracargos, rentabilidad por comercio y un simulador “¿y si…?”. Con roles, filtros por columna y modo en vivo.</p>
           <p class="result">Resultado / qué demuestra: <strong>Datos complejos, interfaz tranquila.</strong></p>
           <div class="actions">
-            <a class="pill main" href="demo-panel.html">Abrir el panel →</a>
+            <a class="pill main" href="demo-panel.html" data-umami-event="abrir-proyecto" data-umami-event-proyecto="Pulso">Abrir el panel →</a>
           </div>
         </div>
       </article>
@@ -703,7 +724,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
           <p class="desc">Heladería con tienda online para móvil y escritorio, tartas por encargo con fecha de entrega y seguimiento del pedido. Incluye panel del equipo: pedidos en vivo, calendario de entregas y gestión de productos.</p>
           <p class="result">Resultado / qué demuestra: <strong>Aplicación web real, de principio a fin.</strong></p>
           <div class="actions">
-            <a class="pill main" href="demo-heladeria.html">Abrir la demo →</a>
+            <a class="pill main" href="demo-heladeria.html" data-umami-event="abrir-proyecto" data-umami-event-proyecto="Bola de Nieve">Abrir la demo →</a>
           </div>
         </div>
       </article>
@@ -743,7 +764,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
           <p class="desc">Motos de carreras, de lujo y choppers presentadas como el número del globo de la muerte: esfera 3D, efecto vértigo, configurador con financiación en directo y reserva de prueba.</p>
           <p class="result">Resultado / qué demuestra: <strong>Una marca osada que nadie olvida.</strong></p>
           <div class="actions">
-            <a class="pill main" href="demo-motos.html">Entrar al globo →</a>
+            <a class="pill main" href="demo-motos.html" data-umami-event="abrir-proyecto" data-umami-event-proyecto="Globo Negro">Entrar al globo →</a>
           </div>
         </div>
       </article>
@@ -794,7 +815,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
           <p class="desc">Reservas para una barbería: servicio, profesional, día y hora según disponibilidad real, y la cita directa a tu calendario.</p>
           <p class="result">Resultado / qué demuestra: <strong>Lógica de negocio real en una interfaz sencilla.</strong></p>
           <div class="actions">
-            <a class="pill main" href="demo-reservas.html">Reservar una cita →</a>
+            <a class="pill main" href="demo-reservas.html" data-umami-event="abrir-proyecto" data-umami-event-proyecto="Tijera &amp; Café">Reservar una cita →</a>
           </div>
         </div>
       </article>
@@ -860,7 +881,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
           <p class="desc">Un trapecista que gira entre palos bajo una tormenta. Física, controles táctiles y arte propio.</p>
           <p class="result">Resultado / qué demuestra: <strong>Rendimiento y animación a 60 fps.</strong></p>
           <div class="actions">
-            <a class="pill" href="afar.html">Jugar →</a>
+            <a class="pill" href="afar.html" data-umami-event="abrir-proyecto" data-umami-event-proyecto="Afar">Jugar →</a>
           </div>
         </div>
       </article>
@@ -910,7 +931,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
           <p class="desc">Mumi, un mono de cuerda con platillos, corre por la pista del circo y salta tambores, bolos y cajas sorpresa. Personaje animado a mano en Canvas y sonido generado en el navegador.</p>
           <p class="result">Resultado / qué demuestra: <strong>Diseño de personaje y animación con carácter.</strong></p>
           <div class="actions">
-            <a class="pill" href="mumi.html">Jugar →</a>
+            <a class="pill" href="mumi.html" data-umami-event="abrir-proyecto" data-umami-event-proyecto="Mumi">Jugar →</a>
           </div>
         </div>
       </article>
@@ -1276,11 +1297,25 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
     <div class="cf-main">
       <h2 class="big">Contacto</h2>
       <p class="lede">Si algo de lo que ves aquí te sirve para tu proyecto, hablemos.</p>
-      <p class="cx-expect">Respondo en menos de 24 h laborables.</p>
       <p class="cx-steps">1. Me cuentas tu idea · 2. Charlamos 20 minutos · 3. Te envío una propuesta con precio cerrado en 48 h.</p>
+
+      <div class="cf-person">
+        <img class="cf-photo" src="assets/rafa-160.webp" srcset="assets/rafa-160.webp 1x, assets/rafa-320.webp 2x" width="80" height="80" loading="lazy" decoding="async" alt="Rafael Molinero, fundador de Sundan Studio">
+        <div class="cf-person-txt">
+          <h3 class="cf-hola">Hola, soy Rafa.</h3>
+          <p>Leo cada mensaje yo mismo y te respondo en menos de 24 h laborables. Sin comerciales ni intermediarios.</p>
+        </div>
+      </div>
 
       <form class="cf-form" id="cf-form" novalidate>
         <h3 class="cf-title">Cuéntame tu proyecto</h3>
+
+        <ul class="cf-guar" aria-label="Garantías">
+          <li><svg class="cf-ico" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Presupuesto cerrado en 48 h</li>
+          <li><svg class="cf-ico" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Sin compromiso</li>
+          <li><svg class="cf-ico" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>El código es tuyo, sin ataduras</li>
+          <li><svg class="cf-ico" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>1 mes de soporte incluido</li>
+        </ul>
 
         <div class="cf-row">
           <div class="cf-field">
@@ -1364,12 +1399,17 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
     </div>
 
     <div class="cf-side">
+      <a class="wa-btn" href="https://wa.me/34623448706?text=Hola%20Rafa%2C%20vengo%20de%20sundanstudio.com%20y%20quiero%20contarte%20mi%20proyecto." target="_blank" rel="noopener" data-umami-event="clic-whatsapp">
+        <svg class="wa-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2.2a9.8 9.8 0 0 0-8.5 14.7L2.2 21.8l5-1.3A9.8 9.8 0 1 0 12 2.2zm0 1.8a8 8 0 1 1-4.1 14.9l-.3-.2-2.9.8.8-2.8-.2-.3A8 8 0 0 1 12 4zm-3.1 3.9c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.2 5 4.4 2.5 1 3 .8 3.5.7.6-.1 1.8-.7 2-1.4.3-.7.3-1.3.2-1.4-.1-.1-.3-.2-.6-.4l-2-1c-.3-.1-.5-.1-.7.1l-.9 1.1c-.2.2-.3.2-.6.1-.3-.1-1.1-.4-2.1-1.3-.8-.7-1.3-1.5-1.5-1.8-.2-.3 0-.4.1-.6l.5-.5.3-.5c.1-.2 0-.4 0-.5l-.9-2.2c-.2-.5-.4-.5-.6-.5h-.6z"/></svg>
+        <span class="wa-txt"><strong>Escríbeme por WhatsApp</strong><small>+34 623 44 87 06 · respuesta rápida en horario laboral</small></span>
+      </a>
       <ul class="how">
         <li><strong>Correo</strong>
-          <span class="mailrow"><a href="mailto:rafmoline@gmail.com" id="mailtxt">rafmoline@gmail.com</a><button class="copybtn" id="copy" type="button">Copiar correo</button></span>
+          <span class="mailrow"><a href="mailto:rafmoline@gmail.com" id="mailtxt" data-umami-event="clic-correo">rafmoline@gmail.com</a><button class="copybtn" id="copy" type="button">Copiar correo</button></span>
           <span class="copy-live" id="copystatus" role="status" aria-live="polite"></span>
         </li>
-        <li><strong>LinkedIn</strong><a href="https://www.linkedin.com/in/molinerorafael" target="_blank" rel="me noopener">Rafael Molinero</a></li>
+        <li><strong>LinkedIn</strong><a href="https://www.linkedin.com/in/molinerorafael" target="_blank" rel="me noopener" data-umami-event="clic-linkedin">Rafael Molinero</a></li>
+        <li><strong>Malt</strong><a href="https://www.malt.com/profile/rafaelmolinero" target="_blank" rel="me noopener" data-umami-event="clic-malt">Malt — Perfil de freelance</a></li>
         <li><strong>Videollamada</strong>Elige día y hora en el recuadro y lo añado al formulario.</li>
       </ul>
       <button class="pill replay" id="replay" type="button">↻ Ver la tormenta otra vez</button>
@@ -1410,8 +1450,9 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
       <a href="#faq">Preguntas</a>
       <a href="aviso-legal.html">Aviso legal</a>
       <a href="privacidad.html">Privacidad</a>
-      <a href="https://www.linkedin.com/in/molinerorafael" target="_blank" rel="me noopener">LinkedIn</a>
-      <a href="mailto:rafmoline@gmail.com">rafmoline@gmail.com</a>
+      <a href="https://www.linkedin.com/in/molinerorafael" target="_blank" rel="me noopener" data-umami-event="clic-linkedin">LinkedIn</a>
+      <a href="https://www.malt.com/profile/rafaelmolinero" target="_blank" rel="me noopener" data-umami-event="clic-malt">Malt</a>
+      <a href="mailto:rafmoline@gmail.com" data-umami-event="clic-correo">rafmoline@gmail.com</a>
     </nav>
 </footer>
 
@@ -2714,6 +2755,7 @@ function drawMumi(c, p){
     var raw=cap(fmtD.format(cal.date)),txt=raw+" a las "+cal.time;
     // hand the slot to the contact form as a chip, then take the visitor there
     var slotTxt=fmtS.format(cal.date).replace(/[,.]/g,"")+", "+cal.time+" (hora de Barcelona)";
+    try{window.umami&&umami.track&&umami.track("videollamada-elegida",{dia:fmtS.format(cal.date).replace(/[,.]/g,""),hora:cal.time});}catch(err){}
     document.dispatchEvent(new CustomEvent("cf:slot",{detail:{text:slotTxt}}));
     body.innerHTML='<h3>Listo, queda así.</h3><p class="sum">'+txt+'</p><p>Hora de Barcelona. La he añadido al formulario de contacto: completa tus datos y envíalo.</p><div class="btns"><button class="pill" id="again">Cambiar</button></div>';
     var f=document.getElementById("cf-form"),n=document.getElementById("cf-name");
@@ -2757,6 +2799,24 @@ function drawMumi(c, p){
 })();
 </script>
 <script>
+// analytics (Umami, sin cookies): contacto visto una vez por carga
+(function () {
+  var sec = document.getElementById('contacto');
+  if (!sec || !('IntersectionObserver' in window)) return;
+  // la sección es más alta que la pantalla, así que medimos: ≥40 % de la altura visible es contacto
+  var io = new IntersectionObserver(function (en) {
+    var r = en[0] && en[0].boundingClientRect, vh = window.innerHeight || document.documentElement.clientHeight;
+    if (!r || !en[0].isIntersecting) return;
+    var vis = Math.min(r.bottom, vh) - Math.max(r.top, 0);
+    if (vis >= 0.4 * vh) {
+      io.disconnect();
+      try { window.umami && umami.track && umami.track('contacto-visto'); } catch (e) {}
+    }
+  }, { threshold: [0, 0.1, 0.25, 0.4, 0.6] });
+  io.observe(sec);
+})();
+</script>
+<script>
 // contact: copy the email (clipboard API with a textarea fallback)
 (function () {
   var btn = document.getElementById('copy'), live = document.getElementById('copystatus'), mailEl = document.getElementById('mailtxt');
@@ -2769,6 +2829,7 @@ function drawMumi(c, p){
   function okState() {
     btn.textContent = '¡Copiado!';
     say('Correo copiado');
+    try { window.umami && umami.track && umami.track('copiar-correo'); } catch (e) {}
     clearTimeout(timer);
     timer = setTimeout(function () { btn.textContent = label; }, 2000);
   }
@@ -2865,6 +2926,16 @@ function drawMumi(c, p){
   var slot = $('cf-slot'), slotText = $('cf-slot-text'), slotX = $('cf-slot-x'), hp = form.querySelector('input[name="botcheck"]');
   var tipoWrap = $('cf-tipo-wrap'), radios = form.querySelectorAll('input[name="tipo"]');
   var slotVal = '';
+
+  // formulario-empezado: primera interacción con un campo (una sola vez)
+  var started = false;
+  function trackStart() {
+    if (started) return;
+    started = true;
+    try { window.umami && umami.track && umami.track('formulario-empezado'); } catch (e) {}
+  }
+  form.addEventListener('input', trackStart);
+  form.addEventListener('change', trackStart);
 
   function tipoVal() { var r = form.querySelector('input[name="tipo"]:checked'); return r ? r.value : ''; }
 
@@ -3032,7 +3103,8 @@ function drawMumi(c, p){
     doneBox.focus({preventScroll: true});
   }
 
-  function onFail() {
+  function onFail(motivo) {
+    try { window.umami && umami.track && umami.track('formulario-error', { motivo: motivo || 'servicio' }); } catch (e) {}
     setBusy(false);
     showAlert('No se ha podido enviar. Puedes intentarlo de nuevo o escribirme a ' + MAIL + '.');
     alertBox.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block: 'nearest'});
@@ -3064,6 +3136,7 @@ function drawMumi(c, p){
 
     if (recentSends().length >= RL_MAX) {
       showAlert('Ya has enviado varios mensajes hace poco. Puedes escribirme a ' + MAIL + ' directamente.');
+      try { window.umami && umami.track && umami.track('formulario-error', { motivo: 'limite' }); } catch (e) {}
       return;
     }
 
@@ -3075,7 +3148,7 @@ function drawMumi(c, p){
 
     var d = collect();
     if (navigator.onLine === false) {
-      onFail();
+      onFail('red');
       return;
     }
 
@@ -3085,13 +3158,14 @@ function drawMumi(c, p){
     if (DRY || FAIL) {
       console.debug('[cf dry] would POST ' + CF_URL + ' with body:', JSON.stringify(payload));
       setTimeout(function () {
-        if (FAIL) onFail(); else onSuccess(d, true);
+        if (FAIL) onFail('servicio'); else onSuccess(d, true);
       }, 800);
       return;
     }
 
     var ctrl = window.AbortController ? new AbortController() : null;
-    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, TIMEOUT_MS);
+    var timedOut = false;
+    var timer = setTimeout(function () { timedOut = true; if (ctrl) ctrl.abort(); }, TIMEOUT_MS);
     fetch(CF_URL, {
       method: 'POST',
       headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
@@ -3101,10 +3175,15 @@ function drawMumi(c, p){
       return res.json().then(function (j) { return j; }, function () { return null; });
     }).then(function (j) {
       clearTimeout(timer);
-      if (j && j.success === true) onSuccess(d, true); else onFail();
+      if (j && j.success === true) {
+        try { window.umami && umami.track && umami.track('formulario-enviado', { tipo: d.tipo, presupuesto: d.presupuesto }); } catch (e) {}
+        onSuccess(d, true);
+      } else {
+        onFail('servicio');
+      }
     }, function () {
       clearTimeout(timer);
-      onFail();
+      onFail(timedOut ? 'timeout' : 'red');
     });
   });
 })();

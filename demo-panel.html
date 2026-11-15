@@ -804,6 +804,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   .table-wrap { overflow: visible; }
 }
 </style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="1377f8f1-df62-427b-bc7d-eec5c112cc00" data-domains="sundanstudio.com"></script>
 </head>
 <body>
 
@@ -2070,6 +2071,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
           var r = roleOfUser(u), sug = u.id === 'laura', isLast = u.id === last;
           return h('button', {
             type: 'button', class: 'who-card' + (sug ? ' suggested' : ''), 'data-user': u.id,
+            'data-umami-event': 'pulso-entrar', 'data-umami-event-rol': r,
             'aria-label': u.name + ', ' + u.title + ', ' + ROLE_LABEL[r] + (isLast ? ', último acceso' : '')
           },
             h('span', { class: 'av', 'aria-hidden': 'true' }, u.initials),

@@ -138,11 +138,11 @@
   }
 
   bar.innerHTML =
-    '<a class="ss-bar-home" href="' + homeHref + '" aria-label="Volver a Sundan Studio">' +
+    '<a class="ss-bar-home" href="' + homeHref + '" data-umami-event="barra-inicio" data-umami-event-pagina="' + location.pathname + '" aria-label="Volver a Sundan Studio">' +
       '<img class="ss-bar-mark" src="' + markSrc + '" alt="" width="26" height="26">' +
       '<span class="ss-bar-txt ss-bar-brand">Sundan Studio</span>' +
     '</a>' +
-    '<a class="ss-bar-contact" href="' + contactHref + '" aria-label="Ir a contacto en Sundan Studio">' +
+    '<a class="ss-bar-contact" href="' + contactHref + '" data-umami-event="barra-contacto" data-umami-event-pagina="' + location.pathname + '" aria-label="Ir a contacto en Sundan Studio">' +
       '<svg class="ss-bar-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
         '<rect x="3" y="5" width="18" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/>' +
         '<path d="M4 7l8 6 8-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>' +
