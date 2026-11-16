@@ -120,8 +120,11 @@ h1.done:hover span{animation:flick 1.3s steps(1,end) infinite;animation-delay:ca
 
 .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(24px,6vw,96px);align-items:center;max-width:1120px;margin:0 auto;padding:clamp(48px,10vh,110px) clamp(20px,5vw,64px) 0}
 h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8rem);line-height:.9;margin:0 0 1.1rem;letter-spacing:-.02em}
+h1.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8rem);line-height:.9;margin:0 0 .9rem;letter-spacing:-.02em}
+.site-sub{font-family:var(--display);font-size:clamp(1.5rem,3.4vw,2.4rem);color:var(--gold);line-height:1.1;margin:0 0 .5rem}
+h2.big.proj-title{font-size:clamp(2.4rem,6vw,4.4rem);margin:1.4rem 0 1rem}
 .lede{max-width:36ch;line-height:1.55;opacity:.85;margin:0 0 2rem}
-.kicker-top{font-family:var(--body);text-transform:uppercase;letter-spacing:.14em;font-size:.82rem;color:var(--gold);margin:0 0 .6rem}
+.kicker-top{font-family:var(--body);text-transform:uppercase;letter-spacing:.14em;font-size:.82rem;color:var(--gold);margin:0 0 1.6rem}
 .lede-hero{font-size:clamp(1.15rem,2.1vw,1.45rem);max-width:44ch;line-height:1.5;opacity:.92}
 .hero-ctas{display:flex;flex-wrap:wrap;align-items:center;gap:.7rem 1rem;margin:-.6rem 0 2.2rem}
 .hero-note{font-size:.9rem;opacity:.75}
@@ -552,10 +555,11 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
   </div>
 
   <div class="wrap one">
-    <p class="kicker-top">Webs y aplicaciones a medida · Barcelona y remoto</p>
-    <h2 class="big">Proyectos</h2>
+    <h1 class="big site-title">Sundan Studio</h1>
+    <p class="site-sub">Webs y aplicaciones a medida</p><p class="kicker-top">Barcelona y remoto · en español e inglés</p>
     <p class="lede lede-hero">Diseño y desarrollo webs y aplicaciones para negocios: webs corporativas, tiendas y reservas online, y paneles de gestión. Rápidas, a medida y con carácter. Lo que ves abajo son demos que funcionan: ábrelas y pruébalas.</p>
     <div class="hero-ctas"><a class="pill main" href="#contacto" data-umami-event="cta-hero-presupuesto">Pide presupuesto</a><a class="pill" href="#servicios" data-umami-event="cta-hero-servicios">Servicios y precios</a><span class="hero-note">Presupuesto cerrado en 48 h, sin compromiso.</span></div>
+    <h2 class="big proj-title" id="proyectos-titulo">Proyectos</h2>
     <nav class="pfilter" aria-label="Filtrar proyectos">
       <button type="button" class="pf-btn" data-filter="all" aria-pressed="true" data-umami-event="filtro-proyectos" data-umami-event-grupo="all">Todo <span>(7)</span></button>
       <button type="button" class="pf-btn" data-filter="demos" aria-pressed="false" data-umami-event="filtro-proyectos" data-umami-event-grupo="demos">Demos profesionales <span>(5)</span></button>
@@ -1394,7 +1398,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
   <div class="stage">
     <p class="hint">Mueve el cursor. Una luz traviesa te acompaña.</p>
     <header>
-      <h1 class="sr-only" id="title">Sundan Studio</h1>
+      <p class="sr-only" id="title">Sundan Studio</p>
       <p class="lead">Aquí termina el espectáculo. Cada proyecto tiene su número: elige uno o disfruta la función.</p>
     </header>
     <div class="panel" id="panel" role="status" aria-live="polite"><h2 id="pt"></h2><p id="pp"></p><a id="pl" class="plink" hidden></a></div>
