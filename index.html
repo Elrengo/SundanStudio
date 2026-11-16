@@ -97,8 +97,12 @@ body{margin:0;background:var(--ink);color:var(--bone);font-family:var(--body);ov
 .hero .down{display:none}
 h1{display:inline-block;font-family:var(--display);font-weight:400;font-size:clamp(2.8rem,8.5vw,7.5rem);line-height:.92;margin:0;letter-spacing:-.02em;color:var(--bone);text-shadow:0 0 40px rgba(193,18,31,.6);pointer-events:auto;cursor:default}
 h1 span{display:inline-block;opacity:0;filter:blur(14px);transform:translateY(.25em) scale(1.15);animation:rise 1.4s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:calc(var(--i)*70ms + 300ms)}
+h1.site-title span{opacity:1;filter:none;transform:translateY(.18em);animation:title-in .7s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(var(--i)*45ms + 150ms)}
 h1.done span{animation:none;opacity:1;filter:none;transform:none}
+h1.site-title.wave span{animation:letter-wave .75s ease-in-out both;animation-delay:calc(var(--i)*55ms)}
 h1.done:hover span{animation:flick 1.3s steps(1,end) infinite;animation-delay:calc(var(--i)*-110ms)}
+@keyframes title-in{from{opacity:.85;transform:translateY(.18em)}to{opacity:1;transform:none}}
+@keyframes letter-wave{0%{transform:none}30%{transform:translateY(-.09em)}55%{transform:translateY(.04em)}80%{transform:translateY(-.015em)}100%{transform:none}}
 @keyframes rise{to{opacity:1;filter:blur(0);transform:none}}
 @keyframes flick{0%,17%,22%,61%,100%{opacity:1;text-shadow:0 0 26px rgba(233,180,47,.9)}19%,24%,59%{opacity:.12;text-shadow:none}}
 .lead{margin:1.1rem auto 0;font-size:clamp(1rem,2.2vw,1.2rem);line-height:1.5;max-width:32ch;opacity:.85}
@@ -122,7 +126,13 @@ h1.done:hover span{animation:flick 1.3s steps(1,end) infinite;animation-delay:ca
 h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8rem);line-height:.9;margin:0 0 1.1rem;letter-spacing:-.02em}
 h1.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8rem);line-height:.9;margin:0 0 .9rem;letter-spacing:-.02em}
 .site-sub{font-family:var(--display);font-size:clamp(1.5rem,3.4vw,2.4rem);color:var(--gold);line-height:1.1;margin:0 0 .5rem}
-h2.big.proj-title{font-size:clamp(2.4rem,6vw,4.4rem);margin:1.4rem 0 1rem}
+h2.big.proj-title{font-size:clamp(2.4rem,6vw,4.4rem);margin:1.2rem 0 1rem}
+.site-hero{display:block}
+.site-hero h1.site-title{display:block;margin:0 0 .15em}
+.site-hero .site-sub{margin:0 0 .5rem}
+.site-hero .kicker-top{margin:0 0 1.5rem}
+.site-hero .lede-hero{margin:0 0 1.6rem}
+.site-hero .hero-ctas{margin:0}
 .lede{max-width:36ch;line-height:1.55;opacity:.85;margin:0 0 2rem}
 .kicker-top{font-family:var(--body);text-transform:uppercase;letter-spacing:.14em;font-size:.82rem;color:var(--gold);margin:0 0 1.6rem}
 .lede-hero{font-size:clamp(1.15rem,2.1vw,1.45rem);max-width:44ch;line-height:1.5;opacity:.92}
@@ -133,6 +143,7 @@ h2.big.proj-title{font-size:clamp(2.4rem,6vw,4.4rem);margin:1.4rem 0 1rem}
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   h1 span{animation-duration:.01s;animation-delay:0s}
+  h1.site-title span,h1.site-title.wave span{animation:none;opacity:1;filter:none;transform:none}
   h1.done:hover span{animation:none}
   .down{animation:none}
 }
@@ -555,10 +566,13 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
   </div>
 
   <div class="wrap one">
-    <h1 class="big site-title">Sundan Studio</h1>
-    <p class="site-sub">Webs y aplicaciones a medida</p><p class="kicker-top">Barcelona y remoto · en español e inglés</p>
-    <p class="lede lede-hero">Diseño y desarrollo webs y aplicaciones para negocios: webs corporativas, tiendas y reservas online, y paneles de gestión. Rápidas, a medida y con carácter. Lo que ves abajo son demos que funcionan: ábrelas y pruébalas.</p>
-    <div class="hero-ctas"><a class="pill main" href="#contacto" data-umami-event="cta-hero-presupuesto">Pide presupuesto</a><a class="pill" href="#servicios" data-umami-event="cta-hero-servicios">Servicios y precios</a><span class="hero-note">Presupuesto cerrado en 48 h, sin compromiso.</span></div>
+    <header class="site-hero">
+      <h1 class="big site-title">Sundan Studio</h1>
+      <p class="site-sub">Webs y aplicaciones a medida</p>
+      <p class="kicker-top">Barcelona y remoto · en español e inglés</p>
+      <p class="lede lede-hero">Diseño y desarrollo webs y aplicaciones para negocios: webs corporativas, tiendas y reservas online, y paneles de gestión. Rápidas, a medida y con carácter. Lo que ves abajo son demos que funcionan: ábrelas y pruébalas.</p>
+      <div class="hero-ctas"><a class="pill main" href="#contacto" data-umami-event="cta-hero-presupuesto">Pide presupuesto</a><a class="pill" href="#servicios" data-umami-event="cta-hero-servicios">Servicios y precios</a><span class="hero-note">Presupuesto cerrado en 48 h, sin compromiso.</span></div>
+    </header>
     <h2 class="big proj-title" id="proyectos-titulo">Proyectos</h2>
     <nav class="pfilter" aria-label="Filtrar proyectos">
       <button type="button" class="pf-btn" data-filter="all" aria-pressed="true" data-umami-event="filtro-proyectos" data-umami-event-grupo="all">Todo <span>(7)</span></button>
@@ -2857,20 +2871,71 @@ function drawMumi(c, p){
     h.appendChild(s);
     last=s;
   });
+  var reduce=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
   var finished=false;
   var fallback=null;
+  var waveStarted=false;
+  /* idle wave: runs only after the entrance, never with reduced motion */
+  var inView=true;
+  var waveId=0, waveOn=false, waveTimer=null, waveFb=null;
+  function stopWave(){
+    waveId++;
+    waveOn=false;
+    if(waveFb){clearTimeout(waveFb);waveFb=null;}
+    h.classList.remove('wave');
+  }
+  function schedule(){
+    if(waveTimer){clearTimeout(waveTimer);waveTimer=null;}
+    if(document.hidden||!inView||waveOn)return;
+    waveTimer=setTimeout(runWave,4500+Math.random()*3500);
+  }
+  function runWave(){
+    waveTimer=null;
+    if(document.hidden||!inView||waveOn)return;
+    if(h.matches(':hover')){schedule();return;}
+    var id=++waveId;
+    waveOn=true;
+    function end(){
+      if(id!==waveId)return;
+      stopWave();
+      schedule();
+    }
+    last.addEventListener('animationend',function onWaveEnd(e){
+      if(e.animationName!=='letter-wave')return;
+      last.removeEventListener('animationend',onWaveEnd);
+      end();
+    });
+    h.classList.add('wave');
+    waveFb=setTimeout(end,750+55*(len-1)+400);
+  }
+  function startWaves(){
+    if(waveStarted||reduce)return;
+    waveStarted=true;
+    document.addEventListener('visibilitychange',function(){
+      if(document.hidden){if(waveTimer){clearTimeout(waveTimer);waveTimer=null;}stopWave();}
+      else schedule();
+    });
+    if('IntersectionObserver' in window){
+      new IntersectionObserver(function(en){
+        inView=en[0].isIntersecting;
+        if(!inView){if(waveTimer){clearTimeout(waveTimer);waveTimer=null;}stopWave();}
+        else schedule();
+      }).observe(h);
+    }
+    schedule();
+  }
   function finish(){
     if(finished)return;
     finished=true;
     if(fallback)clearTimeout(fallback);
     h.classList.add('done');
+    startWaves();
   }
-  var reduce=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
   if(reduce){finish();return;}
   last.addEventListener('animationend',function(e){
-    if(e.animationName==='rise')finish();
+    if(e.animationName==='title-in')finish();
   });
-  fallback=setTimeout(finish,300+70*len+1400+100);
+  fallback=setTimeout(finish,150+45*len+700+400);
 })();
 </script>
 </body>
