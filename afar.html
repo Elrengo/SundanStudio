@@ -59,7 +59,9 @@ const SFX=(function(){
   }
   function playWin(){const ac=getCtx();if(!ac)return;[523,659,784].forEach((f,i)=>tone(ac,'triangle',f,f,0.14,0.3,i*0.14));}
   function playDie(){const ac=getCtx();if(!ac)return;tone(ac,'sine',220,60,0.35,0.5,0);}
-  return{playJump,playLand,playThunder,playLightningCrack,playWin,playDie};
+  function playDash(){const ac=getCtx();if(!ac)return;tone(ac,'sine',520,130,0.17,0.22,0);tone(ac,'triangle',260,90,0.12,0.08,0);}
+  function playSpark(){const ac=getCtx();if(!ac)return;tone(ac,'triangle',660,1320,0.28,0.25,0);tone(ac,'sine',990,1980,0.22,0.12,0.06);}
+  return{playJump,playLand,playThunder,playLightningCrack,playWin,playDie,playDash,playSpark};
 })();
 
 // ═══════════════════════════════════════════════════════════
@@ -129,6 +131,10 @@ function drawAfar(ctx,x,y,facing,animState,animTime,swingTheta){
       p={legA:[1.0,0.2],legB:[0.9,0.1],armA:[PI-0.52,PI-0.5],armB:[-(PI-0.52),-(PI-0.5)],sy:0.9};
     }else if(s==='fall'){
       p={legA:[-0.2,-0.3],legB:[-0.25,-0.35],armA:[1.22,1.3],armB:[-1.22,-1.3],sy:1.08};
+    }else if(s==='dash'){
+      // dash: cuerpo inclinado ~20 grados hacia delante, brazos atrás, piernas estiradas
+      ctx.rotate(0.35);
+      p={legA:[-0.55,-0.5],legB:[-0.85,-0.7],armA:[-1.55,-1.7],armB:[-1.3,-1.5],sy:1.04};
     }else{
       var b=Math.sin(animTime*2.2);
       p={legA:[b*0.07,b*0.03],legB:[-b*0.07,-b*0.03],armA:[0.1+b*0.1,0.22+b*0.06],armB:[-(0.1+b*0.1),-(0.22+b*0.06)],lift:Math.abs(b)*3+0.5};
@@ -235,6 +241,8 @@ const MUSIC=(function(){
 const VW=720,VH=405,TAU=Math.PI*2;
 const GRAVITY=1400,WALK_SPD=220,JUMP_VEL=-670,GRAB_R=65,DAMP=0.016;
 const PW=24,PH=46;
+// DASH: 770 px/s x 0.18 s = 138.6 px nominales (3.5 x WALK_SPD). Sin gravedad durante el dash.
+const DASH_SPD=770,DASH_TIME=0.18,DASH_CD=0.35;
 const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
 
 // ═══════════════════════════════════════════════════════════
@@ -477,6 +485,106 @@ function drawWeather(ctx){
 // ═══════════════════════════════════════════════════════════
 //  NIVELES
 // ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+//  DASH, PARTÍCULAS Y CHISPA DEL RAYO (nivel IV)
+// ═══════════════════════════════════════════════════════════
+let PARTS=[];
+function spawnPart(x,y,vx,vy,life,col,r){
+  if(PARTS.length>90)return;
+  PARTS.push({x,y,vx,vy,life,max:life,col,r:r||2});
+}
+function spawnBurst(x,y,n){
+  for(let i=0;i<n;i++){
+    const a=Math.random()*TAU,s=60+Math.random()*160;
+    spawnPart(x,y,Math.cos(a)*s,Math.sin(a)*s*0.6-20,0.35+Math.random()*0.25,i%2?'#fff3c4':'#e9b42f',1.6);
+  }
+}
+function spawnDust(x,y,dir){
+  for(let i=0;i<6;i++)spawnPart(x-dir*6,y-2,-dir*(40+Math.random()*60),-(10+Math.random()*30),0.45,'#efe3c8',3+Math.random()*2);
+}
+function updateParts(dt){
+  PARTS=PARTS.filter(p=>{
+    p.life-=dt;if(p.life<=0)return false;
+    p.x+=p.vx*dt;p.y+=p.vy*dt;
+    p.vx*=Math.pow(0.05,dt);p.vy+=GRAVITY*0.25*dt;
+    return true;
+  });
+}
+function drawParts(ctx){
+  if(!PARTS.length)return;
+  ctx.save();
+  for(const p of PARTS){
+    const sx=p.x-camX;if(sx<-10||sx>VW+10)continue;
+    ctx.globalAlpha=Math.max(0,p.life/p.max)*0.9;
+    ctx.fillStyle=p.col;ctx.beginPath();ctx.arc(sx,p.y,p.r,0,TAU);ctx.fill();
+  }
+  ctx.restore();
+}
+function startDash(){
+  const L=wantsLeft(),R=wantsRight();
+  const dir=dashDirReq||(R&&!L?1:(L&&!R?-1:P.facing));
+  P.dashDir=dir;P.facing=dir;P.dashT=DASH_TIME;P.dashCd=DASH_CD;P.airDashUsed=true;P.trail=[];
+  SFX.playDash();
+  spawnBurst(P.x-dir*6,P.y-PH*0.45,10);
+  if(P.onGround)spawnDust(P.x,P.y,dir);
+}
+// chispa del rayo (sólo nivel IV): se atrapa tocándola con el cuerpo
+function checkSpark(){
+  if(!lv.spark||sparkTaken||P.deathAnim>0||gState!=='playing')return;
+  const dx=P.x-lv.spark.x,dy=(P.y-23)-lv.spark.y;
+  if(dx*dx+dy*dy<36*36){
+    sparkTaken=true;P.canDash=true;
+    flashAlpha=0.9;SFX.playSpark();
+    spawnBurst(lv.spark.x,lv.spark.y,22);
+    banner={t0:gameNow};
+    nextLightning=performance.now()+2500;
+  }
+}
+function drawSpark(ctx){
+  if(!lv.spark||sparkTaken)return;
+  const sx=lv.spark.x-camX;if(sx<-60||sx>VW+60)return;
+  const cy=lv.spark.y+(reduce?0:Math.sin(gameNow*2.4)*3);
+  const pulse=reduce?0.8:0.75+0.25*Math.sin(gameNow*5);
+  ctx.save();
+  const g=ctx.createRadialGradient(sx,cy,0,sx,cy,34);
+  g.addColorStop(0,'rgba(255,246,220,'+(0.55*pulse).toFixed(3)+')');
+  g.addColorStop(0.4,'rgba(233,180,47,'+(0.25*pulse).toFixed(3)+')');
+  g.addColorStop(1,'rgba(233,180,47,0)');
+  ctx.fillStyle=g;ctx.beginPath();ctx.arc(sx,cy,34,0,TAU);ctx.fill();
+  ctx.fillStyle='#fffaf0';ctx.beginPath();ctx.arc(sx,cy,2.6,0,TAU);ctx.fill();
+  if(!reduce){
+    for(let i=0;i<4;i++){
+      const a=gameNow*3+i*Math.PI/2,rr=11+Math.sin(gameNow*4+i)*1.5;
+      ctx.fillStyle=i%2?'#e9b42f':'#fff3c4';
+      ctx.beginPath();ctx.arc(sx+Math.cos(a)*rr,cy+Math.sin(a)*rr*0.6,1.5,0,TAU);ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+// fantasmas de Afar (3-4, tinte dorado->teal) + líneas de velocidad; con reduce: un solo rastro tenue
+function drawDashTrail(ctx){
+  const ghosts=P.trail.slice(0,-1);   // posiciones anteriores (la última es la actual)
+  ctx.save();
+  if(reduce){
+    const g=ghosts[ghosts.length-1];
+    if(g){ctx.globalAlpha=0.18;drawAfar(ctx,g.x-camX,g.y,g.f,'dash',P.animTime,0);}
+  }else{
+    if('filter' in ctx)ctx.filter='hue-rotate(150deg) saturate(1.5)';
+    const m=ghosts.length;
+    ghosts.forEach((g,i)=>{ctx.globalAlpha=m>1?0.1+0.35*i/(m-1):0.3;drawAfar(ctx,g.x-camX,g.y,g.f,'dash',P.animTime,0);});
+    ctx.filter='none';
+  }
+  ctx.globalAlpha=1;ctx.lineCap='round';ctx.lineWidth=1.2;
+  const px=P.x-camX,py=P.y-PH*0.5,d=P.dashDir;
+  for(let i=0;i<5;i++){
+    const yo=(i-2)*8+(reduce?0:Math.sin(gameNow*30+i*2)*2);
+    const x0=px-d*(14+i*3),len=26+i*7+(reduce?0:Math.sin(gameNow*40+i)*6);
+    ctx.strokeStyle='rgba(239,227,200,'+(0.32-i*0.05).toFixed(2)+')';
+    ctx.beginPath();ctx.moveTo(x0,py+yo);ctx.lineTo(x0-d*len,py+yo);ctx.stroke();
+  }
+  ctx.restore();
+}
+
 const LEVELS=[
   { // ── ACTO I: La Carta ─────────────────────────────────────
     worldW:4800,storm:0,bgTop:'#1a0a1e',bgBot:'#0e040b',
@@ -535,7 +643,7 @@ const LEVELS=[
       {px:4085,py:38,L:185,theta:0.9,omega:0,id:4}, // normal (3920→4250)
       {px:5415,py:38,L:185,theta:0.9,omega:0,id:5}, // normal (5250→5580)
     ],
-    lightning:{interval:14800,warnTime:4300},
+    lightning:{interval:6500,warnTime:1700},
     goal:{x:6720,y:78},spawnX:60,spawnY:342,
   },
   { // ── ACTO III: El Último Vuelo ────────────────────────────
@@ -571,8 +679,43 @@ const LEVELS=[
       {px:4425,py:38,L:185,theta:0.9,omega:0,id:3}, // 4260→4590
       {px:6155,py:38,L:185,theta:0.9,omega:0,id:4}, // 5990→6320
     ],
-    lightning:{interval:9800,warnTime:3000},
+    lightning:{interval:4200,warnTime:1300},
     goal:{x:8550,y:52},spawnX:60,spawnY:342,
+  },
+  { // ── ACTO IV: La chispa ───────────────────────────────────
+    // FÍSICA (GRAVITY=1400, JUMP_VEL=-670, WALK_SPD=220, DASH_SPD=770, DASH_TIME=0.18 s), medida con el harness:
+    //  · Salto: subida máx. 160 px, 0.957 s en el aire -> hueco máx. plano ~232 px (borde a borde).
+    //  · Salto + air dash (en la bajada, ~0.75 s tras el salto): hueco máx. ~413 px.
+    //  · Dash desde el suelo: 11 frames = 141 px -> hueco máx. ~164 px (estimado, sin medir).
+    //  · Tutorial: huecos 275 y 305 (> 232 y < 413; margen >= 43 px sobre el salto). Hueco 320: dash con frames 17-56 (0.28-0.93 s).
+    //  · Plataforma móvil: hueco 265..325 según la oscilación; salto plano falla, dash válido (frames 8-56 y 18-56).
+    //  · Trapecio px=2800 agarrado desde la móvil: soltar sin dash cae en el hueco (cruce con y=282 entre x 2846 y 3149);
+    //    soltar + dash aterriza en x 3188..3337 sobre la plataforma 3200..3400.
+    worldW:6900,storm:1,bgTop:'#0f0a18',bgBot:'#070409',
+    act:'Acto IV',title:'La chispa',
+    story:'Empapado tras la tormenta, Afar ve caer un rayo que deja una chispa viva.\nAl atraparla, siente que puede cruzar el aire de un salto.',
+    platforms:[
+      {x:0,    y:342,w:300,h:63},
+      {x:360,  y:300,w:200,h:18},   // salto 60 (la chispa flota sobre esta plataforma)
+      {x:640,  y:282,w:180,h:18},   // salto 80
+      {x:1095, y:282,w:200,h:18},   // TUTORIAL hueco 275 (sólo dash)
+      {x:1600, y:282,w:200,h:18},   // TUTORIAL hueco 305 (sólo dash)
+      {x:2120, y:282,w:150,h:18},   // hueco 320: salto al borde + dash en el apex
+      {x:2565, y:282,w:130,h:18,moving:true,mx:30,mspd:0.5}, // móvil: hueco 265..325 con dash
+      {x:3200, y:282,w:200,h:18},   // tras el trapecio: soltar no basta, soltar + dash sí
+      {x:3580, y:262,w:170,h:18},   // salto 180
+      {x:3950, y:244,w:170,h:18},   // salto 200
+      {x:4310, y:244,w:300,h:18},   // tramo de rayos (salto 190)
+      {x:4930, y:244,w:160,h:18},   // hueco 320: salto al borde + dash en el apex
+      {x:5290, y:228,w:170,h:18},   // salto 200
+      {x:5640, y:210,w:170,h:18},   // salto 180
+      {x:6010, y:190,w:890,h:215},  // final (salto 200)
+    ],
+    trapezes:[
+      {px:2800,py:38,L:185,theta:0.9,omega:0,id:0}, // grab desde la móvil -> soltar + dash a 3200
+    ],
+    lightning:{interval:5500,warnTime:1500},
+    goal:{x:6500,y:190},spark:{x:500,y:250},spawnX:60,spawnY:342,
   },
 ];
 
@@ -580,6 +723,7 @@ const LEVELS=[
 //  ESTADO
 // ═══════════════════════════════════════════════════════════
 let gState='title',levelIdx=0,lv,platforms,trapezes,clouds;
+let sparkTaken=false,banner=null;   // chispa del rayo (nivel IV) y banner de tutorial
 let camX=0,scale=1,dpr=1;
 let deathCount=0,gameNow=0,levelStartTime=0;
 let boltWarning=null,nextLightning=0,flashAlpha=0,gameBolts=[];
@@ -591,7 +735,8 @@ function initPlayer(){
      onGround:false,facing:1,state:'idle',animTime:0,
      grabbed:null,swingTheta:0,swingOmega:0,
      swingPose:0.5,
-     deathAnim:0,trickAnim:0};
+     deathAnim:0,trickAnim:0,
+     canDash:sparkTaken,dashT:0,dashCd:0,dashDir:1,airDashUsed:false,trail:[]};
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -600,6 +745,7 @@ function initPlayer(){
 const KEY={};
 const TOUCH={left:false,right:false,up:false};
 let jumpPressed=false,lastJumpState=false,lastLeft=false,lastRight=false;
+let dashPressed=false,lastDashState=false,tapDashDir=0,dashDirReq=0,lastTapSide='',lastTapT=0;
 
 function toggleMute(){
   musicMuted=!musicMuted;
@@ -607,7 +753,7 @@ function toggleMute(){
 }
 addEventListener('keydown',e=>{
   KEY[e.code]=true;
-  if(['Space','ArrowUp','ArrowLeft','ArrowRight','ArrowDown'].includes(e.code))e.preventDefault();
+  if(['Space','ArrowUp','ArrowLeft','ArrowRight','ArrowDown','ShiftLeft','ShiftRight'].includes(e.code))e.preventDefault();
   if(e.code==='KeyM')toggleMute();
 });
 addEventListener('keyup',e=>{KEY[e.code]=false;});
@@ -615,7 +761,14 @@ addEventListener('touchstart',e=>{
   e.preventDefault();
   Array.from(e.changedTouches).forEach(t=>{
     const nx=t.clientX/window.innerWidth;
-    if(nx<0.33)TOUCH.left=true;else if(nx>0.67)TOUCH.right=true;else TOUCH.up=true;
+    const side=nx<0.33?'left':nx>0.67?'right':'up';
+    if(side==='up')TOUCH.up=true;else TOUCH[side]=true;
+    // doble toque (<250 ms) en un lateral = dash hacia ese lado
+    if(side!=='up'){
+      const now=performance.now();
+      if(lastTapSide===side&&now-lastTapT<250){tapDashDir=side==='left'?-1:1;lastTapSide='';}
+      else{lastTapSide=side;lastTapT=now;}
+    }
   });
 },{passive:false});
 addEventListener('touchend',e=>{
@@ -639,24 +792,45 @@ function movingX(pl){
 }
 
 function updatePlayer(dt){
+  P.dashCd=Math.max(0,P.dashCd-dt);
   if(P.grabbed){updateSwing(dt);return;}
   if(P.deathAnim>0){P.deathAnim-=dt;return;}
 
-  const left=wantsLeft(),right=wantsRight();
-  if(left&&!right){P.vx=-WALK_SPD;if(P.onGround)P.facing=-1;}
-  else if(right&&!left){P.vx=WALK_SPD;if(P.onGround)P.facing=1;}
-  else P.vx*=Math.pow(0.0001,dt);
+  // dash: Shift (flanco) o doble toque; requiere desbloqueo, cooldown listo y (en suelo o aire sin usar)
+  if(dashPressed&&P.canDash&&P.dashT<=0&&P.dashCd<=0&&(P.onGround||!P.airDashUsed))startDash();
+  const dashing=P.dashT>0;
 
-  if(jumpPressed&&P.onGround){
-    P.vy=JUMP_VEL;P.onGround=false;SFX.playJump();
-  }else if(jumpPressed&&!P.onGround){
-    tryGrab();
+  if(dashing){
+    P.dashT-=dt;P.vx=DASH_SPD*P.dashDir;P.vy=0;   // sin gravedad durante el dash
+    P.trail.push({x:P.x,y:P.y,f:P.facing});if(P.trail.length>5)P.trail.shift();
+  }else{
+    const left=wantsLeft(),right=wantsRight();
+    if(left&&!right){P.vx=-WALK_SPD;if(P.onGround)P.facing=-1;}
+    else if(right&&!left){P.vx=WALK_SPD;if(P.onGround)P.facing=1;}
+    else P.vx*=Math.pow(0.0001,dt);
+
+    if(jumpPressed&&P.onGround){
+      P.vy=JUMP_VEL;P.onGround=false;SFX.playJump();
+    }else if(jumpPressed&&!P.onGround){
+      tryGrab();
+    }
+
+    P.vy+=GRAVITY*dt;
   }
-
-  P.vy+=GRAVITY*dt;
-  const prevY=P.y;
+  const prevY=P.y,prevX=P.x;
   P.x+=P.vx*dt;
   P.y+=P.vy*dt;
+
+  // dash y deslizamiento posterior (|vx|>WALK_SPD): se detienen contra plataformas que cruzan la altura del cuerpo
+  if(dashing||Math.abs(P.vx)>WALK_SPD){
+    for(const pl of platforms){
+      if(!(P.y>pl.y&&P.y-PH<pl.y+pl.h))continue;
+      const plx=movingX(pl);
+      if(P.vx>0&&prevX+PW/2<=plx&&P.x+PW/2>plx){P.x=plx-PW/2;P.dashT=0;P.vx=0;break;}
+      if(P.vx<0&&prevX-PW/2>=plx+pl.w&&P.x-PW/2<plx+pl.w){P.x=plx+pl.w+PW/2;P.dashT=0;P.vx=0;break;}
+    }
+    if(P.dashT<=0)P.trail=[];
+  }
 
   const wasOnGround=P.onGround;
   P.onGround=false;
@@ -673,6 +847,8 @@ function updatePlayer(dt){
     }
   });
 
+  // aterrizar (en suelo) restaura el air dash; un dash iniciado en el suelo que se despega no lo restaura
+  if(P.onGround&&P.dashT<=0)P.airDashUsed=false;
   if(P.x<PW/2){P.x=PW/2;P.vx=0;}
   if(P.y>VH+100)die();
 
@@ -681,7 +857,8 @@ function updatePlayer(dt){
     if(levelIdx+1>getSaved())setSaved(levelIdx+1);
   }
 
-  if(P.trickAnim>0){P.state='trick';P.trickAnim-=dt;}
+  if(P.dashT>0){P.state='dash';}
+  else if(P.trickAnim>0){P.state='trick';P.trickAnim-=dt;}
   else if(!P.onGround&&P.vy<-100)P.state='jump';
   else if(!P.onGround)P.state='fall';
   else if(Math.abs(P.vx)>10)P.state='walk';
@@ -723,7 +900,7 @@ function tryGrab(){
     if(d2<bd){bd=d2;best=tr;}
   });
   if(best){
-    P.grabbed=best;
+    P.grabbed=best;P.dashT=0;P.airDashUsed=false;   // agarrar un trapecio restaura el air dash
     P.swingTheta=Math.atan2(P.x-best.px,P.y-best.py);
     P.swingOmega=best.omega*0.4;
     P.vy=0;P.vx=0;
@@ -740,7 +917,8 @@ function resetTrapezes(){
 function die(){
   if(P.deathAnim>0||gState!=='playing')return;
   deathCount++;SFX.playDie();P.grabbed=null;P.deathAnim=1.1;
-  setTimeout(()=>{if(gState==='playing'){resetTrapezes();initPlayer();}},1100);
+  boltWarning=null;
+  setTimeout(()=>{if(gState==='playing'){resetTrapezes();initPlayer();snapCamera();nextLightning=Math.max(nextLightning,performance.now()+2000);}},1100);
 }
 
 function updateTrapezes(dt){
@@ -755,11 +933,16 @@ function updateTrapezes(dt){
   });
 }
 
-function updateCamera(){
-  const lEdge=camX+VW*0.3,rEdge=camX+VW*0.65;
-  if(P.x<lEdge)camX=P.x-VW*0.3;
-  if(P.x>rEdge)camX=P.x-VW*0.65;
-  camX=Math.max(0,Math.min((lv.worldW||VW)-VW,camX));
+// Cámara con look-ahead: el ancla (posición de Afar en pantalla, fracción de VW) se desliza
+// a 0.33 al ir a la derecha y a 0.6 al ir a la izquierda (~2.5/s); camX persigue el objetivo.
+let camAnchor=0.33;
+function camClamp(x){return Math.max(0,Math.min((lv.worldW||VW)-VW,x));}
+function snapCamera(){camAnchor=0.33;camX=camClamp(P.x-VW*camAnchor);}
+function updateCamera(dt){
+  const dirRight=Math.abs(P.vx)>20?P.vx>0:P.facing===1;
+  camAnchor+=((dirRight?0.33:0.6)-camAnchor)*Math.min(1,dt*2.5);
+  const target=camClamp(P.x-VW*camAnchor);
+  camX=camClamp(camX+(target-camX)*Math.min(1,dt*6));
 }
 
 function updateClouds(dt){
@@ -785,7 +968,7 @@ function mkBolt(x0,y0,x1,y1,d){
 }
 function drawGameBolts(ctx){
   if(!gameBolts.length)return;
-  ctx.save();ctx.globalCompositeOperation='lighter';
+  ctx.save();ctx.translate(-camX,0);ctx.globalCompositeOperation='lighter';   // rayos en coords. de mundo
   gameBolts=gameBolts.filter(b=>{
     const u=(gameNow-b.t0)/b.dur;if(u>=1)return false;
     b.a=boltA(u);
@@ -805,16 +988,32 @@ function drawGameBolts(ctx){
 // ═══════════════════════════════════════════════════════════
 //  TORMENTA
 // ═══════════════════════════════════════════════════════════
+// Todas las posiciones de rayo (boltWarning.x, gameBolts) son de MUNDO; el dibujo resta camX.
+const BOLT_HIT=30;        // radio de impacto desde el centro de Afar (P.x)
+const BOLT_GOAL_SAFE=140; // sin impactos cerca de la meta
+const BOLT_GRACE=3000;    // sin impactos en los primeros ms de cada nivel
+function boltClampX(x){return Math.max(camX+40,Math.min(camX+VW-40,x));}
 function updateStorm(){
   if(!lv||!lv.lightning||lv.storm===0)return;
-  if(gameNow*1000>nextLightning){
-    const lx=camX+VW*0.15+Math.random()*(VW*0.7);
-    boltWarning={x:lx,start:gameNow*1000,dur:lv.lightning.warnTime};
-    nextLightning=gameNow*1000+lv.lightning.warnTime+lv.lightning.interval*(0.7+Math.random()*0.6);
-    SFX.playThunder();
+  if(lv.spark&&!sparkTaken)return;   // nivel IV: sin rayos hasta coger la chispa
+  const now=gameNow*1000;
+  const goalX=lv.goal?lv.goal.x:Infinity;
+  // Programar un aviso: apuntar a donde Afar estará (predicción) + jitter, dentro de pantalla
+  if(!boltWarning&&now>nextLightning){
+    const playable=gState==='playing'&&P.deathAnim<=0;
+    const nearGoal=P.x>goalX-BOLT_GOAL_SAFE;
+    if(!playable||nearGoal||performance.now()-levelStartTime<BOLT_GRACE){
+      nextLightning=now+500;  // reintento pronto, sin disparar
+    }else{
+      const warn=lv.lightning.warnTime;
+      const vx=Math.max(-WALK_SPD,Math.min(WALK_SPD,P.vx));
+      const tx=boltClampX(P.x+vx*(warn/1000)*0.6+(Math.random()*80-40));
+      boltWarning={x:tx,start:now,dur:warn};
+      SFX.playThunder();
+    }
   }
-  if(boltWarning&&gameNow*1000>=boltWarning.start+boltWarning.dur){
-    // Rayo visual: trazo dentado desde la cima hasta el suelo
+  if(boltWarning&&now>=boltWarning.start+boltWarning.dur){
+    // Rayo visual: trazo dentado desde la cima hasta el suelo (coords. de mundo)
     const lx=boltWarning.x;
     const pts=mkBolt(lx,0,lx+(Math.random()-.5)*12,VH,6);
     const br=[];
@@ -824,8 +1023,10 @@ function updateStorm(){
     }
     gameBolts.push({pts,br,t0:gameNow,dur:0.56,a:1});
     flashAlpha=1;SFX.playLightningCrack();
-    if(gState==='playing'&&Math.abs((P.x-camX)-boltWarning.x)<52)die();
+    if(gState==='playing'&&P.deathAnim<=0&&P.x<goalX-BOLT_GOAL_SAFE&&Math.abs(P.x-lx)<BOLT_HIT)die();
     boltWarning=null;
+    // Próximo impacto = ahora + interval*(0.75..1.25); el aviso empieza warnTime antes
+    nextLightning=now+lv.lightning.interval*(0.75+Math.random()*0.5)-lv.lightning.warnTime;
   }
   if(flashAlpha>0)flashAlpha=Math.max(0,flashAlpha-0.03);
 }
@@ -941,30 +1142,61 @@ function drawGoal(ctx){
   }
 }
 
+// Y del punto de impacto: la plataforma más alta (más cercana a la cima) bajo la columna tx
+function boltGroundY(tx){
+  let gy=VH-6,top=Infinity;
+  platforms.forEach(pl=>{
+    if(pl.y<=0||pl.y>=VH)return;
+    const plx=movingX(pl);
+    if(tx<plx||tx>plx+pl.w)return;
+    if(pl.y<top){top=pl.y;gy=pl.y;}
+  });
+  return gy;
+}
 function drawBoltWarning(ctx){
   if(!boltWarning)return;
-  const lx=boltWarning.x;
-  const prog=Math.min(1,(gameNow*1000-boltWarning.start)/boltWarning.dur);
+  const tx=boltWarning.x;                       // coords. de mundo
+  const prog=Math.min(1,Math.max(0,(gameNow*1000-boltWarning.start)/boltWarning.dur));
+  const gy=boltGroundY(tx);
+  const pulse=reduce?1:0.5+0.5*Math.sin(gameNow*TAU*(1.2+prog*5.5));  // más rápido al acercarse
   ctx.save();
-  // Parpadeo irregular: dos senos multiplicados crean un patrón no uniforme
-  const flick=(Math.sin(gameNow*7.3)*0.5+0.5)*(Math.sin(gameNow*3.1)*0.5+0.5);
+  ctx.translate(-camX,0);                       // todo el dibujo en coords. de mundo
+  // (b) Columna tenue desde la cima hasta el punto de impacto
+  const colA=0.04+0.10*prog;
+  ctx.fillStyle='rgba(248,232,120,'+colA.toFixed(3)+')';
+  ctx.fillRect(tx-9,0,18,gy);
+  // (a) Marca en el suelo: elipse que pasa de dorado a blanco y pulsa más fuerte
+  const cr=Math.round(233+22*prog),cg=Math.round(180+70*prog),cb=Math.round(47+188*prog);
+  const glowA=(0.25+0.6*prog)*(0.55+0.45*pulse);
+  const R=40+prog*22;
+  ctx.save();
+  ctx.translate(tx,gy);ctx.scale(1,0.22);
+  const rg=ctx.createRadialGradient(0,0,0,0,0,R);
+  rg.addColorStop(0,'rgba('+cr+','+cg+','+cb+','+glowA.toFixed(3)+')');
+  rg.addColorStop(1,'rgba('+cr+','+cg+','+cb+',0)');
+  ctx.fillStyle=rg;ctx.beginPath();ctx.arc(0,0,R,0,TAU);ctx.fill();
+  ctx.restore();
+  ctx.fillStyle='rgba(255,250,235,'+Math.min(1,glowA+0.1).toFixed(3)+')';
+  ctx.beginPath();ctx.arc(tx,gy,2.5+prog*1.5,0,TAU);ctx.fill();
+  // Parpadeo irregular del trazo fantasma: dos senos multiplicados (sin parpadeo con reduce)
+  const flick=reduce?1:(Math.sin(gameNow*7.3)*0.5+0.5)*(Math.sin(gameNow*3.1)*0.5+0.5);
   if(flick>(0.85-prog*0.72)){
     // Regenerar trazo del rayo cada cierto intervalo
-    if(!boltWarning._pts||gameNow>boltWarning._nextPts){
-      boltWarning._pts=mkBolt(lx,0,lx+(Math.random()-.5)*20,VH,4);
+    if(!boltWarning._pts||(!reduce&&gameNow>boltWarning._nextPts)){
+      boltWarning._pts=mkBolt(tx,0,tx+(Math.random()-.5)*20,gy,4);
       boltWarning._nextPts=gameNow+0.08+Math.random()*0.14;
     }
-    const a=(0.03+prog*.20)*(0.4+Math.random()*.6);
+    const a=(0.03+prog*.20)*(reduce?0.7:(0.4+Math.random()*.6));
     ctx.globalAlpha=a;
     ctx.strokeStyle='#f8e878';ctx.lineWidth=1.2;ctx.lineJoin='round';ctx.lineCap='round';
     ctx.beginPath();
     boltWarning._pts.forEach((p,i)=>{i===0?ctx.moveTo(p[0],p[1]):ctx.lineTo(p[0],p[1]);});
     ctx.stroke();
-    // Resplandor en el suelo
+    // Resplandor en la base de la pantalla
     ctx.globalAlpha=Math.min(1,a*2);
-    const gr=ctx.createRadialGradient(lx,VH,0,lx,VH,55);
+    const gr=ctx.createRadialGradient(tx,VH,0,tx,VH,55);
     gr.addColorStop(0,'rgba(248,220,80,.5)');gr.addColorStop(1,'rgba(248,220,80,0)');
-    ctx.fillStyle=gr;ctx.beginPath();ctx.arc(lx,VH,55,0,TAU);ctx.fill();
+    ctx.fillStyle=gr;ctx.beginPath();ctx.arc(tx,VH,55,0,TAU);ctx.fill();
   }
   ctx.restore();
 }
@@ -996,6 +1228,15 @@ function drawHUD(ctx){
   ctx.font='500 13px "Instrument Sans",Arial,sans-serif';
   ctx.textAlign='left';ctx.textBaseline='top';
   ctx.fillStyle='rgba(239,227,200,0.5)';ctx.fillText(`Nivel ${levelIdx+1}`,14,14);
+  if(P.canDash&&lv.spark){   // icono de dash: se atenúa en cooldown o con el air dash ya usado
+    const nw=ctx.measureText(`Nivel ${levelIdx+1}`).width,ix=14+nw+18,iy=21;
+    const ready=P.dashT<=0&&P.dashCd<=0&&(P.onGround||!P.airDashUsed);
+    ctx.save();ctx.globalAlpha=ready?0.95:0.28;ctx.fillStyle='#fff3c4';
+    ctx.beginPath();
+    ctx.moveTo(ix,iy-6);ctx.lineTo(ix+1.6,iy-1.6);ctx.lineTo(ix+6,iy);ctx.lineTo(ix+1.6,iy+1.6);
+    ctx.lineTo(ix,iy+6);ctx.lineTo(ix-1.6,iy+1.6);ctx.lineTo(ix-6,iy);ctx.lineTo(ix-1.6,iy-1.6);
+    ctx.closePath();ctx.fill();ctx.restore();
+  }
   if(deathCount>0){ctx.textAlign='right';ctx.fillText(`✕ ${deathCount}`,VW-60,14);}
   drawMuteBtn(ctx);
   if(levelIdx===0&&(gameNow*1000-levelStartTime)<6500){
@@ -1005,6 +1246,21 @@ function drawHUD(ctx){
     ctx.fillText('← → moverse  ·  ↑/espacio = saltar  ·  ↑/espacio en el aire = agarrar trapecio  ·  M = música',VW/2,VH-28);
     ctx.restore();
   }
+  // banner de tutorial tras coger la chispa (5 s)
+  if(banner){
+    const bt=gameNow-banner.t0;
+    if(bt<5){
+      ctx.save();ctx.globalAlpha=Math.max(0,Math.min(1,bt/0.3,5-bt));
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillStyle='rgba(14,6,15,0.8)';ctx.fillRect(VW/2-300,VH*0.22-30,600,60);
+      ctx.strokeStyle='rgba(233,180,47,0.6)';ctx.lineWidth=1;ctx.strokeRect(VW/2-300,VH*0.22-30,600,60);
+      ctx.font='500 17px Gloock,Georgia,serif';ctx.fillStyle='#f5cf5a';
+      ctx.fillText('Has atrapado la chispa del rayo',VW/2,VH*0.22-10);
+      ctx.font='400 13px "Instrument Sans",Arial,sans-serif';ctx.fillStyle='#efe3c8';
+      ctx.fillText('Pulsa Shift para hacer un dash (en móvil: doble toque a un lado)',VW/2,VH*0.22+13);
+      ctx.restore();
+    }else banner=null;
+  }
   ctx.textBaseline='alphabetic';
 }
 
@@ -1013,11 +1269,14 @@ function render(ctx){
   drawPlatforms(ctx);
   drawTrapezes(ctx);
   drawGoal(ctx);
+  drawSpark(ctx);
   if(gState==='playing'||gState==='levelEnd'){
+    if(P.dashT>0)drawDashTrail(ctx);
     if(P.deathAnim<=0||Math.floor(P.deathAnim*8)%2===0){
       drawAfar(ctx,P.x-camX,P.y,P.facing,P.state,P.animTime,P.swingTheta);
     }
   }
+  drawParts(ctx);
   drawBoltWarning(ctx);
   drawGameBolts(ctx);
   if(flashAlpha>0){
@@ -1077,10 +1336,10 @@ function drawLevelEnd(ctx){
   ctx.textAlign='center';ctx.textBaseline='middle';
   ctx.font='500 42px Gloock,Georgia,serif';ctx.fillStyle='#e9b42f';
   ctx.fillText(`Fin del ${lv.act}`,VW/2,VH*0.26);
-  if(levelIdx<2){
+  if(levelIdx<3){
     const nx=LEVELS[levelIdx+1];
     ctx.font='500 18px Gloock,Georgia,serif';ctx.fillStyle='rgba(239,227,200,0.75)';
-    ctx.fillText(`${nx.act}: ${nx.title}`,VW/2,VH*0.46);
+    ctx.fillText(`Siguiente: ${nx.act}: ${nx.title}`,VW/2,VH*0.46);
     ctx.font='400 12px "Instrument Sans",Arial,sans-serif';ctx.fillStyle='rgba(239,227,200,0.42)';
     nx.story.split('\n').forEach((line,i)=>ctx.fillText(line,VW/2,VH*0.46+26+i*17));
     ctx.globalAlpha=Math.sin(gameNow*4)*0.18+0.82;
@@ -1132,8 +1391,8 @@ function initLevelData(idx){
 }
 
 function startLevel(idx){
-  levelIdx=idx;initLevelData(idx);initPlayer();
-  camX=0;deathCount=0;boltWarning=null;flashAlpha=0;gameBolts=[];
+  levelIdx=idx;initLevelData(idx);sparkTaken=false;banner=null;PARTS=[];
+  initPlayer();snapCamera();deathCount=0;boltWarning=null;flashAlpha=0;gameBolts=[];
   if(lv.lightning)nextLightning=performance.now()+3000+Math.random()*5000;
   levelStartTime=performance.now();gState='playing';
   if(!musicMuted)MUSIC.start();
@@ -1152,6 +1411,10 @@ function frame(now){
   jumpPressed=curJ&&!lastJumpState;lastJumpState=curJ;
   const justLeft=curL&&!lastLeft,justRight=curR&&!lastRight;
   lastLeft=curL;lastRight=curR;
+  const curD=!!(KEY.ShiftLeft||KEY.ShiftRight);
+  dashPressed=(curD&&!lastDashState)||tapDashDir!==0;
+  lastDashState=curD;
+  dashDirReq=tapDashDir;tapDashDir=0;
 
   const cv=document.getElementById('c');
   const ctx=cv.getContext('2d');
@@ -1164,12 +1427,12 @@ function frame(now){
     drawTitle(ctx);
     if(jumpPressed||KEY.Enter)startLevel(levelIdx);
     if(justLeft)levelIdx=Math.max(0,levelIdx-1);
-    if(justRight){if(levelIdx<2&&levelIdx<getSaved())levelIdx++;}
+    if(justRight){if(levelIdx<3&&levelIdx<getSaved())levelIdx++;}
   }else if(gState==='playing'){
-    updatePlayer(dt);updateTrapezes(dt);updateCamera();updateStorm();render(ctx);
+    updatePlayer(dt);updateTrapezes(dt);updateCamera(dt);updateStorm();checkSpark();updateParts(dt);render(ctx);
   }else if(gState==='levelEnd'){
     render(ctx);drawLevelEnd(ctx);
-    if(jumpPressed){if(levelIdx<2)startLevel(levelIdx+1);else gState='ending';}
+    if(jumpPressed){if(levelIdx<3)startLevel(levelIdx+1);else gState='ending';}
   }else if(gState==='ending'){
     drawEnding(ctx);
     if(jumpPressed){gState='title';levelIdx=0;initLevelData(0);}
@@ -1182,7 +1445,7 @@ function frame(now){
 // ═══════════════════════════════════════════════════════════
 //  STORAGE  (seguro en data: y private browsing)
 // ═══════════════════════════════════════════════════════════
-function getSaved(){try{return Math.min(parseInt(localStorage.getItem('afar-level')||'0'),2);}catch(e){return 0;}}
+function getSaved(){try{return Math.min(parseInt(localStorage.getItem('afar-level')||'0'),3);}catch(e){return 0;}}
 function setSaved(v){try{localStorage.setItem('afar-level',String(v));}catch(e){}}
 
 // ═══════════════════════════════════════════════════════════
