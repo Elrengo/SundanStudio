@@ -602,7 +602,10 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 .panel .plink{display:inline-flex;align-items:center;min-height:44px}
 /* SECTION SPOTLIGHTS: one cone per content section, from a top corner (clipped to its own section) */
 .has-spot{position:relative;isolation:isolate}
-.sec-spot-wrap{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.sec-spot-wrap{position:absolute;inset:0;overflow:clip;pointer-events:none;z-index:0}
+@supports not (overflow:clip){.sec-spot-wrap{overflow:hidden}}
+/* sticky inside the section-sized wrap: the light follows the viewport top while the section scrolls past */
+.sec-spot-stick{position:sticky;top:var(--hdr,64px);display:block;width:100%;height:min(calc(100vh - var(--hdr,64px)),100%)}
 .has-spot > :not(.sec-spot-wrap):not(.cf-side):not(.faq-intro){position:relative;z-index:1}
 .sec-spot{position:absolute;top:calc(min(150vh,1500px) * -.04);width:min(70vw,900px);height:min(150vh,1500px);transform-origin:50% 0;background:radial-gradient(ellipse 40% 90% at 50% 0%,rgba(255,232,180,.16),rgba(255,232,180,.06) 45%,transparent 72%);clip-path:polygon(44% 0,56% 0,100% 100%,0 100%);mix-blend-mode:screen;opacity:0;transition:opacity .8s ease;animation-duration:11s;animation-timing-function:ease-in-out;animation-iteration-count:infinite;animation-play-state:paused}
 .sec-spot::before{content:"";position:absolute;left:50%;top:0;width:60px;height:60px;margin-left:-30px;border-radius:50%;background:radial-gradient(circle,rgba(255,240,200,.35),transparent 70%)}
@@ -1752,7 +1755,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
   var FLOOR=0.74;            // floor line, fraction of DH
   // altura de la barra de navegación fija, que se superpone a la parte alta del escenario
   var TOPBAR_H=0;
-  function measureTopbar(){var tb=document.querySelector(".topbar");TOPBAR_H=tb?tb.offsetHeight:0;}
+  function measureTopbar(){var tb=document.querySelector(".topbar");TOPBAR_H=tb?tb.offsetHeight:0;if(tb)document.documentElement.style.setProperty("--hdr",TOPBAR_H+"px");}
   measureTopbar();
   var bulbs=[];              // marquee bulbs, recomputed when the layout changes
   function layoutBulbs(){
@@ -3402,11 +3405,14 @@ function drawMumi(c, p){
     var wrap = document.createElement('span');
     wrap.className = 'sec-spot-wrap';
     wrap.setAttribute('aria-hidden', 'true');
+    var stick = document.createElement('span');
+    stick.className = 'sec-spot-stick';
     var beam = document.createElement('span');
     beam.className = 'sec-spot ' + (i % 2 === 0 ? 'spot-l' : 'spot-r');
     beam.style.animationDuration = durations[i] + 's';
     beam.style.animationDelay = (-i * 1.7) + 's';
-    wrap.appendChild(beam);
+    stick.appendChild(beam);
+    wrap.appendChild(stick);
     sec.insertBefore(wrap, sec.firstChild);
     secs.push(sec);
   });
