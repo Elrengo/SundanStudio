@@ -230,6 +230,20 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 .cf-chip span:hover{background:rgba(233,180,47,.12)}
 .cf-chip input:checked+span{background:var(--gold);color:var(--ink)}
 .cf-bad .cf-chip span{border-color:#ff9b8a}
+.cf-video{display:grid;gap:.9rem;min-width:0}
+.cf-check{position:relative;display:flex;align-items:center;gap:.75rem;min-height:44px;font-size:1rem;line-height:1.4;cursor:pointer;user-select:none}
+.cf-check input{position:absolute;opacity:0;width:1px;height:1px;margin:0;pointer-events:none}
+.cf-check::before{content:"";flex:0 0 22px;width:22px;height:22px;box-sizing:border-box;border:2px solid rgba(239,227,200,.42);background:rgba(239,227,200,.06);transition:background .2s ease,border-color .2s ease}
+.cf-check:hover::before{border-color:var(--gold)}
+.cf-check:has(input:checked)::before{background:var(--gold);border-color:var(--gold)}
+.cf-check:has(input:focus-visible)::before{outline:3px solid var(--bone);outline-offset:2px}
+#cf-video-box{min-width:0}
+#cf-video-box .card{transform:none;margin:0}
+#cf-video-box .times{grid-template-columns:repeat(auto-fill,minmax(68px,1fr))}
+#cf-video-box iframe{display:block;max-width:100%}
+.cf-gcal-link{color:var(--gold);text-underline-offset:.2em;overflow-wrap:anywhere}
+.cf-gcal-link:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.cf-check::before{transition:none}}
 .cf-slot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem .8rem;padding:.6rem .8rem;border:1px dashed var(--gold);background:rgba(233,180,47,.08);font-size:.95rem}
 .cf-slot-text{overflow-wrap:anywhere;min-width:0}
 .cf-x{min-height:44px;padding:0 .9rem;border:2px solid var(--gold);border-radius:999px;background:transparent;color:var(--bone);font:inherit;font-size:.95rem;cursor:pointer}
@@ -1354,6 +1368,19 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
           <p class="cf-err" id="cf-msg-err" aria-live="polite"></p>
         </div>
 
+        <div class="cf-video">
+          <label class="cf-check"><input type="checkbox" id="cf-video" name="quiere_videollamada" data-umami-event="cf-videollamada-check"> Quiero una videollamada de 20 minutos</label>
+          <div id="cf-video-box" hidden>
+            <div class="card" id="card">
+              <div id="cardbody">
+                <h3>Agenda una videollamada</h3>
+                <p class="cal-note">Elige día y hora; lo añado a tu mensaje del formulario.</p>
+                <div id="cal"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="cf-slot" id="cf-slot" hidden>
           <span class="cf-slot-text" id="cf-slot-text"></span>
           <button type="button" class="cf-x" id="cf-slot-x">Quitar</button>
@@ -1393,15 +1420,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
         </li>
         <li><strong>LinkedIn</strong><a href="https://www.linkedin.com/in/molinerorafael" target="_blank" rel="me noopener" data-umami-event="clic-linkedin">Rafael Molinero</a></li>
         <li><strong>Malt</strong><a href="https://www.malt.com/profile/rafaelmolinero" target="_blank" rel="me noopener" data-umami-event="clic-malt">Malt — Perfil de freelance</a></li>
-        <li><strong>Videollamada</strong>Elige día y hora en el recuadro y lo añado al formulario.</li>
       </ul>
-      <div class="card" id="card">
-        <div id="cardbody">
-          <h3>Agenda una videollamada</h3>
-          <p class="cal-note">Elige día y hora; lo añado a tu mensaje del formulario.</p>
-          <div id="cal"></div>
-        </div>
-      </div>
     </div>
   </div>
   <a class="next" href="#hero">El taller de los búhos</a>
@@ -2409,6 +2428,10 @@ function drawMumi(c, p){
 })();
 
 (function(){
+  // Pega aquí el enlace de tu página de reservas de Google Calendar (Programación de citas)
+  var GCAL_BOOKING_URL = '';
+  var gcalOk = /^https:\/\/(calendar\.google\.com|calendar\.app\.google)\//.test(GCAL_BOOKING_URL);
+  var confirmed = false, rendered = false;
   var body=document.getElementById("cardbody");
   // video-call calendar: pick a day and an hour, the slot goes to the contact form
   var today=new Date();today.setHours(0,0,0,0);
@@ -2420,21 +2443,22 @@ function drawMumi(c, p){
   function renderCal(focusSel){
     var first=new Date(cal.y,cal.m,1),offs=(first.getDay()+6)%7,n=new Date(cal.y,cal.m+1,0).getDate(),i,h="";
     var atMin=cal.y===today.getFullYear()&&cal.m===today.getMonth();
-    h+='<div class="calhead"><button class="nav" data-a="prev" aria-label="Mes anterior"'+(atMin?" disabled":"")+'>‹</button><strong>'+cap(fmtM.format(first))+'</strong><button class="nav" data-a="next" aria-label="Mes siguiente">›</button></div><div class="grid">';
+    h+='<div class="calhead"><button type="button" class="nav" data-a="prev" aria-label="Mes anterior"'+(atMin?" disabled":"")+'>‹</button><strong id="cal-month" tabindex="-1">'+cap(fmtM.format(first))+'</strong><button type="button" class="nav" data-a="next" aria-label="Mes siguiente">›</button></div><div class="grid">';
     "LMXJVSD".split("").forEach(function(w){h+='<div class="wd" aria-hidden="true">'+w+'</div>';});
     for(i=0;i<offs;i++)h+="<span></span>";
     for(i=1;i<=n;i++){
       var dt=new Date(cal.y,cal.m,i),dis=dt<today||dt.getDay()===0||dt.getDay()===6;
       var sel=cal.date&&cal.date.getTime()===dt.getTime();
-      h+='<button class="day" data-d="'+i+'" aria-label="'+fmtD.format(dt)+'" aria-pressed="'+(sel?"true":"false")+'"'+(dis?" disabled":"")+'>'+i+'</button>';
+      h+='<button type="button" class="day" data-d="'+i+'" aria-label="'+fmtD.format(dt)+'" aria-pressed="'+(sel?"true":"false")+'"'+(dis?" disabled":"")+'>'+i+'</button>';
     }
     h+="</div>";
-    if(cal.date){h+='<div class="times">';times.forEach(function(t){h+='<button class="tm" data-t="'+t+'" aria-pressed="'+(cal.time===t?"true":"false")+'">'+t+'</button>';});h+="</div>";}
-    h+='<p class="tz">Hora de Barcelona. De lunes a viernes.</p><button class="pill main" data-a="ok"'+((cal.date&&cal.time)?"":" disabled")+'>Confirmar</button>';
+    if(cal.date){h+='<div class="times">';times.forEach(function(t){h+='<button type="button" class="tm" data-t="'+t+'" aria-pressed="'+(cal.time===t?"true":"false")+'">'+t+'</button>';});h+="</div>";}
+    h+='<p class="tz">Hora de Barcelona. De lunes a viernes.</p><button type="button" class="pill main" data-a="ok"'+((cal.date&&cal.time)?"":" disabled")+'>Confirmar</button>';
     var box=document.getElementById("cal");box.innerHTML=h;
     if(focusSel){var f=box.querySelector(focusSel);if(f&&!f.disabled)f.focus();}
   }
   function showCal(){
+    confirmed=false;
     body.innerHTML='<h3>Agenda una videollamada</h3><p class="cal-note">Elige día y hora; lo añado a tu mensaje del formulario.</p><div id="cal"></div>';
     renderCal();
   }
@@ -2443,12 +2467,11 @@ function drawMumi(c, p){
     // hand the slot to the contact form as a chip, then take the visitor there
     var slotTxt=fmtS.format(cal.date).replace(/[,.]/g,"")+", "+cal.time+" (hora de Barcelona)";
     try{window.umami&&umami.track&&umami.track("videollamada-elegida",{dia:fmtS.format(cal.date).replace(/[,.]/g,""),hora:cal.time});}catch(err){}
+    confirmed=true;
     document.dispatchEvent(new CustomEvent("cf:slot",{detail:{text:slotTxt}}));
-    body.innerHTML='<h3>Listo, queda así.</h3><p class="sum">'+txt+'</p><p>Hora de Barcelona. La he añadido al formulario de contacto: completa tus datos y envíalo.</p><div class="btns"><button class="pill" id="again">Cambiar</button></div>';
-    var f=document.getElementById("cf-form"),n=document.getElementById("cf-name");
-    var reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if(f)f.scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"});
-    if(n)n.focus({preventScroll:true});
+    body.innerHTML='<h3 tabindex="-1">Listo, queda así.</h3><p class="sum">'+txt+'</p><p>Hora de Barcelona. La he añadido al formulario de contacto: completa tus datos y envíalo.</p><div class="btns"><button type="button" class="pill" id="again">Cambiar</button></div>';
+    var h=body.querySelector("h3");
+    if(h)h.focus();
   }
   body.addEventListener("click",function(e){
     var t=e.target.closest("button");if(!t)return;
@@ -2457,9 +2480,71 @@ function drawMumi(c, p){
     else if(t.dataset.a==="prev"){cal.m--;if(cal.m<0){cal.m=11;cal.y--;}renderCal('[data-a="prev"]');}
     else if(t.dataset.a==="next"){cal.m++;if(cal.m>11){cal.m=0;cal.y++;}renderCal('[data-a="next"]');}
     else if(t.dataset.a==="ok"){done();}
-    else if(t.id==="again"){showCal();}
+    else if(t.id==="again"){showCal();var m=document.getElementById("cal-month");if(m)m.focus();}
   });
-  renderCal();
+
+  // video-call checkbox: opens or closes the calendar box inside the form
+  var video=document.getElementById("cf-video"),vbox=document.getElementById("cf-video-box");
+  var reduceM=matchMedia("(prefers-reduced-motion: reduce)").matches,vTimer=null;
+  function openBox(){
+    clearTimeout(vTimer);vbox.hidden=false;
+    if(reduceM){vbox.style.cssText="";return;}
+    var h=vbox.scrollHeight;
+    vbox.style.overflow="hidden";vbox.style.transition="height .35s ease, opacity .35s ease";
+    vbox.style.height="0px";vbox.style.opacity="0";
+    void vbox.offsetHeight;
+    vbox.style.height=h+"px";vbox.style.opacity="1";
+    vTimer=setTimeout(function(){vbox.style.cssText="";},380);
+  }
+  function closeBox(){
+    clearTimeout(vTimer);
+    if(reduceM||vbox.hidden){vbox.hidden=true;vbox.style.cssText="";return;}
+    vbox.style.overflow="hidden";vbox.style.transition="height .3s ease, opacity .3s ease";
+    vbox.style.height=vbox.scrollHeight+"px";
+    void vbox.offsetHeight;
+    vbox.style.height="0px";vbox.style.opacity="0";
+    vTimer=setTimeout(function(){vbox.hidden=true;vbox.style.cssText="";},320);
+  }
+  // Google Calendar booking page instead of the custom calendar
+  function showGcal(){
+    body.innerHTML='<h3 tabindex="-1">Agenda una videollamada</h3><p class="cal-note">Elige un hueco en mi calendario de Google; recibirás la invitación con el enlace de Google Meet.</p><div id="gcal-wrap"></div>';
+    var wrap=document.getElementById("gcal-wrap"),fr=document.createElement("iframe"),p=document.createElement("p"),a=document.createElement("a");
+    fr.src=GCAL_BOOKING_URL+(GCAL_BOOKING_URL.indexOf("?")>-1?"&":"?")+"gv=true";
+    fr.setAttribute("title","Reservar videollamada");
+    fr.setAttribute("style","border:0");
+    fr.setAttribute("width","100%");fr.setAttribute("height","600");fr.setAttribute("loading","lazy");
+    wrap.appendChild(fr);
+    a.href=GCAL_BOOKING_URL;a.target="_blank";a.rel="noopener";a.className="cf-gcal-link";
+    a.textContent="Abrir el calendario en una pestaña nueva";
+    p.appendChild(a);body.appendChild(p);
+  }
+  function syncVideo(){
+    if(video.checked){
+      if(gcalOk){
+        if(!rendered){showGcal();rendered=true;}
+        document.dispatchEvent(new CustomEvent("cf:slot",{detail:{text:"Solicitada (reserva en Google Calendar)"}}));
+      }else if(!rendered){renderCal();rendered=true;}
+      openBox();
+      var t=document.getElementById("cal-month")||body.querySelector("h3");
+      if(t){t.setAttribute("tabindex","-1");t.focus();}
+    }else{
+      cal.date=null;cal.time=null;
+      if(!gcalOk&&rendered)showCal();
+      document.dispatchEvent(new CustomEvent("cf:slot",{detail:{text:""}}));
+      closeBox();
+    }
+  }
+  video.addEventListener("change",syncVideo);
+  // the form reset (after a sent message) also closes the calendar
+  document.getElementById("cf-reset").addEventListener("click",function(){
+    if(video.checked){video.checked=false;syncVideo();}
+  });
+  // "Quitar" on the slot chip: back to the picker (custom calendar) or unchecks (Google mode)
+  document.addEventListener("cf:slot",function(e){
+    if(e.detail&&e.detail.text)return;
+    if(gcalOk){if(video.checked){video.checked=false;closeBox();}}
+    else if(confirmed){confirmed=false;cal.date=null;cal.time=null;showCal();}
+  });
 })();
 </script>
 <script>
@@ -2672,7 +2757,7 @@ function drawMumi(c, p){
   document.addEventListener('cf:slot', function (e) {
     setSlot(e.detail && e.detail.text ? e.detail.text : '');
   });
-  slotX.addEventListener('click', function () { setSlot(''); msgI.focus(); });
+  slotX.addEventListener('click', function () { document.dispatchEvent(new CustomEvent('cf:slot', { detail: { text: '' } })); msgI.focus(); });
 
   function showAlert(msg) { alertMsg.textContent = msg; alertBox.hidden = false; }
   function hideAlert() { alertMsg.textContent = ''; alertBox.hidden = true; }
@@ -2703,7 +2788,7 @@ function drawMumi(c, p){
       tipo: tipoVal(),
       presupuesto: budgetI.value || 'Sin indicar',
       plazo: plazoI.value || 'Sin indicar',
-      videollamada: slotVal || 'No solicitada',
+      videollamada: slotVal || ((document.getElementById('cf-video') && document.getElementById('cf-video').checked) ? 'Solicitada (sin hora elegida)' : 'No solicitada'),
       mensaje: msgI.value.trim()
     };
     d.summary = [
