@@ -488,15 +488,15 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 .pricing{background:var(--plum);color:var(--bone);position:relative;overflow:hidden;padding:0 0 clamp(56px,12vh,130px)}
 .pricing .pr-bunting{height:30px;position:relative;overflow:hidden}
 .pricing .pr-bunting svg{display:block;width:100%;height:30px}
-@keyframes flag-sway{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(5deg)}}
-@keyframes flag-gust{0%{transform:rotate(0)}3%{transform:rotate(10deg)}6%{transform:rotate(-4deg)}9%{transform:rotate(6deg)}14%,100%{transform:rotate(0)}}
-.pricing .pr-flag{transform-box:fill-box;transform-origin:50% 0;animation:flag-sway 3.5s ease-in-out infinite}
-.pricing .pr-gust{transform-box:fill-box;transform-origin:50% 0;animation:flag-gust 7s linear infinite}
-@media (prefers-reduced-motion:reduce){.pricing .pr-flag,.pricing .pr-gust{animation:none}}
-.pricing .wrap.one{grid-template-columns:1fr;padding-top:48px;min-width:0}
+@keyframes flag-calm{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+@keyframes string-breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(1.5px)}}
+.pricing .pr-string{animation:string-breathe 4s ease-in-out infinite}
+.pricing .pr-flag{transform-box:fill-box;transform-origin:50% 0;animation:flag-calm 4s ease-in-out infinite;animation-delay:calc(var(--i,0) * -0.06s)}
+@media (prefers-reduced-motion:reduce){.pricing .pr-string,.pricing .pr-flag{animation:none}}
+.pricing .wrap.one{grid-template-columns:1fr;padding-top:2.5rem;min-width:0}
 .pricing .intro{min-width:0}
 .pricing .intro .lede{margin-top:.6rem}
-.pricing .pr-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:36px 28px;margin-top:56px;min-width:0}
+.pricing .pr-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:36px 28px;margin-top:.5rem;min-width:0}
 .pricing .pr-card{--r:0deg;position:relative;display:flex;flex-direction:column;min-width:0;padding:1.9rem 1.4rem 1.5rem;border:2px solid var(--gold);background:rgba(239,227,200,.05);transform:rotate(var(--r));transition:transform .3s ease}
 .pricing .pr-card:nth-child(1){--r:-.6deg}
 .pricing .pr-card:nth-child(2){--r:.5deg}
@@ -555,6 +555,13 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 .launch-note{color:var(--gold)}
 .launch-ticket[hidden],.launch-price[hidden],.launch-note[hidden]{display:none!important}
 @media (max-width:520px){.launch-ticket{flex-direction:column}.lt-stub{flex-basis:auto;border-right:0;border-bottom:2px dashed var(--gold)}}
+/* PRECIOS · espaciado unificado (gap de la rejilla como único ritmo vertical) */
+.pricing .wrap.one{row-gap:1.6rem}
+.pricing .intro .lede{margin-bottom:0}
+.pricing .launch-ticket{margin-top:0}
+.pricing .launch-ticket + .pr-grid,.pricing .pr-grid{margin-top:.5rem}
+.pricing .pr-addon{margin-top:.5rem}
+.pricing .pr-fine{margin-top:0}
 
 /* FAQ */
 .faq{background:var(--ink);color:var(--bone);position:relative;overflow:hidden;padding:0 0 clamp(56px,12vh,130px)}
@@ -3388,18 +3395,15 @@ function drawMumi(c, p){
     lastW = W;
     box.textContent = '';
     var svg = el('svg', { width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, focusable: 'false' }, box);
-    el('path', { d: 'M0 4Q' + (W / 2) + ' 24 ' + W + ' 4', fill: 'none', stroke: '#e9b42f', 'stroke-width': 2 }, svg);
+    var string = el('g', { 'class': 'pr-string' }, svg);
+    el('path', { d: 'M0 4Q' + (W / 2) + ' 24 ' + W + ' 4', fill: 'none', stroke: '#e9b42f', 'stroke-width': 2 }, string);
     var n = Math.max(2, Math.floor(W / 40));
     for (var i = 0; i < n; i++) {
       var t = (i + 0.5) / n;
       var x = t * W, y = sag(t);
-      var dur = 2.8 + Math.random() * 1.4;
-      var outer = el('g', { 'class': 'pr-flag' }, svg);
-      outer.style.animationDuration = dur.toFixed(2) + 's';
-      outer.style.animationDelay = (-Math.random() * dur).toFixed(2) + 's';
-      var inner = el('g', { 'class': 'pr-gust' }, outer);
-      inner.style.animationDelay = (t * 1.2).toFixed(2) + 's';
-      el('path', { d: 'M' + (x - 6) + ' ' + y + 'L' + (x + 6) + ' ' + y + 'L' + x + ' ' + (y + 15) + 'Z', fill: COLS[i % COLS.length] }, inner);
+      var flag = el('g', { 'class': 'pr-flag' }, string);
+      flag.style.setProperty('--i', i);
+      el('path', { d: 'M' + (x - 6) + ' ' + y + 'L' + (x + 6) + ' ' + y + 'L' + x + ' ' + (y + 15) + 'Z', fill: COLS[i % COLS.length] }, flag);
     }
   }
   build();
