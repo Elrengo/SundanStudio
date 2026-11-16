@@ -607,8 +607,8 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 /* sticky inside the section-sized wrap: the light follows the viewport top while the section scrolls past */
 .sec-spot-stick{position:sticky;top:var(--hdr,64px);display:block;width:100%;height:min(calc(100vh - var(--hdr,64px)),100%)}
 .has-spot > :not(.sec-spot-wrap):not(.cf-side):not(.faq-intro){position:relative;z-index:1}
-.sec-spot{position:absolute;top:calc(min(150vh,1500px) * -.04);width:min(70vw,900px);height:min(150vh,1500px);transform-origin:50% 0;background:radial-gradient(ellipse 40% 90% at 50% 0%,rgba(255,232,180,.16),rgba(255,232,180,.06) 45%,transparent 72%);clip-path:polygon(44% 0,56% 0,100% 100%,0 100%);mix-blend-mode:screen;opacity:0;transition:opacity .8s ease;animation-duration:11s;animation-timing-function:ease-in-out;animation-iteration-count:infinite;animation-play-state:paused}
-.sec-spot::before{content:"";position:absolute;left:50%;top:0;width:60px;height:60px;margin-left:-30px;border-radius:50%;background:radial-gradient(circle,rgba(255,240,200,.35),transparent 70%)}
+.sec-spot{position:absolute;top:calc(min(180vh,1800px) * -.04);width:min(70vw,900px);height:min(180vh,1800px);transform-origin:50% 0;background:radial-gradient(ellipse 40% 90% at 50% 0%,rgba(255,232,180,.136),rgba(255,232,180,.051) 45%,transparent 72%);clip-path:polygon(44% 0,56% 0,100% 100%,0 100%);mix-blend-mode:screen;opacity:0;transition:opacity .8s ease;animation-duration:11s;animation-timing-function:ease-in-out;animation-iteration-count:infinite;animation-play-state:paused}
+.sec-spot::before{content:"";position:absolute;left:50%;top:0;width:60px;height:60px;margin-left:-30px;border-radius:50%;background:radial-gradient(circle,rgba(255,240,200,.30),transparent 70%)}
 .sec-spot.spot-l{left:calc(min(70vw,900px) / -2);transform:rotate(-45deg);animation-name:spotL}
 .sec-spot.spot-r{right:calc(min(70vw,900px) / -2);transform:rotate(45deg);animation-name:spotR}
 .has-spot.spot-on .sec-spot{opacity:1;animation-play-state:running}
@@ -616,7 +616,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 @keyframes spotL{0%,100%{transform:rotate(-49deg)}50%{transform:rotate(-41deg)}}
 @keyframes spotR{0%,100%{transform:rotate(49deg)}50%{transform:rotate(41deg)}}
 @media (max-width:759px){
-  .sec-spot{width:120vw;height:min(130vh,1100px);top:calc(min(130vh,1100px) * -.04);background:radial-gradient(ellipse 40% 90% at 50% 0%,rgba(255,232,180,.12),rgba(255,232,180,.04) 45%,transparent 72%)}
+  .sec-spot{width:120vw;height:min(156vh,1320px);top:calc(min(156vh,1320px) * -.04);background:radial-gradient(ellipse 40% 90% at 50% 0%,rgba(255,232,180,.102),rgba(255,232,180,.034) 45%,transparent 72%)}
   .sec-spot.spot-l{left:-60vw}
   .sec-spot.spot-r{right:-60vw}
 }
