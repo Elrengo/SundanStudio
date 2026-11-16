@@ -14,7 +14,7 @@
 <meta property="og:site_name" content="Sundan Studio">
 <meta property="og:locale" content="es_ES">
 <meta property="og:url" content="https://sundanstudio.com/">
-<meta property="og:title" content="Sundan Studio — Webs y aplicaciones con personalidad">
+<meta property="og:title" content="Sundan Studio — Webs y aplicaciones a medida para negocios">
 <meta property="og:description" content="Diseño y desarrollo de webs y apps a medida en Barcelona: tiendas online, paneles de gestión y experiencias interactivas.">
 <meta property="og:image" content="https://sundanstudio.com/assets/og-image.png">
 <meta property="og:image:width" content="1200">
@@ -121,6 +121,10 @@ h1.done:hover span{animation:flick 1.3s steps(1,end) infinite;animation-delay:ca
 .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(24px,6vw,96px);align-items:center;max-width:1120px;margin:0 auto;padding:clamp(48px,10vh,110px) clamp(20px,5vw,64px) 0}
 h2.big{font-family:var(--display);font-weight:400;font-size:clamp(3.2rem,10vw,8rem);line-height:.9;margin:0 0 1.1rem;letter-spacing:-.02em}
 .lede{max-width:36ch;line-height:1.55;opacity:.85;margin:0 0 2rem}
+.kicker-top{font-family:var(--body);text-transform:uppercase;letter-spacing:.14em;font-size:.82rem;color:var(--gold);margin:0 0 .6rem}
+.lede-hero{font-size:clamp(1.15rem,2.1vw,1.45rem);max-width:44ch;line-height:1.5;opacity:.92}
+.hero-ctas{display:flex;flex-wrap:wrap;align-items:center;gap:.7rem 1rem;margin:-.6rem 0 2.2rem}
+.hero-note{font-size:.9rem;opacity:.75}
 .note{margin:1.6rem 0 0;font-size:.9rem;opacity:.55}
 @media (max-width:760px){.wrap{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){
@@ -548,8 +552,10 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
   </div>
 
   <div class="wrap one">
+    <p class="kicker-top">Webs y aplicaciones a medida · Barcelona y remoto</p>
     <h2 class="big">Proyectos</h2>
-    <p class="lede">Hola, soy Sundan Studio: diseño y desarrollo webs y aplicaciones con carácter. Estas son algunas cosas que he construido. Ábrelas, tócalas, rómpelas.</p>
+    <p class="lede lede-hero">Diseño y desarrollo webs y aplicaciones para negocios: webs corporativas, tiendas y reservas online, y paneles de gestión. Rápidas, a medida y con carácter. Lo que ves abajo son demos que funcionan: ábrelas y pruébalas.</p>
+    <div class="hero-ctas"><a class="pill main" href="#contacto" data-umami-event="cta-hero-presupuesto">Pide presupuesto</a><a class="pill" href="#servicios" data-umami-event="cta-hero-servicios">Servicios y precios</a><span class="hero-note">Presupuesto cerrado en 48 h, sin compromiso.</span></div>
     <nav class="pfilter" aria-label="Filtrar proyectos">
       <button type="button" class="pf-btn" data-filter="all" aria-pressed="true" data-umami-event="filtro-proyectos" data-umami-event-grupo="all">Todo <span>(7)</span></button>
       <button type="button" class="pf-btn" data-filter="demos" aria-pressed="false" data-umami-event="filtro-proyectos" data-umami-event-grupo="demos">Demos profesionales <span>(5)</span></button>
@@ -654,7 +660,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
           <div class="tags"><span>Roles</span><span>Filtros por columna</span><span>Simulador</span><span>Modo en vivo</span></div>
           <h4>Pulso · analítica de pagos</h4>
           <p class="desc">Panel de analítica para Demopay, una pasarela ficticia: volumen, aprobación, contracargos, rentabilidad por comercio y un simulador “¿y si…?”. Con roles, filtros por columna y modo en vivo.</p>
-          <p class="result">Resultado / qué demuestra: <strong>Datos complejos, interfaz tranquila.</strong></p>
+          <p class="result">Qué demuestra: <strong>Datos complejos, interfaz tranquila.</strong></p>
           <div class="actions">
             <a class="pill main" href="demo-panel.html" data-umami-event="abrir-proyecto" data-umami-event-proyecto="Pulso">Abrir el panel →</a>
           </div>
@@ -681,7 +687,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
           <div class="tags"><span>Tienda online</span><span>Panel de gestión</span><span>Móvil y escritorio</span><span>JavaScript</span></div>
           <h4>Bola de Nieve · tienda y panel de pedidos</h4>
           <p class="desc">Heladería con tienda online para móvil y escritorio, tartas por encargo con fecha de entrega y seguimiento del pedido. Incluye panel del equipo: pedidos en vivo, calendario de entregas y gestión de productos.</p>
-          <p class="result">Resultado / qué demuestra: <strong>Aplicación web real, de principio a fin.</strong></p>
+          <p class="result">Qué demuestra: <strong>Aplicación web real, de principio a fin.</strong></p>
           <div class="actions">
             <a class="pill main" href="demo-heladeria.html" data-umami-event="abrir-proyecto" data-umami-event-proyecto="Bola de Nieve">Abrir la demo →</a>
           </div>
@@ -721,7 +727,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
           <div class="tags"><span>Canvas 3D</span><span>Scroll</span><span>Configurador</span><span>Financiación</span></div>
           <h4>Globo Negro · concesionario de motos</h4>
           <p class="desc">Motos de carreras, de lujo y choppers presentadas como el número del globo de la muerte: esfera 3D, efecto vértigo, configurador con financiación en directo y reserva de prueba.</p>
-          <p class="result">Resultado / qué demuestra: <strong>Una marca osada que nadie olvida.</strong></p>
+          <p class="result">Qué demuestra: <strong>Una marca osada que nadie olvida.</strong></p>
           <div class="actions">
             <a class="pill main" href="demo-motos.html" data-umami-event="abrir-proyecto" data-umami-event-proyecto="Globo Negro">Entrar al globo →</a>
           </div>
@@ -772,7 +778,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
           <div class="tags"><span>Calendario</span><span>Disponibilidad</span><span>Formularios</span><span>.ics</span></div>
           <h4>Tijera &amp; Café · reservas online</h4>
           <p class="desc">Reservas para una barbería: servicio, profesional, día y hora según disponibilidad real, y la cita directa a tu calendario.</p>
-          <p class="result">Resultado / qué demuestra: <strong>Lógica de negocio real en una interfaz sencilla.</strong></p>
+          <p class="result">Qué demuestra: <strong>Lógica de negocio real en una interfaz sencilla.</strong></p>
           <div class="actions">
             <a class="pill main" href="demo-reservas.html" data-umami-event="abrir-proyecto" data-umami-event-proyecto="Tijera &amp; Café">Reservar una cita →</a>
           </div>
@@ -802,7 +808,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
           <div class="tags"><span>Canvas</span><span>SVG</span><span>Accesibilidad</span></div>
           <h4>Esta misma web</h4>
           <p class="desc">Búhos que te miran, luces que te siguen y un calendario para agendar una videollamada.</p>
-          <p class="result">Resultado / qué demuestra: <strong>Identidad de marca hecha interacción.</strong></p>
+          <p class="result">Qué demuestra: <strong>Identidad de marca hecha interacción.</strong></p>
           <div class="actions">
             <a class="pill" href="#hero">Volver arriba ↑</a>
           </div>
@@ -838,7 +844,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
           <div class="tags"><span>Canvas</span><span>Física</span><span>Animación</span></div>
           <h4>Afar · juego de navegador</h4>
           <p class="desc">Un trapecista que gira entre palos bajo una tormenta. Física, controles táctiles y arte propio.</p>
-          <p class="result">Resultado / qué demuestra: <strong>Rendimiento y animación a 60 fps.</strong></p>
+          <p class="result">Qué demuestra: <strong>Rendimiento y animación a 60 fps.</strong></p>
           <div class="actions">
             <a class="pill" href="afar.html" data-umami-event="abrir-proyecto" data-umami-event-proyecto="Afar">Jugar →</a>
           </div>
@@ -888,7 +894,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
           <div class="tags"><span>Canvas</span><span>Animación</span><span>Web Audio</span></div>
           <h4>Mumi Runner · juego de navegador</h4>
           <p class="desc">Mumi, un mono de cuerda con platillos, corre por la pista del circo y salta tambores, bolos y cajas sorpresa. Personaje animado a mano en Canvas y sonido generado en el navegador.</p>
-          <p class="result">Resultado / qué demuestra: <strong>Diseño de personaje y animación con carácter.</strong></p>
+          <p class="result">Qué demuestra: <strong>Diseño de personaje y animación con carácter.</strong></p>
           <div class="actions">
             <a class="pill" href="mumi.html" data-umami-event="abrir-proyecto" data-umami-event-proyecto="Mumi">Jugar →</a>
           </div>
@@ -908,7 +914,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
   <div class="wrap one">
     <div class="intro">
       <h2 class="big">Servicios</h2>
-      <p class="lede">Diseño y desarrollo webs y aplicaciones que se sienten vivas. Tú pones la idea; yo la convierto en algo que la gente quiera usar.</p>
+      <p class="lede">Tres formas de ayudar a tu negocio: una web que te presente bien, una aplicación que te ahorre trabajo o una experiencia que haga recordar tu marca.</p>
     </div>
 
     <div class="tickets">
@@ -1089,7 +1095,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
       </article>
 
       <article class="pr-card pr-feat">
-        <span class="pr-ribbon">El más pedido</span>
+        <span class="pr-ribbon">Recomendado</span>
         <h3 class="pr-name">Profesional</h3>
         <div class="pr-price">
           <span class="pr-from">desde</span>
@@ -1255,7 +1261,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
   <div class="wrap">
     <div class="cf-main">
       <h2 class="big">Contacto</h2>
-      <p class="lede">Si algo de lo que ves aquí te sirve para tu proyecto, hablemos.</p>
+      <p class="lede">¿Necesitas una web, una tienda online o una aplicación para tu negocio? Cuéntamelo y te respondo en menos de 24 h.</p>
       <p class="cx-steps">1. Me cuentas tu idea · 2. Charlamos 20 minutos · 3. Te envío una propuesta con precio cerrado en 48 h.</p>
 
       <div class="cf-person">
