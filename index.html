@@ -306,7 +306,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 
 
 /* SERVICIOS */
-.services{background:var(--ink);color:var(--bone);position:relative;overflow:hidden;padding:0 0 clamp(56px,12vh,130px)}
+.services{background:var(--ink);color:var(--bone);position:relative;overflow:clip;padding:0 0 clamp(56px,12vh,130px)}
 .services .stub{height:28px;background:radial-gradient(circle at 50% 100%,var(--ink) 6px,transparent 6.5px) 0 100%/22px 14px repeat-x,var(--gold)}
 .services .wrap.one{grid-template-columns:1fr;padding-top:48px;min-width:0}
 .services .intro{min-width:0}
@@ -485,7 +485,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
   .process .about{transform:none}
 }
 /* PRECIOS */
-.pricing{background:var(--plum);color:var(--bone);position:relative;overflow:hidden;padding:0 0 clamp(56px,12vh,130px)}
+.pricing{background:var(--plum);color:var(--bone);position:relative;overflow:clip;padding:0 0 clamp(56px,12vh,130px)}
 .pricing .pr-bunting{height:38px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='26' viewBox='0 0 160 26'%3E%3Cpath d='M0 2H160' stroke='%23e9b42f' stroke-width='2'/%3E%3Cpath d='M4 2H36L20 24Z' fill='%23c1121f'/%3E%3Cpath d='M44 2H76L60 24Z' fill='%23efe3c8'/%3E%3Cpath d='M84 2H116L100 24Z' fill='%23e9b42f'/%3E%3Cpath d='M124 2H156L140 24Z' fill='%231f9e8f'/%3E%3C/svg%3E") 0 0/232px 38px repeat-x}
 .pricing .wrap.one{grid-template-columns:1fr;padding-top:2.1rem;min-width:0}
 .pricing .intro{min-width:0}
@@ -558,7 +558,8 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 .pricing .pr-fine{margin-top:0}
 
 /* FAQ */
-.faq{background:var(--ink);color:var(--bone);position:relative;overflow:hidden;padding:0 0 clamp(56px,12vh,130px)}
+.faq{background:var(--ink);color:var(--bone);position:relative;overflow:clip;padding:0 0 clamp(56px,12vh,130px)}
+@supports not (overflow:clip){.services,.pricing,.faq{overflow:hidden}}
 .faq .faq-band{height:14px;background-color:var(--blood);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='14' viewBox='0 0 28 14'%3E%3Cpath d='M14 1L21 7L14 13L7 7Z' fill='%23e9b42f'/%3E%3C/svg%3E");background-size:28px 14px;background-repeat:repeat-x}
 .faq .wrap{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;gap:clamp(32px,5vw,72px);padding-top:56px;min-width:0}
 .faq .wrap > *{min-width:0}
@@ -602,7 +603,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 .panel .plink{display:inline-flex;align-items:center;min-height:44px}
 /* SECTION SPOTLIGHTS: one cone per content section, from a top corner (clipped to its own section) */
 .has-spot{position:relative;isolation:isolate}
-.sec-spot-wrap{position:absolute;inset:0;overflow:clip;pointer-events:none;z-index:0}
+.sec-spot-wrap{position:absolute;inset:0;overflow:clip;contain:paint;pointer-events:none;z-index:0}
 @supports not (overflow:clip){.sec-spot-wrap{overflow:hidden}}
 /* sticky inside the section-sized wrap: the light follows the viewport top while the section scrolls past */
 .sec-spot-stick{position:sticky;top:var(--hdr,64px);display:block;width:100%;height:min(calc(100vh - var(--hdr,64px)),100%)}
