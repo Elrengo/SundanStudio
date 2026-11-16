@@ -45,7 +45,7 @@
 html[data-theme="carpa"] {
   --bg:#f3ead6; --surface:#fbf6ea; --ink:#1b0812; --muted:#6b4f57; --line:#e2d3b4;
   --accent:#a50f1c; --accent-soft:#f6e1d6; --on-accent:#fbf6ea;
-  --ok:#1f7a6e; --warn:#8f6109; --bad:#a50f1c;
+  --ok:#166458; --warn:#8f6109; --bad:#a50f1c;
   --hover:#efe3c8; --ribbon:#1b0812; --on-ribbon:#efe3c8; --gold:#b98a1e; --toast-link:#e9b42f;
   --c1:#a50f1c; --c2:#1f7a6e; --c3:#a8760e; --c4:#5b1f3a; --c5:#a0785a; --c6:#6e8b5e; --c7:#8f5f7a;
   --shadow:0 1px 2px rgba(27,8,18,.06), 0 1px 3px rgba(27,8,18,.06); --sh-rgb:27,8,18; --scrim:rgba(27,8,18,.4);
@@ -372,7 +372,7 @@ html:not([data-theme="carpa"]) .i-moon { display: none; }
   transition: background-color var(--ease), filter var(--ease); min-height: 36px;
 }
 .btn:hover:not(:disabled) { background: var(--hover); }
-.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn:disabled { opacity: .6; cursor: not-allowed; }
 .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 .btn-primary:hover:not(:disabled) { background: var(--accent); filter: brightness(1.08); }
 .btn-ghost { background: none; border-color: transparent; color: var(--accent); }
@@ -849,10 +849,33 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
 .alert-group > h3 { margin: 0; font-size: 13px; color: var(--muted); }
 .alert-done { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
 .alerts-drawer details summary { cursor: pointer; font-size: 13px; color: var(--muted); }
+/* === Fase 3: rendimiento, móvil y accesibilidad === */
+.mer-btn { background: none; border: 0; padding: 0; margin: 0; font: inherit; font-weight: 700; color: var(--ink); text-align: left; cursor: pointer; border-radius: 4px; }
+.mer-btn:hover { text-decoration: underline; text-underline-offset: 3px; }
+.mer-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tx-newpill-wrap { display: flex; justify-content: center; }
+.tx-newpill { margin: 0 0 10px; min-height: 34px; background: var(--accent-soft); color: var(--ink); border-color: var(--accent); font-weight: 600; }
+.tx-newpill[hidden] { display: none; }
+.login-note[hidden] { display: none; }
+/* Mapa de calor: en móvil se desplaza en horizontal dentro de la tarjeta, con pista de desbordamiento */
+.heat-wrap { position: relative; min-width: 0; }
+#wf { min-width: 0; }
+@media (max-width: 600px) {
+  .heat { overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+  .heat svg { min-width: 560px; }
+  .heat-wrap::after {
+    content: ""; position: absolute; top: 0; right: 0; bottom: 14px; width: 36px; pointer-events: none;
+    background: linear-gradient(to right, transparent, var(--surface)); transition: opacity var(--ease);
+  }
+  .heat-wrap.at-end::after { opacity: 0; }
+  #wf { overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+  #wf svg { display: block; }
+}
 </style>
 <script defer src="https://cloud.umami.is/script.js" data-website-id="1377f8f1-df62-427b-bc7d-eec5c112cc00" data-domains="sundanstudio.com"></script>
 </head>
 <body>
+<noscript><p class="noscript-msg" style="padding:16px;margin:0;font:600 15px/1.4 system-ui,sans-serif;text-align:center">Pulso necesita JavaScript para funcionar.</p></noscript>
 
 <div class="ribbon" id="ribbon">
   <p>Demo · datos ficticios · creada por <strong>Sundan Studio</strong></p>
@@ -1092,7 +1115,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
                 <p id="heat-sub">Transacciones de los últimos 90 días</p>
               </div>
             </div>
-            <div class="heat chart-mount" id="heat"></div>
+            <div class="heat-wrap"><div class="heat chart-mount" id="heat"></div></div>
           </article>
         </div>
         </div>
@@ -1145,6 +1168,9 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
             </div>
           </div>
           <p class="hint" id="tx-note"></p>
+          <div class="tx-newpill-wrap">
+            <button type="button" class="btn tx-newpill" id="tx-newpill" hidden></button>
+          </div>
           <div class="table-wrap">
             <table class="data-table keep-head" id="tx-table">
               <caption class="sr-only">Transacciones filtradas. Pulsa un identificador para ver el detalle.</caption>
@@ -1407,7 +1433,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
         <article class="card" aria-labelledby="t-users" data-perm="act.users">
           <div class="card-head"><div><h2 id="t-users">Usuarios y roles</h2><p>Cambio de rol simulado, guardado en este navegador. Tu propio rol no se cambia desde aquí.</p></div></div>
           <div class="table-wrap">
-            <table class="data-table" id="users-table">
+            <table class="data-table stack" id="users-table">
               <caption class="sr-only">Usuarios de la demo, con su rol y ámbito</caption>
               <thead><tr><th scope="col">Usuario</th><th scope="col">Cargo</th><th scope="col">Rol</th><th scope="col">Ámbito</th></tr></thead>
               <tbody id="users-body"></tbody>
@@ -1415,7 +1441,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
           </div>
           <h3 style="margin-top:20px">Matriz de permisos (solo lectura)</h3>
           <div class="table-wrap">
-            <table class="data-table" id="perm-table">
+            <table class="data-table stack" id="perm-table">
               <caption class="sr-only">Permisos por rol</caption>
               <thead id="perm-head"></thead>
               <tbody id="perm-body"></tbody>
@@ -1433,6 +1459,10 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
               <thead><tr><th scope="col">Fecha y hora</th><th scope="col">Usuario</th><th scope="col">Acción</th><th scope="col">Detalle</th></tr></thead>
               <tbody id="act-body"></tbody>
             </table>
+          </div>
+          <div class="row" id="act-more-wrap" hidden>
+            <button type="button" class="btn" id="act-more">Mostrar más</button>
+            <span class="hint" id="act-more-info" aria-live="polite"></span>
           </div>
         </article>
         <article class="card" aria-labelledby="t-demo" data-perm="act.users">
@@ -1486,6 +1516,21 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
               </thead>
               <tbody id="liq-body"></tbody>
             </table>
+          </div>
+          <div class="pager">
+            <p id="liq-pager-info"></p>
+            <div class="pager-btns">
+              <label class="fsel-inline">Filas
+                <select class="field" id="liq-size">
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+              </label>
+              <button type="button" class="btn" id="liq-prev">Anterior</button>
+              <span id="liq-page-label" aria-live="polite"></span>
+              <button type="button" class="btn" id="liq-next">Siguiente</button>
+            </div>
           </div>
         </article>
       </section>
@@ -1550,6 +1595,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     </header>
     <h1 id="login-title">Entrar como…</h1>
     <p class="login-note">Demo: los permisos se simulan en tu navegador. Elige un perfil para ver el panel tal como lo ve cada rol.</p>
+    <p id="login-status" class="login-note" role="status" aria-live="polite" hidden>Preparando los datos…</p>
     <div id="login-body" class="login-body"></div>
   </div>
 </div>
@@ -2407,10 +2453,31 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     if (s) s.focus();
   }
   function hideLogin() { loginEl.hidden = true; }
+  /* Carga diferida: los datos se generan tras el primer pintado; un perfil elegido antes queda en cola */
+  var queuedUser = null;
+  function showLoginStatus(on) {
+    var s = $('#login-status');
+    if (s) s.hidden = !on;
+    if (loginEl) loginEl.setAttribute('aria-busy', on ? 'true' : 'false');
+    $('#main').classList.toggle('loading', !!on);
+  }
+  function dataReady() {
+    buildSelects();
+    showLoginStatus(false);
+    if (queuedUser) { var q = queuedUser; queuedUser = null; setUser(q); }
+    else if (USER) render();
+  }
+  function loadData() {
+    readHash();
+    DATA = generate(state.seed, state.scenario);
+    readHash();
+    dataReady();
+  }
   /* Cambia de usuario: ajusta vistas, filtros y navegación al rol */
   function setUser(id) {
     var u = userById(id);
     if (!u) return;
+    if (!DATA) { queuedUser = id; showLoginStatus(true); return; }
     if (panelOpen) closePanel();
     closeDialog();
     setHelp(false);
@@ -2626,12 +2693,17 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   }
 
   /* Animación de cifras (respeta reduced motion) */
-  var shown = {}, rafs = {};
+  var shown = {}, rafs = {}, quietAnim = false;
+  /* Render sin animar cifras (modo en vivo, cambio de tamaño): fija los valores finales directamente */
+  function quietRender(fn) {
+    quietAnim = true;
+    try { fn(); } finally { quietAnim = false; }
+  }
   function animateTo(key, to, fmt, el) {
     var from = shown[key] != null ? shown[key] : 0;
     cancelAnimationFrame(rafs[key]);
     clearTimeout(rafs[key + ':t']);
-    if (REDUCED || document.hidden || from === to || !isFinite(from)) { shown[key] = to; el.textContent = fmt(to); return; }
+    if (quietAnim || REDUCED || document.hidden || from === to || !isFinite(from)) { shown[key] = to; el.textContent = fmt(to); return; }
     var t0 = performance.now(), dur = 500;
     /* Seguridad: si requestAnimationFrame no llega a ejecutarse, fija el valor final */
     rafs[key + ':t'] = setTimeout(function () { cancelAnimationFrame(rafs[key]); shown[key] = to; el.textContent = fmt(to); }, dur + 150);
@@ -3004,37 +3076,68 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     ];
     return KPI_DEFS.filter(function (d) { return d.key !== 'margin' || can('see.margin'); });
   }
+  /* Delta frente al periodo anterior de una tarjeta de KPI (compartido por render completo y parcheo en vivo) */
+  function kpiDelta(def, cur, prev) {
+    var deltaEl = h('div', { class: 'delta' });
+    if (prev) {
+      var v = cur[def.key], pv = prev[def.key], up, text;
+      if (def.kind === 'pp') { var diff = v - pv; up = diff >= 0; text = fmtSigned(diff, 1) + ' pp'; }
+      else { var c = pctChange(v, pv); up = c >= 0; text = fmtSigned(c, 1) + ' %'; }
+      var good = def.bad === 'up' ? !up : up;
+      deltaEl.className = 'delta' + (good ? '' : ' down');
+      deltaEl.innerHTML = svgIcon(up ? 'up' : 'down');
+      deltaEl.appendChild(document.createTextNode(text));
+      deltaEl.appendChild(h('span', { class: 'delta-note' }, ' · ' + compLabel()));
+    } else if (state.compare) {
+      deltaEl.appendChild(h('span', { class: 'delta-note' }, 'Sin histórico para comparar'));
+    }
+    return deltaEl;
+  }
+  /* Tarjeta de KPI completa; valEl se devuelve para fijar o animar la cifra */
+  function kpiCard(def, cur, prev, series) {
+    var valEl = h('p', { class: 'kpi-value' }, '—');
+    var spark = h('div', { class: 'spark', 'aria-hidden': 'true' });
+    spark.innerHTML = sparkSvg(series.map(function (d) { return d[def.key]; }));
+    var card = h('article', { class: 'card kpi' }, h('p', { class: 'kpi-label' }, def.label), valEl,
+      kpiDelta(def, cur, prev), goalCell(def.key, cur[def.key]), spark);
+    var kd = drillable() ? kpiDrill(def.key) : null;
+    if (kd) makeLink(card, function () { drillTx(kd, 'Resumen'); }, def.label + ': ' + def.fmt(cur[def.key]) + '. Ver transacciones');
+    return { card: card, valEl: valEl };
+  }
   function renderKpis(F, t, p) {
     var grid = $('#kpis');
     grid.textContent = '';
     var cur = kpisOf(t), prev = p ? kpisOf(p) : null;
     var series = F.cur.map(kpisOf);
     kpiDefs().forEach(function (def) {
-      var valEl = h('p', { class: 'kpi-value' }, '—');
-      var deltaEl = h('div', { class: 'delta' });
-      if (prev) {
-        var v = cur[def.key], pv = prev[def.key], up, text;
-        if (def.kind === 'pp') { var diff = v - pv; up = diff >= 0; text = fmtSigned(diff, 1) + ' pp'; }
-        else { var c = pctChange(v, pv); up = c >= 0; text = fmtSigned(c, 1) + ' %'; }
-        var good = def.bad === 'up' ? !up : up;
-        deltaEl.className = 'delta' + (good ? '' : ' down');
-        deltaEl.innerHTML = svgIcon(up ? 'up' : 'down');
-        deltaEl.appendChild(document.createTextNode(text));
-        deltaEl.appendChild(h('span', { class: 'delta-note' }, ' · ' + compLabel()));
-      } else if (state.compare) {
-        deltaEl.className = 'delta';
-        deltaEl.appendChild(h('span', { class: 'delta-note' }, 'Sin histórico para comparar'));
-      }
-      var spark = h('div', { class: 'spark', 'aria-hidden': 'true' });
-      spark.innerHTML = sparkSvg(series.map(function (d) { return d[def.key]; }));
-      var card = h('article', { class: 'card kpi' }, h('p', { class: 'kpi-label' }, def.label), valEl, deltaEl, goalCell(def.key, cur[def.key]), spark);
-      var kd = drillable() ? kpiDrill(def.key) : null;
-      if (kd) makeLink(card, function () { drillTx(kd, 'Resumen'); }, def.label + ': ' + def.fmt(cur[def.key]) + '. Ver transacciones');
-      grid.appendChild(card);
-      animateTo('kpi-' + def.key, cur[def.key], def.fmt, valEl);
+      var k = kpiCard(def, cur, prev, series);
+      grid.appendChild(k.card);
+      animateTo('kpi-' + def.key, cur[def.key], def.fmt, k.valEl);
+    });
+  }
+  /* En vivo: reemplaza cada tarjeta con la cifra nueva, sin animación de conteo. Omite la que tiene el foco. */
+  function patchKpis(F, t, p) {
+    var grid = $('#kpis'), defs = kpiDefs(), old = grid.children;
+    if (old.length !== defs.length) { renderKpis(F, t, p); return; }
+    var cur = kpisOf(t), prev = p ? kpisOf(p) : null, series = F.cur.map(kpisOf);
+    defs.forEach(function (def, i) {
+      if (old[i].contains(document.activeElement)) return;
+      var k = kpiCard(def, cur, prev, series);
+      grid.replaceChild(k.card, old[i]);
+      k.valEl.textContent = def.fmt(cur[def.key]);
+      shown['kpi-' + def.key] = cur[def.key];
     });
   }
 
+  /* Una fila del feed de actividad (usada por el render completo y por la inserción en vivo) */
+  function feedItem(t) {
+    return h('li', null,
+      h('button', { type: 'button', class: 'feed-btn' + (state.fresh === t.id ? ' fresh' : ''), 'data-open': t.id },
+        h('span', { class: 'feed-main' }, h('strong', null, merchantOf(t).name), h('span', { class: 'muted' }, ' · ' + t.id)),
+        h('span', { class: 'feed-side' },
+          h('span', { class: 'amount' }, money(t.amount, 2)),
+          h('span', { class: 'badge st-' + t.status }, t.status))));
+  }
   function renderFeed(F) {
     var ul = $('#feed');
     ul.textContent = '';
@@ -3043,14 +3146,21 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       ul.appendChild(h('li', { class: 'muted', style: 'padding:10px 12px' }, 'Sin transacciones con los filtros activos.'));
       return;
     }
-    last.forEach(function (t) {
-      ul.appendChild(h('li', null,
-        h('button', { type: 'button', class: 'feed-btn' + (state.fresh === t.id ? ' fresh' : ''), 'data-open': t.id },
-          h('span', { class: 'feed-main' }, h('strong', null, merchantOf(t).name), h('span', { class: 'muted' }, ' · ' + t.id)),
-          h('span', { class: 'feed-side' },
-            h('span', { class: 'amount' }, money(t.amount, 2)),
-            h('span', { class: 'badge st-' + t.status }, t.status)))));
-    });
+    last.forEach(function (t) { ul.appendChild(feedItem(t)); });
+  }
+  /* En vivo: añade la transacción nueva arriba del feed y mantiene como máximo 8 filas */
+  function prependFeed(t) {
+    var ul = $('#feed');
+    if (!ul) return;
+    var empty = ul.querySelector('li.muted');
+    if (empty) ul.removeChild(empty);
+    ul.insertBefore(feedItem(t), ul.firstChild);
+    while (ul.children.length > 8) {
+      var victim = ul.lastElementChild;
+      if (victim.contains(document.activeElement)) victim = victim.previousElementSibling;
+      if (!victim) break;
+      ul.removeChild(victim);
+    }
   }
 
   /* Filas mensuales (últimos 12 meses) de los comercios del ámbito, base del revenue share */
@@ -3178,6 +3288,8 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     var start = (state.txPage - 1) * size, slice = list.slice(start, start + size);
 
     $('#tx-crumb').hidden = !state.crumb;
+    liveNewPending = 0;
+    $('#tx-newpill').hidden = true;
     var body = $('#tx-body');
     body.textContent = '';
     if (!slice.length) {
@@ -3187,6 +3299,14 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       slice.forEach(function (t) { body.appendChild(txRow(t)); });
     }
 
+    txMeta(list, F);
+  }
+  /* Resumen, selección y paginación de Transacciones. Tambien lo usa el modo en vivo sin reconstruir las filas. */
+  function txMeta(list, F) {
+    var size = state.txSize, pages = Math.max(1, Math.ceil(list.length / size));
+    if (state.txPage > pages) state.txPage = pages;
+    if (state.txPage < 1) state.txPage = 1;
+    var start = (state.txPage - 1) * size, slice = list.slice(start, start + size);
     var selCount = Object.keys(state.selected).filter(function (k) { return state.selected[k]; }).length;
     var allSel = slice.length && slice.every(function (t) { return state.selected[t.id]; });
     var someSel = slice.some(function (t) { return state.selected[t.id]; });
@@ -3830,14 +3950,15 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     return alertList.filter(function (a) { var s = alertState(a.id); return !s.rev && !s.muted; });
   }
   /* Recalcula alertas y actualiza campana, contador y drawer (se llama desde render) */
-  function updateAlerts() {
+  /* live: llamada desde el modo en vivo; no reconstruye el cajón si el foco está dentro */
+  function updateAlerts(live) {
     alertList = detectAlerts(state.range);
     var n = activeAlerts().length, b = $('#bell-badge');
     b.textContent = String(n);
     b.hidden = !n;
     b.setAttribute('aria-label', n + (n === 1 ? ' alerta sin revisar' : ' alertas sin revisar'));
     $('#alerts-btn').setAttribute('aria-label', n ? 'Alertas, ' + n + ' sin revisar' : 'Alertas');
-    if (alertsOpen) renderAlertsDrawer();
+    if (alertsOpen && !(live && $('#alerts-body').contains(document.activeElement))) renderAlertsDrawer();
   }
   function sevBadge(sev) { return h('span', { class: 'sev sev-' + sev }, SEV_LABEL[sev]); }
   function actButtons(a, compact) {
@@ -3998,9 +4119,25 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   function updateScrim() {
     scrim.classList.toggle('show', sidebar.classList.contains('open') || panelOpen || !!dlgEl || alertsOpen);
   }
+  /* Menú fuera de pantalla (<900 px): cerrado = inerte y oculto para lectores de pantalla */
+  var narrowMQ = window.matchMedia ? window.matchMedia('(max-width: 899px)') : null;
+  function isNarrow() { return narrowMQ ? narrowMQ.matches : false; }
+  function syncSidebarA11y() {
+    var hide = isNarrow() && !sidebar.classList.contains('open');
+    if (hide) { sidebar.setAttribute('inert', ''); sidebar.setAttribute('aria-hidden', 'true'); }
+    else { sidebar.removeAttribute('inert'); sidebar.removeAttribute('aria-hidden'); }
+  }
   function setMenu(open) {
+    var was = sidebar.classList.contains('open');
     sidebar.classList.toggle('open', open);
     menuBtn.setAttribute('aria-expanded', String(open));
+    /* Al cerrar, el foco vuelve al botón de menú (antes de volver inerte el panel) */
+    if (!open && was) menuBtn.focus();
+    syncSidebarA11y();
+    if (open && !was && isNarrow()) {
+      var first = sidebar.querySelector('.nav-item');
+      if (first) first.focus();
+    }
     updateScrim();
   }
 
@@ -4183,14 +4320,18 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     var main = $('#main');
     main.classList.add('loading');
     closePanel();
-    setTimeout(function () {
-      DATA = generate(state.seed, state.scenario);
-      state.selected = {};
-      buildSelects();
-      main.classList.remove('loading');
-      render();
-      toast('Nuevos datos generados · semilla ' + state.seed);
-    }, REDUCED ? 0 : 350);
+    /* Sin retardo artificial: el esqueleto se pinta un frame y solo dura lo que tarda el cálculo */
+    var nextFrame = window.requestAnimationFrame || function (f) { return setTimeout(f, 16); };
+    nextFrame(function () {
+      setTimeout(function () {
+        DATA = generate(state.seed, state.scenario);
+        state.selected = {};
+        buildSelects();
+        main.classList.remove('loading');
+        render();
+        toast('Nuevos datos generados · semilla ' + state.seed);
+      }, 0);
+    });
   }
 
   /* Eventos */
@@ -4383,12 +4524,17 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
 
     /* Re-dibujar gráficos al cambiar el ancho */
     if ('ResizeObserver' in window) {
-      var lastW = 0;
+      var lastW = 0, rzTimer = null;
       new ResizeObserver(function (entries) {
         var w = Math.round(entries[0].contentRect.width);
-        if (w === lastW) return;
-        lastW = w;
-        if (state.view === 'resumen' && DATA) renderResumen();
+        clearTimeout(rzTimer);
+        rzTimer = setTimeout(function () {
+          /* Solo redibuja si el ancho ha cambiado al menos 8 px desde el último dibujo */
+          if (Math.abs(w - lastW) < 8) return;
+          if (state.view !== 'resumen' || !DATA || !USER) return;
+          lastW = w;
+          quietRender(renderResumen);
+        }, 150);
       }).observe($('#main'));
     }
   }
@@ -4915,7 +5061,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   function merRow(r) {
     var m = r.m, hc = r.health >= 78 ? '' : r.health >= 66 ? ' mid' : ' hi';
     return h('tr', { 'data-merchant': r.mi },
-      h('td', { 'data-label': 'Comercio' }, h('strong', null, m.name), h('small', { class: 'mer-sub' }, m.id + ' · ' + m.city)),
+      h('td', { 'data-label': 'Comercio' }, h('strong', null, h('button', { type: 'button', class: 'mer-btn', 'data-merchant': r.mi }, m.name)), h('small', { class: 'mer-sub' }, m.id + ' · ' + m.city)),
       h('td', { 'data-label': 'Sector' }, m.sector),
       h('td', { 'data-label': 'Plan' }, m.plan),
       h('td', { 'data-label': 'Volumen', class: 'amount' }, money(r.vol, 0)),
@@ -5070,6 +5216,11 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   /* --- Rentabilidad --- */
   function renderWaterfall(t, M) {
     var mount = $('#wf'), W = Math.max(320, Math.round(mount.clientWidth || 640)), H = 300;
+    /* En móvil: ancho fijo con desplazamiento horizontal y etiquetas cortas y horizontales */
+    var narrow = W < 600;
+    if (narrow) W = 560;
+    var WF_SHORT = { 'Volumen': 'Volumen', 'Comisión bruta': 'Comisión', 'Coste de procesamiento': 'Proceso', 'Reembolsos': 'Reemb.',
+      'Pérdidas por contracargos': 'Contrac.', 'Reparto con partners': 'Partners', 'Costes operativos': 'Operat.', 'Margen neto': 'Margen' };
     var P = { l: 58, r: 12, t: 26, b: 74 }, iw = W - P.l - P.r, ih = H - P.t - P.b;
     var sc = niceScale(Math.max(t.fee, 1), 4), top = sc.top, net = M.net;
     var steps = [{ name: 'Volumen', type: 'vol', v: t.vol }, { name: 'Comisión bruta', type: 'up', from: 0, to: t.fee, v: t.fee }];
@@ -5102,10 +5253,13 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
         body += '<rect class="wf-' + s.type + '" x="' + xl.toFixed(1) + '" y="' + y1.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + hh.toFixed(1) + '" rx="4"/>' +
           '<text class="bar-val" x="' + cx.toFixed(1) + '" y="' + (y1 - 6).toFixed(1) + '" text-anchor="middle">' + (s.type === 'neg' ? '−' : '') + money(s.v, 0) + '</text>';
       }
-      body += '<text class="wf-cat" transform="translate(' + cx.toFixed(1) + ',' + (P.t + ih + 14) + ') rotate(-30)" text-anchor="end">' + s.name + '</text>';
+      body += narrow
+        ? '<text class="wf-cat" x="' + cx.toFixed(1) + '" y="' + (P.t + ih + 16) + '" text-anchor="middle">' + (WF_SHORT[s.name] || s.name) + '</text>'
+        : '<text class="wf-cat" transform="translate(' + cx.toFixed(1) + ',' + (P.t + ih + 14) + ') rotate(-30)" text-anchor="end">' + s.name + '</text>';
     });
     var label = 'Cascada de margen: volumen ' + money(t.vol, 0) + ', comisión bruta ' + money(t.fee, 0) + ', margen neto ' + money(net, 0) + '.';
-    mount.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + label.replace(/"/g, '') + '">' + grid + body + '</svg>';
+    mount.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img"' + (narrow ? ' style="width:' + W + 'px;max-width:none"' : '') +
+      ' aria-label="' + label.replace(/"/g, '') + '">' + grid + body + '</svg>';
     mount.appendChild(srTable('Cascada de margen del periodo', ['Concepto', 'Importe'],
       steps.map(function (s) { return [s.name, (s.type === 'neg' ? '−' : '') + money(s.v, 2)]; })));
   }
@@ -5382,12 +5536,18 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     }).reverse();
   }
   function negMoney(v) { return v > 0.004 ? '−' + money(v, 2) : money(0, 2); }
+  /* Paginación de Liquidaciones (25/50/100 filas); los totales cubren todo el periodo */
+  var liqPg = { page: 1, size: 25 };
   function renderLiquidaciones() {
     var rows = applyCols('liq', liqRows()), body = $('#liq-body'), tot = { gross: 0, fee: 0, ref: 0, cb: 0, net: 0 };
+    var pages = Math.max(1, Math.ceil(rows.length / liqPg.size));
+    if (liqPg.page > pages) liqPg.page = pages;
+    if (liqPg.page < 1) liqPg.page = 1;
+    var lstart = (liqPg.page - 1) * liqPg.size, pageRows = rows.slice(lstart, lstart + liqPg.size);
+    rows.forEach(function (r) { ['gross', 'fee', 'ref', 'cb', 'net'].forEach(function (k) { tot[k] += r[k]; }); });
     $('#liq-sub').textContent = 'Abonos de ' + periodLabel() + ' · ' + fmtDayShort.format(dayDate(filtered().curFrom)) + ' a ' + fmtDayShort.format(dayDate(DAYS - 1));
     body.textContent = '';
-    rows.forEach(function (r) {
-      ['gross', 'fee', 'ref', 'cb', 'net'].forEach(function (k) { tot[k] += r[k]; });
+    pageRows.forEach(function (r) {
       body.appendChild(h('tr', null,
         h('td', { 'data-label': 'Fecha' }, fmtDateLong.format(dayDate(r.d))),
         h('td', { 'data-label': 'Bruto', class: 'amount' }, money(r.gross, 2)),
@@ -5406,6 +5566,13 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       h('td', { 'data-label': 'Contracargos', class: 'amount' }, negMoney(tot.cb)),
       h('td', { 'data-label': 'Neto abonado', class: 'amount' }, money(tot.net, 2)),
       h('td', { 'data-label': 'Estado' }, '')));
+    $('#liq-pager-info').textContent = rows.length
+      ? 'Mostrando ' + (lstart + 1) + '–' + (lstart + pageRows.length) + ' de ' + fmtInt(rows.length) + ' días'
+      : '0 días';
+    $('#liq-page-label').textContent = 'Página ' + liqPg.page + ' de ' + pages;
+    $('#liq-prev').disabled = liqPg.page <= 1;
+    $('#liq-next').disabled = liqPg.page >= pages;
+    $('#liq-size').value = String(liqPg.size);
   }
   function exportLiqCsv() {
     var lines = ['Fecha;Bruto;Comisiones;Reembolsos;Contracargos;Neto abonado;Estado'];
@@ -5496,10 +5663,10 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     head.appendChild(h('tr', null, h('th', { scope: 'col' }, 'Permiso'), ROLE_ORDER.map(function (k) { return h('th', { scope: 'col' }, ROLE_LABEL[k]); })));
     pb.textContent = '';
     PERM_ALL.forEach(function (p) {
-      pb.appendChild(h('tr', null, h('td', null, h('span', { class: 'perm-key' }, p)),
+      pb.appendChild(h('tr', null, h('td', { 'data-label': 'Permiso' }, h('span', { class: 'perm-key' }, p)),
         ROLE_ORDER.map(function (k) {
           var ok = ROLES[k].indexOf(p) >= 0;
-          return h('td', { class: ok ? 'matrix-yes' : 'matrix-no', 'aria-label': ok ? 'Sí' : 'No' }, ok ? '✓' : '—');
+          return h('td', { class: ok ? 'matrix-yes' : 'matrix-no', 'data-label': ROLE_LABEL[k], 'aria-label': ok ? 'Sí' : 'No' }, ok ? '✓' : '—');
         })));
     });
     renderActivity();
@@ -5516,15 +5683,22 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     sel.value = selVal('act', 'usuario');
     body.textContent = '';
     var rows = applyCols('act', actRows()).map(function (r) { return { t: r.date, u: r.uid, a: r.akey, d: r.d }; });
+    var nShow = Math.min(rows.length, actShown);
     if (!rows.length) body.appendChild(h('tr', null, h('td', { colspan: '4', class: 'empty-cell' }, 'Sin actividad registrada.')));
-    rows.forEach(function (x) {
+    rows.slice(0, nShow).forEach(function (x) {
       body.appendChild(h('tr', null,
         h('td', { 'data-label': 'Fecha y hora' }, fmtDateTime.format(new Date(x.t))),
         h('td', { 'data-label': 'Usuario' }, userName(x.u)),
         h('td', { 'data-label': 'Acción' }, ACT_LABEL[x.a] || x.a),
         h('td', { 'data-label': 'Detalle' }, x.d)));
     });
+    var left = rows.length - nShow;
+    $('#act-more-wrap').hidden = !rows.length;
+    $('#act-more').hidden = left <= 0;
+    $('#act-more-info').textContent = rows.length ? 'Mostrando ' + nShow + ' de ' + rows.length + ' acciones' : '';
   }
+  /* Registro de actividad: se muestra de 25 en 25 */
+  var actShown = 25;
 
   function renderAjustes() {
     renderUsersCard();
@@ -5568,14 +5742,18 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   }
 
   /* --- Modo en vivo: una transacción nueva cada 2 s --- */
+  var LIVE_MS = 2000, LIVE_CAP = 500, LIVE_HEAVY_MS = 10000, LIVE_ALERTS_MS = 10000;
+  var liveLastAlerts = 0, liveLastHeavy = 0, liveNewPending = 0;
+  function startLiveTimer() { if (!liveTimer) liveTimer = setInterval(liveTick, LIVE_MS); }
+  function stopLiveTimer() { clearInterval(liveTimer); liveTimer = null; }
   function setLive(on) {
     state.live = !!on;
     if (state.live) state.liveCount = 0;
-    clearInterval(liveTimer);
-    liveTimer = null;
-    if (state.live && !document.hidden) liveTimer = setInterval(liveTick, 2000);
+    stopLiveTimer();
+    if (state.live && !document.hidden) startLiveTimer();
     if (DATA) render();
   }
+  /* Una transacción por tick: solo se actualiza lo visible; las demás vistas no se redibujan */
   function liveTick() {
     if (!DATA || !state.live || document.hidden) return;
     liveSeq++;
@@ -5585,20 +5763,65 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     var now = new Date(), last = DATA.tx.length ? DATA.tx[DATA.tx.length - 1].date.getTime() : 0;
     var base = new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate(), now.getHours(), now.getMinutes(), now.getSeconds());
     t.date = new Date(Math.max(base.getTime(), last + 1000));
-    t.id = 'DP-TX-' + pad(480000 + DATA.tx.length, 6);
+    if (DATA.seedN == null) DATA.seedN = DATA.tx.length;          /* la historia generada nunca se descarta */
+    DATA.liveIdx = (DATA.liveIdx || 0) + 1;
+    t.id = 'DP-TX-' + pad(480000 + DATA.seedN + DATA.liveIdx - 1, 6);   /* IDs únicos aunque se descarte */
     DATA.tx.push(t);
+    var over = DATA.tx.length - DATA.seedN - LIVE_CAP;
+    if (over > 0) DATA.tx.splice(DATA.seedN, over);                /* tope: 500 transacciones en vivo */
     addTx(DATA.daily[(DAYS - 1) * DATA.nm + mi], t);
     state.liveCount++;
-    if (panelOpen) { pendingRender = true; return; }
-    state.fresh = t.id;
-    render();
-    state.fresh = null;
+    if (panelOpen) { pendingRender = true; return; }               /* al cerrar el panel se redibuja una vez */
+    var ts = Date.now();
+    if (ts - liveLastAlerts >= LIVE_ALERTS_MS) { liveLastAlerts = ts; updateAlerts(true); }
+    updateBadge();
+    if (state.view === 'resumen') {
+      var focusIn = $('#view-resumen').contains(document.activeElement);
+      if (!focusIn && ts - liveLastHeavy >= LIVE_HEAVY_MS) { liveLastHeavy = ts; quietRender(renderResumen); }
+      else liveResumen(t);
+    } else if (state.view === 'transacciones') {
+      liveTransacciones(t);
+    }
+  }
+  /* Resumen en vivo: cifras de KPI, gráfico de tendencia y feed, sin animaciones de conteo */
+  function liveResumen(t) {
+    var F = filtered();
+    if (!F.mask.some(Boolean)) return;                              /* sin comercios: lo gestiona el render completo */
+    var cur = sumDays(F.cur), prev = F.hasPrev && state.compare && F.prev ? sumDays(F.prev) : null;
+    patchKpis(F, cur, prev);
+    renderTrend(F);
+    if (F.tx.indexOf(t) >= 0) { state.fresh = t.id; prependFeed(t); state.fresh = null; }
+  }
+  /* Transacciones en vivo: fila nueva arriba si encaja con filtros, página 1 y orden por fecha; si no, aviso */
+  function liveTransacciones(t) {
+    var F = filtered(), list = txFiltered(F);
+    if (list.indexOf(t) >= 0) {
+      var body = $('#tx-body'), dateDesc = SORT.tx && SORT.tx.key === 'date' && SORT.tx.dir === 'desc';
+      if (state.txPage === 1 && dateDesc) {
+        var empty = body.querySelector('.empty-cell');
+        if (empty && empty.parentNode) body.removeChild(empty.parentNode);
+        state.fresh = t.id;
+        body.insertBefore(txRow(t), body.firstChild);
+        state.fresh = null;
+        /* Mantiene el tamaño de página: si la última fila tiene el foco, se quita la anterior */
+        while (body.children.length > state.txSize) {
+          var victim = body.lastElementChild;
+          if (victim.contains(document.activeElement)) victim = victim.previousElementSibling;
+          if (!victim) break;
+          body.removeChild(victim);
+        }
+      } else {
+        liveNewPending++;
+        var pill = $('#tx-newpill');
+        pill.textContent = liveNewPending === 1 ? '1 nueva transacción · Mostrar' : liveNewPending + ' nuevas transacciones · Mostrar';
+        pill.hidden = false;
+      }
+    }
+    txMeta(list, F);
   }
   document.addEventListener('visibilitychange', function () {
     if (!state.live) return;
-    clearInterval(liveTimer);
-    liveTimer = null;
-    if (!document.hidden) liveTimer = setInterval(liveTick, 2000);
+    if (document.hidden) stopLiveTimer(); else startLiveTimer();
   });
 
   /* --- Escenarios --- */
@@ -5919,6 +6142,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       render();
     });
     $('#act-user').addEventListener('change', function (e) {
+      actShown = 25;
       applyColSpec('act', 'usuario', e.target.value ? { type: 'cat', vals: [e.target.value] } : null);
     });
   }
@@ -6530,6 +6754,40 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     });
   }
 
+  /* === FASE 3: paginación, en vivo, menú móvil === */
+  function bindFase3() {
+    $('#liq-size').addEventListener('change', function (e) { liqPg.size = parseInt(e.target.value, 10) || 25; liqPg.page = 1; render(); });
+    $('#liq-prev').addEventListener('click', function () { liqPg.page--; render(); });
+    $('#liq-next').addEventListener('click', function () { liqPg.page++; render(); });
+    $('#act-more').addEventListener('click', function () { actShown += 25; renderActivity(); });
+    $('#tx-newpill').addEventListener('click', function () { liveNewPending = 0; state.txPage = 1; render(); });
+    /* Mapa de calor en móvil: quita la pista de desbordamiento al llegar al final */
+    var heat = $('#heat'), hw = heat && heat.parentNode;
+    if (heat && hw) {
+      var atEnd = function () { hw.classList.toggle('at-end', heat.scrollLeft + heat.clientWidth >= heat.scrollWidth - 4); };
+      heat.addEventListener('scroll', atEnd, { passive: true });
+      atEnd();
+    }
+    /* Menú móvil abierto: el foco se queda dentro del panel */
+    sidebar.addEventListener('keydown', function (e) {
+      if (e.key !== 'Tab' || !isNarrow() || !sidebar.classList.contains('open')) return;
+      var f = $$('button:not([disabled]), a[href]', sidebar).filter(function (el) { return el.id !== 'collapse' && !el.closest('[hidden]'); });
+      if (!f.length) return;
+      var first = f[0], last = f[f.length - 1], active = document.activeElement;
+      if (e.shiftKey && (active === first || !sidebar.contains(active))) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && (active === last || !sidebar.contains(active))) { e.preventDefault(); first.focus(); }
+    });
+    /* Al ensanchar la ventana se cierra el menú móvil y el panel vuelve a ser fijo */
+    if (narrowMQ && narrowMQ.addEventListener) narrowMQ.addEventListener('change', function () {
+      if (!isNarrow() && sidebar.classList.contains('open')) {
+        sidebar.classList.remove('open');
+        menuBtn.setAttribute('aria-expanded', 'false');
+        updateScrim();
+      }
+      syncSidebarA11y();
+    });
+  }
+
   /* === INIT === */
   function init() {
     hydrateIcons();
@@ -6539,9 +6797,6 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     applyTheme(prefs.theme === 'carpa' ? 'carpa' : 'dark');
     document.documentElement.setAttribute('data-density', prefs.density === 'compacta' ? 'compacta' : 'comoda');
     readHash();
-    DATA = generate(state.seed, state.scenario);
-    readHash();
-    buildSelects();
     buildFase();
     registerView('comercios', renderComercios);
     registerView('rentabilidad', renderRentab);
@@ -6555,16 +6810,21 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     bindFase();
     bindFase2B();
     bindRoles();
+    bindFase3();
     buildHeads();
     window.addEventListener('scroll', function () { if (colPop && colPopBtn) placePop(colPop, colPopBtn); }, { passive: true });
     window.addEventListener('hashchange', onHashChange);
     stickyEl = $('#stickybar');
     loginEl = $('#login');
     window.addEventListener('scroll', onStickyScroll, { passive: true });
+    syncSidebarA11y();
     /* Cada carga muestra "Entrar como…"; solo un enlace con como=<id> entra directamente */
     var direct = userById(state.comoParam);
     if (direct) setUser(direct.id);
     else showLogin(false);
+    /* Primer pintado con el login visible; después se generan los datos */
+    var nextFrame = window.requestAnimationFrame || function (f) { return setTimeout(f, 16); };
+    nextFrame(function () { setTimeout(loadData, 0); });
   }
   init();
 
