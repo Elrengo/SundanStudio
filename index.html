@@ -486,9 +486,8 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 }
 /* PRECIOS */
 .pricing{background:var(--plum);color:var(--bone);position:relative;overflow:hidden;padding:0 0 clamp(56px,12vh,130px)}
-.pricing .pr-bunting{height:72px;position:relative;overflow:hidden}
-.pricing .pr-bunting svg{display:block;width:100%;height:72px}
-.pricing .wrap.one{grid-template-columns:1fr;padding-top:0;min-width:0}
+.pricing .pr-bunting{height:38px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='26' viewBox='0 0 160 26'%3E%3Cpath d='M0 2H160' stroke='%23e9b42f' stroke-width='2'/%3E%3Cpath d='M4 2H36L20 24Z' fill='%23c1121f'/%3E%3Cpath d='M44 2H76L60 24Z' fill='%23efe3c8'/%3E%3Cpath d='M84 2H116L100 24Z' fill='%23e9b42f'/%3E%3Cpath d='M124 2H156L140 24Z' fill='%231f9e8f'/%3E%3C/svg%3E") 0 0/232px 38px repeat-x}
+.pricing .wrap.one{grid-template-columns:1fr;padding-top:2.1rem;min-width:0}
 .pricing .intro{min-width:0}
 .pricing .intro .lede{margin-top:.6rem}
 .pricing .pr-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:36px 28px;margin-top:.5rem;min-width:0}
@@ -601,10 +600,22 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 @media (min-width:640px) and (max-width:900px){.tb-logo img{height:30px}.topbar nav{gap:.8rem}.topbar nav a{font-size:.85rem}.topbar{gap:.6rem}}
 .note a,a[href^="mailto:"]{padding-block:.7em}
 .panel .plink{display:inline-flex;align-items:center;min-height:44px}
+/* SPOTLIGHTS (ambient sweeping light cones) */
+.spot-layer{position:fixed;inset:0;pointer-events:none;z-index:5;overflow:hidden;mix-blend-mode:screen;transition:opacity .6s ease;will-change:opacity}
+.spot-layer.spot-off{opacity:0}
+.spot{position:absolute;bottom:-10vh;width:46vw;height:130vh;transform-origin:50% 100%;will-change:transform;background:radial-gradient(ellipse 35% 100% at 50% 100%,rgba(255,230,170,.10),rgba(255,230,170,.04) 45%,transparent 70%);clip-path:polygon(46% 100%,54% 100%,100% 0,0 0)}
+.spot.s1{left:8vw;animation:sweep1 11s ease-in-out infinite}
+.spot.s2{right:8vw;animation:sweep2 13s ease-in-out -6s infinite}
+.spot-paused .spot{animation-play-state:paused}
+@keyframes sweep1{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(16deg)}}
+@keyframes sweep2{0%,100%{transform:rotate(14deg)}50%{transform:rotate(-16deg)}}
+@media (max-width:759px){.spot{width:70vw}}
+@media (prefers-reduced-motion:reduce){.spot-layer{display:none}}
 </style>
 <script defer src="https://cloud.umami.is/script.js" data-website-id="1377f8f1-df62-427b-bc7d-eec5c112cc00" data-domains="sundanstudio.com"></script>
 </head>
 <body>
+<div class="spot-layer" aria-hidden="true"><span class="spot s1"></span><span class="spot s2"></span></div>
 <canvas id="fx" aria-hidden="true"></canvas>
 <header class="topbar">
   <a class="tb-logo" href="#proyectos"><img src="assets/logo/logo-horizontal-oscuro.svg" alt="Sundan Studio" width="211" height="36"></a>
@@ -3372,154 +3383,17 @@ function drawMumi(c, p){
 </script>
 <script>
 (function () {
-  var box = document.querySelector('.pr-bunting');
-  if (!box) return;
-  var NS = 'http://www.w3.org/2000/svg';
-  var COLS = ['#c1121f', '#e9b42f', '#efe3c8', '#1f9e8f'];
-  var PI = Math.PI, DEG = PI / 180;
-  var H = 72, TOP = 4, SPACING = 40, LAMBDA = 260, OMEGA = 2;
-  var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  var W = 0, S = 0, lastW = 0, timer = null;
-  var pathEl = null, flags = [];
-  var t = 0, lastNow = 0, rafId = 0, inView = false, nextGust = 3, gusts = [];
-  var curC = 0.5, curDepth = 0, curA = 0;
-
-  function el(name, attrs, parent) {
-    var n = document.createElementNS(NS, name);
-    for (var k in attrs) n.setAttribute(k, attrs[k]);
-    if (parent) parent.appendChild(n);
-    return n;
+  var layer = document.querySelector('.spot-layer');
+  if (!layer) return;
+  function syncPaused() { layer.classList.toggle('spot-paused', document.hidden); }
+  document.addEventListener('visibilitychange', syncPaused);
+  syncPaused();
+  var hero = document.getElementById('hero');
+  if (hero && 'IntersectionObserver' in window) {
+    new IntersectionObserver(function (en) {
+      layer.classList.toggle('spot-off', en[0].intersectionRatio > 0.5);
+    }, { threshold: [0, 0.5, 1] }).observe(hero);
   }
-  function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
-  function smooth(x) { x = clamp(x, 0, 1); return x * x * (3 - 2 * x); }
-
-  // Soft gusts: ramp up over 0.8 s, decay over ~2 s.
-  function gustLevel(now) {
-    var g = 0;
-    for (var i = 0; i < gusts.length; i++) {
-      var d = now - gusts[i];
-      if (d < 0) continue;
-      var fall = d < 0.8 ? 1 : Math.exp(-(d - 0.8) / 0.7);
-      g += smooth(d / 0.8) * fall;
-    }
-    return g;
-  }
-  // Wind 0..1: gentle oscillation + incommensurate sines + gusts.
-  function windAt(now) {
-    var base = 0.5 + 0.5 * Math.sin(0.6 * now);
-    var noise = 0.5 * Math.sin(0.37 * now + 1.3) + 0.3 * Math.sin(0.91 * now + 0.4) + 0.2 * Math.sin(1.73 * now + 2.1);
-    return clamp(0.3 + 0.35 * base + 0.2 * noise + 0.6 * gustLevel(now), 0, 1);
-  }
-  function applyWind(w) {
-    curC = 0.5 + 0.06 * w;                       // lowest point drifts downwind (right), up to 6% of W
-    curDepth = S * (1 + 0.12 * (1 - 2 * w));     // sag varies by +/-12%, wind lifts the string
-    curA = 1.5 + 1.5 * w;                        // travelling ripple amplitude
-  }
-  // String height at x: piecewise parabola, 0 at both anchors, plus travelling ripple.
-  function yAt(x) {
-    var u = x / W, c = curC, f;
-    if (u <= c) { var a = (u - c) / c; f = 1 - a * a; }
-    else { var b = (u - c) / (1 - c); f = 1 - b * b; }
-    return TOP + curDepth * f + curA * Math.sin(2 * PI * x / LAMBDA - OMEGA * t) * Math.sin(PI * u);
-  }
-  // Settled target swing for a flag (radians).
-  function targetAngle(f, w, now) {
-    return 14 * DEG * w * (0.7 + 0.6 * Math.sin(PI * f.u)) + 2 * DEG * Math.sin(0.7 * now + f.ph);
-  }
-  function step(dt) {
-    t += dt;
-    if (t >= nextGust) {
-      gusts.push(t);
-      nextGust = t + 6 + Math.random() * 4;
-      gusts = gusts.filter(function (g) { return t - g < 6; });
-    }
-    var w = windAt(t);
-    applyWind(w);
-    var K = 18, C = 5.5; // damped spring, zeta ~0.65
-    for (var i = 0; i < flags.length; i++) {
-      var f = flags[i];
-      var acc = K * (targetAngle(f, w, t) - f.th) - C * f.vel;
-      f.vel += acc * dt;
-      f.th += f.vel * dt;
-    }
-  }
-  function render() {
-    var pts = clamp(Math.floor(W / 16), 24, 120), d = '';
-    for (var k = 0; k <= pts; k++) {
-      var x = W * k / pts;
-      d += (k ? 'L' : 'M') + x.toFixed(1) + ' ' + yAt(x).toFixed(2);
-    }
-    pathEl.setAttribute('d', d);
-    for (var i = 0; i < flags.length; i++) {
-      var f = flags[i];
-      var slope = (yAt(f.x + 1) - yAt(f.x - 1)) / 2;
-      var deg = Math.atan(slope) / DEG + f.th / DEG;
-      f.g.setAttribute('transform', 'translate(' + f.x.toFixed(2) + ' ' + yAt(f.x).toFixed(2) + ') rotate(' + deg.toFixed(2) + ')');
-    }
-  }
-  function canRun() { return inView && !document.hidden && !reduce && W > 0; }
-  function frame(now) {
-    rafId = 0;
-    if (!canRun()) return;
-    if (lastNow && now - lastNow < 15) { rafId = requestAnimationFrame(frame); return; } // cap ~60fps
-    var dt = lastNow ? Math.min((now - lastNow) / 1000, 1 / 30) : 1 / 60;
-    lastNow = now;
-    step(dt);
-    render();
-    rafId = requestAnimationFrame(frame);
-  }
-  function start() {
-    if (rafId || !canRun()) return;
-    lastNow = 0;
-    rafId = requestAnimationFrame(frame);
-  }
-  function stop() {
-    if (rafId) cancelAnimationFrame(rafId);
-    rafId = 0;
-  }
-  function build() {
-    var w = Math.round(box.getBoundingClientRect().width);
-    if (!w || w === lastW) return;
-    lastW = W = w;
-    S = clamp(W * 0.022, 18, 38);
-    box.textContent = '';
-    var svg = el('svg', { width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, focusable: 'false' }, box);
-    var string = el('g', { 'class': 'pr-string' }, svg);
-    pathEl = el('path', { fill: 'none', stroke: '#e9b42f', 'stroke-width': 2, 'stroke-linecap': 'round' }, string);
-    var n = Math.max(2, Math.floor(W / SPACING));
-    var w0 = windAt(t);
-    applyWind(w0);
-    flags = [];
-    for (var i = 0; i < n; i++) {
-      var x = (i + 0.5) * W / n;
-      var g = el('g', { 'class': 'pr-flag' }, svg);
-      el('path', { d: 'M-11 0L11 0L0 22Z', fill: COLS[i % COLS.length] }, g);
-      var f = { x: x, u: x / W, g: g, th: 0, vel: 0, ph: i * 1.9 };
-      f.th = targetAngle(f, w0, t); // start settled, no initial jolt
-      flags.push(f);
-    }
-    render();
-    start();
-  }
-
-  if (!reduce) {
-    if ('IntersectionObserver' in window) {
-      new IntersectionObserver(function (entries) {
-        inView = entries[entries.length - 1].isIntersecting;
-        if (inView) start(); else stop();
-      }).observe(box);
-    } else {
-      inView = true;
-    }
-    document.addEventListener('visibilitychange', function () {
-      if (document.hidden) stop(); else start();
-    });
-  }
-  build();
-  window.addEventListener('resize', function () {
-    clearTimeout(timer);
-    timer = setTimeout(build, 150);
-  });
 })();
 </script>
 </body>
