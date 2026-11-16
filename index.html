@@ -2458,7 +2458,7 @@ function drawMumi(c, p){
   // Pega aquí el enlace de tu página de reservas de Google Calendar (Programación de citas)
   var GCAL_BOOKING_URL = 'https://calendar.google.com/calendar/appointments/schedules/AcZssZ2DZNKbzS06G9XRAHxm69E-JWPHPf2M0OT6kJTZWcQ-myLQmZeydpXglljPdoaE4zoUep_jXwej';
   // URL /exec del Apps Script de reservas (ver google-apps-script/INSTRUCCIONES.md). Si está vacía se usa el calendario de Google incrustado.
-  var BOOKING_API_URL = '';
+  var BOOKING_API_URL = 'https://script.google.com/macros/s/AKfycbyU3gb-kv3aBhfQwP2vGdbOQh_oSqeAFOyucpD6ZG_xuvbxRzysfyLh75wfX6D8qQd-/exec';
   // dev hook: ?bookingmock=1 usa una API simulada en memoria (sin backend)
   var MOCK = location.search.indexOf('bookingmock=1') !== -1;
   var apiMode = /^https:\/\/script\.google\.com\/macros\/s\//.test(BOOKING_API_URL) || MOCK;
