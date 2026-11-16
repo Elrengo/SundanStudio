@@ -204,6 +204,7 @@ h2.big.proj-title{font-size:clamp(2.4rem,6vw,4.4rem);margin:1.2rem 0 1rem}
 .contact .wrap{grid-template-columns:minmax(0,1.5fr) minmax(0,.9fr)}
 .cf-main,.cf-side{min-width:0}
 @media (max-width:760px){.contact .wrap{grid-template-columns:minmax(0,1fr)}}
+@media (min-width:761px){.cf-side{position:sticky;top:calc(64px + 16px);align-self:start;max-height:calc(100vh - 64px - 32px);overflow:auto;padding:4px}}
 .cf-form{display:grid;gap:1.2rem;margin:1.6rem 0 0}
 .cf-form[hidden],.cf-done[hidden],.cf-alert[hidden],.cf-slot[hidden]{display:none!important}
 .cf-title{font-family:var(--display);font-weight:400;font-size:clamp(1.6rem,3.6vw,2.1rem);line-height:1.1;margin:0;color:var(--bone)}
@@ -399,6 +400,11 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 @keyframes projects-glow{0%,100%{opacity:.45}50%{opacity:1}}
 @keyframes projects-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 @keyframes projects-flicker{0%,88%,100%{opacity:1}90%{opacity:.25}92%{opacity:1}94%{opacity:.4}}
+@keyframes af-sway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+@keyframes af-swing{from{transform:rotate(-18deg)}to{transform:rotate(18deg)}}
+.projects .af-garland{transform-box:view-box;transform-origin:160px 26px;animation:af-sway 4s ease-in-out infinite}
+.projects .af-trapeze{transform-box:view-box;transform-origin:160px 16px;animation:af-swing 2.6s ease-in-out infinite alternate}
+.projects .shot .bolt{filter:drop-shadow(0 0 3px rgba(233,180,47,.8))}
 @media (min-width:760px){
   .projects .grid{grid-template-columns:1fr 1fr}
   .projects .pcard.feat,.projects .pcard.wide{display:grid;grid-template-columns:1.1fr 1fr;gap:1.4rem;align-items:center}
@@ -408,6 +414,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 }
 @media (prefers-reduced-motion:reduce){
   .projects .bulb,.projects .scoop,.projects .bolt,.projects .glow{animation:none}
+  .projects .af-garland,.projects .af-trapeze{animation:none}
   .projects .pcard,.projects .pcard:hover,.projects .pcard:focus-within{transform:none;transition:none}
   .projects .pgroup,.projects .pf-btn{transition:none}
 }
@@ -479,7 +486,13 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 }
 /* PRECIOS */
 .pricing{background:var(--plum);color:var(--bone);position:relative;overflow:hidden;padding:0 0 clamp(56px,12vh,130px)}
-.pricing .pr-bunting{height:26px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='26' viewBox='0 0 160 26'%3E%3Cpath d='M0 2H160' stroke='%23e9b42f' stroke-width='2'/%3E%3Cpath d='M4 2H36L20 24Z' fill='%23c1121f'/%3E%3Cpath d='M44 2H76L60 24Z' fill='%23efe3c8'/%3E%3Cpath d='M84 2H116L100 24Z' fill='%23e9b42f'/%3E%3Cpath d='M124 2H156L140 24Z' fill='%231f9e8f'/%3E%3C/svg%3E") 0 0/160px 26px repeat-x}
+.pricing .pr-bunting{height:30px;position:relative;overflow:hidden}
+.pricing .pr-bunting svg{display:block;width:100%;height:30px}
+@keyframes flag-sway{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(5deg)}}
+@keyframes flag-gust{0%{transform:rotate(0)}3%{transform:rotate(10deg)}6%{transform:rotate(-4deg)}9%{transform:rotate(6deg)}14%,100%{transform:rotate(0)}}
+.pricing .pr-flag{transform-box:fill-box;transform-origin:50% 0;animation:flag-sway 3.5s ease-in-out infinite}
+.pricing .pr-gust{transform-box:fill-box;transform-origin:50% 0;animation:flag-gust 7s linear infinite}
+@media (prefers-reduced-motion:reduce){.pricing .pr-flag,.pricing .pr-gust{animation:none}}
 .pricing .wrap.one{grid-template-columns:1fr;padding-top:48px;min-width:0}
 .pricing .intro{min-width:0}
 .pricing .intro .lede{margin-top:.6rem}
@@ -885,24 +898,88 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
         <div class="shot" aria-hidden="true">
           <svg viewBox="0 0 320 180" focusable="false">
             <defs>
-              <linearGradient id="pj-storm" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stop-color="#2a1640"/>
+              <linearGradient id="af-sky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#1a0a1e"/>
                 <stop offset="1" stop-color="#0b0307"/>
               </linearGradient>
+              <linearGradient id="af-vel" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#a40f1a"/>
+                <stop offset=".5" stop-color="#c1121f"/>
+                <stop offset="1" stop-color="#8a0c16"/>
+              </linearGradient>
             </defs>
-            <rect width="320" height="180" fill="url(#pj-storm)"/>
-            <rect class="pole" x="51" y="40" width="6" height="130"/>
-            <rect class="pole" x="157" y="40" width="6" height="130"/>
-            <rect class="pole" x="262" y="40" width="6" height="130"/>
-            <path class="arc" d="M54 150 Q160 20 265 150"/>
-            <circle class="acro" cx="160" cy="85" r="6"/>
-            <polyline class="bolt" points="222,14 206,58 220,58 198,112 214,112 188,160"/>
+            <rect width="320" height="180" fill="url(#af-sky)"/>
+            <path fill="#07020a" d="M0 0H320V8H300L296 20L292 8H262L258 14L254 8H218L212 26L206 8H170L165 16L160 8H120L116 22L112 8H80L75 13L70 8H44L39 18L34 8H0Z"/>
+            <rect y="150" width="320" height="30" fill="#0b0307"/>
+            <g fill="#2a1426" opacity=".85">
+              <path d="M10 150L53 81Q60 76 67 81L110 150Z"/>
+              <path d="M215 150L249 96Q255 91 261 96L295 150Z"/>
+              <path d="M132 150L157 112Q160 109 163 112L188 150Z"/>
+              <path d="M60 81V70" stroke="#2a1426" stroke-width="1.2"/>
+              <path d="M60 70L68 72.5L60 75Z" fill="#c1121f"/>
+              <path d="M255 96V86" stroke="#2a1426" stroke-width="1.2"/>
+              <path d="M255 86L263 88.5L255 91Z" fill="#e9b42f"/>
+              <path d="M53 150V137Q60 128 67 137V150Z" fill="#14060f"/>
+              <path d="M248 150V138Q255 130 262 138V150Z" fill="#14060f"/>
+            </g>
+            <g fill="none" stroke="#3d1f3a" stroke-width="2.5">
+              <path d="M25 128q5 7 10 0q5 7 10 0q5 7 10 0q5 7 10 0q5 7 10 0q5 7 10 0q5 7 10 0"/>
+              <path d="M227 128q5.5 7 11 0q5.5 7 11 0q5.5 7 11 0q5.5 7 11 0q5.5 7 11 0"/>
+              <path d="M141 136q4.75 6 9.5 0q4.75 6 9.5 0q4.75 6 9.5 0q4.75 6 9.5 0"/>
+            </g>
+            <circle class="bulb" cx="45" cy="140" r="1.8" fill="#e9b42f"/>
+            <circle class="bulb b" cx="272" cy="138" r="1.8" fill="#e9b42f"/>
+            <polyline class="bolt" points="236,10 222,50 234,50 214,96 226,96 204,132"/>
+            <path d="M12 6l-6 14M40 30l-6 14M72 2l-6 14M98 44l-6 14M124 14l-6 14M148 56l-6 14M200 4l-6 14M232 46l-6 14M262 12l-6 14M290 40l-6 14M306 64l-6 14M20 70l-6 14M180 80l-6 14M250 80l-6 14M84 92l-6 14M300 100l-6 14" fill="none" stroke="#efe3c8" stroke-opacity=".25" stroke-width="1"/>
+            <g class="af-garland">
+              <path d="M0 26Q160 52 320 26" fill="none" stroke="#e9b42f" stroke-opacity=".6" stroke-width="1.2"/>
+              <g fill="#c1121f" opacity=".7">
+                <path d="M11.5 28.5L20.5 28.5L16 37.5Z"/>
+                <path d="M88.3 36.7L97.3 36.7L92.8 45.7Z"/>
+                <path d="M171.5 38.9L180.5 38.9L176 47.9Z"/>
+                <path d="M248.3 34.6L257.3 34.6L252.8 43.6Z"/>
+              </g>
+              <g fill="#e9b42f" opacity=".7">
+                <path d="M37.1 31.9L46.1 31.9L41.6 40.9Z"/>
+                <path d="M113.9 38.1L122.9 38.1L118.4 47.1Z"/>
+                <path d="M197.1 38.1L206.1 38.1L201.6 47.1Z"/>
+                <path d="M273.9 31.9L282.9 31.9L278.4 40.9Z"/>
+              </g>
+              <g fill="#efe3c8" opacity=".7">
+                <path d="M62.7 34.6L71.7 34.6L67.2 43.6Z"/>
+                <path d="M139.5 38.9L148.5 38.9L144 47.9Z"/>
+                <path d="M222.7 36.7L231.7 36.7L227.2 45.7Z"/>
+                <path d="M299.5 28.5L308.5 28.5L304 37.5Z"/>
+              </g>
+            </g>
+            <g class="af-trapeze">
+              <path d="M160 16L140 66M160 16L180 66" fill="none" stroke="#efe3c8" stroke-width="1.2" opacity=".8"/>
+              <path d="M134 66H186" stroke="#e9b42f" stroke-width="3" stroke-linecap="round"/>
+              <path d="M155 86L150 67M165 86L170 67" stroke="#efe3c8" stroke-width="2.4" stroke-linecap="round"/>
+              <path d="M155 84H165L163 102H157Z" fill="#efe3c8"/>
+              <rect x="156" y="95" width="8" height="2.5" fill="#e9b42f"/>
+              <path d="M158 102L154 117M162 102L166 117" stroke="#efe3c8" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="160" cy="74" r="4.5" fill="#efe3c8"/>
+              <path d="M155.5 73Q156 68 160 68.2Q164 68 164.5 73Q160 70.5 155.5 73Z" fill="#e9b42f"/>
+            </g>
+            <circle cx="160" cy="16" r="3.5" fill="none" stroke="#e9b42f" stroke-width="2"/>
+            <path d="M8 150H86V172H8Z" fill="url(#af-vel)"/>
+            <path d="M20 150V172M34 150V172M48 150V172M62 150V172M76 150V172" stroke="#6e0a12" stroke-width="1.5" opacity=".7"/>
+            <rect x="6" y="146" width="82" height="4" fill="#e9b42f"/>
+            <g fill="#efe3c8">
+              <circle cx="27" cy="155" r="1.1"/>
+              <circle cx="41" cy="155" r="1.1"/>
+              <circle cx="55" cy="155" r="1.1"/>
+              <circle cx="69" cy="155" r="1.1"/>
+            </g>
+            <rect x="268" y="152" width="44" height="20" fill="url(#af-vel)"/>
+            <rect x="266" y="148" width="48" height="4" fill="#e9b42f"/>
           </svg>
         </div>
         <div class="body">
-          <div class="tags"><span>Canvas</span><span>Física</span><span>Animación</span></div>
+          <div class="tags"><span>Canvas</span><span>Física</span><span>4 niveles</span></div>
           <h4>Afar · juego de navegador</h4>
-          <p class="desc">Un trapecista que gira entre palos bajo una tormenta. Física, controles táctiles y arte propio.</p>
+          <p class="desc">Un trapecista que se balancea entre barras en plena tormenta. Cuatro niveles, rayos que esquivar y una habilidad nueva: el dash. Física, controles táctiles y arte propio.</p>
           <p class="result">Qué demuestra: <strong>Rendimiento y animación a 60 fps.</strong></p>
           <div class="actions">
             <a class="pill" href="afar.html" data-umami-event="abrir-proyecto" data-umami-event-proyecto="Afar">Jugar →</a>
@@ -3232,6 +3309,47 @@ function drawMumi(c, p){
     if(e.animationName==='title-in')finish();
   });
   fallback=setTimeout(finish,150+45*len+700+400);
+})();
+</script>
+<script>
+(function () {
+  var box = document.querySelector('.pr-bunting');
+  if (!box) return;
+  var NS = 'http://www.w3.org/2000/svg';
+  var COLS = ['#c1121f', '#e9b42f', '#efe3c8', '#1f9e8f'];
+  var H = 30, lastW = 0, timer = null;
+  function el(name, attrs, parent) {
+    var n = document.createElementNS(NS, name);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+  function sag(t) { return 4 + 40 * t * (1 - t); }
+  function build() {
+    var W = Math.round(box.getBoundingClientRect().width);
+    if (!W || W === lastW) return;
+    lastW = W;
+    box.textContent = '';
+    var svg = el('svg', { width: W, height: H, viewBox: '0 0 ' + W + ' ' + H, focusable: 'false' }, box);
+    el('path', { d: 'M0 4Q' + (W / 2) + ' 24 ' + W + ' 4', fill: 'none', stroke: '#e9b42f', 'stroke-width': 2 }, svg);
+    var n = Math.max(2, Math.floor(W / 40));
+    for (var i = 0; i < n; i++) {
+      var t = (i + 0.5) / n;
+      var x = t * W, y = sag(t);
+      var dur = 2.8 + Math.random() * 1.4;
+      var outer = el('g', { 'class': 'pr-flag' }, svg);
+      outer.style.animationDuration = dur.toFixed(2) + 's';
+      outer.style.animationDelay = (-Math.random() * dur).toFixed(2) + 's';
+      var inner = el('g', { 'class': 'pr-gust' }, outer);
+      inner.style.animationDelay = (t * 1.2).toFixed(2) + 's';
+      el('path', { d: 'M' + (x - 6) + ' ' + y + 'L' + (x + 6) + ' ' + y + 'L' + x + ' ' + (y + 15) + 'Z', fill: COLS[i % COLS.length] }, inner);
+    }
+  }
+  build();
+  window.addEventListener('resize', function () {
+    clearTimeout(timer);
+    timer = setTimeout(build, 150);
+  });
 })();
 </script>
 </body>
