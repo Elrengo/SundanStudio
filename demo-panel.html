@@ -811,6 +811,44 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .table-wrap { overflow: visible; }
 }
+#view-resumen.is-empty > :not(#res-empty) { display: none !important; }
+.empty-state { padding: 28px 16px; text-align: center; display: grid; gap: 12px; justify-items: center; }
+.empty-state[hidden] { display: none !important; }
+.defs-link { margin: 6px 0 0; }
+.defs-dl { grid-template-columns: 1fr; gap: 14px; }
+.defs-dl dt { color: var(--ink); font-weight: 600; }
+.defs-dl dd { text-align: left; margin: 2px 0 0; }
+/* Drill-down y alertas */
+.bell-wrap { position: relative; display: inline-flex; flex: none; }
+.bell-badge { position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--bad); color: var(--bg); font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; box-sizing: border-box; pointer-events: none; }
+.bell-badge[hidden] { display: none !important; }
+.is-link { cursor: pointer; }
+.is-link:hover { background: var(--hover); }
+.kpi.is-link:hover { border-color: var(--accent); }
+.is-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.crumb { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; font-size: 13px; }
+.crumb[hidden] { display: none !important; }
+.chips-clear { margin-left: auto; }
+.heat-cell.is-cur { stroke: var(--ink); stroke-width: 2; }
+.heat svg:focus-visible, #trend-chart svg:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 6px; }
+.alert-card-list, .alert-group-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.alert-mini { display: grid; gap: 8px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; }
+.alert-mini-top, .alert-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+.alert-mini-title { font-size: 14px; font-weight: 600; line-height: 1.35; }
+.alert-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.sev { display: inline-flex; align-items: center; font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; border: 1px solid currentColor; white-space: nowrap; }
+.sev-critica { color: var(--bad); }
+.sev-alta { color: var(--warn); }
+.sev-media { color: var(--accent); }
+.alert-item { border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: grid; gap: 8px; background: var(--surface); }
+.alert-item h4 { font-size: 14.5px; font-weight: 600; line-height: 1.35; margin: 0; }
+.alert-item p { font-size: 13px; margin: 0; }
+.alert-impact { font-family: var(--mono); font-weight: 600; }
+.alerts-drawer .drawer-body { gap: 18px; }
+.alert-group { display: grid; gap: 12px; }
+.alert-group > h3 { margin: 0; font-size: 13px; color: var(--muted); }
+.alert-done { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+.alerts-drawer details summary { cursor: pointer; font-size: 13px; color: var(--muted); }
 </style>
 <script defer src="https://cloud.umami.is/script.js" data-website-id="1377f8f1-df62-427b-bc7d-eec5c112cc00" data-domains="sundanstudio.com"></script>
 </head>
@@ -867,6 +905,10 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
           <div class="dropdown" id="q-results" hidden></div>
         </div>
         <button type="button" class="toggle" id="live" data-perm="view.live" aria-pressed="false" title="Añade una transacción simulada cada 2 segundos"><span class="live-dot" aria-hidden="true"></span><span>En vivo</span></button>
+        <div class="bell-wrap">
+          <button type="button" class="icon-btn" id="alerts-btn" aria-haspopup="dialog" aria-expanded="false" aria-controls="alerts-drawer" aria-label="Alertas" title="Alertas"><span class="ico" data-icon="bell"></span></button>
+          <span class="bell-badge" id="bell-badge" role="img" aria-label="0 alertas sin revisar" hidden>0</span>
+        </div>
         <div class="help-wrap">
           <button type="button" class="icon-btn" id="help" aria-haspopup="true" aria-expanded="false" aria-controls="help-menu" aria-label="Ayuda"><span class="ico" data-icon="help"></span></button>
           <div class="dropdown help-menu" id="help-menu" role="menu" hidden>
@@ -874,6 +916,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
             <button type="button" class="dd-item" role="menuitem" id="help-keys"><span>Atajos de teclado</span><small>?</small></button>
           </div>
         </div>
+        <button type="button" class="btn" id="report-btn" data-perm="view.resumen" aria-haspopup="dialog" aria-controls="report"><span class="ico" data-icon="download"></span><span>Informe</span></button>
         <button type="button" class="btn" id="regen" data-perm="view.regen" title="Genera un nuevo conjunto de datos ficticios"><span class="ico" data-icon="refresh"></span><span>Generar nuevos datos</span></button>
         <button type="button" class="icon-btn" id="theme" aria-label="Tema Carpa" title="Tema Carpa">
           <span class="ico i-tent" data-icon="tent"></span><span class="ico i-moon" data-icon="moon"></span>
@@ -882,7 +925,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     </header>
 
     <div class="incident" id="incident" role="status" hidden>
-      <p><strong>Incidencia simulada.</strong> Caída parcial de un adquirente: la aprobación baja unos 15 pp durante 2 horas (13–15 h del día anterior).</p>
+      <p><strong>Incidencia simulada.</strong> Caída parcial de un adquirente: la aprobación baja unos 15 pp entre las 13 y las 15 h de los dos últimos días.</p>
       <button type="button" class="btn btn-ghost" id="incident-x">Cerrar aviso</button>
     </div>
 
@@ -893,8 +936,15 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
           <button type="button" data-range="30d" aria-pressed="true">30 días</button>
           <button type="button" data-range="90d" aria-pressed="false">90 días</button>
           <button type="button" data-range="12m" aria-pressed="false">12 meses</button>
+          <button type="button" id="rng-custom" aria-pressed="false" aria-expanded="false" aria-controls="rng-pop" title="Elegir un rango de fechas">Personalizado</button>
         </div>
         <button type="button" class="toggle" id="cmp" aria-pressed="true" title="Comparar con periodo anterior" aria-label="Comparar con periodo anterior"><span class="sw-box" aria-hidden="true"></span><span>Comparar</span></button>
+        <label class="fsel cmp-mode" id="cmp-mode-wrap"><span class="sr-only">Modo de comparación</span>
+          <select class="field" id="cmp-mode">
+            <option value="prev">vs. periodo anterior</option>
+            <option value="yoy">vs. mismo periodo del año pasado</option>
+          </select>
+        </label>
         <label class="fsel"><span>Canal</span><select class="field" id="f-channel"></select></label>
         <label class="fsel" data-perm="filter.country"><span>País</span><select class="field" id="f-country"></select></label>
         <label class="fsel" data-perm="filter.partner"><span>Partner</span><select class="field" id="f-partner"></select></label>
@@ -909,6 +959,24 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
         </label>
         <button type="button" class="btn btn-ghost" id="clear">Limpiar filtros</button>
       </div>
+      <div class="rng-pop card" id="rng-pop" role="dialog" aria-modal="false" aria-labelledby="rng-title" hidden>
+        <h2 id="rng-title" class="rng-title" tabindex="-1">Rango personalizado</h2>
+        <div class="rng-presets" role="group" aria-label="Atajos de fechas">
+          <button type="button" class="btn" data-rng-preset="mes">Este mes</button>
+          <button type="button" class="btn" data-rng-preset="mesant">Mes pasado</button>
+          <button type="button" class="btn" data-rng-preset="trim">Este trimestre</button>
+          <button type="button" class="btn" data-rng-preset="anio">Año en curso</button>
+        </div>
+        <div class="form-grid rng-dates">
+          <label class="fsel"><span>Desde</span><input class="field" type="date" id="rng-from"></label>
+          <label class="fsel"><span>Hasta</span><input class="field" type="date" id="rng-to"></label>
+        </div>
+        <p class="hint" id="rng-err" role="alert" hidden></p>
+        <div class="rng-acts">
+          <button type="button" class="btn btn-ghost" id="rng-cancel">Cancelar</button>
+          <button type="button" class="btn" id="rng-apply">Aplicar</button>
+        </div>
+      </div>
       <div class="ctrl-row chips-row">
         <button type="button" class="btn filters-btn" id="filters-btn" aria-expanded="false" aria-controls="filters-row">Filtros (0)</button>
         <div class="chips" id="chips" aria-live="polite"></div>
@@ -921,7 +989,22 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
 
       <!-- VISTA: RESUMEN -->
       <section id="view-resumen" class="view" aria-label="Resumen">
+        <div class="card empty-state" id="res-empty" role="status" hidden>
+          <p><strong>Ningún comercio coincide con los filtros.</strong></p>
+          <button type="button" class="btn" id="empty-clear">Quitar filtros</button>
+        </div>
+        <article class="card alert-card" id="res-alerts" aria-labelledby="t-alerts">
+          <div class="card-head">
+            <div>
+              <h2 id="t-alerts">Alertas activas</h2>
+              <p>Hasta tres alertas sin revisar. Usa «Ver todas» para el listado completo.</p>
+            </div>
+            <button type="button" class="btn btn-ghost" data-open-alerts>Ver todas</button>
+          </div>
+          <ul class="alert-card-list" id="alerts-mini"></ul>
+        </article>
         <div class="kpi-grid" id="kpis"></div>
+        <p class="defs-link"><button type="button" class="btn btn-ghost defs-btn" aria-haspopup="dialog">ⓘ Definiciones</button></p>
 
         <article class="card" aria-labelledby="t-trend">
           <div class="card-head">
@@ -946,20 +1029,20 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
         <article class="card" id="res-share" aria-labelledby="t-share" data-perm="view.share">
           <div class="card-head">
             <div>
-              <h2 id="t-share">Revenue share devengado</h2>
+              <h2 id="t-share">Reparto con partners devengado</h2>
               <p>Tu parte de las comisiones de los comercios que has referido, por mes</p>
             </div>
           </div>
           <div class="table-wrap">
             <table class="data-table" id="share-table">
-              <caption class="sr-only">Revenue share por mes de los últimos 12 meses</caption>
+              <caption class="sr-only">Reparto con partners por mes de los últimos 12 meses</caption>
               <thead>
                 <tr>
                   <th scope="col">Mes</th>
                   <th scope="col" class="num-col">Operaciones</th>
                   <th scope="col" class="num-col">Volumen</th>
                   <th scope="col" class="num-col">Comisiones generadas</th>
-                  <th scope="col" class="num-col">Revenue share</th>
+                  <th scope="col" class="num-col">Reparto con partners</th>
                 </tr>
               </thead>
               <tbody id="share-body"></tbody>
@@ -1029,6 +1112,10 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       <!-- VISTA: TRANSACCIONES -->
       <section id="view-transacciones" class="view" aria-label="Transacciones" hidden>
         <article class="card">
+          <nav class="crumb" id="tx-crumb" aria-label="Origen de la vista" hidden>
+            <button type="button" class="btn btn-ghost" id="crumb-back">← Volver a Resumen</button>
+            <span class="muted">Vista filtrada desde Resumen</span>
+          </nav>
           <div class="toolbar">
             <label class="field-search">
               <span class="sr-only">Buscar por ID, comercio o tarjeta</span>
@@ -1038,8 +1125,8 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
               <label class="fsel"><span>Estado</span><select class="field" id="tx-status"></select></label>
               <label class="fsel"><span>Método</span><select class="field" id="tx-method"></select></label>
               <label class="fsel"><span>Canal</span><select class="field" id="tx-channel"></select></label>
-              <label class="fsel"><span>Importe mín. (€)</span><input class="field" type="number" min="0" step="0.01" id="tx-min" inputmode="decimal"></label>
-              <label class="fsel"><span>Importe máx. (€)</span><input class="field" type="number" min="0" step="0.01" id="tx-max" inputmode="decimal"></label>
+              <label class="fsel"><span id="tx-min-lbl">Importe mín. (€)</span><input class="field" type="number" min="0" step="0.01" id="tx-min" inputmode="decimal"></label>
+              <label class="fsel"><span id="tx-max-lbl">Importe máx. (€)</span><input class="field" type="number" min="0" step="0.01" id="tx-max" inputmode="decimal"></label>
             </div>
           </div>
           <div class="tx-bar">
@@ -1054,6 +1141,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
               </label>
               <button type="button" class="btn" id="tx-bulk" data-perm-dis="act.review" disabled>Marcar revisadas</button>
               <button type="button" class="btn" id="tx-csv" data-perm-dis="act.export"><span class="ico" data-icon="download"></span><span>Exportar CSV</span></button>
+              <button type="button" class="btn" id="tx-xlsx" data-perm-dis="act.export"><span class="ico" data-icon="download"></span><span>Exportar a Excel</span></button>
             </div>
           </div>
           <p class="hint" id="tx-note"></p>
@@ -1099,12 +1187,13 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
             <div class="tx-filters">
               <label class="fsel"><span>Sector</span><select class="field" id="mer-sector"></select></label>
               <label class="fsel"><span>Plan</span><select class="field" id="mer-plan"></select></label>
-              <label class="fsel" data-perm="see.health"><span>Riesgo de churn</span><select class="field" id="mer-churn"></select></label>
+              <label class="fsel" data-perm="see.health"><span>Riesgo de baja</span><select class="field" id="mer-churn"></select></label>
+              <button type="button" class="btn" id="mer-xlsx" data-perm-dis="act.export"><span class="ico" data-icon="download"></span><span>Exportar a Excel</span></button>
             </div>
           </div>
           <div class="seg mer-seg" role="group" aria-label="Segmentos rápidos" id="mer-seg">
             <button type="button" data-seg="" aria-pressed="true">Todos</button>
-            <button type="button" data-seg="churn" data-perm="see.health" aria-pressed="false">En riesgo de churn</button>
+            <button type="button" data-seg="churn" data-perm="see.health" aria-pressed="false">En riesgo de baja</button>
             <button type="button" data-seg="top10" data-perm="see.margin" aria-pressed="false">Top 10 por margen</button>
             <button type="button" data-seg="nuevos" aria-pressed="false">Nuevos este trimestre</button>
           </div>
@@ -1123,7 +1212,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
                   <th scope="col" class="num-col"><button type="button" class="sort-btn" data-msort="appr">Aprobación <span class="arrow" aria-hidden="true">↕</span></button></th>
                   <th scope="col" class="num-col" data-perm="see.margin"><button type="button" class="sort-btn" data-msort="margin">Margen <span class="arrow" aria-hidden="true">↕</span></button></th>
                   <th scope="col" data-perm="see.health"><button type="button" class="sort-btn" data-msort="health">Salud <span class="arrow" aria-hidden="true">↕</span></button></th>
-                  <th scope="col" data-perm="see.health"><button type="button" class="sort-btn" data-msort="churn">Riesgo de churn <span class="arrow" aria-hidden="true">↕</span></button></th>
+                  <th scope="col" data-perm="see.health"><button type="button" class="sort-btn" data-msort="churn">Riesgo de baja <span class="arrow" aria-hidden="true">↕</span></button></th>
                 </tr>
               </thead>
               <tbody id="mer-body"></tbody>
@@ -1143,30 +1232,31 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
           </div>
           <div class="chart-mount" id="wf"></div>
           <p class="chart-hint">El volumen se dibuja con escala cortada para que se lean las comisiones. Costes operativos estimados al 12 % de las comisiones brutas.</p>
+          <p class="defs-link"><button type="button" class="btn btn-ghost defs-btn" aria-haspopup="dialog">ⓘ Definiciones</button></p>
         </article>
         <div class="grid-b">
           <article class="card" aria-labelledby="t-chn">
-            <div class="card-head"><div><h2 id="t-chn">Margen por canal</h2><p>Reparto del margen neto de contribución</p></div></div>
+            <div class="card-head"><div><h2 id="t-chn">Margen por canal</h2><p>Reparto del margen neto</p></div></div>
             <ul class="bars-h" id="by-channel"></ul>
           </article>
           <article class="card" aria-labelledby="t-plan">
-            <div class="card-head"><div><h2 id="t-plan">Margen por plan</h2><p>Reparto del margen neto de contribución</p></div></div>
+            <div class="card-head"><div><h2 id="t-plan">Margen por plan</h2><p>Reparto del margen neto</p></div></div>
             <ul class="bars-h" id="by-plan"></ul>
           </article>
         </div>
         <article class="card" aria-labelledby="t-pt">
-          <div class="card-head"><div><h2 id="t-pt">Margen por partner</h2><p>Revenue share, volumen e ingresos de cada integrador</p></div></div>
+          <div class="card-head"><div><h2 id="t-pt">Margen por partner</h2><p>Reparto con partners, volumen y comisión bruta de cada integrador</p></div></div>
           <div class="table-wrap">
             <table class="data-table stack" id="pt-table">
               <caption class="sr-only">Margen por partner en el periodo</caption>
               <thead>
                 <tr>
                   <th scope="col">Partner</th>
-                  <th scope="col" class="num-col">Revenue share</th>
+                  <th scope="col" class="num-col">Reparto con partners</th>
                   <th scope="col" class="num-col">Volumen</th>
-                  <th scope="col" class="num-col">Ingresos</th>
-                  <th scope="col" class="num-col">Share pagado</th>
-                  <th scope="col" class="num-col">Margen</th>
+                  <th scope="col" class="num-col">Comisión bruta</th>
+                  <th scope="col" class="num-col">Reparto con partners</th>
+                  <th scope="col" class="num-col">Margen neto</th>
                 </tr>
               </thead>
               <tbody id="pt-body"></tbody>
@@ -1177,20 +1267,20 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
           <div class="card-head">
             <div>
               <h2 id="t-sim">Simulador «¿Y si…?»</h2>
-              <p>Mueve los deslizadores para estimar el margen neto anual. Los valores de partida son los del periodo actual.</p>
+              <p>Mueve los deslizadores para estimar el margen neto del periodo. Los valores de partida son los del periodo actual.</p>
             </div>
             <button type="button" class="btn" id="sim-reset">Restablecer</button>
           </div>
           <div class="sim-grid">
             <label class="range-field"><span>MDR medio <output id="o-mdr"></output></span><input type="range" id="s-mdr" min="0.5" max="3.5" step="0.01"></label>
             <label class="range-field"><span>Coste de interchange <output id="o-icx"></output></span><input type="range" id="s-icx" min="0" max="1.2" step="0.01"></label>
-            <label class="range-field"><span>Revenue share medio <output id="o-share"></output></span><input type="range" id="s-share" min="0" max="50" step="0.5"></label>
+            <label class="range-field"><span>Reparto con partners medio <output id="o-share"></output></span><input type="range" id="s-share" min="0" max="50" step="0.5"></label>
             <label class="range-field"><span>Crecimiento de volumen <output id="o-g"></output></span><input type="range" id="s-g" min="-30" max="60" step="1"></label>
             <label class="range-field"><span>Ratio de contracargos <output id="o-cb"></output></span><input type="range" id="s-cb" min="0" max="3" step="0.01"></label>
           </div>
           <div class="sim-result" aria-live="polite">
             <div>
-              <p class="kpi-label">Margen neto anual proyectado</p>
+              <p class="kpi-label">Margen neto proyectado del periodo</p>
               <p class="big-num" id="sim-big"></p>
               <p class="delta" id="sim-delta"></p>
             </div>
@@ -1277,6 +1367,10 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
             <label class="fsel"><span>Contracargos, máximo (%)</span><input class="field" type="number" id="t-cb" data-perm-dis="act.targets" min="0" max="5" step="0.01"></label>
             <label class="fsel"><span>Margen neto, mínimo (€ cada 30 días, se ajusta al rango)</span><input class="field" type="number" id="t-margin" data-perm-dis="act.targets" min="0" step="100"></label>
           </div>
+        </article>
+        <article class="card" aria-labelledby="t-sched">
+          <div class="card-head"><div><h2 id="t-sched">Informes programados</h2><p>Demo: los envíos programados se guardan en este navegador. No se envía ningún correo.</p></div></div>
+          <ul class="sched-list" id="sched-body"></ul>
         </article>
         <article class="card" aria-labelledby="t-prefs">
           <div class="card-head"><div><h2 id="t-prefs">Preferencias</h2><p>Se guardan en este navegador.</p></div></div>
@@ -1370,7 +1464,10 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
               <h2 id="t-liq">Liquidaciones</h2>
               <p id="liq-sub"></p>
             </div>
-            <button type="button" class="btn" id="liq-csv"><span class="ico" data-icon="download"></span><span>Exportar CSV</span></button>
+            <div class="hwrap-btns">
+              <button type="button" class="btn" id="liq-csv"><span class="ico" data-icon="download"></span><span>Exportar CSV</span></button>
+              <button type="button" class="btn" id="liq-xlsx" data-perm-dis="act.export"><span class="ico" data-icon="download"></span><span>Exportar a Excel</span></button>
+            </div>
           </div>
           <p class="hint">Neto abonado = bruto − comisiones − reembolsos − contracargos. Los contracargos se estiman con el importe medio de la operación.</p>
           <div class="table-wrap">
@@ -1468,6 +1565,14 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   <footer class="drawer-foot" id="drawer-foot"></footer>
 </aside>
 
+<aside class="drawer alerts-drawer" id="alerts-drawer" role="dialog" aria-modal="true" aria-labelledby="alerts-title" inert>
+  <header class="drawer-head">
+    <h2 id="alerts-title" tabindex="-1">Alertas</h2>
+    <button type="button" class="icon-btn" id="alerts-close" aria-label="Cerrar alertas"><span class="ico" data-icon="close"></span></button>
+  </header>
+  <div class="drawer-body" id="alerts-body"></div>
+</aside>
+
 <div class="dialog" id="shortcuts" role="dialog" aria-modal="true" aria-labelledby="sc-title" hidden>
   <header class="drawer-head">
     <h2 id="sc-title" tabindex="-1">Atajos de teclado</h2>
@@ -1493,6 +1598,130 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   </div>
 </div>
 
+<div class="dialog" id="defs" role="dialog" aria-modal="true" aria-labelledby="defs-title" hidden>
+  <header class="drawer-head">
+    <h2 id="defs-title" tabindex="-1">Definiciones</h2>
+    <button type="button" class="icon-btn" id="defs-close" aria-label="Cerrar definiciones"><span class="ico" data-icon="close"></span></button>
+  </header>
+  <div class="drawer-body">
+    <dl class="dl defs-dl">
+      <div><dt>Volumen procesado</dt><dd>Importe total de las operaciones aprobadas (autorizadas, capturadas, reembolsadas o con contracargo), antes de reembolsos.</dd></div>
+      <div><dt>Transacciones</dt><dd>Número de intentos de pago, incluidos los denegados y los pendientes.</dd></div>
+      <div><dt>% aprobación (tasa de aprobación)</dt><dd>Operaciones aprobadas dividido entre aprobadas más denegadas. Las pendientes no cuentan.</dd></div>
+      <div><dt>Comisión bruta</dt><dd>Comisiones MDR cobradas a los comercios: tarifa en % del importe más 0,12 € por operación aprobada.</dd></div>
+      <div><dt>Coste de procesamiento</dt><dd>Interchange más cuotas de esquema (Visa, Mastercard y el resto de marcas).</dd></div>
+      <div><dt>Reembolsos</dt><dd>Parte del margen que se pierde por devoluciones totales o parciales.</dd></div>
+      <div><dt>Pérdidas por contracargos</dt><dd>Estimación: 35 % del importe de cada contracargo.</dd></div>
+      <div><dt>Reparto con partners</dt><dd>Parte de la comisión bruta que corresponde al partner según su acuerdo.</dd></div>
+      <div><dt>Costes operativos</dt><dd>12 % de la comisión bruta.</dd></div>
+      <div><dt>Margen neto</dt><dd>Comisión bruta − coste de procesamiento − reembolsos − pérdidas por contracargos − reparto con partners − costes operativos.</dd></div>
+      <div><dt>Contracargos (%)</dt><dd>Contracargos dividido entre operaciones capturadas.</dd></div>
+      <div><dt>Ticket medio</dt><dd>Volumen aprobado dividido entre operaciones aprobadas.</dd></div>
+      <div><dt>3DS (pagos con tarjeta)</dt><dd>Autenticación reforzada, solo en pagos con tarjeta. Se cuenta cuántas no fallaron la autenticación.</dd></div>
+    </dl>
+  </div>
+</div>
+
+<style>
+  /* Fase 2B: rango personalizado, informe mensual (pantalla e impresión) y programación */
+  .rng-pop { margin: 0 0 12px; padding: 14px 16px; }
+  .rng-pop[hidden] { display: none; }
+  .rng-title { font-size: 15px; margin: 0 0 10px; font-family: var(--font-head); }
+  .rng-presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .rng-dates { margin-bottom: 8px; }
+  .rng-acts { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+  .cmp-mode { min-width: 0; }
+  .cmp-mode .field { max-width: 260px; }
+  .hwrap-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .report-dlg { width: min(960px, calc(100vw - 24px)); max-height: calc(100vh - 32px); overflow: auto; display: block; padding: 0; }
+  .report-dlg .drawer-head { position: sticky; top: 0; background: var(--surface); z-index: 2; }
+  .rep-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; padding: 12px 20px; border-bottom: 1px solid var(--line); }
+  .rep-sched { padding: 14px 20px; border-bottom: 1px solid var(--line); }
+  .rep-sched h3 { font-size: 14px; margin: 0 0 10px; }
+  .rep-sched .form-grid { margin-bottom: 8px; }
+  .rep-doc { padding: 20px; }
+  .rep-doc .rep-head { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; border-bottom: 2px solid var(--ink); padding-bottom: 12px; margin-bottom: 16px; }
+  .rep-brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-head); font-size: 18px; font-weight: 700; }
+  .rep-brand small { display: block; font-size: 12px; font-weight: 400; color: var(--muted); }
+  .rep-meta { font-size: 12px; color: var(--muted); text-align: right; }
+  .rep-sec { margin: 0 0 22px; break-inside: avoid; }
+  .rep-sec h3 { font-size: 15px; margin: 0 0 8px; font-family: var(--font-head); }
+  .rep-sec ul { margin: 0; padding-left: 18px; }
+  .rep-sec li { margin-bottom: 6px; line-height: 1.5; }
+  .rep-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .rep-table th, .rep-table td { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: left; }
+  .rep-table th { font-weight: 600; background: var(--bg); }
+  .rep-table td.num, .rep-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .rep-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .rep-chart svg { width: 100%; height: auto; display: block; }
+  .rep-chart h4 { font-size: 13px; margin: 0 0 4px; }
+  .rep-bars li { list-style: none; display: grid; grid-template-columns: 110px 1fr 70px; gap: 8px; align-items: center; font-size: 12px; margin-bottom: 4px; }
+  .rep-bars .bar { height: 10px; background: var(--line); border-radius: 4px; overflow: hidden; }
+  .rep-bars .bar span { display: block; height: 100%; background: var(--accent); }
+  .rep-bars { padding: 0; margin: 0; }
+  .sched-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .sched-list li { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; font-size: 13px; }
+  .sched-list .muted { font-size: 12px; }
+  .rs-msg-ok { color: var(--ok); }
+  .rep-logo { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; background: var(--accent); color: var(--on-accent); font-weight: 700; }
+  .rep-chart { margin: 0; }
+  .rep-grid { stroke: var(--line); stroke-width: 1; }
+  .rep-chart text { fill: var(--muted); font-size: 10px; }
+  .rep-line { fill: none; stroke: var(--accent); stroke-width: 2; }
+  .rep-prev { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 4 3; }
+  .rep-table td small { color: var(--muted); }
+  @media (max-width: 720px) { .rep-charts { grid-template-columns: 1fr; } .report-dlg { width: calc(100vw - 16px); } }
+  @media (prefers-reduced-motion: reduce) { .report-dlg * { transition: none !important; animation: none !important; } }
+  @media print {
+    @page { size: A4; margin: 14mm 13mm; }
+    body > * { display: none !important; }
+    body > #report { display: block !important; position: static !important; transform: none !important; inset: auto !important; width: auto !important; max-height: none !important; overflow: visible !important; box-shadow: none !important; border: 0 !important; background: #fff !important; color: #111 !important; }
+    #report, #report * { color: #111 !important; background-color: transparent !important; text-shadow: none !important; box-shadow: none !important; }
+    #report .rep-toolbar, #report .rep-bar, #report .rep-sched, #report .drawer-head { display: none !important; }
+    #report .rep-doc { padding: 0 !important; }
+    #report .rep-sec { break-inside: avoid; page-break-inside: avoid; }
+    #report .rep-sec h3 { break-after: avoid; }
+    #report .rep-pb { break-before: page; page-break-before: always; }
+    #report .rep-table th, #report .rep-table td { border-bottom: 1px solid #bbb !important; }
+    #report .rep-table th { background: #eee !important; }
+    #report .rep-bars .bar { background: #ddd !important; }
+    #report .rep-bars .bar span { background: #1f4e79 !important; }
+    #report .rep-charts svg * { fill: none; }
+    #report .rep-charts svg text { fill: #333 !important; }
+    #report .rep-charts svg .rep-line { stroke: #1f4e79 !important; }
+    #report .rep-charts svg .rep-prev { stroke: #888 !important; }
+    #report .rep-charts svg .grid { stroke: #ddd !important; }
+    .toast, .scrim, .sticky-spacer { display: none !important; }
+  }
+</style>
+<div class="dialog report-dlg" id="report" role="dialog" aria-modal="true" aria-labelledby="rep-title" hidden>
+  <header class="drawer-head rep-toolbar">
+    <h2 id="rep-title" tabindex="-1">Informe mensual</h2>
+    <button type="button" class="icon-btn" id="rep-close" aria-label="Cerrar informe"><span class="ico" data-icon="close"></span></button>
+  </header>
+  <div class="rep-bar rep-toolbar">
+    <label class="fsel"><span>Mes del informe</span><select class="field" id="rep-month"></select></label>
+    <button type="button" class="btn" id="rep-print"><span class="ico" data-icon="download"></span><span>Imprimir / Guardar como PDF</span></button>
+    <button type="button" class="btn" id="rep-xlsx" data-perm-dis="act.export"><span class="ico" data-icon="download"></span><span>Exportar a Excel</span></button>
+  </div>
+  <form class="rep-sched rep-toolbar" id="rep-sched" data-perm="act.export" novalidate>
+    <h3>Programar envío</h3>
+    <div class="form-grid">
+      <label class="fsel"><span>Frecuencia</span>
+        <select class="field" id="rs-freq"><option value="semanal">Semanal · lunes a las 9:00</option><option value="mensual">Mensual · día 1 a las 9:00</option></select>
+      </label>
+      <label class="fsel"><span>Formato</span>
+        <select class="field" id="rs-fmt"><option value="PDF">PDF</option><option value="Excel">Excel</option></select>
+      </label>
+      <label class="fsel"><span>Destinatario 1</span><input class="field" type="email" id="rs-m1" placeholder="nombre@ejemplo.com" autocomplete="off"></label>
+      <label class="fsel"><span>Destinatario 2 (opcional)</span><input class="field" type="email" id="rs-m2" placeholder="nombre@ejemplo.com" autocomplete="off"></label>
+      <label class="fsel"><span>Destinatario 3 (opcional)</span><input class="field" type="email" id="rs-m3" placeholder="nombre@ejemplo.com" autocomplete="off"></label>
+    </div>
+    <p class="hint" id="rs-msg" role="status" aria-live="polite"></p>
+    <button type="submit" class="btn" id="rs-save">Programar envío</button>
+  </form>
+  <div class="rep-doc" id="rep-doc"></div>
+</div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -1571,7 +1800,8 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     alert: '<path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>',
     user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
     switch: '<path d="M7 7h11l-3-3M17 17H6l3 3"/>',
-    check: '<path d="M20 6 9 17l-5-5"/>'
+    check: '<path d="M20 6 9 17l-5-5"/>',
+    bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>'
   };
   function svgIcon(name) {
     return '<svg class="i" viewBox="0 0 24 24" aria-hidden="true" focusable="false">' + (ICONS[name] || '') + '</svg>';
@@ -1618,6 +1848,11 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     return nf('ax' + cur, { style: 'currency', currency: cur, notation: 'compact', maximumFractionDigits: 1 }).format((v || 0) * RATES[cur]);
   }
 
+  /* Símbolo de la divisa elegida y unidad de una columna monetaria */
+  var CUR_SYM = { EUR: '€', USD: '$', GBP: '£' };
+  function curSym() { return CUR_SYM[(typeof state !== 'undefined' && state.currency) || 'EUR'] || '€'; }
+  function unitOf(col) { return col.unit === '€' ? curSym() : col.unit; }
+
   /* === DATA === */
   /* Modelo de datos ficticio y determinista.
      generate(seed, scenario) -> { seed, scenario, days, detail, nm, today, partners, merchants, tx, daily, rates }
@@ -1625,15 +1860,22 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
      - daily: agregados diarios por comercio, DAYS x nm (índice = idx * nm + mi); idx = DAYS-1 es hoy.
      Las cifras de Resumen se calculan siempre sobre `daily`, así que los cambios en
      transacciones (reembolsos) se reflejan actualizando la fila diaria correspondiente. */
-  var TODAY = new Date(2026, 10, 13);
-  var DAYS = 548;          // ~18 meses; el último índice es hoy
-  var DETAIL = 90;         // días con detalle de transacciones
+  var NOW0 = new Date();
+  var TODAY = new Date(NOW0.getFullYear(), NOW0.getMonth(), NOW0.getDate());   /* hoy a medianoche local */
+  var SEED_TODAY = TODAY.getFullYear() * 10000 + (TODAY.getMonth() + 1) * 100 + TODAY.getDate();   /* semilla estable dentro del día */
+  /* Reloj coherente con TODAY: fecha de hoy y hora actual (registros, reembolsos) */
+  function nowLocal() {
+    var n = new Date();
+    return new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate(), n.getHours(), n.getMinutes(), n.getSeconds(), n.getMilliseconds());
+  }
+  var DAYS = 760;          // ~25 meses: permite comparar con el mismo periodo del año anterior; el último índice es hoy
+  var DETAIL = 90;         // días con detalle de transacciones (los anteriores solo tienen agregados diarios)
   var RANGE_CODES = { '7d': 7, '30d': 30, '90d': 90, '12m': 365 };
   var RANGE_CODE_OF = { 7: '7d', 30: '30d', 90: '90d', 365: '12m' };
   var RANGE_LABEL = { 7: '7 días', 30: '30 días', 90: '90 días', 365: '12 meses' };
 
   var CHANNEL_IDS = ['ecom', 'tpv', 'link', 'moto'];
-  var CHANNELS = { ecom: 'E-commerce', tpv: 'TPV presencial', link: 'Pay-by-link', moto: 'MOTO / teléfono' };
+  var CHANNELS = { ecom: 'E-commerce', tpv: 'TPV presencial', link: 'Pago por enlace', moto: 'MOTO / teléfono' };
   var COUNTRY_IDS = ['ES', 'PT', 'FR', 'IT', 'DE'];
   var COUNTRY_NAMES = { ES: 'España', PT: 'Portugal', FR: 'Francia', IT: 'Italia', DE: 'Alemania' };
   var PLANS = ['Starter', 'Pro', 'Enterprise'];
@@ -1653,6 +1895,9 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   var DECLINES = ['Fondos insuficientes', 'Fallo 3DS', 'Sospecha de fraude', 'Tarjeta caducada', 'Límite excedido', 'Error del emisor'];
   var DECL_GEN = ['Fondos insuficientes', 'Tarjeta caducada', 'Límite excedido', 'Error del emisor'];
   var DECL_GEN_W = [0.42, 0.18, 0.14, 0.26];
+  var CB_REASONS = ['Fraude / no reconocido', 'Producto no recibido', 'No conforme con la descripción', 'Cargo duplicado', 'Suscripción cancelada'];
+  var CB_REASON_W = [0.42, 0.18, 0.16, 0.12, 0.12];
+  var CB_WIN_RATE = 0.35;   /* proporción de contracargos que se resuelven a favor del comercio */
   var WD_W = [0.9, 0.95, 1.0, 1.02, 1.15, 1.4, 1.25];                       // lunes..domingo
   var WD_NAMES = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'];
   var WD_SHORT = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
@@ -1695,12 +1940,13 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     'Cine Club Arcoíris|Ocio|ES|Madrid', 'Fisioterapia Eje|Salud|ES|Murcia',
     'Papelería Tinta|Retail|ES|Córdoba', 'Estudio Cobalto|Servicios|DE|Múnich'
   ];
-  var CONTACTS = [
-    'Lucía Martín', 'Javier Ruiz', 'Carmen Ortega', 'Pablo Navarro', 'Marta Gil', 'Alejandro Vidal', 'Irene Castillo',
-    'Sergio Molina', 'Elena Serrano', 'Daniel Ramos', 'Laura Domínguez', 'Adrián Prieto', 'Sara Herrero', 'Mario Cano',
-    'Paula Iglesias', 'Raúl Medina', 'Noelia Campos', 'Hugo Fuentes', 'Claudia Santos', 'Álvaro Peña'
-  ];
-  var NUM_KEYS = ['n', 'n3', 'n3fail', 'pend', 'ok', 'cap', 'liq', 'cb', 'ref', 'vol', 'fee', 'icx', 'sch', 'par', 'margin', 'refAmt'];
+  /* Personas de contacto: nombre y apellido combinados de forma determinista, sin repetir entre comercios */
+  var FIRST_NAMES = ['Lucía', 'Javier', 'Carmen', 'Pablo', 'Marta', 'Alejandro', 'Irene', 'Sergio', 'Elena', 'Daniel', 'Laura', 'Adrián'];
+  var LAST_NAMES = ['Martín', 'Ruiz', 'Ortega', 'Navarro', 'Gil', 'Vidal', 'Castillo', 'Molina', 'Serrano', 'Ramos', 'Domínguez', 'Prieto'];
+  function contactOf(i) {
+    return FIRST_NAMES[i % FIRST_NAMES.length] + ' ' + LAST_NAMES[(i + Math.floor(i / FIRST_NAMES.length)) % LAST_NAMES.length];
+  }
+  var NUM_KEYS = ['n', 'n3', 'n3fail', 'pend', 'ok', 'cap', 'liq', 'cb', 'ref', 'vol', 'fee', 'icx', 'sch', 'par', 'margin', 'refAmt', 'nCard', 'cbl'];
 
   function dayDate(idx) {
     return new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate() - (DAYS - 1 - idx));
@@ -1723,6 +1969,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   }
   function addTx(r, t) {
     r.n++;
+    if (METHOD_CARD[t.methodI]) r.nCard++;
     if (t.s3d) r.n3++;
     if (t.s3r === 'Fallida') r.n3fail++;
     if (t.status === 'Pendiente') { r.pend++; return; }
@@ -1730,31 +1977,43 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     if (CAPTURED[t.status]) { r.cap++; if (t.idx < DAYS - 2) r.liq++; }
     if (t.status === 'Contracargo') r.cb++;
     if (t.decline) r.dec[DECLINES.indexOf(t.decline)]++;
-    r.fee += t.fee; r.icx += t.icx; r.sch += t.sch; r.par += t.par;
+    r.fee += t.fee; r.icx += t.icx; r.sch += t.sch; r.par += t.par; r.cbl += t.cbl;
     r.margin += marginOf(t);
     r.refAmt += t.refunded;
     if (t.refunded > 0) r.ref++;
   }
 
+  /* Último viernes de noviembre (Black Friday) del año indicado */
+  var LFN_CACHE = {};
+  function lastFridayNov(y) {
+    if (LFN_CACHE[y]) return new Date(LFN_CACHE[y]);
+    var d = new Date(y, 10, 30);
+    while (d.getDay() !== 5) d.setDate(d.getDate() - 1);
+    LFN_CACHE[y] = d.getTime();
+    return d;
+  }
   /* Factor de demanda para un día y comercio */
   function dayFactor(day, idx, m, scen) {
     var wd = (day.getDay() + 6) % 7;
     var f = WD_W[wd] * (wd >= 4 ? m.tilt : 1) * MONTH_W[day.getMonth()];
     f *= 0.7 + 0.3 * idx / (DAYS - 1);                       // crecimiento suave
     var y = day.getFullYear(), mo = day.getMonth(), dd = day.getDate();
-    if (y === 2025 && mo === 10 && dd >= 27 && dd <= 30) f *= 2.2;   // Black Friday 2025
+    var bfDif = Math.round((day - lastFridayNov(y)) / 86400000);
+    if (bfDif >= -1 && bfDif <= 2) f *= 2.2;                         // Black Friday (último viernes de noviembre) y días cercanos
     if (mo === 11 && dd >= 15 && dd <= 24) f *= 1.25;                 // Navidad
     if (scen === 'blackfriday' && idx >= DAYS - 14) f *= 2.5;
     return f;
   }
 
-  function makeTx(rnd, idx, mi, day, scen, m, partners) {
-    var hour = pickW(rnd, HOUR_W);
-    var date = new Date(day.getFullYear(), day.getMonth(), day.getDate(), hour,
+  /* light = días sin detalle: no se crean fecha ni número de tarjeta (solo hacen falta los agregados) */
+  function makeTx(rnd, idx, mi, day, scen, m, partners, light) {
+    var hour = light ? 0 : pickW(rnd, HOUR_W);
+    var date = null;
+    if (!light) date = new Date(day.getFullYear(), day.getMonth(), day.getDate(), hour,
       Math.floor(rnd() * 60), Math.floor(rnd() * 60));
     var late = scen === 'blackfriday' && idx >= DAYS - 14;
-    var mix = METHOD_MIX[m.channel].slice();
-    if (scen === 'bizum') mix[3] *= 2.5;
+    var mix = METHOD_MIX[m.channel];
+    if (scen === 'bizum') { mix = mix.slice(); mix[3] *= 2.5; }
     var meth = pickW(rnd, mix);
     var amount = m.ticket * Math.exp(0.6 * gauss(rnd)) * (late ? 0.9 : 1) * (scen === 'bizum' && meth === 3 ? 0.6 : 1);
     amount = round2(clamp(amount, 1.5, 2500));
@@ -1765,14 +2024,16 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     var card = METHOD_CARD[meth];
     var s3d = card && amount > 30 && rnd() < 0.7;
     var s3r = s3d ? 'Autenticada' : (card ? 'No solicitada' : 'No aplica');
-    var incident = scen === 'incident' && (idx === DAYS - 3 || idx === DAYS - 2);
-    var pDec = 0.05 + (risk >= 70 ? 0.25 : 0) + (incident ? 0.15 : 0) + (late ? 0.02 : 0);
+    /* Caída de un adquirente: 13–15 h de los dos últimos días; los rechazos son «Error del emisor» */
+    var outage = scen === 'incident' && (idx === DAYS - 3 || idx === DAYS - 2) && hour >= 13 && hour < 15;
+    var pDec = 0.05 + (risk >= 70 ? 0.25 : 0) + (outage ? 0.4 : 0) + (late ? 0.02 : 0);
     var status = 'Capturada', decline = null, refunded = 0;
     if (idx === DAYS - 1 && rnd() < 0.03) {
       status = 'Pendiente';
     } else if (rnd() < pDec) {
       status = 'Denegada';
-      if (risk >= 80 && rnd() < 0.6) decline = 'Sospecha de fraude';
+      if (outage) decline = 'Error del emisor';
+      else if (risk >= 80 && rnd() < 0.6) decline = 'Sospecha de fraude';
       else if (s3d && rnd() < 0.3) { decline = 'Fallo 3DS'; s3r = 'Fallida'; }
       else decline = DECL_GEN[pickW(rnd, DECL_GEN_W)];
     } else {
@@ -1788,12 +2049,18 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     var sch = approved ? round2(amount * METHOD_SCH[meth]) : 0;
     var par = round2(fee * partners[m.partner].share);
     var foreignBin = FOREIGN_BIN[Math.floor(rnd() * FOREIGN_BIN.length)];
+    /* Contracargo: motivo, resolución final (Ganado/Perdido) y estado inicial (Abierto o En revisión), con la semilla */
+    var cbl = status === 'Contracargo' ? round2(amount * CB_LOSS) : 0;
+    var cbReason = status === 'Contracargo' ? CB_REASONS[pickW(rnd, CB_REASON_W)] : null;
+    var cbFinal = status === 'Contracargo' ? (rnd() < CB_WIN_RATE ? 'Ganado' : 'Perdido') : null;
+    var cbPre = status === 'Contracargo' ? (rnd() < 0.2 ? 'En revisión' : 'Abierto') : null;
     return {
       idx: idx, mi: mi, date: date, channel: m.channel, method: METHODS[meth], methodI: meth,
-      card: '•••• ' + pad(Math.floor(rnd() * 10000), 4), bin: foreign ? foreignBin : m.country,
+      card: light ? null : '•••• ' + pad(Math.floor(rnd() * 10000), 4), bin: foreign ? foreignBin : m.country,
       amount: amount, currency: 'EUR', status: status, decline: decline, s3d: !!s3d, s3r: s3r, risk: risk,
-      fee: fee, icx: icx, sch: sch, par: par, margin: round2(fee - icx - sch - par),
-      refunded: refunded, reviewed: false, log: [], partnerIdx: m.partner, id: ''
+      fee: fee, icx: icx, sch: sch, par: par, cbl: cbl, margin: round2(fee - icx - sch - par - cbl - round2(fee * OPEX_RATE)),
+      refunded: refunded, reviewed: false, log: [], partnerIdx: m.partner, id: '',
+      cbReason: cbReason, cbFinal: cbFinal, cbPre: cbPre
     };
   }
 
@@ -1811,7 +2078,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       var base = plan === 'Enterprise' ? 0.9 : plan === 'Pro' ? 1.4 : 1.9;
       var mdr = Math.round((base + (rnd() - 0.5) * 0.3) * 100) / 100;
       var health = Math.round(55 + rnd() * 40);
-      var contact = CONTACTS[i % CONTACTS.length];
+      var contact = contactOf(i);
       return {
         id: 'DP-M-' + pad(i + 1, 4), name: p[0], sector: p[1], mcc: sec.mcc, country: p[2], city: p[3],
         plan: plan, channel: channel, partner: partner, mdr: mdr, health: health,
@@ -1826,15 +2093,65 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     var nm = merchants.length, daily = new Array(DAYS * nm), k;
     for (k = 0; k < daily.length; k++) daily[k] = emptyRow(Math.floor(k / nm), k % nm);
 
+    /* Escenario Normal: una anomalía leve y realista, elegida por la semilla entre los comercios con más actividad.
+       Se mide la semilla y se sustituye parte de sus aprobaciones de los últimos 7 días por rechazos de un solo motivo,
+       hasta que ese motivo pase a ~30 % de los rechazos de la semana (frente a ~10 % en la base). Dispara exactamente una
+       alerta «Motivo de rechazo» (Media) con las reglas existentes, sin cambiar umbrales. */
+    var inj = null;
+    if (scenario === 'normal') {
+      var cands = merchants.map(function (m, i) { return { i: i, w: m.w, j: m.joinIdx }; })
+        .filter(function (c) { return c.j === 0; })
+        .sort(function (a, b) { return b.w - a.w; }).slice(0, 8);
+      var pick = cands[(Math.abs(seed | 0) >>> 0) % cands.length];
+      inj = { mi: pick.i, seedPick: Math.abs(seed | 0) >>> 3 };
+    }
+
     var all = [];
     for (var idx = 0; idx < DAYS; idx++) {
       var day = dayDate(idx);
+      var light = idx < DAYS - DETAIL;
       for (var mi = 0; mi < nm; mi++) {
         var m = merchants[mi];
         if (idx < m.joinIdx) continue;
         var lam = m.w * 0.85 * dayFactor(day, idx, m, scenario) * (0.8 + 0.4 * rnd());
         var cnt = Math.floor(lam) + (rnd() < lam - Math.floor(lam) ? 1 : 0);
-        for (var c = 0; c < cnt; c++) all.push(makeTx(rnd, idx, mi, day, scenario, m, partners));
+        for (var c = 0; c < cnt; c++) {
+          var tx = makeTx(rnd, idx, mi, light ? null : day, scenario, m, partners, light);
+          /* Días antiguos: solo agregados diarios (sin guardar operaciones individuales) */
+          if (light) addTx(daily[idx * nm + mi], tx); else all.push(tx);
+        }
+      }
+    }
+    if (inj) {
+      /* Cuenta los rechazos de la última semana y de la base (28 días previos) en el conjunto de la plataforma */
+      var im = inj.mi, pool = [], q, r, tmp, cC = {}, cB = {}, totC = 0, totB = 0;
+      all.forEach(function (t) {
+        if (t.status !== 'Denegada' || !t.decline) {
+          if (t.mi === im && t.idx >= DAYS - 7 && t.status === 'Capturada') pool.push(t);
+          return;
+        }
+        if (t.idx >= DAYS - 7) { totC++; cC[t.decline] = (cC[t.decline] || 0) + 1; }
+        else if (t.idx >= DAYS - 35 && t.idx <= DAYS - 8) { totB++; cB[t.decline] = (cB[t.decline] || 0) + 1; }
+      });
+      /* Motivo: el de menor peso en la base entre los habituales sin fraude ni fallos técnicos (desempate por semilla),
+         para que la subida relativa sea clara y la alerta resulte Media */
+      var opts = ['Límite excedido', 'Tarjeta caducada', 'Sospecha de fraude'], bestS = 2;
+      opts.forEach(function (o, oi) {
+        var sB = Math.max(totB ? (cB[o] || 0) / totB : 0, totC ? (cC[o] || 0) / totC : 0);
+        if (sB < bestS - 1e-9 || (Math.abs(sB - bestS) < 1e-9 && oi === inj.seedPick % opts.length)) { bestS = sB; inj.reason = o; }
+      });
+      var nC = cC[inj.reason] || 0, nB = cB[inj.reason] || 0;
+      /* Rechazos a convertir: el motivo pasa a ser al menos el doble de su base (mínimo +7 pp), entre 30 % y 39 %
+         (sigue siendo Media) y con al menos 6 casos */
+      var baseShare = totB ? nB / totB : 0;
+      var tShare = clamp(Math.max(0.3, 2 * baseShare + 0.07), 0.3, 0.39);
+      var x = Math.max(Math.ceil((tShare * totC - nC) / (1 - tShare)), 6 - nC, 0);
+      for (q = pool.length - 1; q > 0; q--) {
+        r = Math.floor(rnd() * (q + 1)); tmp = pool[q]; pool[q] = pool[r]; pool[r] = tmp;
+      }
+      for (q = 0; q < x && q < pool.length; q++) {
+        var t0 = pool[q];
+        t0.status = 'Denegada'; t0.decline = inj.reason; t0.refunded = 0; t0.fee = 0; t0.icx = 0; t0.sch = 0; t0.par = 0; t0.cbl = 0; t0.margin = 0;
       }
     }
     for (k = 0; k < all.length; k++) addTx(daily[all[k].idx * nm + all[k].mi], all[k]);
@@ -1879,22 +2196,22 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
 
   var state = {
     view: 'resumen',
-    range: 30,                 // días: 7, 30, 90 o 365 (12 meses)
+    range: 30,                 // días del periodo (7, 30, 90, 365 o la longitud de un rango personalizado)
+    custom: null,              // rango personalizado: {from: 'YYYY-MM-DD', to: 'YYYY-MM-DD'} o null
+    cmpMode: 'prev',           // comparación: 'prev' (periodo anterior) o 'yoy' (mismo periodo del año pasado)
     compare: true,
     currency: 'EUR',
-    seed: 20261113,
+    seed: SEED_TODAY,
     scenario: 'normal',
     filters: { channel: [], country: [], partner: [], plan: [] },
     metric: 'vol',
     txQ: '',
-    txF: { status: '', method: '', channel: '', min: '', max: '' },
-    txSort: { key: 'date', dir: 'desc' },
     txPage: 1,
     txSize: 25,
     selected: {},
     openTx: null,
     openMer: null,
-    mer: { q: '', sector: '', plan: '', churn: '', seg: '', sort: { key: 'margin', dir: 'desc' } },
+    mer: { q: '', sector: '', plan: '', churn: '', seg: '' },
     sim: null,                 /* null = valores del periodo actual */
     simB: null,
     rules: { threeds: false, bin: false, limit: false },
@@ -1902,7 +2219,9 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     live: false,
     liveCount: 0,
     fresh: null,
-    incidentHidden: false
+    incidentHidden: false,
+    tf: null,                  /* filtro oculto de franja: {dow: 0..6 | null, h0, h1}; lo usan el mapa de calor y las alertas */
+    crumb: null                /* origen para «← Volver a Resumen» en Transacciones */
   };
 
   /* === ROLES: usuarios, permisos, ámbito, registro y entrada (simulado en el navegador) === */
@@ -1950,8 +2269,8 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   var CARTERA = [];                       /* ~10 comercios de la cartera de Comercial */
   MERCH_DEF.forEach(function (line, i) { if (i % 4 === 1) CARTERA.push(i); });
   var USERS = [
-    { id: 'laura', name: 'Laura Méndez', title: 'Head of Platform', initials: 'LM', role: 'admin', group: 'team' },
-    { id: 'jordi', name: 'Jordi Puig', title: 'CFO', initials: 'JP', role: 'direccion', group: 'team' },
+    { id: 'laura', name: 'Laura Méndez', title: 'Responsable de plataforma', initials: 'LM', role: 'admin', group: 'team' },
+    { id: 'jordi', name: 'Jordi Puig', title: 'Director financiero (CFO)', initials: 'JP', role: 'direccion', group: 'team' },
     { id: 'rafael', name: 'Rafael M.', title: 'BI Analyst', initials: 'RM', role: 'bi', group: 'team' },
     { id: 'p0', name: 'Equipo Nexo TPV', title: 'Partner · Nexo TPV', initials: 'NT', role: 'partner', group: 'partner', scope: 0 },
     { id: 'c-cafe', name: 'Alejandro Vidal', title: 'Titular · Café Trébol', initials: 'AV', role: 'comercio', group: 'comercio', scope: mIdx('Café Trébol') }
@@ -2002,7 +2321,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     return true;
   }
   function logAct(a, d) {
-    ACT.unshift({ t: new Date().toISOString(), u: USER ? USER.id : '—', a: a, d: d });
+    ACT.unshift({ t: nowLocal().toISOString(), u: USER ? USER.id : '—', a: a, d: d });
     if (ACT.length > 200) ACT.length = 200;
     lsSet('pulso-activity', ACT);
   }
@@ -2042,9 +2361,10 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   function updateBadge() {
     var b = $('#nav-badge');
     if (!b) return;
-    b.textContent = String(PENDING.length);
-    b.hidden = !PENDING.length;
-    b.setAttribute('aria-label', PENDING.length + ' propuestas pendientes');
+    var nP = PENDING.filter(function (p) { return scopeOk(p.mi); }).length;
+    b.textContent = String(nP);
+    b.hidden = !nP;
+    b.setAttribute('aria-label', nP + ' propuestas pendientes');
   }
   function buildUserBlock() {
     var box = $('#user-block');
@@ -2102,7 +2422,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     FILTER_KEYS.forEach(function (k) { if (k !== 'channel' && !can('filter.' + k)) state.filters[k] = []; });
     if (VIEW_IDS.indexOf(state.view) < 0 || !can('view.' + state.view)) state.view = firstView();
     if (state.metric === 'margin' && !can('see.margin')) state.metric = 'vol';
-    if (!can('see.margin') && state.mer.sort.key === 'margin') state.mer.sort = { key: 'vol', dir: 'desc' };
+
     if (state.mer.seg === 'top10' && !can('see.margin')) state.mer.seg = '';
     buildNav();
     buildUserBlock();
@@ -2154,16 +2474,19 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
      cur / prev: totales diarios del periodo actual y anterior (prev null si no hay histórico),
      tx: transacciones detalladas del periodo actual y filtros, clipped: el rango supera el detalle. */
   function filtered() {
-    var D = DATA, mask = allowedMask(), last = D.days - 1, n = state.range;
-    var curFrom = last - n + 1, prevFrom = last - 2 * n + 1, prevTo = last - n;
-    var hasPrev = prevFrom >= 0;
+    var D = DATA, mask = allowedMask(), sp = periodSpan(), curFrom = sp.from, curTo = sp.to, n = sp.n;
+    /* Comparación: periodo inmediatamente anterior (misma longitud) o mismas fechas del año anterior */
+    var yoy = state.compare && state.cmpMode === 'yoy';
+    var prevTo = yoy ? dayIdxOf(addYears(dayDate(curTo), -1)) : curFrom - 1;
+    var prevFrom = prevTo - n + 1;
+    var hasPrev = prevFrom >= 0 && prevTo >= 0;
     return {
       mask: mask,
-      curFrom: curFrom, curTo: last, prevFrom: prevFrom, prevTo: prevTo, hasPrev: hasPrev,
-      cur: dayTotals(curFrom, last, mask),
+      curFrom: curFrom, curTo: curTo, prevFrom: prevFrom, prevTo: prevTo, hasPrev: hasPrev, n: n, yoy: yoy,
+      cur: dayTotals(curFrom, curTo, mask),
       prev: hasPrev ? dayTotals(prevFrom, prevTo, mask) : null,
-      tx: D.tx.filter(function (t) { return t.idx >= curFrom && mask[t.mi]; }),
-      clipped: n > D.detail
+      tx: D.tx.filter(function (t) { return t.idx >= curFrom && t.idx <= curTo && mask[t.mi]; }),
+      clipped: curFrom < D.days - D.detail
     };
   }
   function merchantOf(t) { return DATA.merchants[t.mi]; }
@@ -2186,14 +2509,21 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       if (i < 0) return;
       try { params[kv.slice(0, i)] = decodeURIComponent(kv.slice(i + 1)); } catch (e) {}
     });
-    if (RANGE_CODES[params.rango]) state.range = RANGE_CODES[params.rango];
+    if (RANGE_CODES[params.rango]) { state.range = RANGE_CODES[params.rango]; state.custom = null; }
+    /* Rango personalizado: rango=YYYY-MM-DD_YYYY-MM-DD (dentro del historial y no posterior a hoy) */
+    var cm = /^(\d{4}-\d{2}-\d{2})_(\d{4}-\d{2}-\d{2})$/.exec(params.rango || '');
+    if (cm && cm[1] <= cm[2] && cm[1] >= ymd(addDays(TODAY, -(DAYS - 1))) && cm[2] <= ymd(TODAY)) {
+      state.custom = { from: cm[1], to: cm[2] };
+      state.range = spanLen(cm[1], cm[2]);
+    }
+    state.cmpMode = params.cmp === 'yoy' ? 'yoy' : 'prev';
     if (params.comp === '0' || params.comp === '1') state.compare = params.comp === '1';
     if (RATES[params.moneda]) state.currency = params.moneda;
     if (params.esc && SCENARIOS[params.esc]) state.scenario = params.esc;
     state.comoParam = params.como || '';
+    CF = {};
     if (params.cf) {
       var cfi = b64Dec(params.cf) || {};
-      CF = {};
       Object.keys(cfi).forEach(function (id) {
         if (!COLS[id] || !cfi[id]) return;
         Object.keys(cfi[id]).forEach(function (key) {
@@ -2210,6 +2540,16 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
         SORT[id] = { key: parts[0], dir: parts[1] === 'asc' ? 'asc' : 'desc' };
       });
     }
+    /* Franja (mapa de calor o alerta): tf=<dow|vacío>-<h0>-<h1> */
+    state.tf = null;
+    if (params.tf) {
+      var tq = params.tf.split('-');
+      var tdow = tq[0] === '' ? null : parseInt(tq[0], 10);
+      var th0 = parseInt(tq[1], 10), th1 = parseInt(tq[2], 10);
+      if (isFinite(th0) && isFinite(th1) && th0 >= 0 && th1 <= 24 && th1 > th0 && (tdow === null || (tdow >= 0 && tdow <= 6))) {
+        state.tf = { dow: tdow, h0: th0, h1: th1 };
+      }
+    }
     FILTER_KEYS.forEach(function (k) {
       if (params[FILTER_PARAM[k]] === undefined) return;
       var vals = params[FILTER_PARAM[k]].split(',').filter(function (x) { return x; });
@@ -2218,8 +2558,9 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   }
   function writeHash() {
     var p = [];
-    p.push('rango=' + RANGE_CODE_OF[state.range]);
+    p.push('rango=' + (state.custom ? state.custom.from + '_' + state.custom.to : RANGE_CODE_OF[state.range]));
     p.push('comp=' + (state.compare ? '1' : '0'));
+    if (state.compare && state.cmpMode === 'yoy') p.push('cmp=yoy');
     if (state.currency !== 'EUR') p.push('moneda=' + state.currency);
     if (state.scenario !== 'normal') p.push('esc=' + state.scenario);
     FILTER_KEYS.forEach(function (k) {
@@ -2239,6 +2580,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       var s = SORT[id];
       if (s && s.key && s.dir) { so[id] = s.key + '.' + s.dir; anySo = true; }
     });
+    if (state.tf) p.push('tf=' + (state.tf.dow === null ? '' : state.tf.dow) + '-' + state.tf.h0 + '-' + state.tf.h1);
     if (anyCf) p.push('cf=' + b64Enc(JSON.stringify(cfo)));
     if (anySo) p.push('cs=' + b64Enc(JSON.stringify(so)));
     var s = '#' + state.view + '?' + p.join('&');
@@ -2444,6 +2786,13 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     svg.addEventListener('pointerleave', hide);
     svg.addEventListener('focus', function () { show(cur < 0 ? n - 1 : cur); });
     svg.addEventListener('blur', hide);
+    /* Clic en un día: Transacciones solo de ese día */
+    svg.addEventListener('click', function (e) {
+      if (!drillable() || !n) return;
+      var rc = svg.getBoundingClientRect();
+      var px = (e.clientX - rc.left) * (W / rc.width);
+      drillDay(F.cur[clamp(n > 1 ? Math.round((px - P.l) / iw * (n - 1)) : 0, 0, n - 1)].d);
+    });
     svg.addEventListener('keydown', function (e) {
       var c = cur < 0 ? n - 1 : cur, handled = true;
       if (e.key === 'ArrowLeft') show(c - 1);
@@ -2451,6 +2800,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       else if (e.key === 'Home') show(0);
       else if (e.key === 'End') show(n - 1);
       else if (e.key === 'Escape') hide();
+      else if ((e.key === 'Enter' || e.key === ' ') && drillable()) { e.preventDefault(); drillDay(F.cur[c].d); return; }
       else handled = false;
       if (handled) e.preventDefault();
     });
@@ -2496,7 +2846,6 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     var box = $('#funnel');
     var steps = [
       ['Iniciadas', t.n],
-      ['Autenticadas 3DS', t.n - t.n3fail],
       ['Autorizadas', t.ok],
       ['Capturadas', t.cap],
       ['Liquidadas', t.liq]
@@ -2506,16 +2855,27 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     var list = h('ol', { class: 'funnel' });
     steps.forEach(function (s, i) {
       var rate = i && steps[i - 1][1] ? s[1] / steps[i - 1][1] * 100 : null;
-      list.appendChild(h('li', null,
+      var li = h('li', null,
         h('div', { class: 'fun-top' }, h('span', null, s[0]), h('span', { class: 'fun-val' }, fmtInt(s[1]))),
         h('div', { class: 'fun-bar', 'aria-hidden': 'true' }, h('span', { style: 'width:' + (s[1] / top * 100).toFixed(1) + '%' })),
-        h('p', { class: 'fun-step' }, i ? fmtPct(rate || 0, 1) + ' del paso anterior' : 'Punto de partida')));
+        h('p', { class: 'fun-step' }, i ? fmtPct(rate || 0, 1) + ' del paso anterior' : 'Punto de partida'));
+      if (drillable()) makeLink(li, function () { drillTx(funnelDrill(i), 'Resumen'); }, s[0] + ': ' + fmtInt(s[1]) + ' operaciones. Ver transacciones');
+      list.appendChild(li);
     });
     box.appendChild(list);
+    if (drillable()) {
+      var declBtn = h('button', { type: 'button', class: 'btn btn-ghost' }, 'Ver denegadas →');
+      declBtn.addEventListener('click', function () { drillTx({ cf: { estado: catSpec(['Denegada'], 'denegadas') } }, 'Resumen'); });
+      box.appendChild(h('p', { class: 'defs-link' }, declBtn));
+    }
     box.appendChild(srTable('Embudo de pagos', ['Etapa', 'Operaciones', 'Paso'],
       steps.map(function (s, i) {
         return [s[0], fmtInt(s[1]), i ? fmtPct(steps[i - 1][1] ? s[1] / steps[i - 1][1] * 100 : 0, 1) : '—'];
       })));
+    /* 3DS solo aplica a pagos con tarjeta: se muestra aparte para no mezclarlo con el embudo general */
+    var cardN = t.nCard, cardOk = cardN - t.n3fail;
+    box.appendChild(h('p', { class: 'hint' }, '3DS (pagos con tarjeta): ' + fmtInt(cardOk) + ' de ' + fmtInt(cardN) +
+      ' sin fallo de autenticación · ' + fmtPct(cardN ? cardOk / cardN * 100 : 0, 1) + '.'));
   }
 
   /* Mapa de calor hora x día (basado en transacciones detalladas) */
@@ -2532,15 +2892,15 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       for (c = 0; c < 24; c++) {
         var op = (0.06 + 0.94 * grid[r][c] / max).toFixed(2);
         cells += '<rect class="heat-cell" x="' + (L + c * cw + 1) + '" y="' + (T + r * ch + 1) + '" width="' + (cw - 2) +
-          '" height="' + (ch - 2) + '" rx="4" opacity="' + op + '"/>';
+          '" height="' + (ch - 2) + '" rx="4" opacity="' + op + '" data-r="' + r + '" data-c="' + c + '"/>';
       }
     }
     for (c = 0; c < 24; c += 3) {
       labels += '<text x="' + (L + c * cw + cw / 2) + '" y="' + (H - 6) + '" text-anchor="middle">' + pad(c, 2) + ' h</text>';
     }
     var total = F.tx.length;
-    mount.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Mapa de calor: ' + total +
-      ' transacciones por día de la semana y hora. Ver tabla equivalente.">' + cells + labels + '</svg>';
+    mount.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="application" tabindex="0" aria-label="Mapa de calor: ' + total +
+      ' transacciones por día de la semana y hora. Usa las flechas para recorrer las celdas y Intro para ver sus transacciones. Ver tabla equivalente.">' + cells + labels + '</svg>';
     var franjas = [['0-6 h', 0, 6], ['6-12 h', 6, 12], ['12-18 h', 12, 18], ['18-24 h', 18, 24]];
     mount.appendChild(srTable('Transacciones por día y franja horaria', ['Día'].concat(franjas.map(function (f) { return f[0]; })),
       WD_NAMES.map(function (name, rr) {
@@ -2550,6 +2910,49 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
           return fmtInt(s);
         }));
       })));
+    heatInteractive(mount, grid);
+  }
+
+  /* Mapa de calor: clic o Intro en una celda → Transacciones con ese día y franja; flechas para recorrer */
+  function heatInteractive(mount, grid) {
+    var svg = mount.querySelector('svg'), live = h('p', { class: 'sr-only', 'aria-live': 'polite' });
+    mount.appendChild(live);
+    if (!svg) return;
+    var cells = svg.querySelectorAll('rect.heat-cell'), r0 = 0, c0 = 0, max = -1, r, c, cur = null;
+    for (r = 0; r < 7; r++) for (c = 0; c < 24; c++) if (grid[r][c] > max) { max = grid[r][c]; r0 = r; c0 = c; }
+    function cellOf(rr, cc) { return cells[rr * 24 + cc]; }
+    function describe(rr, cc) {
+      var wd = WD_NAMES[rr];
+      return wd.charAt(0).toUpperCase() + wd.slice(1) + ' ' + cc + '–' + (cc + 1) + ' h: ' + fmtInt(grid[rr][cc]) + ' transacciones';
+    }
+    function paint(rr, cc) {
+      if (cur) { var old = cellOf(cur.r, cur.c); if (old) old.classList.remove('is-cur'); }
+      cur = { r: rr, c: cc };
+      var el = cellOf(rr, cc);
+      if (el) el.classList.add('is-cur');
+      live.textContent = describe(rr, cc) + (drillable() ? '. Pulsa Intro para ver sus transacciones.' : '');
+    }
+    function go(rr, cc) {
+      paint(rr, cc);
+      if (drillable()) drillTx({ tf: { dow: rr, h0: cc, h1: cc + 1 } }, 'Resumen');
+    }
+    svg.addEventListener('click', function (e) {
+      var el = e.target;
+      if (!el.getAttribute || el.getAttribute('data-r') === null) return;
+      go(parseInt(el.getAttribute('data-r'), 10), parseInt(el.getAttribute('data-c'), 10));
+    });
+    svg.addEventListener('focus', function () { if (!cur) paint(r0, c0); });
+    svg.addEventListener('keydown', function (e) {
+      var rr = cur ? cur.r : r0, cc = cur ? cur.c : c0, k = e.key;
+      if (k === 'Enter' || k === ' ') { e.preventDefault(); go(rr, cc); return; }
+      if (k === 'ArrowLeft') cc = Math.max(0, cc - 1);
+      else if (k === 'ArrowRight') cc = Math.min(23, cc + 1);
+      else if (k === 'ArrowUp') rr = Math.max(0, rr - 1);
+      else if (k === 'ArrowDown') rr = Math.min(6, rr + 1);
+      else return;
+      e.preventDefault();
+      paint(rr, cc);
+    });
   }
 
   /* Motivos de denegación como barras */
@@ -2562,10 +2965,12 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     var max = items[0] ? items[0].v || 1 : 1;
     var list = h('ul', { class: 'bars-h' });
     items.forEach(function (it) {
-      list.appendChild(h('li', null,
+      var li = h('li', null,
         h('div', { class: 'bh-top' }, h('span', null, it.name),
           h('span', { class: 'bh-val' }, fmtInt(it.v) + ' · ' + fmtPct(it.v / total * 100, 0))),
-        h('div', { class: 'bh-track', 'aria-hidden': 'true' }, h('span', { style: 'width:' + (it.v / max * 100).toFixed(1) + '%' }))));
+        h('div', { class: 'bh-track', 'aria-hidden': 'true' }, h('span', { style: 'width:' + (it.v / max * 100).toFixed(1) + '%' })));
+      if (drillable()) makeLink(li, function () { drillTx({ cf: { estado: catSpec(['Denegada'], 'denegadas'), motivo: catSpec([it.name]) } }, 'Resumen'); }, 'Denegadas por ' + it.name + ': ' + fmtInt(it.v) + '. Ver transacciones');
+      list.appendChild(li);
     });
     wrap.appendChild(list);
     wrap.appendChild(srTable('Motivos de denegación', ['Motivo', 'Operaciones', 'Reparto'],
@@ -2577,7 +2982,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     { key: 'tpv', label: 'Volumen procesado', fmt: function (v) { return money(v, 0); }, kind: 'pct' },
     { key: 'n', label: 'Transacciones', fmt: function (v) { return fmtInt(v); }, kind: 'pct' },
     { key: 'appr', label: 'Tasa de aprobación', fmt: function (v) { return fmtPct(v, 1); }, kind: 'pp' },
-    { key: 'margin', label: 'Ingresos netos (margen)', fmt: function (v) { return money(v, 0); }, kind: 'pct' },
+    { key: 'margin', label: 'Margen neto', fmt: function (v) { return money(v, 0); }, kind: 'pct' },
     { key: 'ticket', label: 'Ticket medio', fmt: function (v) { return money(v, 2); }, kind: 'pct' },
     { key: 'cb', label: 'Ratio de contracargos', fmt: function (v) { return fmtPct(v, 2); }, kind: 'pp', bad: 'up' },
     { key: 'ref', label: 'Reembolsos', fmt: function (v) { return money(v, 0); }, kind: 'pct', bad: 'up' }
@@ -2595,7 +3000,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     ];
     if (r === 'partner') return [
       by.tpv, by.n, by.appr, by.ticket,
-      { key: 'par', label: 'Revenue share devengado', fmt: function (v) { return money(v, 0); }, kind: 'pct' }
+      { key: 'par', label: 'Reparto con partners devengado', fmt: function (v) { return money(v, 0); }, kind: 'pct' }
     ];
     return KPI_DEFS.filter(function (d) { return d.key !== 'margin' || can('see.margin'); });
   }
@@ -2615,14 +3020,17 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
         deltaEl.className = 'delta' + (good ? '' : ' down');
         deltaEl.innerHTML = svgIcon(up ? 'up' : 'down');
         deltaEl.appendChild(document.createTextNode(text));
-        deltaEl.appendChild(h('span', { class: 'delta-note' }, ' · frente al periodo anterior'));
+        deltaEl.appendChild(h('span', { class: 'delta-note' }, ' · ' + compLabel()));
       } else if (state.compare) {
         deltaEl.className = 'delta';
         deltaEl.appendChild(h('span', { class: 'delta-note' }, 'Sin histórico para comparar'));
       }
       var spark = h('div', { class: 'spark', 'aria-hidden': 'true' });
       spark.innerHTML = sparkSvg(series.map(function (d) { return d[def.key]; }));
-      grid.appendChild(h('article', { class: 'card kpi' }, h('p', { class: 'kpi-label' }, def.label), valEl, deltaEl, goalCell(def.key, cur[def.key]), spark));
+      var card = h('article', { class: 'card kpi' }, h('p', { class: 'kpi-label' }, def.label), valEl, deltaEl, goalCell(def.key, cur[def.key]), spark);
+      var kd = drillable() ? kpiDrill(def.key) : null;
+      if (kd) makeLink(card, function () { drillTx(kd, 'Resumen'); }, def.label + ': ' + def.fmt(cur[def.key]) + '. Ver transacciones');
+      grid.appendChild(card);
       animateTo('kpi-' + def.key, cur[def.key], def.fmt, valEl);
     });
   }
@@ -2659,7 +3067,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     for (i = 11; i >= 0; i--) rows.push({ label: fmtMonth.format(keys[i]) + ' ' + keys[i].getFullYear(), n: acc[i].n, vol: acc[i].vol, fee: acc[i].fee, par: acc[i].par });
     return rows;
   }
-  /* Revenue share por mes (solo partner): últimos 12 meses de sus comercios */
+  /* Reparto con partners por mes (solo partner): últimos 12 meses de sus comercios */
   function renderShare(F) {
     if (!can('view.share')) return;
     var nm = DATA.nm, now = dayDate(DAYS - 1), keys = [], acc = [], i, d, idx, dt, body = $('#share-body');
@@ -2682,23 +3090,29 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
         h('td', { 'data-label': 'Operaciones', class: 'amount' }, fmtInt(a.n)),
         h('td', { 'data-label': 'Volumen', class: 'amount' }, money(a.vol, 0)),
         h('td', { 'data-label': 'Comisiones generadas', class: 'amount' }, money(a.fee, 0)),
-        h('td', { 'data-label': 'Revenue share', class: 'amount' }, money(a.par, 0))));
+        h('td', { 'data-label': 'Reparto con partners', class: 'amount' }, money(a.par, 0))));
     });
     body.appendChild(h('tr', { class: 'tot' },
       h('td', { 'data-label': 'Total' }, 'Total 12 meses'),
       h('td', { 'data-label': 'Operaciones', class: 'amount' }, fmtInt(tot.n)),
       h('td', { 'data-label': 'Volumen', class: 'amount' }, money(tot.vol, 0)),
       h('td', { 'data-label': 'Comisiones generadas', class: 'amount' }, money(tot.fee, 0)),
-      h('td', { 'data-label': 'Revenue share', class: 'amount' }, money(tot.par, 0))));
+      h('td', { 'data-label': 'Reparto con partners', class: 'amount' }, money(tot.par, 0))));
   }
 
   function renderResumen() {
     var F = filtered();
     var t = sumDays(F.cur);
     var p = F.prev ? sumDays(F.prev) : null;
-    var rangeTxt = RANGE_LABEL[state.range];
+    renderAlertsCard();
+    /* Sin comercios que cumplan los filtros: estado vacío en lugar de ceros */
+    var noneMer = !F.mask.some(Boolean);
+    $('#view-resumen').classList.toggle('is-empty', noneMer);
+    $('#res-empty').hidden = !noneMer;
+    if (noneMer) return;
+    var rangeTxt = periodPhrase();
     if (state.metric === 'margin' && !can('see.margin')) state.metric = 'vol';
-    $('#trend-sub').textContent = 'Últimos ' + rangeTxt + (F.hasPrev && state.compare ? ' frente al periodo anterior' : '') +
+    $('#trend-sub').textContent = rangeTxt + (F.hasPrev && state.compare ? ' · ' + compLabel() : '') +
       (F.hasPrev ? '' : '. Sin histórico suficiente para comparar este rango');
     renderKpis(F, t, F.hasPrev && state.compare ? p : null);
     renderTrend(F);
@@ -2718,8 +3132,14 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   /* Transacciones base: rango, ámbito, filtros globales y búsqueda libre (antes de los filtros de columna) */
   function txBaseRows() {
     var q = norm(state.txQ.trim());
+    var tf = state.tf;
     return filtered().tx.filter(function (t) {
       if (q && norm(t.id + ' ' + merchantOf(t).name + ' ' + t.card).indexOf(q) === -1) return false;
+      /* Filtro oculto de franja: día de la semana (lunes = 0) y horas [h0, h1) */
+      if (tf) {
+        if (tf.dow !== null && tf.dow !== undefined && (t.date.getDay() + 6) % 7 !== tf.dow) return false;
+        if (t.date.getHours() < tf.h0 || t.date.getHours() >= tf.h1) return false;
+      }
       return true;
     });
   }
@@ -2738,10 +3158,17 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       h('td', { 'data-label': 'Método' }, t.method),
       h('td', { 'data-label': 'Importe', class: 'amount' }, money(t.amount, 2)),
       h('td', { 'data-label': 'Comisión', class: 'amount', 'data-perm': 'see.fee' }, money(t.fee, 2)),
+      h('td', { 'data-label': 'Margen neto', class: 'amount', 'data-perm': 'see.margin' }, money(marginOf(t), 2)),
       h('td', { 'data-label': 'Estado' }, h('span', { class: 'badge st-' + t.status }, t.status)),
+      h('td', { 'data-label': 'Motivo' }, t.decline || '—'),
+      h('td', { 'data-label': 'Reembolsado', class: 'amount' }, t.refunded ? money(t.refunded, 2) : '—'),
       h('td', { 'data-label': 'Riesgo', class: 'amount' + (t.risk >= 70 ? ' risk-hi' : ''), 'data-perm': 'see.risk' }, String(t.risk)));
   }
 
+  /* Columnas visibles de una tabla (para colspan de filas vacías) */
+  function visibleCols(id) {
+    return $$(TBLS[id] + ' thead th').filter(function (th) { return !th.hidden; }).length;
+  }
   function renderTransacciones() {
     var F = filtered();
     var list = txFiltered(F);
@@ -2750,10 +3177,11 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     if (state.txPage < 1) state.txPage = 1;
     var start = (state.txPage - 1) * size, slice = list.slice(start, start + size);
 
+    $('#tx-crumb').hidden = !state.crumb;
     var body = $('#tx-body');
     body.textContent = '';
     if (!slice.length) {
-      body.appendChild(h('tr', null, h('td', { colspan: '9', class: 'empty-cell' },
+      body.appendChild(h('tr', null, h('td', { colspan: String(visibleCols('tx')), class: 'empty-cell' },
         'No hay transacciones que coincidan con los filtros.')));
     } else {
       slice.forEach(function (t) { body.appendChild(txRow(t)); });
@@ -2766,20 +3194,22 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     all.checked = !!allSel;
     all.indeterminate = !allSel && !!someSel;
 
-    $$('#tx-table [data-sort]').forEach(function (b) {
-      var key = b.getAttribute('data-sort'), active = state.txSort.key === key;
-      b.closest('th').setAttribute('aria-sort', active ? (state.txSort.dir === 'asc' ? 'ascending' : 'descending') : 'none');
-      $('.arrow', b).textContent = active ? (state.txSort.dir === 'asc' ? '↑' : '↓') : '↕';
-    });
+
 
     var bulk = $('#tx-bulk');
     bulk.disabled = !selCount;
     bulk.textContent = selCount ? 'Marcar revisadas (' + selCount + ')' : 'Marcar revisadas';
 
-    var sumAmt = list.reduce(function (a, t) { return a + t.amount; }, 0);
-    var apprN = list.filter(function (t) { return APPROVED[t.status]; }).length;
-    $('#tx-summary').textContent = fmtInt(list.length) + ' transacciones · ' + money(sumAmt, 0) + ' importe total · ' +
-      (list.length ? fmtPct(apprN / list.length * 100, 1) : '0 %') + ' aprobadas' +
+    /* Mismas reglas que los KPI: importe aprobado; aprobación = aprobadas / (aprobadas + denegadas); pendientes aparte */
+    var apprAmt = 0, nAppr = 0, nDen = 0, nPend = 0;
+    list.forEach(function (t) {
+      if (APPROVED[t.status]) { nAppr++; apprAmt += t.amount; }
+      else if (t.status === 'Pendiente') nPend++;
+      else nDen++;
+    });
+    $('#tx-summary').textContent = fmtInt(list.length) + ' transacciones · ' + money(apprAmt, 0) + ' importe aprobado · ' +
+      fmtPct(nAppr + nDen ? nAppr / (nAppr + nDen) * 100 : 0, 1) + ' aprobación' +
+      (nPend ? ' · ' + fmtInt(nPend) + ' pendientes' : '') +
       (selCount ? ' · ' + selCount + ' seleccionadas' : '');
     $('#tx-note').textContent = F.clipped
       ? 'El detalle de transacciones cubre los últimos 90 días. El rango de 12 meses se refleja en el resumen.' : '';
@@ -2811,7 +3241,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       ev.push({ t: new Date(base + 4000), label: t.status === 'Autorizada' ? 'Autorizada, pendiente de captura' : 'Autorizada' });
       if (CAPTURED[t.status]) ev.push({ t: new Date(base + 60000), label: 'Capturada' });
     }
-    if (t.status === 'Contracargo') ev.push({ t: new Date(base + 3 * 86400000), label: 'Contracargo abierto por el titular' });
+    if (t.status === 'Contracargo') ev.push({ t: new Date(base + 3 * 86400000), label: 'Contracargo abierto · ' + t.cbReason });
     t.log.forEach(function (e) { ev.push(e); });
     return ev;
   }
@@ -2856,11 +3286,13 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     ], 'see.risk'));
     nodes.push(sectionEl('Desglose económico', dlEl([
       ['Importe bruto', money(t.amount, 2)],
-      ['Comisión' + (can('see.margin') ? ' MDR (' + fmtNum(m.mdr, 2) + ' % + 0,12 €)' : ''), money(t.fee, 2)],
+      ['Comisión bruta' + (can('see.margin') ? ' MDR (' + fmtNum(m.mdr, 2) + ' % + 0,12 €)' : ''), money(t.fee, 2)],
       ['Interchange', '−' + money(t.icx, 2), 'neg', 'see.costs'],
       ['Cuota de esquema', '−' + money(t.sch, 2), 'neg', 'see.costs'],
-      ['Share ' + P.name, '−' + money(t.par, 2), 'neg', 'see.costs'],
-      ['Margen bruto', money(t.margin, 2), null, 'see.margin'],
+      ['Pérdida por contracargo', t.cbl > 0.004 ? '−' + money(t.cbl, 2) : '—', t.cbl > 0.004 ? 'neg' : null, 'see.margin'],
+      ['Reparto con partners (' + P.name + ')', '−' + money(t.par, 2), 'neg', 'see.costs'],
+      ['Costes operativos (12 %)', '−' + money(t.fee * OPEX_RATE, 2), 'neg', 'see.margin'],
+      ['Margen antes de reembolsos', money(t.margin, 2), null, 'see.margin'],
       ['Ajuste por reembolso', adj > 0.001 ? '−' + money(adj, 2) : '—', adj > 0.001 ? 'neg' : null, 'see.margin'],
       ['Margen neto', money(marginOf(t), 2), 'total', 'see.margin'],
       ['Neto abonado', money(netAb, 2), 'total', 'see.fee']
@@ -2875,9 +3307,9 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   }
 
   function refundForm(t) {
-    var rem = round2(t.amount - t.refunded);
-    var remTxt = rem.toFixed(2).replace('.', ',');
-    var amt = h('input', { class: 'field', id: 'refund-amt', type: 'text', inputmode: 'decimal', value: remTxt, 'aria-describedby': 'refund-err', 'aria-label': 'Importe a reembolsar en euros' });
+    var rem = round2(t.amount - t.refunded), fx = RATES[state.currency] || 1, remC = round2(rem * fx);
+    var remTxt = remC.toFixed(2).replace('.', ',');
+    var amt = h('input', { class: 'field', id: 'refund-amt', type: 'text', inputmode: 'decimal', value: remTxt, 'aria-describedby': 'refund-err', 'aria-label': 'Importe a reembolsar en ' + state.currency });
     var err = h('p', { id: 'refund-err', class: 'form-err', role: 'alert' });
     var rTotal = h('input', { type: 'radio', name: 'refund-kind', value: 'total' });
     var rPart = h('input', { type: 'radio', name: 'refund-kind', value: 'parcial' });
@@ -2888,7 +3320,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       h('fieldset', null, h('legend', null, 'Tipo de reembolso'),
         h('label', { class: 'radio' }, rTotal, 'Total (' + money(rem, 2) + ')'),
         h('label', { class: 'radio' }, rPart, 'Parcial')),
-      h('label', { class: 'fsel' }, h('span', null, 'Importe (€)'), amt),
+      h('label', { class: 'fsel' }, h('span', null, 'Importe (' + curSym() + ')'), amt),
       err,
       h('div', { class: 'row' }, h('button', { type: 'submit', class: 'btn btn-primary' }, 'Confirmar reembolso'), cancel));
     function syncKind() {
@@ -2902,13 +3334,13 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       err.textContent = '';
-      var raw = rTotal.checked ? rem.toFixed(2) : amt.value.trim().replace(',', '.');
+      var raw = rTotal.checked ? remC.toFixed(2) : amt.value.trim().replace(',', '.');
       var v = Number(raw);
       if (!raw || !isFinite(v)) err.textContent = 'Introduce un importe válido, por ejemplo 12,50.';
       else if (v <= 0) err.textContent = 'El importe debe ser mayor que 0.';
       else if (Math.abs(v * 100 - Math.round(v * 100)) > 1e-6) err.textContent = 'Usa como máximo dos decimales.';
-      else if (v > rem + 0.001) err.textContent = 'No puede superar ' + money(rem, 2) + ', que es el importe pendiente de reembolsar.';
-      else doRefund(t, round2(v));
+      else if (v > remC + 0.001) err.textContent = 'No puede superar ' + money(rem, 2) + ', que es el importe pendiente de reembolsar.';
+      else doRefund(t, rTotal.checked ? rem : round2(v / fx));
     });
     return form;
   }
@@ -3064,6 +3496,448 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   }
 
 
+  /* === DRILL-DOWN: de Resumen y Alertas a Transacciones (filtros de columna, franja y origen) === */
+  function drillable() { return can('view.transacciones'); }
+  function catSpec(vals, lbl) { var s = { type: 'cat', vals: vals.slice() }; if (lbl) s.lbl = lbl; return s; }
+  /* Filtro «Con reembolso (total o parcial)»: importe reembolsado mayor que 0 */
+  function refundSpec() { return { type: 'num', min: 0.005, max: '', lbl: 'con reembolso (total o parcial)' }; }
+  var APPR_LIST = STATUSES.filter(function (s) { return APPROVED[s]; });
+  var CAPT_LIST = STATUSES.filter(function (s) { return CAPTURED[s]; });
+  function tfOn() { return !!state.tf && state.view === 'transacciones'; }
+  function tfLabel(tf) {
+    var hrs = tf.h0 + '–' + tf.h1 + ' h';
+    if (tf.dow === null || tf.dow === undefined) return hrs;
+    var wd = WD_NAMES[tf.dow];
+    return wd.charAt(0).toUpperCase() + wd.slice(1) + ' ' + hrs;
+  }
+  /* Elemento que navega: rol enlace, foco con teclado, Intro o espacio */
+  function makeLink(el, fn, label) {
+    el.setAttribute('role', 'link');
+    el.setAttribute('tabindex', '0');
+    el.setAttribute('aria-label', label);
+    el.classList.add('is-link');
+    el.addEventListener('click', function () { fn(); });
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(); }
+    });
+  }
+  /* Filtro de estado de cada tarjeta KPI (mismas reglas que el cálculo del KPI) */
+  function kpiDrill(key) {
+    if (key === 'appr') return { cf: { estado: catSpec(APPR_LIST.concat(['Denegada']), 'aprobadas y denegadas') } };
+    if (key === 'cb') return { cf: { estado: catSpec(['Contracargo'], 'contracargo') } };
+    /* Reembolsos: operaciones con reembolso total o parcial (mismo criterio que el KPI) */
+    if (key === 'ref') return { cf: { reembolsado: refundSpec() } };
+    /* Transacciones: todas las operaciones, incluidas las pendientes (mismo criterio que el KPI) */
+    if (key === 'n') return { cf: { estado: catSpec(STATUSES, 'todas, incluidas pendientes') } };
+    /* Margen neto: aprobadas, ordenadas por margen de mayor a menor */
+    if (key === 'margin') return { cf: { estado: catSpec(APPR_LIST, 'aprobadas') }, sort: { key: 'margen', dir: 'desc' } };
+    if (['tpv', 'ticket', 'fee', 'par'].indexOf(key) >= 0) return { cf: { estado: catSpec(APPR_LIST, 'aprobadas') } };
+    return null;
+  }
+  /* Pasos del embudo: iniciadas (todas), autorizadas, capturadas y liquidadas (capturadas con más de 2 días) */
+  function funnelDrill(i) {
+    if (i === 0) return { cf: {} };
+    if (i === 1) return { cf: { estado: catSpec(APPR_LIST, 'aprobadas') } };
+    if (i === 2) return { cf: { estado: catSpec(CAPT_LIST, 'capturadas') } };
+    return { cf: { estado: catSpec(CAPT_LIST, 'capturadas'), date: { type: 'date', from: '', to: ymd(dayDate(DAYS - 3)) } } };
+  }
+  function drillDay(d) {
+    var ds = ymd(dayDate(d));
+    drillTx({ cf: { date: { type: 'date', from: ds, to: ds } } }, 'Resumen');
+  }
+  /* Abre Transacciones con los filtros de columna (cf) y la franja (tf); el origen queda como «← Volver a Resumen» */
+  function drillTx(spec, from) {
+    if (!drillable()) return;
+    CF.tx = {};
+    Object.keys(spec.cf || {}).forEach(function (k) { CF.tx[k] = JSON.parse(JSON.stringify(spec.cf[k])); });
+    if (!Object.keys(CF.tx).length) delete CF.tx;
+    SORT.tx = spec.sort ? { key: spec.sort.key, dir: spec.sort.dir } : { key: 'date', dir: 'desc' };
+    state.tf = spec.tf ? { dow: spec.tf.dow === undefined ? null : spec.tf.dow, h0: spec.tf.h0, h1: spec.tf.h1 } : null;
+    state.txQ = '';
+    state.txPage = 1;
+    state.selected = {};
+    closePanel();
+    closeAlerts(false);
+    state.crumb = { to: 'resumen', label: from || 'Resumen' };
+    showView('transacciones', true);
+  }
+  function clearAllFilters() {
+    FILTER_KEYS.forEach(function (k) { state.filters[k] = []; });
+    CF = {};
+    state.tf = null;
+    render();
+  }
+
+  /* === ALERTAS: detección sobre los datos generados (ventanas respecto a hoy) === */
+  var ALERT_KEY = 'pulso-alerts';
+  var ALERT_ST = lsGet(ALERT_KEY, {});
+  if (!ALERT_ST || typeof ALERT_ST !== 'object') ALERT_ST = {};
+  ALERT_ST.rev = ALERT_ST.rev || {};
+  ALERT_ST.mute = ALERT_ST.mute || {};
+  var SEV_RANK = { critica: 0, alta: 1, media: 2 };
+  var SEV_LABEL = { critica: 'Crítica', alta: 'Alta', media: 'Media' };
+  var BIN_NAMES = { ES: 'España', PT: 'Portugal', FR: 'Francia', IT: 'Italia', DE: 'Alemania', GB: 'Reino Unido', US: 'Estados Unidos', MX: 'México' };
+  var alertList = [], alertsOpen = false, alertsOpener = null;
+  function saveAlerts() { lsSet(ALERT_KEY, ALERT_ST); }
+  function scopeMask() { return DATA.merchants.map(function (m, mi) { return scopeOk(mi); }); }
+  function hhmm(hour) { return pad(hour, 2) + ':00'; }
+  function wdName(idx) { return WD_NAMES[(dayDate(idx).getDay() + 6) % 7]; }
+  function topOf(obj) {
+    var k = null, v = -1;
+    Object.keys(obj).forEach(function (x) { if (obj[x] > v) { v = obj[x]; k = x; } });
+    return { key: k, n: v < 0 ? 0 : v };
+  }
+  /* Alertas ordenadas por gravedad. period: rango en días (solo afecta al ratio de contracargos, máx. detalle de 90 días) */
+  function detectAlerts(period) {
+    if (!DATA || !USER) return [];
+    var mask = scopeMask();
+    if (!mask.some(Boolean)) return [];
+    var nScope = mask.filter(Boolean).length, per = Math.min(period || 30, DATA.detail), out = [];
+    alertsApproval(mask, nScope, out);
+    alertsVolume(mask, out);
+    alertsCb(mask, per, out);
+    alertsDecline(mask, nScope, out);
+    alertsTrend(mask, out);
+    out.sort(function (a, b) { return SEV_RANK[a.sev] - SEV_RANK[b.sev] || b.score - a.score; });
+    /* Límite por tipo para no saturar el panel: se quedan las más graves de cada tipo */
+    var cap = { approval: 1, decline: 1, volume: 2, cb: 2, cbwarn: 1, trend: 1 }, seen = {};
+    return out.filter(function (a) {
+      seen[a.type] = (seen[a.type] || 0) + 1;
+      return seen[a.type] <= cap[a.type];
+    });
+  }
+  /* (a) Caída de aprobación: ventanas de 2 h, últimos 7 días frente a los 28 anteriores a la misma hora.
+     Se exige ≥ 5 pp de caída y ≥ 30 operaciones en cada lado. La muestra se mide sobre el ámbito visible. */
+  function alertsApproval(mask, nScope, out) {
+    var D = DATA, last = D.days - 1, c0 = last - 6, b0 = last - 34, b1 = last - 7;
+    var cur = [], base = [], h, k, x, tickSum = 0, tickN = 0;
+    for (h = 0; h < 24; h++) { cur.push({ ok: 0, den: 0 }); base.push({ ok: 0, den: 0 }); }
+    D.tx.forEach(function (t) {
+      if (!mask[t.mi] || t.status === 'Pendiente') return;
+      var inC = t.idx >= c0, inB = t.idx >= b0 && t.idx <= b1;
+      if (!inC && !inB) return;
+      var slot = (inC ? cur : base)[t.date.getHours()];
+      if (APPROVED[t.status]) { slot.ok++; if (inB) { tickSum += t.amount; tickN++; } }
+      else if (t.status === 'Denegada') slot.den++;
+    });
+    function win(arr, s) {
+      var r = { ok: 0, den: 0 }, q;
+      for (q = s; q < s + 2; q++) { r.ok += arr[q].ok; r.den += arr[q].den; }
+      r.n = r.ok + r.den;
+      r.rate = r.n ? r.ok / r.n * 100 : 0;
+      return r;
+    }
+    var cands = [];
+    for (k = 0; k <= 22; k++) {
+      var c = win(cur, k), b = win(base, k);
+      if (c.n < 30 || b.n < 30) continue;
+      var drop = b.rate - c.rate;
+      if (drop >= 5) cands.push({ s: k, drop: drop, c: c, b: b });
+    }
+    cands.sort(function (p, q) { return q.drop - p.drop; });
+    var taken = [], avgTicket = tickN ? tickSum / tickN : 0;
+    cands.forEach(function (cd) {
+      if (taken.length >= 2 || taken.some(function (s) { return Math.abs(s - cd.s) < 2; })) return;
+      taken.push(cd.s);
+      out.push(approvalAlert(cd, mask, nScope, c0, avgTicket));
+    });
+  }
+  function approvalAlert(cd, mask, nScope, c0, avgTicket) {
+    var D = DATA, s = cd.s, reasons = {}, bins = {}, merch = {}, days = {}, denN = 0;
+    D.tx.forEach(function (t) {
+      if (!mask[t.mi] || t.idx < c0 || t.status !== 'Denegada') return;
+      var hr = t.date.getHours();
+      if (hr < s || hr >= s + 2) return;
+      denN++;
+      reasons[t.decline] = (reasons[t.decline] || 0) + 1;
+      bins[t.bin] = (bins[t.bin] || 0) + 1;
+      merch[t.mi] = (merch[t.mi] || 0) + 1;
+      days[t.idx] = (days[t.idx] || 0) + 1;
+    });
+    var tR = topOf(reasons), tB = topOf(bins), tM = topOf(merch), namedMi = null, who;
+    if (nScope === 1) namedMi = mask.indexOf(true);
+    else if (denN >= 3 && tM.n / denN >= 0.5) namedMi = +tM.key;
+    who = namedMi !== null ? D.merchants[namedMi].name : nScope + (nScope === 1 ? ' comercio' : ' comercios');
+    /* Días con más rechazos en la franja */
+    var maxD = 0, wds = [];
+    Object.keys(days).forEach(function (d) { maxD = Math.max(maxD, days[d]); });
+    Object.keys(days).map(Number).filter(function (d) { return days[d] >= Math.max(1, maxD / 2); })
+      .sort(function (p, q) { return p - q; }).forEach(function (d) {
+        var w = wdName(d);
+        if (wds.indexOf(w) < 0) wds.push(w);
+      });
+    var when = wds.length === 1 ? 'del ' + wds[0] : wds.length === 2 ? 'de los días ' + wds[0] + ' y ' + wds[1] : 'en los últimos 7 días';
+    var share = denN ? tR.n / denN * 100 : 0, cause;
+    if (denN >= 3 && share >= 40) {
+      cause = 'El ' + Math.round(share) + ' % de los rechazos son «' + tR.key + '»' +
+        (denN && tB.n / denN >= 0.6 ? ', con tarjetas emitidas mayoritariamente en ' + (BIN_NAMES[tB.key] || tB.key) : '') + '.';
+    } else {
+      cause = 'Los rechazos se reparten entre varios motivos; ninguno supera el 40 %.';
+    }
+    var sev = cd.drop >= 15 ? 'critica' : cd.drop >= 10 ? 'alta' : 'media';
+    var impact = cd.drop / 100 * cd.c.n * avgTicket;
+    var last = D.days - 1;
+    var cf = { estado: catSpec(['Denegada'], 'denegadas'), date: { type: 'date', from: ymd(dayDate(c0)), to: ymd(dayDate(last)) } };
+    if (namedMi !== null) cf.merchant = { type: 'text', q: D.merchants[namedMi].name };
+    return {
+      id: 'ap-' + ymd(dayDate(c0)) + '-' + s, kind: 'Tasa de aprobación', type: 'approval', sev: sev, score: cd.drop, mi: namedMi,
+      title: 'La tasa de aprobación cayó ' + fmtNum(cd.drop, 1) + ' pp en ' + who + ' entre las ' + hhmm(s) + ' y las ' + hhmm(s + 2) + ' ' + when,
+      cause: cause,
+      impact: 'Volumen no aprobado estimado: ' + money(impact, 0),
+      when: 'Franja ' + hhmm(s) + '–' + hhmm(s + 2) + ' · 7 días frente a 28',
+      meta: 'Muestra: ' + cd.c.n + ' operaciones en 7 días frente a ' + cd.b.n + ' en la base (aprobación ' + fmtPct(cd.b.rate, 1) + ' → ' + fmtPct(cd.c.rate, 1) + ').',
+      drill: { cf: cf, tf: { dow: null, h0: s, h1: s + 2 } }
+    };
+  }
+  /* (c) Volumen anómalo por comercio: ayer frente a la media de los 28 días anteriores (|z| ≥ 2,5 y ≥ 150 €) */
+  function alertsVolume(mask, out) {
+    var D = DATA, nm = D.nm, last = D.days - 1, y = last - 1, b0 = last - 29, b1 = last - 2;
+    for (var mi = 0; mi < nm; mi++) {
+      if (!mask[mi] || D.merchants[mi].joinIdx > b0) continue;
+      var vals = [], sum = 0, sumN = 0, d, row, v = 0;
+      for (d = b0; d <= b1; d++) {
+        row = D.daily[d * nm + mi];
+        vals.push(row.vol); sum += row.vol; sumN += row.n;
+      }
+      var mean = sum / vals.length, meanN = sumN / vals.length;
+      vals.forEach(function (x) { v += (x - mean) * (x - mean); });
+      var sd = Math.sqrt(v / vals.length);
+      if (!(sd > 0) || !(mean > 0)) continue;
+      var yr = D.daily[y * nm + mi], dev = yr.vol - mean, z = dev / sd;
+      if (Math.abs(z) < 2.5 || Math.abs(dev) < 150) continue;
+      var m = D.merchants[mi], up = dev > 0;
+      out.push({
+        id: 'vo-' + mi + '-' + ymd(dayDate(y)), kind: 'Volumen del comercio', type: 'volume', sev: Math.abs(z) >= 4 ? 'alta' : 'media',
+        score: Math.abs(z), mi: mi,
+        title: 'El volumen de ' + m.name + ' ' + (up ? 'subió' : 'bajó') + ' un ' + Math.round(Math.abs(dev) / mean * 100) + ' % ayer frente a su media de 28 días',
+        cause: 'Ayer: ' + fmtInt(yr.n) + ' operaciones. Media diaria de los 28 días anteriores: ' + fmtNum(meanN, 1) + ' operaciones (' + fmtNum(Math.abs(z), 1) + ' desviaciones típicas).',
+        impact: (up ? 'Volumen adicional: ' : 'Volumen no procesado estimado: ') + money(Math.abs(dev), 0),
+        when: 'Ayer, ' + wdName(y) + ' ' + ddmmyyyy(dayDate(y)),
+        meta: 'Compara el mismo comercio con su propio historial reciente.',
+        drill: { cf: { merchant: { type: 'text', q: m.name }, date: { type: 'date', from: ymd(dayDate(y)), to: ymd(dayDate(y)) } } }
+      });
+    }
+  }
+  /* (b) Ratio de contracargos por encima del umbral interno (Riesgo), con al menos 3 contracargos y 30 operaciones capturadas */
+  function alertsCb(mask, per, out) {
+    var D = DATA, nm = D.nm, last = D.days - 1, from = D.days - per, thr = state.riskThr;
+    for (var mi = 0; mi < nm; mi++) {
+      if (!mask[mi]) continue;
+      var cb = 0, cap = 0, ok = 0, cbAmt = 0, d, row;
+      for (d = from; d <= last; d++) {
+        row = D.daily[d * nm + mi];
+        cb += row.cb; cap += row.cap; ok += row.ok;
+        if (row.ok) cbAmt += row.cb * (row.vol / row.ok);
+      }
+      var ratio = cap ? cb / cap * 100 : 0;
+      /* Aviso temprano (Media): ratio entre el 80 % del umbral y el umbral, con al menos 15 operaciones aprobadas */
+      if (ok >= 15 && cb >= 1 && ratio >= thr * 0.8 && ratio <= thr) {
+        out.push({
+          id: 'cw-' + mi + '-' + per, kind: 'Contracargos (aviso temprano)', type: 'cbwarn', sev: 'media', score: ratio / thr, mi: mi,
+          title: 'El ratio de contracargos de ' + D.merchants[mi].name + ' es del ' + fmtNum(ratio, 2) + ' %, cerca del umbral interno de ' + fmtNum(thr, 2) + ' %',
+          cause: cb + ' contracargos sobre ' + fmtInt(cap) + ' operaciones capturadas. Todavía no supera el umbral.',
+          impact: 'Importe en contracargos: ' + money(cbAmt, 0),
+          when: 'Últimos ' + per + ' días',
+          meta: 'Aviso temprano: no es un incumplimiento, pero el margen frente al umbral se estrecha.',
+          drill: { cf: { merchant: { type: 'text', q: D.merchants[mi].name }, estado: catSpec(['Contracargo'], 'contracargo'), date: { type: 'date', from: ymd(dayDate(from)), to: ymd(dayDate(last)) } } }
+        });
+        continue;
+      }
+      if (cap < 30 || cb < 3) continue;
+      if (ratio <= thr) continue;
+      var reasons = {};
+      D.tx.forEach(function (t) {
+        if (t.mi === mi && t.status === 'Contracargo' && t.idx >= from) reasons[t.cbReason] = (reasons[t.cbReason] || 0) + 1;
+      });
+      var tr = topOf(reasons), m = D.merchants[mi];
+      out.push({
+        id: 'cb-' + mi + '-' + per, kind: 'Contracargos', type: 'cb', sev: ratio >= thr * 2 ? 'alta' : 'media', score: ratio / thr, mi: mi,
+        title: 'El ratio de contracargos de ' + m.name + ' es del ' + fmtNum(ratio, 2) + ' %, por encima del umbral interno de ' + fmtNum(thr, 2) + ' %',
+        cause: cb + ' contracargos sobre ' + fmtInt(cap) + ' operaciones capturadas' + (tr.key ? '. Motivo principal: «' + tr.key + '» (' + Math.round(tr.n / cb * 100) + ' %).' : '.'),
+        impact: 'Importe en contracargos: ' + money(cbAmt, 0),
+        when: 'Últimos ' + per + ' días',
+        meta: 'Umbral configurable en Riesgo («Umbral interno»).',
+        drill: { cf: { merchant: { type: 'text', q: m.name }, estado: catSpec(['Contracargo'], 'contracargo'), date: { type: 'date', from: ymd(dayDate(from)), to: ymd(dayDate(last)) } } }
+      });
+    }
+  }
+  /* (d) Motivo de rechazo inusual: su peso en los últimos 7 días es al menos el doble que en la base de 28 días */
+  function alertsDecline(mask, nScope, out) {
+    var D = DATA, last = D.days - 1, c0 = last - 6, b0 = last - 34, b1 = last - 7;
+    var cC = {}, cB = {}, totC = 0, totB = 0, tkSum = 0, tkN = 0;
+    D.tx.forEach(function (t) {
+      if (!mask[t.mi]) return;
+      if (t.status === 'Denegada' && t.decline) {
+        if (t.idx >= c0) { cC[t.decline] = (cC[t.decline] || 0) + 1; totC++; }
+        else if (t.idx >= b0 && t.idx <= b1) { cB[t.decline] = (cB[t.decline] || 0) + 1; totB++; }
+      }
+      if (APPROVED[t.status] && t.idx >= c0) { tkSum += t.amount; tkN++; }
+    });
+    if (totB < 30 || totC < 5) return;
+    var avgT = tkN ? tkSum / tkN : 0, cands = [];
+    DECLINES.forEach(function (name) {
+      var nc = cC[name] || 0, nb = cB[name] || 0;
+      if (nc < 5) return;
+      var sc = nc / totC * 100, sb = nb / totB * 100;
+      if (sc < sb * 2 || sc - sb < 5) return;
+      cands.push({ name: name, nc: nc, nb: nb, sc: sc, sb: sb, ratio: sc / Math.max(sb, 0.5) });
+    });
+    cands.sort(function (p, q) { return q.ratio - p.ratio; });
+    cands.slice(0, 2).forEach(function (cd) {
+      var extra = Math.max(0, cd.nc - cd.nb / 4);
+      out.push({
+        id: 'de-' + cd.name.replace(/\W+/g, '') + '-' + ymd(dayDate(c0)), kind: 'Motivo de rechazo', type: 'decline', sev: cd.sc >= 40 ? 'alta' : 'media',
+        score: cd.ratio, mi: null,
+        title: 'Los rechazos por «' + cd.name + '» pasan del ' + fmtNum(cd.sb, 1) + ' % al ' + fmtNum(cd.sc, 1) + ' % de las denegaciones en los últimos 7 días',
+        cause: fmtInt(cd.nc) + ' rechazos por este motivo en 7 días; la base de 28 días esperaría unos ' + fmtNum(cd.nb / 4, 1) + '.',
+        impact: 'Volumen no aprobado estimado: ' + money(extra * avgT, 0),
+        when: 'Últimos 7 días frente a los 28 anteriores',
+        meta: 'Ámbito: ' + (nScope === 1 ? 'tu comercio' : nScope + ' comercios') + '.',
+        drill: { cf: { estado: catSpec(['Denegada'], 'denegadas'), motivo: catSpec([cd.name]), date: { type: 'date', from: ymd(dayDate(c0)), to: ymd(dayDate(last)) } } }
+      });
+    });
+  }
+  /* (e) Tendencia de volumen: últimos 7 días ≥ 25 % por debajo de los 7 anteriores (≥ 20 operaciones en los últimos 7 días) */
+  function alertsTrend(mask, out) {
+    var D = DATA, nm = D.nm, last = D.days - 1;
+    for (var mi = 0; mi < nm; mi++) {
+      if (!mask[mi] || D.merchants[mi].joinIdx > last - 13) continue;
+      var cV = 0, pV = 0, cN = 0, pN = 0, d, row;
+      for (d = last - 13; d <= last; d++) {
+        row = D.daily[d * nm + mi];
+        if (d >= last - 6) { cV += row.vol; cN += row.n; } else { pV += row.vol; pN += row.n; }
+      }
+      if (pV <= 0 || cN < 20) continue;
+      var drop = (pV - cV) / pV * 100;
+      if (drop < 25) continue;
+      var m = D.merchants[mi];
+      out.push({
+        id: 'tr-' + mi + '-' + ymd(dayDate(last)), kind: 'Tendencia de volumen', type: 'trend', sev: 'media', score: drop, mi: mi,
+        title: 'El volumen de ' + m.name + ' cae un ' + Math.round(drop) + ' % en los últimos 7 días frente a los 7 anteriores',
+        cause: fmtInt(cN) + ' operaciones en los últimos 7 días frente a ' + fmtInt(pN) + ' en los 7 anteriores.',
+        impact: 'Volumen perdido frente al periodo anterior: ' + money(pV - cV, 0),
+        when: 'Últimos 14 días',
+        meta: 'Comparación de 7 días con los 7 anteriores del mismo comercio.',
+        drill: { cf: { merchant: { type: 'text', q: m.name }, date: { type: 'date', from: ymd(dayDate(last - 13)), to: ymd(dayDate(last)) } } }
+      });
+    }
+  }
+  function alertState(id) {
+    var mt = ALERT_ST.mute[id];
+    return { rev: !!ALERT_ST.rev[id], muted: !!mt && mt > Date.now() };
+  }
+  function activeAlerts() {
+    return alertList.filter(function (a) { var s = alertState(a.id); return !s.rev && !s.muted; });
+  }
+  /* Recalcula alertas y actualiza campana, contador y drawer (se llama desde render) */
+  function updateAlerts() {
+    alertList = detectAlerts(state.range);
+    var n = activeAlerts().length, b = $('#bell-badge');
+    b.textContent = String(n);
+    b.hidden = !n;
+    b.setAttribute('aria-label', n + (n === 1 ? ' alerta sin revisar' : ' alertas sin revisar'));
+    $('#alerts-btn').setAttribute('aria-label', n ? 'Alertas, ' + n + ' sin revisar' : 'Alertas');
+    if (alertsOpen) renderAlertsDrawer();
+  }
+  function sevBadge(sev) { return h('span', { class: 'sev sev-' + sev }, SEV_LABEL[sev]); }
+  function actButtons(a, compact) {
+    var out = [];
+    if (drillable()) out.push(h('button', { type: 'button', class: 'btn', 'data-alert-act': 'drill', 'data-alert': a.id }, 'Ver transacciones'));
+    out.push(h('button', { type: 'button', class: 'btn', 'data-alert-act': 'review', 'data-alert': a.id }, 'Marcar como revisada'));
+    if (!compact) out.push(h('button', { type: 'button', class: 'btn btn-ghost', 'data-alert-act': 'mute', 'data-alert': a.id }, 'Silenciar 24 h'));
+    return out;
+  }
+  function miniAlert(a) {
+    return h('li', { class: 'alert-mini', 'data-alert-id': a.id },
+      h('p', { class: 'alert-mini-top' }, sevBadge(a.sev), h('span', null, a.kind)),
+      h('p', { class: 'alert-mini-title' }, a.title),
+      h('div', { class: 'alert-acts' }, actButtons(a, true)));
+  }
+  function fullAlert(a) {
+    return h('article', { class: 'alert-item', 'data-alert-id': a.id, 'aria-labelledby': 'al-' + a.id },
+      h('p', { class: 'alert-top' }, sevBadge(a.sev), h('span', null, a.kind), h('span', null, a.when)),
+      h('h4', { id: 'al-' + a.id }, a.title),
+      h('p', null, a.cause),
+      h('p', { class: 'alert-impact' }, a.impact),
+      h('p', { class: 'hint' }, a.meta),
+      h('div', { class: 'alert-acts' }, actButtons(a, false)));
+  }
+  /* Tarjetas de Resumen: máximo tres alertas sin revisar */
+  function renderAlertsCard() {
+    var list = $('#alerts-mini'), act = activeAlerts();
+    list.textContent = '';
+    if (!act.length) { list.appendChild(h('li', { class: 'muted' }, 'No hay alertas sin revisar con los datos actuales.')); return; }
+    act.slice(0, 3).forEach(function (a) { list.appendChild(miniAlert(a)); });
+  }
+  function renderAlertsDrawer() {
+    var body = $('#alerts-body'), act = activeAlerts(), done = alertList.filter(function (a) { return act.indexOf(a) < 0; });
+    body.textContent = '';
+    body.appendChild(h('p', { class: 'hint' }, act.length
+      ? 'Alertas sin revisar, por gravedad. Se recalculan con el escenario y el rango elegidos.'
+      : 'No hay alertas sin revisar.'));
+    ['critica', 'alta', 'media'].forEach(function (sev) {
+      var g = act.filter(function (a) { return a.sev === sev; });
+      if (!g.length) return;
+      body.appendChild(h('section', { class: 'alert-group', 'aria-label': SEV_LABEL[sev] + ' (' + g.length + ')' },
+        h('h3', null, SEV_LABEL[sev] + ' · ' + g.length),
+        g.map(fullAlert)));
+    });
+    if (done.length) {
+      body.appendChild(h('details', null, h('summary', null, 'Revisadas o silenciadas (' + done.length + ')'),
+        done.map(function (a) {
+          var st = alertState(a.id);
+          return h('div', { class: 'alert-done' }, h('span', null, a.title + (st.muted ? ' · silenciada' : ' · revisada')),
+            h('button', { type: 'button', class: 'btn btn-ghost', 'data-alert-act': 'restore', 'data-alert': a.id }, 'Volver a mostrar'));
+        })));
+    }
+  }
+  function keepAlertsFocus() { if (alertsOpen) $('#alerts-title').focus(); }
+  function handleAlertAct(act, id) {
+    if (act === 'restore') {
+      delete ALERT_ST.rev[id]; delete ALERT_ST.mute[id];
+      saveAlerts(); render(); keepAlertsFocus();
+      return;
+    }
+    var a = alertList.filter(function (x) { return x.id === id; })[0];
+    if (!a) return;
+    if (act === 'drill') { drillTx(a.drill, 'Resumen'); return; }
+    if (act === 'review') {
+      ALERT_ST.rev[id] = true; saveAlerts();
+      toast('Alerta marcada como revisada', { label: 'Deshacer', fn: function () { delete ALERT_ST.rev[id]; saveAlerts(); render(); } });
+    } else if (act === 'mute') {
+      ALERT_ST.mute[id] = Date.now() + 24 * 3600 * 1000; saveAlerts();
+      toast('Alerta silenciada durante 24 horas');
+    }
+    render();
+    keepAlertsFocus();
+  }
+  function openAlerts(opener) {
+    if (!USER || !DATA || alertsOpen) return;
+    if (panelOpen) closePanel();
+    if (dlgEl) closeDialog();
+    alertsOpener = opener || document.activeElement;
+    alertsOpen = true;
+    var el = $('#alerts-drawer');
+    el.inert = false;
+    el.classList.add('open');
+    $('#alerts-btn').setAttribute('aria-expanded', 'true');
+    renderAlertsDrawer();
+    updateScrim();
+    $('#alerts-title').focus();
+  }
+  function closeAlerts(restore) {
+    if (!alertsOpen) return;
+    alertsOpen = false;
+    var el = $('#alerts-drawer');
+    el.classList.remove('open');
+    el.inert = true;
+    $('#alerts-btn').setAttribute('aria-expanded', 'false');
+    updateScrim();
+    var t = alertsOpener;
+    alertsOpener = null;
+    if (restore !== false && t && t.focus && document.body.contains(t)) t.focus();
+  }
+
   /* === UI === */
   var sidebar = $('#sidebar'), scrim = $('#scrim'), menuBtn = $('#menu'), collapseBtn = $('#collapse');
   var appEl = $('#app'), drawerEl = $('#drawer'), qEl = $('#q'), qBox = $('#q-results');
@@ -3090,6 +3964,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
 
   /* Panel lateral reutilizable (detalle de transacción, ficha de comercio…) */
   function openPanel(title, bodyNodes, footNodes, opener, keepFocus) {
+    if (alertsOpen) closeAlerts(false);
     $('#drawer-title').textContent = title;
     var body = $('#drawer-body');
     body.textContent = '';
@@ -3121,7 +3996,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     if (pendingRender) { pendingRender = false; render(); }
   }
   function updateScrim() {
-    scrim.classList.toggle('show', sidebar.classList.contains('open') || panelOpen || !!dlgEl);
+    scrim.classList.toggle('show', sidebar.classList.contains('open') || panelOpen || !!dlgEl || alertsOpen);
   }
   function setMenu(open) {
     sidebar.classList.toggle('open', open);
@@ -3175,8 +4050,14 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
             'aria-label': 'Quitar filtro ' + FILTER_TITLE[k] + ' ' + label }, '×')));
       });
     });
+    if (tfOn()) {
+      any = true;
+      box.appendChild(h('span', { class: 'tag' }, tfLabel(state.tf),
+        h('button', { type: 'button', class: 'tag-x', 'data-rmtf': '1', 'aria-label': 'Quitar filtro ' + tfLabel(state.tf) }, '×')));
+    }
     viewColChips(box);
     if (!any && !colFilterCount()) box.appendChild(h('span', { class: 'muted' }, 'Sin filtros: se muestran todos los comercios.'));
+    else box.appendChild(h('button', { type: 'button', class: 'btn btn-ghost chips-clear', id: 'chips-clear' }, 'Quitar todos'));
   }
   function colFilterCount() {
     var n = 0;
@@ -3188,13 +4069,17 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       b.setAttribute('aria-pressed', String(RANGE_CODES[b.getAttribute('data-range')] === state.range));
     });
     $('#cmp').setAttribute('aria-pressed', String(state.compare));
+    $('#cmp-mode').value = state.cmpMode;
+    $('#cmp-mode').disabled = !state.compare;
+    $('#rng-custom').setAttribute('aria-pressed', String(!!state.custom));
+    $('#rng-custom').textContent = state.custom ? 'Personalizado · ' + periodLabel() : 'Personalizado';
     setVal($('#currency'), state.currency);
     $$('#metric [data-metric]').forEach(function (b) {
       b.setAttribute('aria-pressed', String(b.getAttribute('data-metric') === state.metric));
     });
     renderChips();
-    $('#clear').disabled = !FILTER_KEYS.some(function (k) { return state.filters[k].length; }) && !colFilterCount();
-    var nChips = FILTER_KEYS.reduce(function (a, k) { return a + state.filters[k].length; }, 0) + colFilterCount();
+    $('#clear').disabled = !FILTER_KEYS.some(function (k) { return state.filters[k].length; }) && !colFilterCount() && !tfOn();
+    var nChips = FILTER_KEYS.reduce(function (a, k) { return a + state.filters[k].length; }, 0) + colFilterCount() + (tfOn() ? 1 : 0);
     $('#filters-btn').textContent = 'Filtros (' + nChips + ')';
     $('#data-note').textContent = can('view.regen')
       ? 'Datos ficticios · semilla ' + state.seed + ' · ' + DATA.merchants.length +
@@ -3213,12 +4098,14 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     setVal($('#tx-method'), selVal('tx', 'metodo'));
     setVal($('#tx-channel'), selVal('tx', 'canal'));
     setVal($('#tx-size'), String(state.txSize));
+    $('#tx-min-lbl').textContent = 'Importe mín. (' + curSym() + ')';
+    $('#tx-max-lbl').textContent = 'Importe máx. (' + curSym() + ')';
   }
   function renderHeader() {
     var vt = VIEW_TITLES[state.view];
     $('#page-title').textContent = vt[0];
     $('#page-sub').textContent = state.view === 'resumen'
-      ? 'Últimos ' + RANGE_LABEL[state.range] + (state.compare ? ' frente al periodo anterior' : '')
+      ? periodPhrase() + (state.compare ? ' · ' + compLabel() : '')
       : vt[1];
     $$('.nav-item').forEach(function (b) {
       if (b.getAttribute('data-view') === state.view) b.setAttribute('aria-current', 'page');
@@ -3232,6 +4119,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     if (!DATA || !USER) return;
     renderHeader();
     renderControls();
+    updateAlerts();
     applyPerms();
     var fn = VIEW_RENDER[state.view];
     if (fn) fn();
@@ -3240,18 +4128,18 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     updateBadge();
     writeHash();
   }
-  function showView(name) {
+  function showView(name, keepCrumb) {
     if (VIEW_IDS.indexOf(name) < 0 || !can('view.' + name)) return;
     state.view = name;
+    if (!keepCrumb) state.crumb = null;
     setMenu(false);
     render();
   }
-  function setSort(key) {
-    if (state.txSort.key === key) state.txSort.dir = state.txSort.dir === 'asc' ? 'desc' : 'asc';
-    else state.txSort = { key: key, dir: key === 'merchant' ? 'asc' : 'desc' };
-  }
+  /* Donut o leyenda: aplica el filtro de columna «Método» de Transacciones (se ve como chip y se puede quitar) */
   function filterByMethod(k) {
-    state.txF.method = METHODS[k];
+    if (!can('view.transacciones')) return;
+    CF.tx = CF.tx || {};
+    CF.tx.metodo = { type: 'cat', vals: [METHODS[k]] };
     state.txPage = 1;
     showView('transacciones');
   }
@@ -3311,6 +4199,12 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       var t = e.target;
       var who = t.closest && t.closest('[data-user]');
       if (who) { setUser(who.getAttribute('data-user')); return; }
+      var aact = t.closest && t.closest('[data-alert-act]');
+      if (aact) { handleAlertAct(aact.getAttribute('data-alert-act'), aact.getAttribute('data-alert')); return; }
+      var oal = t.closest && t.closest('[data-open-alerts]');
+      if (oal) { openAlerts(oal); return; }
+      if (t.closest && t.closest('[data-rmtf]')) { state.tf = null; render(); return; }
+      if (t.closest && t.closest('#chips-clear')) { clearAllFilters(); return; }
       var ct = t.closest && t.closest('.colsort, .colbtn, .colfilt');
       if (ct) { colToolClick(ct); return; }
       if (colPop && !(t.closest && t.closest('.colpop'))) closeColPop(false);
@@ -3337,6 +4231,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       var rg = t.closest('[data-range]');
       if (rg && rg.closest('.controls')) {
         state.range = RANGE_CODES[rg.getAttribute('data-range')];
+        state.custom = null; closeRngPop(false);
         prefs.range = state.range; savePrefs();
         render();
         return;
@@ -3361,11 +4256,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       prefs.compare = state.compare; savePrefs();
       render();
     });
-    $('#clear').addEventListener('click', function () {
-      FILTER_KEYS.forEach(function (k) { state.filters[k] = []; });
-      CF = {};
-      render();
-    });
+    $('#clear').addEventListener('click', clearAllFilters);
     FILTER_KEYS.forEach(function (k) {
       $('#f-' + k).addEventListener('change', function (e) {
         var v = e.target.value;
@@ -3418,12 +4309,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     $('#tx-next').addEventListener('click', function () { state.txPage++; render(); });
     $('#tx-csv').addEventListener('click', exportCsv);
     $('#tx-bulk').addEventListener('click', bulkReview);
-    $('#tx-table thead').addEventListener('click', function (e) {
-      var b = e.target.closest('[data-sort]');
-      if (!b) return;
-      setSort(b.getAttribute('data-sort'));
-      render();
-    });
+
     $('#tx-all').addEventListener('change', function (e) {
       var list = txFiltered(filtered()), start = (state.txPage - 1) * state.txSize;
       list.slice(start, start + state.txSize).forEach(function (t) {
@@ -3442,7 +4328,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
 
     /* Panel lateral */
     $('#drawer-close').addEventListener('click', closePanel);
-    scrim.addEventListener('click', function () { setMenu(false); closePanel(); closeDialog(); });
+    scrim.addEventListener('click', function () { setMenu(false); closePanel(); closeDialog(); closeAlerts(false); });
     drawerEl.addEventListener('keydown', function (e) {
       if (e.key !== 'Tab') return;
       var f = $$('button:not([disabled]), input:not([disabled]), select:not([disabled]), a[href]', drawerEl);
@@ -3469,15 +4355,18 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
         return;
       }
       if (tourIdx >= 0) { handleTourKey(e); return; }
+      if (alertsOpen && e.key === 'Tab') { trapIn($('#alerts-drawer'), e); return; }
       if (dlgEl && e.key === 'Tab') { trapIn(dlgEl, e); return; }
       if (e.key === 'Escape') {
         if (!qBox.hidden) { closeSearch(); qEl.focus(); }
         else if (dlgEl) closeDialog();
+        else if (alertsOpen) closeAlerts();
         else if (!$('#help-menu').hidden) { setHelp(false); $('#help').focus(); }
         else if (panelOpen) closePanel();
         else if (sidebar.classList.contains('open')) { setMenu(false); menuBtn.focus(); }
         return;
       }
+      if (alertsOpen) return;
       if (typing || e.ctrlKey || e.metaKey || e.altKey) return;
       if (e.key === '/') { e.preventDefault(); qEl.focus(); return; }
       if (e.key === '?') { e.preventDefault(); openDialog($('#shortcuts')); return; }
@@ -3512,7 +4401,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
      - Helpers disponibles: filtered() (cur/prev/tx/mask), sumDays(list), kpisOf(total), allowedMask(),
        mutateTx(tx, cambio) -> undo, afterChange(msg, undo), toast(msg, {label, fn}), money(eur, decimales),
        srTable(caption, cabeceras, filas), niceScale(max, n), sparkSvg(valores), animateTo(clave, valor, fmt, el),
-       state (vista, rango, compare, moneda, filtros, metric, txF…), DATA (generate(seed, escenario)). */
+       state (vista, rango, compare, moneda, filtros, metric, txQ…), DATA (generate(seed, escenario)). */
   var VIEW_RENDER = { resumen: renderResumen, transacciones: renderTransacciones };
   function registerView(name, fn) { VIEW_RENDER[name] = fn; }
   /* === FASE B: comercios, rentabilidad, riesgo, ajustes, en vivo, tour === */
@@ -3618,7 +4507,10 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       { key: 'metodo', label: 'Método', type: 'cat', get: function (t) { return t.method; } },
       { key: 'importe', label: 'Importe', type: 'num', unit: '€', num: true, get: function (t) { return t.amount; }, presets: [['> 250 €', { min: 250 }], ['< 50 €', { max: 50 }]] },
       { key: 'comision', label: 'Comisión', type: 'num', unit: '€', num: true, perm: 'see.fee', get: function (t) { return t.fee; } },
+      { key: 'margen', label: 'Margen neto', type: 'num', unit: '€', num: true, perm: 'see.margin', get: function (t) { return marginOf(t); } },
       { key: 'estado', label: 'Estado', type: 'cat', get: function (t) { return t.status; } },
+      { key: 'motivo', label: 'Motivo', type: 'cat', get: function (t) { return t.decline || '—'; } },
+      { key: 'reembolsado', label: 'Reembolsado', type: 'num', unit: '€', num: true, get: function (t) { return t.refunded; } },
       { key: 'riesgo', label: 'Riesgo', type: 'num', unit: 'pts', num: true, perm: 'see.risk', get: function (t) { return t.risk; } }
     ],
     mer: [
@@ -3628,9 +4520,9 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       { key: 'volumen', label: 'Volumen', type: 'num', unit: '€', num: true, get: function (r) { return r.vol; } },
       { key: 'transacciones', label: 'Transacciones', type: 'num', num: true, get: function (r) { return r.n; } },
       { key: 'aprobacion', label: 'Aprobación', type: 'num', unit: '%', num: true, get: function (r) { return r.appr; } },
-      { key: 'margen', label: 'Margen', type: 'num', unit: '€', num: true, perm: 'see.margin', get: function (r) { return r.margin; } },
+      { key: 'margen', label: 'Margen neto', type: 'num', unit: '€', num: true, perm: 'see.margin', get: function (r) { return r.margin; } },
       { key: 'salud', label: 'Salud', type: 'num', num: true, perm: 'see.health', get: function (r) { return r.health; } },
-      { key: 'churn', label: 'Riesgo de churn', type: 'cat', perm: 'see.health', get: function (r) { return r.churn; } }
+      { key: 'churn', label: 'Riesgo de baja', type: 'cat', perm: 'see.health', get: function (r) { return r.churn; } }
     ],
     liq: [
       { key: 'fecha', label: 'Fecha', type: 'date', get: function (r) { return r.date; } },
@@ -3655,15 +4547,15 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       { key: 'operaciones', label: 'Operaciones', type: 'num', num: true, get: function (r) { return r.n; } },
       { key: 'volumen', label: 'Volumen', type: 'num', unit: '€', num: true, get: function (r) { return r.vol; } },
       { key: 'comisiones', label: 'Comisiones generadas', type: 'num', unit: '€', num: true, get: function (r) { return r.fee; } },
-      { key: 'revshare', label: 'Revenue share', type: 'num', unit: '€', num: true, get: function (r) { return r.par; } }
+      { key: 'revshare', label: 'Reparto con partners', type: 'num', unit: '€', num: true, get: function (r) { return r.par; } }
     ],
     pt: [
       { key: 'partner', label: 'Partner', type: 'text', get: function (r) { return r.name; } },
-      { key: 'rs', label: 'Revenue share', type: 'num', unit: '%', num: true, get: function (r) { return r.share; } },
+      { key: 'rs', label: 'Reparto con partners (%)', type: 'num', unit: '%', num: true, get: function (r) { return r.share; } },
       { key: 'volumen', label: 'Volumen', type: 'num', unit: '€', num: true, get: function (r) { return r.vol; } },
-      { key: 'ingresos', label: 'Ingresos', type: 'num', unit: '€', num: true, get: function (r) { return r.fee; } },
-      { key: 'sharepag', label: 'Share pagado', type: 'num', unit: '€', num: true, get: function (r) { return r.par; } },
-      { key: 'margen', label: 'Margen', type: 'num', unit: '€', num: true, perm: 'see.margin', get: function (r) { return r.margin; } }
+      { key: 'ingresos', label: 'Comisión bruta', type: 'num', unit: '€', num: true, get: function (r) { return r.fee; } },
+      { key: 'sharepag', label: 'Reparto con partners (€)', type: 'num', unit: '€', num: true, get: function (r) { return r.par; } },
+      { key: 'margen', label: 'Margen neto', type: 'num', unit: '€', num: true, perm: 'see.margin', get: function (r) { return r.margin; } }
     ],
     act: [
       { key: 'fecha', label: 'Fecha y hora', type: 'date', get: function (r) { return r.date; } },
@@ -3709,8 +4601,9 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
         if (sp.type === 'cat') return sp.vals.indexOf(String(v)) >= 0;
         if (sp.type === 'date') { var ds = ymd(v); return (!sp.from || ds >= sp.from) && (!sp.to || ds <= sp.to); }
         if (sp.type === 'num') {
-          if (sp.min !== '' && sp.min !== undefined && v < sp.min) return false;
-          if (sp.max !== '' && sp.max !== undefined && v > sp.max) return false;
+          var vv = col.unit === '€' ? v * RATES[state.currency] : v;   /* importes en la divisa elegida */
+          if (sp.min !== '' && sp.min !== undefined && vv < sp.min) return false;
+          if (sp.max !== '' && sp.max !== undefined && vv > sp.max) return false;
           return true;
         }
         if (sp.type === 'text') return norm(String(v)).indexOf(norm(sp.q)) >= 0;
@@ -3742,10 +4635,11 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   }
   function specLabel(id, key, sp) {
     var col = colOf(id, key), name = col.label;
-    if (sp.type === 'cat') return name + ': ' + sp.vals.map(function (v) { return col.lab ? col.lab(v) : v; }).join(', ');
+    if (sp.type === 'cat') return name + ': ' + (sp.lbl || sp.vals.map(function (v) { return col.lab ? col.lab(v) : v; }).join(', '));
     if (sp.type === 'date') return name + ': ' + (sp.from ? ddmmyyyy(new Date(sp.from + 'T00:00')) : '…') + ' – ' + (sp.to ? ddmmyyyy(new Date(sp.to + 'T00:00')) : '…');
     if (sp.type === 'num') {
-      var u = col.unit ? ' ' + col.unit : '';
+      if (sp.lbl) return name + ': ' + sp.lbl;
+      var u = col.unit ? ' ' + unitOf(col) : '';
       if (sp.min !== '' && sp.max !== '') return name + ': ' + sp.min + '–' + sp.max + u;
       return name + (sp.min !== '' ? ': ≥ ' + sp.min : ': ≤ ' + sp.max) + u;
     }
@@ -3942,7 +4836,8 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     };
   }
   function buildNumFilter(body, col, base, sp) {
-    var vals = base.map(function (r) { return col.get(r); }).filter(isFinite);
+    var fx = col.unit === '€' ? RATES[state.currency] : 1;
+    var vals = base.map(function (r) { return col.get(r) * fx; }).filter(isFinite);
     var lo = Math.min.apply(null, vals.concat([0])), hi = Math.max.apply(null, vals.concat([1]));
     var span = (hi - lo) || 1, bins = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     vals.forEach(function (v) { bins[Math.min(9, Math.floor((v - lo) / span * 10))]++; });
@@ -3950,18 +4845,18 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     bins.forEach(function (c, i) {
       hist.appendChild(h('span', { style: 'height:' + Math.max(4, c / mx * 100).toFixed(0) + '%', title: fmtInt(c) + ' registros' }));
     });
-    var unit = col.unit ? ' (' + col.unit + ')' : '';
+    var unit = col.unit ? ' (' + unitOf(col) + ')' : '';
     var min = h('input', { type: 'number', class: 'field', step: 'any', inputmode: 'decimal', 'aria-label': 'Mínimo de ' + col.label, value: sp && sp.min !== undefined && sp.min !== '' ? String(sp.min) : '' });
     var max = h('input', { type: 'number', class: 'field', step: 'any', inputmode: 'decimal', 'aria-label': 'Máximo de ' + col.label, value: sp && sp.max !== undefined && sp.max !== '' ? String(sp.max) : '' });
     body.appendChild(hist);
-    body.appendChild(h('p', { class: 'hint' }, 'Rango de ' + fmtNum(lo, 0) + ' a ' + fmtNum(hi, 0) + (col.unit ? ' ' + col.unit : '') + ' en ' + fmtInt(vals.length) + ' registros.'));
+    body.appendChild(h('p', { class: 'hint' }, 'Rango de ' + fmtNum(lo, 0) + ' a ' + fmtNum(hi, 0) + (col.unit ? ' ' + unitOf(col) : '') + ' en ' + fmtInt(vals.length) + ' registros.'));
     body.appendChild(h('div', { class: 'form-grid' },
       h('label', { class: 'fsel' }, h('span', null, 'Mínimo' + unit), min),
       h('label', { class: 'fsel' }, h('span', null, 'Máximo' + unit), max)));
     if (col.presets) {
       var pw = h('div', { class: 'row' });
       col.presets.forEach(function (p) {
-        var b = h('button', { type: 'button', class: 'btn btn-ghost' }, p[0]);
+        var b = h('button', { type: 'button', class: 'btn btn-ghost' }, p[0].replace('€', curSym()));
         b.addEventListener('click', function () { min.value = p[1].min !== undefined ? String(p[1].min) : ''; max.value = p[1].max !== undefined ? String(p[1].max) : ''; });
         pw.appendChild(b);
       });
@@ -4026,15 +4921,15 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       h('td', { 'data-label': 'Volumen', class: 'amount' }, money(r.vol, 0)),
       h('td', { 'data-label': 'Transacciones', class: 'amount' }, fmtInt(r.n)),
       h('td', { 'data-label': 'Aprobación', class: 'amount' }, fmtPct(r.appr, 1)),
-      h('td', { 'data-label': 'Margen', class: 'amount', 'data-perm': 'see.margin' }, money(r.margin, 0)),
+      h('td', { 'data-label': 'Margen neto', class: 'amount', 'data-perm': 'see.margin' }, money(r.margin, 0)),
       h('td', { 'data-label': 'Salud', 'data-perm': 'see.health' }, h('span', { class: 'hwrap' },
         h('span', { class: 'hbar' + hc, 'aria-hidden': 'true' }, h('span', { style: 'width:' + m.health + '%' })),
         h('span', { class: 'hnum' }, String(m.health)))),
-      h('td', { 'data-label': 'Riesgo de churn', 'data-perm': 'see.health' }, h('span', { class: 'badge ch-' + m.churn }, m.churn)));
+      h('td', { 'data-label': 'Riesgo de baja', 'data-perm': 'see.health' }, h('span', { class: 'badge ch-' + m.churn }, m.churn)));
   }
   function renderComercios() {
     var M = state.mer;
-    if (!can('see.margin') && M.sort.key === 'margin') M.sort = { key: 'vol', dir: 'desc' };
+
     var rows = merchRows(), list = merchView(rows);
     syncIf($('#mer-q'), M.q);
     syncIf($('#mer-sector'), selVal('mer', 'sector'));
@@ -4043,11 +4938,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     $$('#mer-seg [data-seg]').forEach(function (b) {
       b.setAttribute('aria-pressed', String(b.getAttribute('data-seg') === M.seg));
     });
-    $$('#mer-table [data-msort]').forEach(function (b) {
-      var key = b.getAttribute('data-msort'), on = M.sort.key === key;
-      b.closest('th').setAttribute('aria-sort', on ? (M.sort.dir === 'asc' ? 'ascending' : 'descending') : 'none');
-      $('.arrow', b).textContent = on ? (M.sort.dir === 'asc' ? '↑' : '↓') : '↕';
-    });
+
     var body = $('#mer-body'), vol = 0, mg = 0;
     body.textContent = '';
     if (!list.length) body.appendChild(h('tr', null, h('td', { colspan: '9', class: 'empty-cell' }, 'Ningún comercio coincide con estos filtros.')));
@@ -4065,14 +4956,14 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       var df = r.vol * dr;
       r.fee = round2(r.fee + df);
       r.par = round2(r.par + df * P.share);
-      r.margin = round2(r.margin + df * (1 - P.share));
+      r.margin = round2(r.margin + df * (1 - P.share - OPEX_RATE));
     }
     DATA.tx.forEach(function (t) {
       if (t.mi !== mi || !APPROVED[t.status]) return;
       var df = t.amount * dr;
       t.fee = round2(t.fee + df);
       t.par = round2(t.par + df * P.share);
-      t.margin = round2(t.margin + df * (1 - P.share));
+      t.margin = round2(t.margin + df * (1 - P.share - OPEX_RATE));
     });
     m.mdr = round2(newMdr);
   }
@@ -4090,9 +4981,9 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     refundOpen = false;
 
     nodes.push(h('div', { class: 'drawer-status' },
-      h('span', { class: 'badge ch-' + m.churn }, 'Riesgo de churn ' + m.churn.toLowerCase()),
+      h('span', { class: 'badge ch-' + m.churn }, 'Riesgo de baja ' + m.churn.toLowerCase()),
       h('span', { class: 'muted' }, m.sector + ' · ' + m.city + ' (' + COUNTRY_NAMES[m.country] + ')')));
-    nodes.push(sectionEl('Periodo: ' + RANGE_LABEL[state.range], h('div', { class: 'stat-grid' },
+    nodes.push(sectionEl('Periodo: ' + periodLabel(), h('div', { class: 'stat-grid' },
       statEl('Volumen', money(t.vol, 0)), statEl('Transacciones', fmtInt(t.n)), statEl('Aprobación', fmtPct(k.appr, 1)),
       statEl('Margen neto', money(t.margin, 0), 'see.margin'), statEl('Ticket medio', money(k.ticket, 2)), statEl('Contracargos', fmtPct(k.cb, 2)))));
 
@@ -4110,8 +5001,8 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     }))));
 
     nodes.push(sectionEl('Partner y tarifa', dlEl([
-      ['Partner', P.name], ['Revenue share', fmtPct(P.share * 100, 0)], ['Tarifa MDR actual', fmtNum(m.mdr, 2) + ' % + 0,12 €'],
-      ['Comisiones del periodo', money(t.fee, 0)], ['Share pagado', money(t.par, 0)]
+      ['Partner', P.name], ['Reparto con partners', fmtPct(P.share * 100, 0)], ['Tarifa MDR actual', fmtNum(m.mdr, 2) + ' % + 0,12 €'],
+      ['Comisiones del periodo', money(t.fee, 0)], ['Reparto con partners', money(t.par, 0)]
     ]), 'see.costs'));
 
     var rng = h('input', { type: 'range', id: 'mdr-range', min: '0.5', max: '3.5', step: '0.01', value: String(m.mdr), 'aria-label': 'Nueva tarifa MDR en porcentaje' });
@@ -4177,13 +5068,13 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   }
 
   /* --- Rentabilidad --- */
-  function renderWaterfall(t, refAdj, opex, net) {
+  function renderWaterfall(t, M) {
     var mount = $('#wf'), W = Math.max(320, Math.round(mount.clientWidth || 640)), H = 300;
     var P = { l: 58, r: 12, t: 26, b: 74 }, iw = W - P.l - P.r, ih = H - P.t - P.b;
-    var sc = niceScale(Math.max(t.fee, 1), 4), top = sc.top;
-    var steps = [{ name: 'Volumen', type: 'vol', v: t.vol }, { name: 'Comisiones brutas', type: 'up', from: 0, to: t.fee, v: t.fee }];
+    var sc = niceScale(Math.max(t.fee, 1), 4), top = sc.top, net = M.net;
+    var steps = [{ name: 'Volumen', type: 'vol', v: t.vol }, { name: 'Comisión bruta', type: 'up', from: 0, to: t.fee, v: t.fee }];
     var run = t.fee;
-    [['Interchange', t.icx], ['Cuotas de esquema', t.sch], ['Share partners', t.par], ['Reembolsos', refAdj], ['Costes operativos', opex]]
+    [['Coste de procesamiento', t.icx + t.sch], ['Reembolsos', M.ref], ['Pérdidas por contracargos', M.cbl], ['Reparto con partners', t.par], ['Costes operativos', M.opex]]
       .forEach(function (s) {
         var from = run;
         run -= s[1];
@@ -4213,7 +5104,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       }
       body += '<text class="wf-cat" transform="translate(' + cx.toFixed(1) + ',' + (P.t + ih + 14) + ') rotate(-30)" text-anchor="end">' + s.name + '</text>';
     });
-    var label = 'Cascada de margen: volumen ' + money(t.vol, 0) + ', comisiones brutas ' + money(t.fee, 0) + ', margen neto ' + money(net, 0) + '.';
+    var label = 'Cascada de margen: volumen ' + money(t.vol, 0) + ', comisión bruta ' + money(t.fee, 0) + ', margen neto ' + money(net, 0) + '.';
     mount.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + label.replace(/"/g, '') + '">' + grid + body + '</svg>';
     mount.appendChild(srTable('Cascada de margen del periodo', ['Concepto', 'Importe'],
       steps.map(function (s) { return [s.name, (s.type === 'neg' ? '−' : '') + money(s.v, 2)]; })));
@@ -4234,11 +5125,11 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   function ptRow(name, share, a, isTot) {
     return h('tr', isTot ? { class: 'tot' } : null,
       h('td', { 'data-label': 'Partner' }, h('strong', null, name)),
-      h('td', { 'data-label': 'Revenue share', class: 'amount' }, share),
+      h('td', { 'data-label': 'Reparto con partners', class: 'amount' }, share),
       h('td', { 'data-label': 'Volumen', class: 'amount' }, money(a.vol, 0)),
-      h('td', { 'data-label': 'Ingresos', class: 'amount' }, money(a.fee, 0)),
-      h('td', { 'data-label': 'Share pagado', class: 'amount' }, money(a.par, 0)),
-      h('td', { 'data-label': 'Margen', class: 'amount' }, money(a.margin, 0)));
+      h('td', { 'data-label': 'Comisión bruta', class: 'amount' }, money(a.fee, 0)),
+      h('td', { 'data-label': 'Reparto con partners', class: 'amount' }, money(a.par, 0)),
+      h('td', { 'data-label': 'Margen neto', class: 'amount' }, money(a.margin, 0)));
   }
   /* Filas por partner (base); el total no depende de los filtros de columna */
   function ptRows(F, tots) {
@@ -4267,11 +5158,18 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   function readSim() {
     return { mdr: +$('#s-mdr').value, icx: +$('#s-icx').value, share: +$('#s-share').value, g: +$('#s-g').value, cb: +$('#s-cb').value };
   }
-  /* Margen neto anual de un conjunto de parámetros (modelo simplificado) */
+  /* Modelo único de margen neto del periodo: lo usan la cascada y el simulador («Actual») */
+  function marginModel(t) {
+    var opex = t.fee * OPEX_RATE;
+    var pre = t.fee - t.icx - t.sch - t.cbl - t.par - opex;      /* antes de reembolsos */
+    return { opex: opex, cbl: t.cbl, ref: Math.max(0, pre - t.margin), net: t.margin };
+  }
+  /* Margen neto del periodo con unos parámetros: comisión bruta − procesamiento − reembolsos − contracargos − partners − costes operativos */
   function simNet(p, B) {
-    var vol = B.vol * (1 + p.g / 100), fee = vol * (p.mdr / 100 + B.fixed);
-    var net = fee - vol * p.icx / 100 - vol * B.schRate - fee * p.share / 100 - fee * OPEX_RATE - vol * p.cb / 100 * CB_LOSS;
-    return B.days ? net * 365 / B.days : 0;
+    var g = 1 + p.g / 100, vol = B.vol * g, fee = vol * (p.mdr / 100 + B.fixed);
+    var proc = vol * (p.icx / 100 + B.schRate), par = fee * p.share / 100, ref = vol * B.refRate, opex = fee * OPEX_RATE;
+    var cbl = B.cbBase > 0 ? B.cbl * g * (p.cb / B.cbBase) : vol * p.cb / 100 * CB_LOSS;
+    return fee - proc - ref - cbl - par - opex;
   }
   function updateSim() {
     var B = state.simB;
@@ -4289,14 +5187,13 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     $('#bar-proj').style.width = (Math.max(0, proj) / max * 100).toFixed(1) + '%';
     $('#lbl-cur').textContent = money(cur, 0);
     $('#lbl-proj').textContent = money(proj, 0);
-    $('#sim-note').textContent = 'Margen neto anual estimado: comisiones menos interchange, cuotas de esquema, share de partners, costes operativos (12 %) y pérdidas por contracargo. Sin reembolsos. «Actual» anualiza los datos del periodo.';
+    $('#sim-note').textContent = 'Margen neto del periodo: comisión bruta menos coste de procesamiento, reembolsos, pérdidas por contracargos, reparto con partners y costes operativos (12 %). «Actual» es el margen neto real del periodo, igual que en la cascada.';
   }
   function renderRentab() {
     var F = filtered(), t = sumDays(F.cur), tots = merchTotals(F.curFrom, F.curTo);
-    var pre = t.fee - t.icx - t.sch - t.par;
-    var refAdj = Math.max(0, pre - t.margin), opex = t.fee * OPEX_RATE, net = t.margin - opex;
-    $('#wf-sub').textContent = 'Del volumen procesado al margen neto · ' + RANGE_LABEL[state.range];
-    renderWaterfall(t, refAdj, opex, net);
+    var M = marginModel(t);
+    $('#wf-sub').textContent = 'Del volumen procesado al margen neto · ' + periodLabel();
+    renderWaterfall(t, M);
     renderGroupBars('#by-channel', CHANNEL_IDS, function (m) { return m.channel; }, function (k) { return CHANNELS[k]; }, F, tots);
     renderGroupBars('#by-plan', PLANS, function (m) { return m.plan; }, function (k) { return k; }, F, tots);
     renderPartnerTable(F, tots);
@@ -4307,7 +5204,8 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
         share: t.fee ? t.par / t.fee * 100 : 0,
         g: 0, cb: kpisOf(t).cb
       },
-      vol: t.vol, schRate: t.vol ? t.sch / t.vol : 0, fixed: t.vol ? 0.12 * t.ok / t.vol : 0, days: state.range
+      vol: t.vol, schRate: t.vol ? t.sch / t.vol : 0, fixed: t.vol ? 0.12 * t.ok / t.vol : 0,
+      refRate: t.vol ? M.ref / t.vol : 0, cbl: M.cbl, cbBase: kpisOf(t).cb
     };
     if (!state.sim) syncSimSliders(state.simB.base);
     updateSim();
@@ -4396,7 +5294,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     var F = filtered(), t = sumDays(F.cur), kc = kpisOf(t), thr = state.riskThr, R = state.rules;
     syncIf($('#thr'), String(thr));
     $('#o-thr').textContent = fmtNum(thr, 2) + ' %';
-    $('#cb-sub').textContent = 'Ratio diario de contracargos sobre capturas · ' + RANGE_LABEL[state.range] + ' · total ' + fmtPct(kc.cb, 2) +
+    $('#cb-sub').textContent = 'Ratio diario de contracargos sobre capturas · ' + periodLabel() + ' · total ' + fmtPct(kc.cb, 2) +
       (F.clipped ? ' · métodos: detalle de 90 días' : '');
     renderCbChart(F, thr);
     var mAcc = METHODS.map(function (name) { return { label: name, cb: 0, cap: 0 }; });
@@ -4432,10 +5330,11 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   /* --- Ajustes --- */
   /* --- Aprobaciones, liquidaciones, contracargos, cuenta, usuarios y registro --- */
   function renderAprobaciones() {
-    var box = $('#approvals-list');
+    /* Solo propuestas de comercios que el rol puede ver (ámbito) */
+    var box = $('#approvals-list'), vis = PENDING.filter(function (p) { return scopeOk(p.mi); });
     box.textContent = '';
-    if (!PENDING.length) box.appendChild(h('p', { class: 'muted' }, 'No hay propuestas pendientes.'));
-    PENDING.forEach(function (p) {
+    if (!vis.length) box.appendChild(h('p', { class: 'muted' }, 'No hay propuestas pendientes.'));
+    vis.forEach(function (p) {
       var m = DATA.merchants[p.mi];
       box.appendChild(h('div', { class: 'appr-item' },
         h('div', null, h('strong', null, m.name + ' · ' + m.id),
@@ -4454,6 +5353,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     });
   }
   function approveMdr(id, approve) {
+    if (!can('act.mdr.approve')) return;
     var idx = -1, p = null;
     PENDING.forEach(function (x, i) { if (x.id === id) { idx = i; p = x; } });
     if (!p) return;
@@ -4484,7 +5384,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   function negMoney(v) { return v > 0.004 ? '−' + money(v, 2) : money(0, 2); }
   function renderLiquidaciones() {
     var rows = applyCols('liq', liqRows()), body = $('#liq-body'), tot = { gross: 0, fee: 0, ref: 0, cb: 0, net: 0 };
-    $('#liq-sub').textContent = 'Abonos de ' + RANGE_LABEL[state.range] + ' · ' + fmtDayShort.format(dayDate(filtered().curFrom)) + ' a ' + fmtDayShort.format(dayDate(DAYS - 1));
+    $('#liq-sub').textContent = 'Abonos de ' + periodLabel() + ' · ' + fmtDayShort.format(dayDate(filtered().curFrom)) + ' a ' + fmtDayShort.format(dayDate(DAYS - 1));
     body.textContent = '';
     rows.forEach(function (r) {
       ['gross', 'fee', 'ref', 'cb', 'net'].forEach(function (k) { tot[k] += r[k]; });
@@ -4515,23 +5415,31 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     saveCsv(lines, 'pulso-liquidaciones-');
     toast('Liquidaciones exportadas en CSV (EUR)');
   }
-  /* Contracargos: plazo de 21 días; sin documentación al vencer = perdido */
+  /* Contracargos: plazo de 21 días. Estados: Abierto, En revisión, Ganado o Perdido. Vencido sin resolver = resolución final del banco */
   function cbState(t) {
     var due = new Date(t.date.getTime() + 21 * 86400000);
     var left = Math.ceil((due - TODAY) / 86400000);
-    var st = t.cbState || (left < 0 ? 'Perdido' : 'Abierto');
+    var st = t.cbState || (left < 0 ? t.cbFinal : t.cbPre);
     return { due: due, left: left, st: st };
   }
   function cbmRows() {
     return filtered().tx.filter(function (t) { return t.status === 'Contracargo'; }).map(function (t) {
       var c = cbState(t);
-      return { t: t, due: c.due, st: c.st, left: c.left, motivo: 'Disputa del titular' };
+      return { t: t, due: c.due, st: c.st, left: c.left, motivo: t.cbReason };
     }).sort(function (a, b) { return b.t.date - a.t.date; });
+  }
+  /* Resolución simulada de un contracargo tras aportar documentación */
+  function resolveCb(t) {
+    if (t.cbState !== 'En revisión') return;
+    t.cbState = t.cbFinal;
+    t.log.push({ t: nowLocal(), label: 'Resuelto: ' + t.cbFinal.toLowerCase() + ' tras la revisión' });
+    toast(t.id + ': contracargo ' + t.cbFinal.toLowerCase() + ' tras la revisión');
+    refreshAll();
   }
   function renderContracargos() {
     var F = filtered(), list = applyCols('cbm', cbmRows());
     var body = $('#cbm-body'), open = 0;
-    $('#cbm-sub').textContent = fmtInt(list.length) + ' contracargos en ' + RANGE_LABEL[state.range] + (F.clipped ? ' (detalle de 90 días)' : '');
+    $('#cbm-sub').textContent = fmtInt(list.length) + ' contracargos en ' + periodLabel() + (F.clipped ? ' (detalle de 90 días)' : '');
     body.textContent = '';
     if (!list.length) body.appendChild(h('tr', null, h('td', { colspan: '7', class: 'empty-cell' }, 'No tienes contracargos en este periodo.')));
     list.forEach(function (row) {
@@ -4542,7 +5450,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
         h('td', { 'data-label': 'ID', class: 'amount' }, t.id),
         h('td', { 'data-label': 'Fecha' }, fmtDateLong.format(t.date)),
         h('td', { 'data-label': 'Importe', class: 'amount' }, money(t.amount, 2)),
-        h('td', { 'data-label': 'Motivo' }, 'Disputa del titular'),
+        h('td', { 'data-label': 'Motivo' }, row.motivo),
         h('td', { 'data-label': 'Estado' }, h('span', { class: 'badge ' + cls }, c.st)),
         h('td', { 'data-label': 'Plazo' }, fmtDateLong.format(c.due) + (c.left >= 0 ? ' · ' + c.left + ' días restantes' : ' · vencido')),
         h('td', { 'data-label': 'Acción' }, h('button', { type: 'button', class: 'btn', 'data-cbdoc': t.id, disabled: !canDoc, 'data-perm-dis': 'act.chargeback' }, c.st === 'En revisión' ? 'En revisión' : 'Aportar documentación'))));
@@ -4626,7 +5534,8 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     syncIf($('#t-margin'), String(T.margin));
     syncIf($('#p-theme'), prefs.theme === 'carpa' ? 'carpa' : 'dark');
     syncIf($('#p-currency'), state.currency);
-    syncIf($('#p-range'), RANGE_CODE_OF[state.range]);
+    syncIf($('#p-range'), RANGE_CODE_OF[state.range] || '30d');
+    renderSched();
     syncIf($('#p-density'), prefs.density === 'compacta' ? 'compacta' : 'comoda');
   }
   function resetDemo() {
@@ -4637,15 +5546,18 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     prefs = {};
     applyTheme('dark');
     document.documentElement.setAttribute('data-density', 'comoda');
-    state.seed = 20261113; state.scenario = 'normal'; state.range = 30; state.compare = true; state.currency = 'EUR';
+    state.seed = SEED_TODAY; state.scenario = 'normal'; state.range = 30; state.custom = null; state.cmpMode = 'prev';
+    state.compare = true; state.currency = 'EUR';
     state.filters = { channel: [], country: [], partner: [], plan: [] };
     state.metric = 'vol';
-    state.txQ = ''; state.txF = { status: '', method: '', channel: '', min: '', max: '' };
-    state.txSort = { key: 'date', dir: 'desc' }; state.txPage = 1; state.txSize = 25;
+    state.txQ = ''; state.txPage = 1; state.txSize = 25;
     state.selected = {}; state.openTx = null; state.openMer = null;
-    state.mer = { q: '', sector: '', plan: '', churn: '', seg: '', sort: { key: 'margin', dir: 'desc' } };
+    state.mer = { q: '', sector: '', plan: '', churn: '', seg: '' };
     state.sim = null; state.rules = { threeds: false, bin: false, limit: false }; state.riskThr = 0.75; state.incidentHidden = false;
     CF = {}; SORT = { tx: { key: 'date', dir: 'desc' }, mer: { key: 'margen', dir: 'desc' } };
+    state.tf = null; state.crumb = null;
+    ALERT_ST = { rev: {}, mute: {} }; saveAlerts();
+    closeAlerts(false);
     closePanel();
     closeDialog();
     setLive(false);
@@ -4713,6 +5625,11 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     if (state.comoParam && userById(state.comoParam) && (!USER || USER.id !== state.comoParam)) {
       setUser(state.comoParam);
       return;
+    }
+    /* Control de acceso también al navegar por la URL: el rol no puede abrir secciones que no ve en el menú */
+    if (USER && VIEW_IDS.indexOf(state.view) >= 0 && !can('view.' + state.view)) {
+      state.view = firstView();
+      toast('No tienes acceso a esa sección con este perfil.');
     }
     if (state.scenario !== DATA.scenario) {
       DATA = generate(state.seed, state.scenario);
@@ -4861,14 +5778,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     $$('#mer-seg [data-seg]').forEach(function (b) {
       b.addEventListener('click', function () { state.mer.seg = b.getAttribute('data-seg'); renderComercios(); });
     });
-    $('#mer-table thead').addEventListener('click', function (e) {
-      var b = e.target.closest('[data-msort]');
-      if (!b) return;
-      var key = b.getAttribute('data-msort'), s = state.mer.sort;
-      if (s.key === key) s.dir = s.dir === 'asc' ? 'desc' : 'asc';
-      else state.mer.sort = { key: key, dir: key === 'name' || key === 'churn' ? 'asc' : 'desc' };
-      renderComercios();
-    });
+
 
     ['s-mdr', 's-icx', 's-share', 's-g', 's-cb'].forEach(function (id) {
       $('#' + id).addEventListener('input', function () { state.sim = readSim(); updateSim(); });
@@ -4974,12 +5884,19 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   /* === ROLES: eventos de las vistas nuevas === */
   function bindRoles() {
     $('#login').addEventListener('keydown', function (e) { if (e.key === 'Escape' && USER) hideLogin(); });
+    $('#alerts-btn').addEventListener('click', function () { if (alertsOpen) closeAlerts(); else openAlerts(this); });
+    $('#alerts-close').addEventListener('click', function () { closeAlerts(); });
+    $('#crumb-back').addEventListener('click', function () { showView(state.crumb ? state.crumb.to : 'resumen'); });
     $('#view-aprobaciones').addEventListener('click', function (e) {
       var ap = e.target.closest('[data-approve]'), rj = e.target.closest('[data-reject]');
       if (ap) approveMdr(ap.getAttribute('data-approve'), true);
       else if (rj) approveMdr(rj.getAttribute('data-reject'), false);
     });
     $('#liq-csv').addEventListener('click', exportLiqCsv);
+    $('#liq-xlsx').addEventListener('click', exportLiqXlsx);
+    $$('.defs-btn').forEach(function (b) { b.addEventListener('click', function () { openDialog($('#defs')); }); });
+    $('#defs-close').addEventListener('click', closeDialog);
+    $('#empty-clear').addEventListener('click', clearAllFilters);
     $('#cbm-body').addEventListener('click', function (e) {
       var b = e.target.closest('[data-cbdoc]');
       if (!b || b.disabled) return;
@@ -4989,6 +5906,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       logAct('cb-doc', t.id + ' · documentación aportada');
       toast('Documentación enviada: ' + t.id + ' pasa a En revisión');
       render();
+      setTimeout(function () { resolveCb(t); }, 4000);
     });
     $('#users-body').addEventListener('change', function (e) {
       var id = e.target.getAttribute('data-role-sel');
@@ -5005,10 +5923,617 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     });
   }
 
+  /* === FASE 2B: periodos (personalizado y comparación), informe mensual, Excel y envíos programados (demo) === */
+
+  /* --- Periodos: índices de historial <-> fechas --- */
+  function parseYmd(s) { var p = String(s).split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function utcDay(d) { return Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()); }
+  /* Índice de historial de una fecha (el último índice es hoy) */
+  function dayIdxOf(d) { return DAYS - 1 - Math.round((utcDay(TODAY) - utcDay(d)) / 86400000); }
+  function addYears(d, n) { return new Date(d.getFullYear() + n, d.getMonth(), d.getDate()); }
+  function spanLen(a, b) { return Math.round((utcDay(parseYmd(b)) - utcDay(parseYmd(a))) / 86400000) + 1; }
+  /* Periodo actual: preset (últimos N días) o rango personalizado, recortado al historial */
+  function periodSpan() {
+    var last = DATA.days - 1, from, to;
+    if (state.custom) { from = dayIdxOf(parseYmd(state.custom.from)); to = dayIdxOf(parseYmd(state.custom.to)); }
+    else { to = last; from = last - state.range + 1; }
+    from = clamp(from, 0, last);
+    to = clamp(to, from, last);
+    return { from: from, to: to, n: to - from + 1 };
+  }
+  function periodLabel() {
+    if (!state.custom) return RANGE_LABEL[state.range] || (state.range + ' días');
+    return fmtDayShort.format(parseYmd(state.custom.from)) + ' – ' + fmtDateLong.format(parseYmd(state.custom.to));
+  }
+  function periodPhrase() {
+    if (!state.custom) return 'Últimos ' + (RANGE_LABEL[state.range] || (state.range + ' días'));
+    return 'Del ' + fmtDateLong.format(parseYmd(state.custom.from)) + ' al ' + fmtDateLong.format(parseYmd(state.custom.to));
+  }
+  /* Texto de la comparación activa (con el año del periodo de referencia en el modo año pasado) */
+  function compLabel() {
+    if (state.cmpMode !== 'yoy') return 'vs. periodo anterior';
+    var sp = periodSpan(), toP = dayIdxOf(addYears(dayDate(sp.to), -1)), fromP = toP - sp.n + 1;
+    if (toP < 0 || fromP < 0) return 'vs. mismo periodo del año pasado (sin histórico)';
+    var y1 = dayDate(fromP).getFullYear(), y2 = dayDate(toP).getFullYear();
+    return 'vs. mismo periodo ' + (y1 === y2 ? y1 : y1 + '–' + y2);
+  }
+
+  /* --- Rango personalizado (popover) --- */
+  var rngOpener = null;
+  function rngBounds() { return { min: ymd(addDays(TODAY, -(DAYS - 1))), max: ymd(TODAY) }; }
+  function openRngPop() {
+    var pop = $('#rng-pop'), b = rngBounds(), sp = periodSpan();
+    ['#rng-from', '#rng-to'].forEach(function (id) { $(id).min = b.min; $(id).max = b.max; });
+    $('#rng-from').value = state.custom ? state.custom.from : ymd(dayDate(sp.from));
+    $('#rng-to').value = state.custom ? state.custom.to : ymd(dayDate(sp.to));
+    $('#rng-err').hidden = true;
+    rngOpener = document.activeElement;
+    pop.hidden = false;
+    $('#rng-custom').setAttribute('aria-expanded', 'true');
+    $('#rng-from').focus();
+  }
+  function closeRngPop(restore) {
+    var pop = $('#rng-pop');
+    if (!pop || pop.hidden) return;
+    pop.hidden = true;
+    $('#rng-custom').setAttribute('aria-expanded', 'false');
+    if (restore && rngOpener && rngOpener.focus) rngOpener.focus();
+  }
+  function presetRange(k) {
+    var t = TODAY, y = t.getFullYear(), m = t.getMonth(), a = t, b = t;
+    if (k === 'mes') a = new Date(y, m, 1);
+    else if (k === 'mesant') { a = new Date(y, m - 1, 1); b = new Date(y, m, 0); }
+    else if (k === 'trim') a = new Date(y, Math.floor(m / 3) * 3, 1);
+    else a = new Date(y, 0, 1);
+    return { from: ymd(a), to: ymd(b) };
+  }
+  function applyCustomFromInputs() {
+    var f = $('#rng-from').value, t = $('#rng-to').value, b = rngBounds(), err = '';
+    if (!f || !t) err = 'Indica las dos fechas.';
+    else if (f < b.min || t > b.max) err = 'Las fechas deben estar entre el ' + fmtDateLong.format(parseYmd(b.min)) + ' y hoy.';
+    else if (f > t) err = 'La fecha «Desde» debe ser anterior o igual a «Hasta».';
+    var e = $('#rng-err');
+    if (err) { e.textContent = err; e.hidden = false; return; }
+    e.hidden = true;
+    state.custom = { from: f, to: t };
+    state.range = spanLen(f, t);
+    state.txPage = 1;
+    closeRngPop(true);
+    render();
+    toast('Rango aplicado: ' + periodPhrase());
+  }
+
+  /* --- Informes: meses disponibles y modelo del informe --- */
+  var MES_ES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  var REP_KEY = null;
+  function monthTitle(d) { return MES_ES[d.getMonth()] + ' ' + d.getFullYear(); }
+  function ymKey(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1, 2); }
+  function keyToDate(k) { var p = k.split('-'); return new Date(+p[0], +p[1] - 1, 1); }
+  /* Últimos 24 meses completos, del más reciente al más antiguo (el primero es el último mes completo) */
+  function reportMonths() {
+    var t = TODAY, out = [], i, d;
+    for (i = 1; i <= 24; i++) {
+      d = new Date(t.getFullYear(), t.getMonth() - i, 1);
+      if (dayIdxOf(d) >= 0) out.push(d);
+    }
+    return out;
+  }
+  function monthSpan(d) {
+    var first = dayIdxOf(new Date(d.getFullYear(), d.getMonth(), 1)), last = dayIdxOf(new Date(d.getFullYear(), d.getMonth() + 1, 0));
+    return { first: first, from: Math.max(0, first), to: Math.min(DAYS - 1, last) };
+  }
+  /* Totales de un mes (null si el mes empieza antes del historial) */
+  function monthTot(d, mask) {
+    var sp = monthSpan(d);
+    if (sp.first < 0 || sp.from > sp.to) return null;
+    return { sp: sp, t: sumDays(dayTotals(sp.from, sp.to, mask)), days: sp.to - sp.from + 1 };
+  }
+  function monthSumMer(sp, mi) {
+    var acc = emptyRow(-1, -1), d, nm = DATA.nm;
+    for (d = sp.from; d <= sp.to; d++) addRow(acc, DATA.daily[d * nm + mi]);
+    return acc;
+  }
+  function scopeLabel() {
+    var r = curRole();
+    if (r === 'comercial') return 'Cartera de ' + CARTERA.length + ' comercios';
+    if (r === 'partner') return 'Partner ' + PARTNERS_DEF[USER.scope].name;
+    if (r === 'comercio') return 'Comercio ' + MERCH_DEF[USER.scope].split('|')[0];
+    return 'Todo el panel';
+  }
+  function reportModel(month) {
+    var mask = allowedMask(), nm = DATA.nm;
+    var cur = monthTot(month, mask);
+    var prevM = new Date(month.getFullYear(), month.getMonth() - 1, 1), yoyM = new Date(month.getFullYear() - 1, month.getMonth(), 1);
+    var prev = monthTot(prevM, mask), yoy = monthTot(yoyM, mask);
+    var R = { month: month, cur: cur, prev: prev, yoy: yoy, prevM: prevM, yoyM: yoyM, scope: scopeLabel(), role: ROLE_LABEL[curRole()], mer: [] };
+    R.kc = cur ? kpisOf(cur.t) : null;
+    R.kp = prev ? kpisOf(prev.t) : null;
+    R.ky = yoy ? kpisOf(yoy.t) : null;
+    if (cur) {
+      for (var mi = 0; mi < nm; mi++) {
+        if (!mask[mi]) continue;
+        var a = monthSumMer(cur.sp, mi), pv = prev ? monthSumMer(prev.sp, mi).vol : 0;
+        R.mer.push({ mi: mi, m: DATA.merchants[mi], t: a, k: kpisOf(a), pv: pv, g: pv > 0 && a.vol > 0 ? (a.vol - pv) / pv * 100 : null });
+      }
+      R.mer.sort(function (p, q) { return q.t.vol - p.t.vol; });
+      R.top = R.mer.slice(0, 10);
+      var grow = R.mer.filter(function (x) { return x.g !== null; }).sort(function (p, q) { return q.g - p.g; });
+      R.best = grow.length > 1 ? grow[0] : null;
+      R.worst = grow.length > 1 ? grow[grow.length - 1] : null;
+      R.line = dayTotals(cur.sp.from, cur.sp.to, mask).map(function (d) { return d.vol; });
+      R.linePrev = prev ? dayTotals(prev.sp.from, prev.sp.to, mask).map(function (d) { return d.vol; }) : null;
+    }
+    R.alerts = activeAlerts();
+    R.bullets = reportBullets(R);
+    return R;
+  }
+  /* Resumen ejecutivo generado desde los datos (3–5 frases) */
+  function reportBullets(R) {
+    var c = R.kc, p = R.kp, y = R.ky, out = [];
+    if (!c) return ['No hay datos del mes seleccionado en el historial disponible.'];
+    var pM = R.prev ? monthTitle(R.prevM) : '', yM = R.yoy ? monthTitle(R.yoyM) : '';
+    var s = 'El volumen procesado fue de ' + money(c.tpv, 0), parts = [];
+    if (p) parts.push(fmtSigned(pctChange(c.tpv, p.tpv), 1) + ' % frente a ' + pM);
+    if (y) parts.push(fmtSigned(pctChange(c.tpv, y.tpv), 1) + ' % frente a ' + yM);
+    if (parts.length) s += ' (' + parts.join('; ') + ')';
+    out.push(s + '.');
+    out.push('La tasa de aprobación fue del ' + fmtPct(c.appr, 1) + (p ? ', ' + (c.appr - p.appr >= 0 ? 'con una subida' : 'con una bajada') +
+      ' de ' + fmtNum(Math.abs(c.appr - p.appr), 1) + ' pp frente a ' + pM : '') + '.');
+    if (can('see.margin')) out.push('El margen neto fue de ' + money(c.margin, 0) + ', el ' + fmtPct(c.tpv ? c.margin / c.tpv * 100 : 0, 1) + ' del volumen procesado.');
+    else if (can('see.fee')) out.push('Las comisiones pagadas fueron de ' + money(c.fee, 0) + '.');
+    else out.push('El reparto con partners devengado fue de ' + money(c.par, 0) + '.');
+    if (can('see.risk')) {
+      var thr = state.riskThr;
+      out.push('La tasa de contracargos fue del ' + fmtPct(c.cb, 2) + ', ' + (c.cb > thr ? 'por encima' : 'dentro') +
+        ' del umbral interno de ' + fmtPct(thr, 2) + (c.cb > thr ? ' y requiere seguimiento.' : '.'));
+    }
+    if (R.best && R.worst && R.best.mi !== R.worst.mi) {
+      out.push('Mayor crecimiento: ' + R.best.m.name + ' (' + fmtSigned(R.best.g, 1) + ' %). Mayor caída: ' + R.worst.m.name + ' (' + fmtSigned(R.worst.g, 1) + ' %).');
+    }
+    return out.slice(0, 5);
+  }
+
+  /* --- Gráfico SVG del informe (mismas escalas y formatos que el panel) --- */
+  function reportLineSvg(cur, prev, label, startIdx) {
+    var W = 460, H = 210, P = { l: 58, r: 10, t: 10, b: 24 }, n = cur.length;
+    var sc = niceScale(Math.max.apply(null, cur.concat(prev || []).concat([1])), 4), hi = sc.top;
+    function X(i) { return P.l + (n > 1 ? i * (W - P.l - P.r) / (n - 1) : 0); }
+    function Y(v) { return P.t + (H - P.t - P.b) * (1 - v / hi); }
+    function pathOf(arr) { return 'M' + arr.map(function (v, i) { return X(i).toFixed(1) + ',' + Y(v).toFixed(1); }).join(' L'); }
+    var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + escHtml(label) + '">';
+    sc.ticks.forEach(function (t) {
+      s += '<line class="rep-grid" x1="' + P.l + '" x2="' + (W - P.r) + '" y1="' + Y(t).toFixed(1) + '" y2="' + Y(t).toFixed(1) + '"/>' +
+        '<text x="' + (P.l - 6) + '" y="' + (Y(t) + 4).toFixed(1) + '" text-anchor="end">' + escHtml(moneyAxis(t)) + '</text>';
+    });
+    if (prev && prev.length) s += '<path class="rep-prev" d="' + pathOf(prev) + '"/>';
+    if (n) s += '<path class="rep-line" d="' + pathOf(cur) + '"/>';
+    [0, Math.floor((n - 1) / 2), n - 1].forEach(function (i, k) {
+      if (i < 0 || !n) return;
+      var anchor = k === 0 ? 'start' : k === 2 ? 'end' : 'middle';
+      s += '<text x="' + X(i).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="' + anchor + '">' + fmtDayShort.format(dayDate(startIdx + i)) + '</text>';
+    });
+    return s + '</svg>';
+  }
+
+  /* --- HTML del informe (impresión incluida) --- */
+  function reportHtml(R) {
+    var head = '<div class="rep-head"><div class="rep-brand"><span class="rep-logo" aria-hidden="true">D</span><div>Demopay<small>Pulso · Analítica de pagos</small></div></div>' +
+      '<div class="rep-meta"><strong>Informe mensual · ' + escHtml(monthTitle(R.month)) + '</strong><br>Periodo: ' +
+      (R.cur ? escHtml(fmtDayShort.format(dayDate(R.cur.sp.from)) + ' – ' + fmtDateLong.format(dayDate(R.cur.sp.to))) : 'sin datos') +
+      '<br>Generado: ' + escHtml(fmtDateTime.format(nowLocal())) + '<br>Ámbito: ' + escHtml(R.scope) + ' · ' + escHtml(R.role) + '</div></div>';
+    if (!R.cur) return head + '<p class="hint">No hay datos del mes seleccionado en el historial disponible.</p>';
+    var defs = kpiDefs(), c = R.kc, rows = '';
+    defs.forEach(function (def) {
+      var cv = c[def.key], pv = R.kp ? R.kp[def.key] : null, yv = R.ky ? R.ky[def.key] : null;
+      rows += '<tr><th scope="row">' + escHtml(def.label) + '</th><td class="num">' + escHtml(def.fmt(cv)) + '</td>' +
+        '<td class="num">' + (pv === null ? '—' : escHtml(def.fmt(pv))) + '</td><td class="num">' + (pv === null ? '—' : escHtml(varText(def, cv, pv))) + '</td>' +
+        '<td class="num">' + (yv === null ? '—' : escHtml(def.fmt(yv))) + '</td><td class="num">' + (yv === null ? '—' : escHtml(varText(def, cv, yv))) + '</td></tr>';
+    });
+    var kpiT = '<section class="rep-sec"><h3>Indicadores clave</h3><table class="rep-table"><thead><tr><th scope="col">Indicador</th>' +
+      '<th scope="col" class="num">' + escHtml(monthTitle(R.month)) + '</th><th scope="col" class="num">' + escHtml(monthTitle(R.prevM)) + '</th><th scope="col" class="num">Variación</th>' +
+      '<th scope="col" class="num">' + escHtml(monthTitle(R.yoyM)) + '</th><th scope="col" class="num">Variación</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+      '<p class="hint">Variación en % salvo tasas de aprobación y contracargos, que se indican en puntos porcentuales (pp).</p></section>';
+    var sum = '<section class="rep-sec"><h3>Resumen ejecutivo</h3><ul>' + R.bullets.map(function (b) { return '<li>' + escHtml(b) + '</li>'; }).join('') + '</ul></section>';
+    var mx = 1, bars = '';
+    R.cur.t.meth.forEach(function (v) { mx = Math.max(mx, v); });
+    var totM = R.cur.t.meth.reduce(function (a, b) { return a + b; }, 0) || 1;
+    METHODS.forEach(function (name, k) {
+      var v = R.cur.t.meth[k], share = v / totM * 100;
+      bars += '<li><span>' + escHtml(name) + '</span><span class="bar" aria-hidden="true"><span style="width:' + share.toFixed(1) + '%"></span></span><span class="num">' + escHtml(fmtPct(share, 1)) + '</span></li>';
+    });
+    var charts = '<section class="rep-sec"><h3>Evolución y reparto</h3><div class="rep-charts">' +
+      '<figure class="rep-chart" style="margin:0"><h4>Volumen diario: mes frente a mes anterior</h4>' +
+      reportLineSvg(R.line, R.linePrev, 'Volumen diario de ' + monthTitle(R.month) + ': total ' + money(c.tpv, 0) + (R.kp ? '. Mes anterior: ' + money(R.kp.tpv, 0) : ''), R.cur.sp.from) + '</figure>' +
+      '<div class="rep-chart"><h4>Volumen aprobado por método de pago</h4><ul class="rep-bars">' + bars + '</ul></div></div></section>';
+    var mt = '<section class="rep-sec rep-pb"><h3>Top 10 comercios por volumen</h3><table class="rep-table"><thead><tr><th scope="col">Comercio</th>' +
+      '<th scope="col" class="num">Volumen</th><th scope="col" class="num">Operaciones</th><th scope="col" class="num">Aprobación</th><th scope="col" class="num">Crecimiento</th>' +
+      (can('see.margin') ? '<th scope="col" class="num">Margen neto</th>' : '') + '</tr></thead><tbody>' +
+      R.top.map(function (x) {
+        return '<tr><th scope="row">' + escHtml(x.m.name) + '<br><small>' + escHtml(x.m.id + ' · ' + x.m.city) + '</small></th>' +
+          '<td class="num">' + escHtml(money(x.t.vol, 0)) + '</td><td class="num">' + escHtml(fmtInt(x.t.n)) + '</td><td class="num">' + escHtml(fmtPct(x.k.appr, 1)) + '</td>' +
+          '<td class="num">' + (x.g === null ? '—' : escHtml(fmtSigned(x.g, 1) + ' %')) + '</td>' +
+          (can('see.margin') ? '<td class="num">' + escHtml(money(x.t.margin, 0)) + '</td>' : '') + '</tr>';
+      }).join('') + '</tbody></table></section>';
+    var al = R.alerts.length ? '<ul>' + R.alerts.map(function (a) {
+      return '<li><strong>' + escHtml(SEV_LABEL[a.sev]) + ' · ' + escHtml(a.kind) + '.</strong> ' + escHtml(a.title) + '. ' + escHtml(a.impact) + '.</li>';
+    }).join('') + '</ul>' : '<p>Sin alertas activas en el momento de generar el informe.</p>';
+    var alerts = '<section class="rep-sec"><h3>Alertas</h3>' + al +
+      '<p class="hint">Las alertas se calculan sobre los últimos 30 días del historial; no recogen alertas de meses anteriores.</p></section>';
+    return head + sum + kpiT + charts + mt + alerts;
+  }
+  function varText(def, cv, pv) {
+    if (def.kind === 'pp') return fmtSigned(cv - pv, 1) + ' pp';
+    return fmtSigned(pctChange(cv, pv), 1) + ' %';
+  }
+  function renderReportDoc() {
+    var month = keyToDate($('#rep-month').value), R = reportModel(month);
+    REP_KEY = ymKey(month);
+    var doc = $('#rep-doc');
+    doc.innerHTML = reportHtml(R);
+    var appx = h('section', { class: 'rep-sec rep-pb' }, h('h3', null, 'Apéndice: definiciones'));
+    var dl = $('#defs .defs-dl');
+    if (dl) appx.appendChild(dl.cloneNode(true));
+    doc.appendChild(appx);
+    doc.appendChild(h('p', { class: 'hint' }, 'Datos ficticios de demostración (Demopay). Las cifras se generan con la semilla ' + state.seed + '.'));
+    CUR_REPORT = R;
+  }
+  var CUR_REPORT = null;
+  function openReport() {
+    if (!DATA || !USER) return;
+    var sel = $('#rep-month'), months = reportMonths(), keep = REP_KEY;
+    sel.textContent = '';
+    months.forEach(function (d) { sel.appendChild(h('option', { value: ymKey(d) }, monthTitle(d))); });
+    sel.value = keep && months.some(function (d) { return ymKey(d) === keep; }) ? keep : ymKey(months[0]);
+    $('#rs-save').disabled = !can('act.export');
+    $('#rs-msg').textContent = '';
+    renderReportDoc();
+    openDialog($('#report'));
+  }
+
+  /* --- Excel (.xlsx) sin librerías: ZIP sin compresión con CRC-32 + SpreadsheetML mínimo --- */
+  var CRC_T = null;
+  function crc32(bytes) {
+    if (!CRC_T) {
+      CRC_T = new Uint32Array(256);
+      for (var n = 0; n < 256; n++) {
+        var c = n;
+        for (var k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1;
+        CRC_T[n] = c >>> 0;
+      }
+    }
+    var crc = 0xFFFFFFFF;
+    for (var i = 0; i < bytes.length; i++) crc = CRC_T[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
+    return (crc ^ 0xFFFFFFFF) >>> 0;
+  }
+  /* files: [{name, data: Uint8Array}] -> Uint8Array de un ZIP válido (cabeceras locales, directorio central y fin) */
+  function zipStore(files) {
+    var enc = new TextEncoder(), now = nowLocal();
+    var dosT = (now.getHours() << 11) | (now.getMinutes() << 5) | Math.floor(now.getSeconds() / 2);
+    var dosD = ((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate();
+    var parts = [], central = [], offset = 0;
+    files.forEach(function (f) {
+      var name = enc.encode(f.name), data = f.data, crc = crc32(data), len = data.length;
+      var lh = new DataView(new ArrayBuffer(30));
+      lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, 0, true);
+      lh.setUint16(10, dosT, true); lh.setUint16(12, dosD, true); lh.setUint32(14, crc, true);
+      lh.setUint32(18, len, true); lh.setUint32(22, len, true); lh.setUint16(26, name.length, true); lh.setUint16(28, 0, true);
+      parts.push(new Uint8Array(lh.buffer), name, data);
+      var ch = new DataView(new ArrayBuffer(46));
+      ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true); ch.setUint16(10, 0, true);
+      ch.setUint16(12, dosT, true); ch.setUint16(14, dosD, true); ch.setUint32(16, crc, true);
+      ch.setUint32(20, len, true); ch.setUint32(24, len, true); ch.setUint16(28, name.length, true);
+      ch.setUint16(30, 0, true); ch.setUint16(32, 0, true); ch.setUint16(34, 0, true); ch.setUint16(36, 0, true);
+      ch.setUint32(38, 0, true); ch.setUint32(42, offset, true);
+      central.push(new Uint8Array(ch.buffer), name);
+      offset += 30 + name.length + len;
+    });
+    var cdSize = central.reduce(function (a, p) { return a + p.length; }, 0);
+    var eo = new DataView(new ArrayBuffer(22));
+    eo.setUint32(0, 0x06054b50, true); eo.setUint16(4, 0, true); eo.setUint16(6, 0, true);
+    eo.setUint16(8, files.length, true); eo.setUint16(10, files.length, true);
+    eo.setUint32(12, cdSize, true); eo.setUint32(16, offset, true); eo.setUint16(20, 0, true);
+    var all = parts.concat(central, [new Uint8Array(eo.buffer)]);
+    var total = all.reduce(function (a, p) { return a + p.length; }, 0), out = new Uint8Array(total), pos = 0;
+    all.forEach(function (p) { out.set(p, pos); pos += p.length; });
+    return out;
+  }
+  function xEsc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+      .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
+  }
+  function xCol(i) {
+    var s = '', n = i + 1;
+    while (n > 0) { var m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); }
+    return s;
+  }
+  /* Celdas tipadas: texto, fecha (serie de Excel con formato), importe en €, entero, decimal y porcentaje (número) */
+  function xT(v) { return { k: 'text', v: v }; }
+  function xH(v) { return { k: 'head', v: v }; }
+  function xD(v) { return { k: 'date', v: v }; }
+  function xC(v) { return { k: 'cur', v: v }; }
+  function xI(v) { return { k: 'int', v: v }; }
+  function xN(v) { return { k: 'dec', v: v }; }
+  function xP(v) { return { k: 'pct', v: v }; }
+  var XF = { cur: 3, int: 4, dec: 5, pct: 6 };
+  function xCell(ref, c) {
+    if (c.k === 'date') return '<c r="' + ref + '" s="2"><v>' + (utcDay(c.v) - Date.UTC(1899, 11, 30)) / 86400000 + '</v></c>';
+    if (c.k === 'text') return '<c r="' + ref + '" t="inlineStr"><is><t xml:space="preserve">' + xEsc(c.v) + '</t></is></c>';
+    if (c.k === 'head') return '<c r="' + ref + '" t="inlineStr" s="1"><is><t xml:space="preserve">' + xEsc(c.v) + '</t></is></c>';
+    var num = isFinite(c.v) ? Math.round(c.v * 1e6) / 1e6 : 0;
+    return '<c r="' + ref + '" s="' + XF[c.k] + '"><v>' + num + '</v></c>';
+  }
+  function sheetXml(rows, widths) {
+    var body = '', maxC = 1;
+    rows.forEach(function (row, r) {
+      var cells = '';
+      row.forEach(function (c, ci) { if (c) cells += xCell(xCol(ci) + (r + 1), c); });
+      body += '<row r="' + (r + 1) + '">' + cells + '</row>';
+      maxC = Math.max(maxC, row.length);
+    });
+    var cols = widths ? '<cols>' + widths.map(function (w, i) {
+      return '<col min="' + (i + 1) + '" max="' + (i + 1) + '" width="' + w + '" customWidth="1"/>';
+    }).join('') + '</cols>' : '';
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' +
+      '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
+      '<dimension ref="A1:' + xCol(maxC - 1) + Math.max(1, rows.length) + '"/>' +
+      '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>' +
+      '<sheetFormatPr defaultRowHeight="15"/>' + cols + '<sheetData>' + body + '</sheetData></worksheet>';
+  }
+  var XLSX_STYLES = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' +
+    '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+    '<numFmts count="3"><numFmt numFmtId="164" formatCode="dd/mm/yyyy"/><numFmt numFmtId="165" formatCode="#,##0.00 &quot;€&quot;"/>' +
+    '<numFmt numFmtId="166" formatCode="0.00&quot; %&quot;"/></numFmts>' +
+    '<fonts count="2"><font><sz val="11"/><name val="Calibri"/><family val="2"/></font><font><b/><sz val="11"/><name val="Calibri"/><family val="2"/></font></fonts>' +
+    '<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill>' +
+    '<fill><patternFill patternType="solid"><fgColor rgb="FFE8EEF6"/><bgColor indexed="64"/></patternFill></fill></fills>' +
+    '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>' +
+    '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' +
+    '<cellXfs count="7">' +
+    '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>' +
+    '<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/>' +
+    '<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' +
+    '<xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' +
+    '<xf numFmtId="3" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' +
+    '<xf numFmtId="4" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' +
+    '<xf numFmtId="166" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>' +
+    '</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+  /* sheets: [{name, rows: [[celda...]], widths: [ancho...]}] -> Uint8Array del .xlsx */
+  function buildXlsx(sheets) {
+    var XML = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+    var RELNS = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+    var ct = XML + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+      '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+      '<Default Extension="xml" ContentType="application/xml"/>' +
+      '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
+      '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>';
+    sheets.forEach(function (s, i) {
+      ct += '<Override PartName="/xl/worksheets/sheet' + (i + 1) + '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>';
+    });
+    ct += '</Types>';
+    var rels = XML + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+      '<Relationship Id="rId1" Type="' + RELNS + '/officeDocument" Target="xl/workbook.xml"/></Relationships>';
+    var wb = XML + '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="' + RELNS + '">' +
+      '<bookViews><workbookView xWindow="0" yWindow="0" windowWidth="16000" windowHeight="9000"/></bookViews><sheets>' +
+      sheets.map(function (s, i) { return '<sheet name="' + xEsc(s.name).slice(0, 31) + '" sheetId="' + (i + 1) + '" r:id="rId' + (i + 1) + '"/>'; }).join('') +
+      '</sheets></workbook>';
+    var wbRels = XML + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">';
+    sheets.forEach(function (s, i) {
+      wbRels += '<Relationship Id="rId' + (i + 1) + '" Type="' + RELNS + '/worksheet" Target="worksheets/sheet' + (i + 1) + '.xml"/>';
+    });
+    wbRels += '<Relationship Id="rId' + (sheets.length + 1) + '" Type="' + RELNS + '/styles" Target="styles.xml"/></Relationships>';
+    var files = [{ name: '[Content_Types].xml', data: ct }, { name: '_rels/.rels', data: rels }, { name: 'xl/workbook.xml', data: wb },
+      { name: 'xl/_rels/workbook.xml.rels', data: wbRels }, { name: 'xl/styles.xml', data: XLSX_STYLES }];
+    sheets.forEach(function (s, i) { files.push({ name: 'xl/worksheets/sheet' + (i + 1) + '.xml', data: sheetXml(s.rows, s.widths) }); });
+    var enc = new TextEncoder();
+    files.forEach(function (f) { f.data = enc.encode(f.data); });
+    return zipStore(files);
+  }
+  function saveBlob(blob, name) {
+    var url = URL.createObjectURL(blob);
+    var a = h('a', { href: url, download: name });
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+  function saveXlsx(sheets, name) {
+    saveBlob(new Blob([buildXlsx(sheets)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), name);
+  }
+  /* Hoja a partir de columnas [título, función(item) -> celda, ancho] */
+  function tableSheet(name, cols, items) {
+    var rows = [cols.map(function (c) { return xH(c[0]); })];
+    items.forEach(function (it) { rows.push(cols.map(function (c) { return c[1](it); })); });
+    return { name: name, rows: rows, widths: cols.map(function (c) { return c[2] || 14; }) };
+  }
+  function txCols(full) {
+    var base = [
+      ['ID', function (t) { return xT(t.id); }, 14],
+      ['Fecha', function (t) { return xD(t.date); }, 12],
+      ['Hora', function (t) { return xT(pad(t.date.getHours(), 2) + ':' + pad(t.date.getMinutes(), 2) + ':' + pad(t.date.getSeconds(), 2)); }, 10],
+      ['Comercio', function (t) { return xT(merchantOf(t).name); }, 30]
+    ];
+    if (full) return base.concat([
+      ['ID comercio', function (t) { return xT(merchantOf(t).id); }, 14],
+      ['Canal', function (t) { return xT(CHANNELS[t.channel]); }, 18],
+      ['Método', function (t) { return xT(t.method); }, 14],
+      ['Tarjeta', function (t) { return xT(t.card || ''); }, 14],
+      ['BIN', function (t) { return xT(t.bin); }, 8],
+      ['Importe', function (t) { return xC(t.amount); }, 14],
+      ['Divisa', function () { return xT('EUR'); }, 8],
+      ['Estado', function (t) { return xT(t.status); }, 14],
+      ['Motivo', function (t) { return xT(t.decline || ''); }, 20],
+      ['3DS', function (t) { return xT(t.s3r); }, 14],
+      ['Riesgo', function (t) { return xI(t.risk); }, 8],
+      ['Comisión', function (t) { return xC(t.fee); }, 12],
+      ['Margen neto', function (t) { return xC(marginOf(t)); }, 12],
+      ['Reembolsado', function (t) { return xC(t.refunded); }, 13]
+    ]);
+    return base.concat([
+      ['Canal', function (t) { return xT(CHANNELS[t.channel]); }, 18],
+      ['Método', function (t) { return xT(t.method); }, 14],
+      ['Importe', function (t) { return xC(t.amount); }, 14],
+      ['Divisa', function () { return xT('EUR'); }, 8],
+      ['Estado', function (t) { return xT(t.status); }, 14],
+      ['Comisión', function (t) { return xC(t.fee); }, 12],
+      ['Reembolsado', function (t) { return xC(t.refunded); }, 13]
+    ]);
+  }
+  function exportTxXlsx() {
+    if (!can('act.export')) return;
+    var list = txFiltered(filtered());
+    saveXlsx([tableSheet('Transacciones', txCols(can('see.margin')), list)], 'pulso-transacciones-' + ymd(TODAY) + '.xlsx');
+    toast(fmtInt(list.length) + ' transacciones exportadas a Excel (EUR)');
+  }
+  function exportMerXlsx() {
+    if (!can('act.export')) return;
+    var list = merchView(merchRows());
+    var cols = [
+      ['Comercio', function (r) { return xT(r.m.name); }, 30],
+      ['ID', function (r) { return xT(r.m.id); }, 14],
+      ['Sector', function (r) { return xT(r.m.sector); }, 14],
+      ['Plan', function (r) { return xT(r.m.plan); }, 10],
+      ['Ciudad', function (r) { return xT(r.m.city); }, 14],
+      ['País', function (r) { return xT(COUNTRY_NAMES[r.m.country] || r.m.country); }, 12],
+      ['Volumen', function (r) { return xC(r.vol); }, 14],
+      ['Operaciones', function (r) { return xI(r.n); }, 12],
+      ['Aprobación', function (r) { return xP(r.appr); }, 12]
+    ];
+    if (can('see.margin')) cols.push(['Margen neto', function (r) { return xC(r.margin); }, 14]);
+    if (can('see.health')) cols.push(['Salud (0-100)', function (r) { return xI(r.health); }, 12], ['Riesgo de baja', function (r) { return xT(r.churn); }, 14]);
+    saveXlsx([tableSheet('Comercios', cols, list)], 'pulso-comercios-' + ymd(TODAY) + '.xlsx');
+    toast(fmtInt(list.length) + ' comercios exportados a Excel');
+  }
+  function exportLiqXlsx() {
+    if (!can('act.export')) return;
+    var rows = applyCols('liq', liqRows());
+    var cols = [
+      ['Fecha', function (r) { return xD(r.date); }, 12],
+      ['Bruto', function (r) { return xC(r.gross); }, 14],
+      ['Comisiones', function (r) { return xC(r.fee); }, 14],
+      ['Reembolsos', function (r) { return xC(r.ref); }, 14],
+      ['Contracargos', function (r) { return xC(r.cb); }, 14],
+      ['Neto abonado', function (r) { return xC(r.net); }, 14],
+      ['Estado', function (r) { return xT(r.today ? 'Programada' : 'Pagada'); }, 12]
+    ];
+    saveXlsx([tableSheet('Liquidaciones', cols, rows)], 'pulso-liquidaciones-' + ymd(TODAY) + '.xlsx');
+    toast('Liquidaciones exportadas a Excel (EUR)');
+  }
+  function exportReportXlsx() {
+    if (!can('act.export') || !CUR_REPORT || !CUR_REPORT.cur) return;
+    var R = CUR_REPORT, c = R.kc, rows = [[xH('Indicador'), xH(monthTitle(R.month)), xH(monthTitle(R.prevM)), xH('Variación'), xH(monthTitle(R.yoyM)), xH('Variación')]];
+    kpiDefs().forEach(function (def) {
+      var cv = c[def.key], pv = R.kp ? R.kp[def.key] : null, yv = R.ky ? R.ky[def.key] : null;
+      var cell = def.key === 'n' ? xI : (def.key === 'appr' || def.key === 'cb') ? xP : xC;
+      rows.push([xT(def.label), cell(cv), pv === null ? xT('—') : cell(pv), pv === null ? xT('—') : xN(def.kind === 'pp' ? cv - pv : pctChange(cv, pv)),
+        yv === null ? xT('—') : cell(yv), yv === null ? xT('—') : xN(def.kind === 'pp' ? cv - yv : pctChange(cv, yv))]);
+    });
+    rows.push([]);
+    rows.push([xT('Variación en % salvo tasas de aprobación y contracargos (en puntos porcentuales, pp).')]);
+    var mcols = [
+      ['Comercio', function (r) { return xT(r.m.name); }, 30],
+      ['Volumen', function (r) { return xC(r.t.vol); }, 14],
+      ['Operaciones', function (r) { return xI(r.t.n); }, 12],
+      ['Aprobación', function (r) { return xP(r.k.appr); }, 12],
+      ['Crecimiento (%)', function (r) { return r.g === null ? xT('—') : xN(r.g); }, 14]
+    ];
+    if (can('see.margin')) mcols.push(['Margen neto', function (r) { return xC(r.t.margin); }, 14]);
+    saveXlsx([
+      { name: 'Resumen', rows: rows, widths: [28, 16, 16, 14, 16, 14] },
+      tableSheet('Top 10 comercios', mcols, R.top)
+    ], 'pulso-informe-' + REP_KEY + '.xlsx');
+    toast('Informe exportado a Excel');
+  }
+
+  /* --- Envíos programados (demo: se guardan en el navegador; no se envía ningún correo) --- */
+  var SCHED_KEY = 'pulso-scheduled';
+  function schedList() { var v = lsGet(SCHED_KEY, []); return Array.isArray(v) ? v : []; }
+  function schedText(s) {
+    return (s.freq === 'mensual' ? 'Mensual · día 1 a las 9:00' : 'Semanal · lunes a las 9:00') + ' · ' + s.format;
+  }
+  function renderSched() {
+    var ul = $('#sched-body');
+    if (!ul) return;
+    ul.textContent = '';
+    var list = schedList();
+    if (!list.length) { ul.appendChild(h('li', { class: 'muted' }, 'No hay envíos programados.')); return; }
+    list.forEach(function (s) {
+      ul.appendChild(h('li', null,
+        h('span', null, h('strong', null, schedText(s)), h('br'),
+          h('span', { class: 'muted' }, s.recipients.join(', ') + ' · creado por ' + userName(s.by) + ' el ' + s.created)),
+        h('button', { type: 'button', class: 'btn btn-ghost', 'data-sched-del': s.id, 'data-perm-dis': 'act.export',
+          'aria-label': 'Eliminar envío programado: ' + schedText(s) }, 'Eliminar')));
+    });
+  }
+  function saveSchedule() {
+    var msg = $('#rs-msg');
+    if (!can('act.export')) { msg.textContent = 'Tu rol no permite programar envíos.'; msg.className = 'hint'; return; }
+    var mails = ['#rs-m1', '#rs-m2', '#rs-m3'].map(function (id) { return $(id).value.trim(); }).filter(Boolean);
+    if (!mails.length) { msg.textContent = 'Indica al menos un destinatario.'; msg.className = 'hint'; return; }
+    var bad = mails.filter(function (m) { return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m); });
+    if (bad.length) { msg.textContent = 'Revisa el formato de: ' + bad.join(', ') + '.'; msg.className = 'hint'; return; }
+    var freq = $('#rs-freq').value, fmt = $('#rs-fmt').value;
+    var list = schedList();
+    list.unshift({ id: 'sch-' + Date.now().toString(36), freq: freq, format: fmt, recipients: mails, by: USER.id, created: ymd(TODAY) });
+    if (list.length > 10) list.length = 10;
+    lsSet(SCHED_KEY, list);
+    msg.textContent = 'Programado: ' + (freq === 'mensual' ? 'cada día 1 a las 9:00' : 'cada lunes a las 9:00') + ' para ' +
+      mails.length + (mails.length === 1 ? ' destinatario' : ' destinatarios') + ' (demo: no se envía ningún correo).';
+    msg.className = 'hint rs-msg-ok';
+    renderSched();
+  }
+  function deleteSchedule(id) {
+    if (!can('act.export')) return;
+    lsSet(SCHED_KEY, schedList().filter(function (s) { return s.id !== id; }));
+    renderSched();
+    toast('Envío programado eliminado');
+  }
+
+  function escHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function bindFase2B() {
+    $('#rng-custom').addEventListener('click', function () {
+      if ($('#rng-pop').hidden) openRngPop(); else closeRngPop(true);
+    });
+    $('#rng-pop').addEventListener('click', function (e) {
+      var p = e.target.closest && e.target.closest('[data-rng-preset]');
+      if (!p) return;
+      var r = presetRange(p.getAttribute('data-rng-preset'));
+      $('#rng-from').value = r.from;
+      $('#rng-to').value = r.to;
+      $('#rng-err').hidden = true;
+    });
+    $('#rng-apply').addEventListener('click', applyCustomFromInputs);
+    $('#rng-cancel').addEventListener('click', function () { closeRngPop(true); });
+    $('#rng-pop').addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { e.preventDefault(); closeRngPop(true); }
+      else if (e.key === 'Enter' && e.target.tagName === 'INPUT') { e.preventDefault(); applyCustomFromInputs(); }
+    });
+    $('#cmp-mode').addEventListener('change', function (e) {
+      state.cmpMode = e.target.value === 'yoy' ? 'yoy' : 'prev';
+      render();
+    });
+    $('#tx-xlsx').addEventListener('click', exportTxXlsx);
+    $('#mer-xlsx').addEventListener('click', exportMerXlsx);
+    $('#report-btn').addEventListener('click', openReport);
+    $('#rep-close').addEventListener('click', closeDialog);
+    $('#rep-month').addEventListener('change', renderReportDoc);
+    $('#rep-print').addEventListener('click', function () { window.print(); });
+    $('#rep-xlsx').addEventListener('click', exportReportXlsx);
+    $('#rep-sched').addEventListener('submit', function (e) { e.preventDefault(); saveSchedule(); });
+    $('#sched-body').addEventListener('click', function (e) {
+      var b = e.target.closest && e.target.closest('[data-sched-del]');
+      if (b) deleteSchedule(b.getAttribute('data-sched-del'));
+    });
+  }
+
   /* === INIT === */
   function init() {
     hydrateIcons();
-    if (RANGE_CODE_OF[prefs.range]) state.range = prefs.range;
+    if (RANGE_CODE_OF[prefs.range] && !state.custom) state.range = prefs.range;
     if (typeof prefs.compare === 'boolean') state.compare = prefs.compare;
     if (RATES[prefs.currency]) state.currency = prefs.currency;
     applyTheme(prefs.theme === 'carpa' ? 'carpa' : 'dark');
@@ -5028,6 +6553,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     registerView('cuenta', renderCuenta);
     bind();
     bindFase();
+    bindFase2B();
     bindRoles();
     buildHeads();
     window.addEventListener('scroll', function () { if (colPop && colPopBtn) placePop(colPop, colPopBtn); }, { passive: true });
