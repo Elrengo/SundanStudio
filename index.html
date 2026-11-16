@@ -66,7 +66,7 @@
 }
 html{scroll-padding-top:calc(64px + env(safe-area-inset-top,0px));scroll-behavior:smooth;background:var(--ink)}
 *{box-sizing:border-box}
-body{margin:0;background:var(--ink);color:var(--bone);font-family:var(--body);overflow-x:hidden}
+body{margin:0;background:transparent;color:var(--bone);font-family:var(--body);overflow-x:hidden}
 
 /* TOPBAR */
 .topbar{position:sticky;top:0;z-index:150;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem clamp(16px,5vw,64px);background:rgba(20,6,15,.82);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:2px solid var(--gold)}
@@ -151,7 +151,7 @@ h2.big.proj-title{font-size:clamp(2.4rem,6vw,4.4rem);margin:1.2rem 0 1rem}
 .next{display:block;width:max-content;margin:clamp(40px,8vh,80px) auto 0;color:var(--bone);text-decoration:none;font-family:var(--display);font-size:1.2rem;text-align:center;padding:.5rem 1rem}
 .next::after{content:"";display:block;width:10px;height:10px;border-right:2px solid var(--gold);border-bottom:2px solid var(--gold);transform:rotate(45deg);margin:.3rem auto 0}
 .next:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-.contact{background:var(--ink);padding-bottom:clamp(56px,12vh,130px)}
+.contact{background:rgba(20,6,15,.82);padding-bottom:clamp(56px,12vh,130px)}
 .marquee{position:relative;height:22px;background:var(--blood)}
 .marquee::before,.marquee::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 8px 50%,var(--gold) 4px,transparent 5.5px) 0 0/32px 22px repeat-x;animation:blink 1.4s steps(1) infinite}
 .marquee::after{background-position:16px 0;animation-delay:-.7s}
@@ -306,7 +306,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 
 
 /* SERVICIOS */
-.services{background:var(--ink);color:var(--bone);position:relative;overflow:clip;padding:0 0 clamp(56px,12vh,130px)}
+.services{background:rgba(20,6,15,.82);color:var(--bone);position:relative;overflow:clip;padding:0 0 clamp(56px,12vh,130px)}
 /* Separador A: guirnalda de Mumi (JS la construye al ancho del contenedor) */
 .sep-garland{position:relative;z-index:1;width:100%;height:90px;overflow:hidden}
 .sep-garland svg{display:block;width:100%;height:90px}
@@ -345,7 +345,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 }
 
 /* PROYECTOS */
-.projects{background:var(--plum);padding:0 0 clamp(56px,12vh,130px)}
+.projects{background:rgba(27,8,18,.82);padding:0 0 clamp(56px,12vh,130px)}
 .projects .lights{display:block;width:100%;height:30px;overflow:hidden}
 .projects .lights svg{display:block;width:100%;height:30px}
 .projects .wave{fill:none;stroke:var(--bone);stroke-opacity:.4;stroke-width:1.5}
@@ -458,9 +458,9 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 }
 
 /* PROCESO */
-.process{background:var(--ink);padding:0 0 clamp(56px,12vh,130px)}
+.process{background:rgba(20,6,15,.82);padding:0 0 clamp(56px,12vh,130px)}
 /* Separador C: marquesina de bombillas (JS construye las bombillas al ancho) */
-.sep-marquee{position:relative;z-index:1;padding:6px 0;background:var(--ink)}
+.sep-marquee{position:relative;z-index:1;padding:6px 0;background:rgba(20,6,15,.82)}
 .sep-marquee-line{height:1px;background:var(--gold);opacity:.85}
 .sep-marquee-band{height:34px;margin:5px 0;background:#0a0409;position:relative;overflow:hidden}
 .sep-marquee-row{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;padding:0 9px}
@@ -507,7 +507,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
   .process .about{transform:none}
 }
 /* PRECIOS */
-.pricing{background:var(--plum);color:var(--bone);position:relative;overflow:clip;padding:0 0 clamp(56px,12vh,130px)}
+.pricing{background:rgba(27,8,18,.82);color:var(--bone);position:relative;overflow:clip;padding:0 0 clamp(56px,12vh,130px)}
 .pricing .pr-bunting{height:38px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='26' viewBox='0 0 160 26'%3E%3Cpath d='M0 2H160' stroke='%23e9b42f' stroke-width='2'/%3E%3Cpath d='M4 2H36L20 24Z' fill='%23c1121f'/%3E%3Cpath d='M44 2H76L60 24Z' fill='%23efe3c8'/%3E%3Cpath d='M84 2H116L100 24Z' fill='%23e9b42f'/%3E%3Cpath d='M124 2H156L140 24Z' fill='%231f9e8f'/%3E%3C/svg%3E") 0 0/232px 38px repeat-x}
 .pricing .wrap.one{grid-template-columns:1fr;padding-top:2.1rem;min-width:0}
 .pricing .intro{min-width:0}
@@ -580,7 +580,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 .pricing .pr-fine{margin-top:0}
 
 /* FAQ */
-.faq{background:var(--ink);color:var(--bone);position:relative;overflow:clip;padding:0 0 clamp(56px,12vh,130px)}
+.faq{background:rgba(20,6,15,.82);color:var(--bone);position:relative;overflow:clip;padding:0 0 clamp(56px,12vh,130px)}
 @supports not (overflow:clip){.services,.pricing,.faq{overflow:hidden}}
 .faq .faq-band{height:14px;background-color:var(--blood);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='14' viewBox='0 0 28 14'%3E%3Cpath d='M14 1L21 7L14 13L7 7Z' fill='%23e9b42f'/%3E%3C/svg%3E");background-size:28px 14px;background-repeat:repeat-x}
 .faq .wrap{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;gap:clamp(32px,5vw,72px);padding-top:56px;min-width:0}
@@ -646,13 +646,16 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 @media (prefers-reduced-motion:reduce){
   .sec-spot{animation:none;transition:none;opacity:1}
 }
-/* Papel picado: capa fija bajo la cabecera (150) y sobre el #fx (200 queda por encima) */
+/* Papel picado en dos capas: delantera (sobre todo, z 120) y trasera (tras las secciones, z -1) */
 .confetti-layer{position:fixed;inset:0;width:100%;height:100%;display:block;pointer-events:none;z-index:120;opacity:1;transition:opacity .8s ease}
 .confetti-layer.is-off{opacity:0}
+.confetti-back{position:fixed;inset:0;width:100%;height:100%;display:block;pointer-events:none;z-index:-1;opacity:1;transition:opacity .8s ease}
+.confetti-back.is-off{opacity:0}
 </style>
 <script defer src="https://cloud.umami.is/script.js" data-website-id="1377f8f1-df62-427b-bc7d-eec5c112cc00" data-domains="sundanstudio.com"></script>
 </head>
 <body>
+<canvas class="confetti-back" aria-hidden="true"></canvas>
 <canvas id="fx" aria-hidden="true"></canvas>
 <canvas class="confetti-layer" aria-hidden="true"></canvas>
 <header class="topbar">
@@ -956,7 +959,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
         <div class="body">
           <div class="tags"><span>Canvas</span><span>SVG</span><span>Accesibilidad</span></div>
           <h4>Esta misma web</h4>
-          <p class="desc">Búhos que te miran, luces que te siguen y un calendario para agendar una videollamada.</p>
+          <p class="desc">Focos que recorren las secciones, papel picado, una luz que te sigue y un calendario para agendar una videollamada.</p>
           <p class="result">Qué demuestra: <strong>Identidad de marca hecha interacción.</strong></p>
           <div class="actions">
             <a class="pill" href="#hero">Volver arriba ↑</a>
@@ -1639,7 +1642,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
       </ul>
     </div>
   </div>
-  <a class="next" href="#hero">El taller de los búhos</a>
+  <a class="next" href="#hero">Gran final: la pista</a>
 </section>
 
 <section class="hero" id="hero">
@@ -3486,7 +3489,7 @@ function drawMumi(c, p){
   }
 
   /* ---- Separador A: guirnalda de Mumi ---- */
-  var GAR_H = 90, PADX = 6, SAG = 24, YP = 14;
+  var GAR_H = 90, PADX = 6, SAG = 24, YP = 6;
   function buildGar() {
     var el = document.getElementById('sepGarland');
     if (!el) return;
@@ -3505,10 +3508,6 @@ function drawMumi(c, p){
     var ySag = function (u) { return YP + 4 * SAG * u * (1 - u); };
     var s, j, K, x0, x, y, u, slope, ang, g, gb, b = 0, p = 0;
 
-    for (s = 0; s <= n; s++) {
-      x = PADX + s * span;
-      mk('rect', {x: (x - 2).toFixed(2), y: 6, width: 4, height: GAR_H - 6, fill: '#241229'}, svg);
-    }
     for (s = 0; s < n; s++) {
       x0 = PADX + s * span;
       mk('path', {d: 'M' + x0 + ' ' + YP + ' Q' + (x0 + span / 2) + ' ' + (YP + 2 * SAG) + ' ' + (x0 + span) + ' ' + YP,
@@ -3536,9 +3535,10 @@ function drawMumi(c, p){
         b++;
       }
     }
-    for (s = 0; s <= n; s++) {
+    /* nudos dorados donde se unen dos guirnaldas (antiguos polos), colgadas del borde superior */
+    for (s = 1; s < n; s++) {
       x = PADX + s * span;
-      mk('circle', {cx: x.toFixed(2), cy: 5, r: 4.2, fill: '#e9b42f', stroke: '#7a5510', 'stroke-width': .8}, svg);
+      mk('circle', {cx: x.toFixed(2), cy: YP, r: 1.5, fill: '#e9b42f'}, svg);
     }
   }
 
@@ -3567,46 +3567,46 @@ function drawMumi(c, p){
   watchPause(document.getElementById('sepGarland'));
   watchPause(document.getElementById('sepMarquee'));
 
-  /* ---- Papel picado: lluvia suave en toda la pagina ---- */
-  var cv = document.querySelector('.confetti-layer');
-  if (!cv) return;
-  if (reduce) { cv.remove(); return; }
+  /* ---- Papel picado en dos capas de profundidad ---- */
+  /* trasera: tras el contenido de las secciones (z -1), mas pequena, tenue y lenta; delantera: sobre todo (z 120) */
+  var cvFront = document.querySelector('.confetti-layer');
+  var cvBack = document.querySelector('.confetti-back');
+  if (reduce) { if (cvFront) cvFront.remove(); if (cvBack) cvBack.remove(); return; }
+  if (!cvFront && !cvBack) return;
 
-  var ctx = cv.getContext('2d');
   var COLORS = ['#c1121f', '#e9b42f', '#efe3c8', '#1f9e8f'];
   var TAU = Math.PI * 2;
   var W = 0, H = 0, dpr = 1, T = 0, last = 0, rafId = 0, running = false, faded = false, fadeTimer = 0;
-  var pieces = [];
+  var LAYERS = [];
   function rnd(a, b) { return a + Math.random() * (b - a); }
-  function target() { return W < 760 ? 14 : 28; }
-  function spawn(p, initial) {
+  function makeLayer(cv, cfg) { return { cv: cv, ctx: cv.getContext('2d'), pieces: [], cfg: cfg }; }
+  function target(L) { return W < 760 ? L.cfg.n[1] : L.cfg.n[0]; }
+  function spawn(p, initial, cfg) {
     p.x0 = rnd(0, W);
     p.y = initial ? rnd(0, H) : -rnd(14, 60);
-    p.vy = rnd(18, 40);
+    p.vy = rnd(18, 40) * cfg.speed;
     p.amp = rnd(10, 30);
     p.om = TAU / rnd(3, 6);
     p.ph = rnd(0, TAU);
-    p.w = rnd(5, 9);
-    p.h = rnd(8, 12);
+    p.w = rnd(5, 9) * cfg.size;
+    p.h = rnd(8, 12) * cfg.size;
     p.rot = rnd(0, TAU);
     p.vr = rnd(0.15, 0.5) * (Math.random() < 0.5 ? -1 : 1);
     p.fl = rnd(0, TAU);
     p.vf = rnd(1.2, 2.6);
-    p.a = rnd(0.55, 0.8);
+    p.a = rnd(0.55, 0.8) * cfg.alpha;
     p.c = COLORS[(Math.random() * COLORS.length) | 0];
     return p;
   }
-  function frame(now) {
-    var dt = last ? Math.min(0.05, (now - last) / 1000) : 0;
-    last = now;
-    T += dt;
+  function drawLayer(L, dt) {
+    var ctx = L.ctx, pieces = L.pieces;
     ctx.clearRect(0, 0, W, H);
     for (var i = 0; i < pieces.length; i++) {
       var p = pieces[i];
       p.y += p.vy * dt;
       p.rot += p.vr * dt;
       p.fl += p.vf * dt;
-      if (p.y > H + 20) spawn(p, false);
+      if (p.y > H + 20) spawn(p, false, L.cfg);
       ctx.save();
       ctx.globalAlpha = p.a;
       ctx.translate(p.x0 + p.amp * Math.sin(p.om * T + p.ph), p.y);
@@ -3616,6 +3616,12 @@ function drawMumi(c, p){
       ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
       ctx.restore();
     }
+  }
+  function frame(now) {
+    var dt = last ? Math.min(0.05, (now - last) / 1000) : 0;
+    last = now;
+    T += dt;
+    for (var l = 0; l < LAYERS.length; l++) drawLayer(LAYERS[l], dt);
     rafId = requestAnimationFrame(frame);
   }
   function start() {
@@ -3633,14 +3639,18 @@ function drawMumi(c, p){
     var ratio = W ? w / W : 1;
     W = w; H = h;
     dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    cv.width = Math.round(W * dpr);
-    cv.height = Math.round(H * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    pieces.forEach(function (p) { p.x0 *= ratio; });
-    var want = target();
-    while (pieces.length < want) pieces.push(spawn({}, true));
-    if (pieces.length > want) pieces.length = want;
+    LAYERS.forEach(function (L) {
+      L.cv.width = Math.round(W * dpr);
+      L.cv.height = Math.round(H * dpr);
+      L.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      L.pieces.forEach(function (p) { p.x0 *= ratio; });
+      var want = target(L);
+      while (L.pieces.length < want) L.pieces.push(spawn({}, true, L.cfg));
+      if (L.pieces.length > want) L.pieces.length = want;
+    });
   }
+  if (cvBack) LAYERS.push(makeLayer(cvBack, { n: [22, 11], size: 0.8, alpha: 0.7, speed: 0.75 }));
+  if (cvFront) LAYERS.push(makeLayer(cvFront, { n: [6, 3], size: 1, alpha: 1, speed: 1 }));
   var cfRaf = 0;
   window.addEventListener('resize', function () {
     cancelAnimationFrame(cfRaf);
@@ -3649,11 +3659,11 @@ function drawMumi(c, p){
   size();
   start();
 
-  /* se desvanece mientras #hero (escenario circense con su propio canvas) ocupa mas de la mitad */
+  /* se desvanecen mientras #hero (escenario circense con su propio canvas) ocupa mas de la mitad */
   function setFaded(f) {
     if (faded === f) return;
     faded = f;
-    cv.classList.toggle('is-off', f);
+    LAYERS.forEach(function (L) { L.cv.classList.toggle('is-off', f); });
     clearTimeout(fadeTimer);
     if (f) fadeTimer = setTimeout(stop, 820); else start();
   }
@@ -3669,4 +3679,5 @@ function drawMumi(c, p){
 })();
 </script>
 </body>
+
 </html>
