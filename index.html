@@ -600,22 +600,30 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 @media (min-width:640px) and (max-width:900px){.tb-logo img{height:30px}.topbar nav{gap:.8rem}.topbar nav a{font-size:.85rem}.topbar{gap:.6rem}}
 .note a,a[href^="mailto:"]{padding-block:.7em}
 .panel .plink{display:inline-flex;align-items:center;min-height:44px}
-/* SPOTLIGHTS (ambient sweeping light cones) */
-.spot-layer{position:fixed;inset:0;pointer-events:none;z-index:5;overflow:hidden;mix-blend-mode:screen;transition:opacity .6s ease;will-change:opacity}
-.spot-layer.spot-off{opacity:0}
-.spot{position:absolute;bottom:-10vh;width:46vw;height:130vh;transform-origin:50% 100%;will-change:transform;background:radial-gradient(ellipse 35% 100% at 50% 100%,rgba(255,230,170,.10),rgba(255,230,170,.04) 45%,transparent 70%);clip-path:polygon(46% 100%,54% 100%,100% 0,0 0)}
-.spot.s1{left:8vw;animation:sweep1 11s ease-in-out infinite}
-.spot.s2{right:8vw;animation:sweep2 13s ease-in-out -6s infinite}
-.spot-paused .spot{animation-play-state:paused}
-@keyframes sweep1{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(16deg)}}
-@keyframes sweep2{0%,100%{transform:rotate(14deg)}50%{transform:rotate(-16deg)}}
-@media (max-width:759px){.spot{width:70vw}}
-@media (prefers-reduced-motion:reduce){.spot-layer{display:none}}
+/* SECTION SPOTLIGHTS: one cone per content section, from a top corner (clipped to its own section) */
+.has-spot{position:relative;isolation:isolate}
+.sec-spot-wrap{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.has-spot > :not(.sec-spot-wrap):not(.cf-side):not(.faq-intro){position:relative;z-index:1}
+.sec-spot{position:absolute;top:calc(min(150vh,1500px) * -.04);width:min(70vw,900px);height:min(150vh,1500px);transform-origin:50% 0;background:radial-gradient(ellipse 40% 90% at 50% 0%,rgba(255,232,180,.16),rgba(255,232,180,.06) 45%,transparent 72%);clip-path:polygon(44% 0,56% 0,100% 100%,0 100%);mix-blend-mode:screen;opacity:0;transition:opacity .8s ease;animation-duration:11s;animation-timing-function:ease-in-out;animation-iteration-count:infinite;animation-play-state:paused}
+.sec-spot::before{content:"";position:absolute;left:50%;top:0;width:60px;height:60px;margin-left:-30px;border-radius:50%;background:radial-gradient(circle,rgba(255,240,200,.35),transparent 70%)}
+.sec-spot.spot-l{left:calc(min(70vw,900px) / -2);transform:rotate(-45deg);animation-name:spotL}
+.sec-spot.spot-r{right:calc(min(70vw,900px) / -2);transform:rotate(45deg);animation-name:spotR}
+.has-spot.spot-on .sec-spot{opacity:1;animation-play-state:running}
+.spot-tab-hidden .has-spot .sec-spot{animation-play-state:paused !important}
+@keyframes spotL{0%,100%{transform:rotate(-49deg)}50%{transform:rotate(-41deg)}}
+@keyframes spotR{0%,100%{transform:rotate(49deg)}50%{transform:rotate(41deg)}}
+@media (max-width:759px){
+  .sec-spot{width:120vw;height:min(130vh,1100px);top:calc(min(130vh,1100px) * -.04);background:radial-gradient(ellipse 40% 90% at 50% 0%,rgba(255,232,180,.12),rgba(255,232,180,.04) 45%,transparent 72%)}
+  .sec-spot.spot-l{left:-60vw}
+  .sec-spot.spot-r{right:-60vw}
+}
+@media (prefers-reduced-motion:reduce){
+  .sec-spot{animation:none;transition:none;opacity:1}
+}
 </style>
 <script defer src="https://cloud.umami.is/script.js" data-website-id="1377f8f1-df62-427b-bc7d-eec5c112cc00" data-domains="sundanstudio.com"></script>
 </head>
 <body>
-<div class="spot-layer" aria-hidden="true"><span class="spot s1"></span><span class="spot s2"></span></div>
 <canvas id="fx" aria-hidden="true"></canvas>
 <header class="topbar">
   <a class="tb-logo" href="#proyectos"><img src="assets/logo/logo-horizontal-oscuro.svg" alt="Sundan Studio" width="211" height="36"></a>
@@ -3383,16 +3391,41 @@ function drawMumi(c, p){
 </script>
 <script>
 (function () {
-  var layer = document.querySelector('.spot-layer');
-  if (!layer) return;
-  function syncPaused() { layer.classList.toggle('spot-paused', document.hidden); }
-  document.addEventListener('visibilitychange', syncPaused);
-  syncPaused();
-  var hero = document.getElementById('hero');
-  if (hero && 'IntersectionObserver' in window) {
-    new IntersectionObserver(function (en) {
-      layer.classList.toggle('spot-off', en[0].intersectionRatio > 0.5);
-    }, { threshold: [0, 0.5, 1] }).observe(hero);
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var targets = ['proyectos', 'servicios', 'proceso', 'precios', 'faq', 'contacto'];
+  var durations = [10, 11.5, 9, 12, 10.5, 9.5];
+  var secs = [];
+  targets.forEach(function (id, i) {
+    var sec = document.getElementById(id);
+    if (!sec) return;
+    sec.classList.add('has-spot');
+    var wrap = document.createElement('span');
+    wrap.className = 'sec-spot-wrap';
+    wrap.setAttribute('aria-hidden', 'true');
+    var beam = document.createElement('span');
+    beam.className = 'sec-spot ' + (i % 2 === 0 ? 'spot-l' : 'spot-r');
+    beam.style.animationDuration = durations[i] + 's';
+    beam.style.animationDelay = (-i * 1.7) + 's';
+    wrap.appendChild(beam);
+    sec.insertBefore(wrap, sec.firstChild);
+    secs.push(sec);
+  });
+  if (reduce) return;
+  function syncHidden() { document.body.classList.toggle('spot-tab-hidden', document.hidden); }
+  document.addEventListener('visibilitychange', syncHidden);
+  syncHidden();
+  var vh = window.innerHeight || document.documentElement.clientHeight;
+  secs.forEach(function (s) {
+    var r = s.getBoundingClientRect();
+    if (r.bottom > 0 && r.top < vh) s.classList.add('spot-on');
+  });
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (en) {
+      en.forEach(function (e) { e.target.classList.toggle('spot-on', e.isIntersecting); });
+    }, { threshold: [0, 0.05] });
+    secs.forEach(function (s) { io.observe(s); });
+  } else {
+    secs.forEach(function (s) { s.classList.add('spot-on'); });
   }
 })();
 </script>
