@@ -233,15 +233,25 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 .cf-video{display:grid;gap:.9rem;min-width:0}
 .cf-check{position:relative;display:flex;align-items:center;gap:.75rem;min-height:44px;font-size:1rem;line-height:1.4;cursor:pointer;user-select:none}
 .cf-check input{position:absolute;opacity:0;width:1px;height:1px;margin:0;pointer-events:none}
-.cf-check::before{content:"";flex:0 0 22px;width:22px;height:22px;box-sizing:border-box;border:2px solid rgba(239,227,200,.42);background:rgba(239,227,200,.06);transition:background .2s ease,border-color .2s ease}
-.cf-check:hover::before{border-color:var(--gold)}
-.cf-check:has(input:checked)::before{background:var(--gold);border-color:var(--gold)}
+.cf-check::before{content:"";flex:0 0 22px;width:22px;height:22px;box-sizing:border-box;border:2px solid var(--gold);background:transparent;transition:background .2s ease,border-color .2s ease}
+.cf-check:hover::before{background:rgba(233,180,47,.12)}
+.cf-check::after{content:"";position:absolute;left:11px;top:50%;width:6px;height:11px;box-sizing:border-box;border-right:2.5px solid var(--gold);border-bottom:2.5px solid var(--gold);transform:translate(-50%,-50%) rotate(45deg) scale(0);opacity:0;pointer-events:none}
+.cf-check:has(input:checked)::after{opacity:1;transform:translate(-50%,-50%) rotate(45deg) scale(1)}
+@media (prefers-reduced-motion:no-preference){.cf-check:has(input:checked)::after{animation:cf-tick .18s ease-out}}
+@keyframes cf-tick{from{opacity:0;transform:translate(-50%,-50%) rotate(45deg) scale(0)}to{opacity:1;transform:translate(-50%,-50%) rotate(45deg) scale(1)}}
 .cf-check:has(input:focus-visible)::before{outline:3px solid var(--bone);outline-offset:2px}
 #cf-video-box{min-width:0}
 #cf-video-box .card{transform:none;margin:0}
 #cf-video-box .times{grid-template-columns:repeat(auto-fill,minmax(68px,1fr))}
 #cf-video-box iframe{display:block;max-width:100%}
-.cf-gcal-link{color:var(--gold);text-underline-offset:.2em;overflow-wrap:anywhere}
+#cf-video-box [tabindex="-1"]:focus{outline:none}
+.cf-gcal-frame{position:relative;overflow:hidden;border-radius:12px;border:1px solid rgba(233,180,47,.45);box-shadow:0 10px 30px rgba(0,0,0,.35);background:#fff}
+.cf-gcal-frame::before{content:"";display:block;height:4px;background:var(--gold)}
+.cf-gcal-frame iframe{display:block;width:100%;height:640px;border:0}
+@media (max-width:480px){.cf-gcal-frame iframe{height:700px}}
+.cf-gcal-link{display:inline-flex;align-items:center;gap:.4rem;min-height:44px;padding:.5rem 1rem;border:2px solid var(--gold);border-radius:999px;color:var(--bone);text-decoration:none;overflow-wrap:anywhere}
+.cf-gcal-link:hover{background:rgba(233,180,47,.12)}
+.cf-gcal-link::after{content:"\2197";color:var(--gold)}
 .cf-gcal-link:focus-visible{outline:3px solid var(--bone);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){.cf-check::before{transition:none}}
 .cf-slot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem .8rem;padding:.6rem .8rem;border:1px dashed var(--gold);background:rgba(233,180,47,.08);font-size:.95rem}
@@ -935,7 +945,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
       </div>
     </div>
 
-    <p class="note">¿Tienes un proyecto parecido? Te enseño cómo lo haría en una llamada de 20 minutos. <a href="#contacto">Escríbeme</a>.</p>
+    <p class="note">¿Tienes un proyecto parecido? Te enseño cómo lo haría en una llamada de 15 minutos. <a href="#contacto">Escríbeme</a>.</p>
   </div>
 
   <a class="next" href="#servicios">Servicios</a>
@@ -1037,7 +1047,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
           <span class="num">1</span>
           <div>
             <h3>Charla</h3>
-            <p>20 minutos para entender tu idea, tu público y qué necesitas de verdad.</p>
+            <p>15 minutos para entender tu idea, tu público y qué necesitas de verdad.</p>
           </div>
         </li>
         <li class="step" style="--i:1">
@@ -1294,7 +1304,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
     <div class="cf-main">
       <h2 class="big">Contacto</h2>
       <p class="lede">¿Necesitas una web, una tienda online o una aplicación para tu negocio? Cuéntamelo y te respondo en menos de 24 h.</p>
-      <p class="cx-steps">1. Me cuentas tu idea · 2. Charlamos 20 minutos · 3. Te envío una propuesta con precio cerrado en 48 h.</p>
+      <p class="cx-steps">1. Me cuentas tu idea · 2. Charlamos 15 minutos · 3. Te envío una propuesta con precio cerrado en 48 h.</p>
 
       <div class="cf-person">
         <img class="cf-photo" src="assets/rafa-160.webp" srcset="assets/rafa-160.webp 1x, assets/rafa-320.webp 2x" width="80" height="80" loading="lazy" decoding="async" alt="Rafael Molinero, fundador de Sundan Studio">
@@ -1369,7 +1379,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
         </div>
 
         <div class="cf-video">
-          <label class="cf-check"><input type="checkbox" id="cf-video" name="quiere_videollamada" data-umami-event="cf-videollamada-check"> Quiero una videollamada</label>
+          <label class="cf-check"><input type="checkbox" id="cf-video" name="quiere_videollamada" data-umami-event="cf-videollamada-check"> Quiero una videollamada de 15 minutos</label>
           <div id="cf-video-box" hidden>
             <div class="card" id="card">
               <div id="cardbody">
@@ -2507,12 +2517,12 @@ function drawMumi(c, p){
   }
   // Google Calendar booking page instead of the custom calendar
   function showGcal(){
-    body.innerHTML='<h3 tabindex="-1">Agenda una videollamada</h3><p class="cal-note">Elige un hueco en mi calendario de Google; recibirás la invitación con el enlace de Google Meet.</p><div id="gcal-wrap"></div>';
+    body.innerHTML='<h3 tabindex="-1">Agenda una videollamada</h3><p class="cal-note">Elige un hueco en mi calendario de Google; recibirás la invitación con el enlace de Google Meet.</p><div id="gcal-wrap" class="cf-gcal-frame"></div>';
     var wrap=document.getElementById("gcal-wrap"),fr=document.createElement("iframe"),p=document.createElement("p"),a=document.createElement("a");
     fr.src=GCAL_BOOKING_URL+(GCAL_BOOKING_URL.indexOf("?")>-1?"&":"?")+"gv=true";
     fr.setAttribute("title","Reservar videollamada");
     fr.setAttribute("style","border:0");
-    fr.setAttribute("width","100%");fr.setAttribute("height","600");fr.setAttribute("loading","lazy");
+    fr.setAttribute("width","100%");fr.setAttribute("height","640");fr.setAttribute("loading","lazy");
     wrap.appendChild(fr);
     a.href=GCAL_BOOKING_URL;a.target="_blank";a.rel="noopener";a.className="cf-gcal-link";
     a.textContent="Abrir el calendario en una pestaña nueva";
