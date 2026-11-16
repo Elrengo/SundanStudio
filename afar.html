@@ -241,8 +241,10 @@ const MUSIC=(function(){
 const VW=720,VH=405,TAU=Math.PI*2;
 const GRAVITY=1400,WALK_SPD=220,JUMP_VEL=-670,GRAB_R=65,DAMP=0.016;
 const PW=24,PH=46;
-// DASH: 770 px/s x 0.18 s = 138.6 px nominales (3.5 x WALK_SPD). Sin gravedad durante el dash.
-const DASH_SPD=770,DASH_TIME=0.18,DASH_CD=0.35;
+// DASH: velocidad pico DASH_SPD_PEAK con perfil ease-out (1-0.55k²) durante DASH_TIME; después fase de salida
+// (EXIT_T, o EXIT_OPP_T si se pulsa el sentido contrario) que mezcla hacia WALK_SPD. Sin gravedad durante el dash.
+const DASH_SPD_PEAK=726,DASH_TIME=0.18,DASH_CD=0.35;
+const EXIT_T=0.14,EXIT_OPP_T=0.07,GHOST_FADE=0.18;
 const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
 
 // ═══════════════════════════════════════════════════════════
@@ -523,10 +525,16 @@ function drawParts(ctx){
 function startDash(){
   const L=wantsLeft(),R=wantsRight();
   const dir=dashDirReq||(R&&!L?1:(L&&!R?-1:P.facing));
-  P.dashDir=dir;P.facing=dir;P.dashT=DASH_TIME;P.dashCd=DASH_CD;P.airDashUsed=true;P.trail=[];
+  P.dashDir=dir;P.facing=dir;P.dashT=DASH_TIME;P.dashCd=DASH_CD;P.airDashUsed=true;P.trail=[];P.dashEndT=Infinity;
   SFX.playDash();
   spawnBurst(P.x-dir*6,P.y-PH*0.45,10);
   if(P.onGround)spawnDust(P.x,P.y,dir);
+}
+// fase de salida tras el dash: 0.14 s (0.07 s si se pulsa el sentido contrario)
+function startExit(){
+  const L=wantsLeft(),R=wantsRight();
+  const opp=(P.dashDir>0&&L&&!R)||(P.dashDir<0&&R&&!L);
+  P.dashExitD=opp?EXIT_OPP_T:EXIT_T;P.dashExit=P.dashExitD;P.exitV0=P.vx;
 }
 // chispa del rayo (sólo nivel IV): se atrapa tocándola con el cuerpo
 function checkSpark(){
@@ -562,25 +570,51 @@ function drawSpark(ctx){
   ctx.restore();
 }
 // fantasmas de Afar (3-4, tinte dorado->teal) + líneas de velocidad; con reduce: un solo rastro tenue
+// Sprite tintado (teal) de Afar en pose 'dash', pintado UNA vez por frame y reutilizado por todos los fantasmas
+// (sustituye a ctx.filter hue-rotate, que es caro). Canvas 144x144 con escala 2; origen del sprite en (36,60).
+let GHOST=null,GHOSTctx=null;
+function ghostCanvas(){
+  if(!GHOST){GHOST=document.createElement('canvas');GHOST.width=144;GHOST.height=144;GHOSTctx=GHOST.getContext('2d');}
+  return GHOSTctx;
+}
+function paintGhostSprite(){
+  const gc=ghostCanvas();
+  gc.setTransform(1,0,0,1,0,0);gc.globalCompositeOperation='source-over';gc.clearRect(0,0,144,144);
+  gc.setTransform(2,0,0,2,0,0);
+  drawAfar(gc,36,60,1,'dash',0,0);
+  gc.globalCompositeOperation='source-atop';gc.fillStyle='rgba(64,196,186,0.55)';gc.fillRect(0,0,72,72);
+  gc.globalCompositeOperation='source-over';
+}
+// fantasmas (3-4, se desvanecen GHOST_FADE tras el dash) + líneas de velocidad (se apagan durante la salida)
 function drawDashTrail(ctx){
-  const ghosts=P.trail.slice(0,-1);   // posiciones anteriores (la última es la actual)
+  const dashing=P.dashT>0;
+  const fade=dashing?1:Math.max(0,1-(gameNow-P.dashEndT)/GHOST_FADE);
+  const lineK=dashing?1:(P.dashExit>0?P.dashExit/P.dashExitD:0);
+  if(fade<=0&&lineK<=0)return;
+  const ghosts=dashing?P.trail.slice(0,-1):P.trail;   // durante el dash la última muestra es la actual
   ctx.save();
   if(reduce){
     const g=ghosts[ghosts.length-1];
-    if(g){ctx.globalAlpha=0.18;drawAfar(ctx,g.x-camX,g.y,g.f,'dash',P.animTime,0);}
-  }else{
-    if('filter' in ctx)ctx.filter='hue-rotate(150deg) saturate(1.5)';
+    if(g&&fade>0){ctx.globalAlpha=0.18*fade;drawAfar(ctx,g.x-camX,g.y,g.f,'dash',P.animTime,0);}
+  }else if(ghosts.length&&fade>0){
+    paintGhostSprite();
     const m=ghosts.length;
-    ghosts.forEach((g,i)=>{ctx.globalAlpha=m>1?0.1+0.35*i/(m-1):0.3;drawAfar(ctx,g.x-camX,g.y,g.f,'dash',P.animTime,0);});
-    ctx.filter='none';
+    ghosts.forEach((g,i)=>{
+      ctx.globalAlpha=(m>1?0.1+0.35*i/(m-1):0.3)*fade;
+      ctx.save();ctx.translate(g.x-camX,g.y);ctx.scale(g.f<0?-1:1,1);
+      ctx.drawImage(GHOST,-36,-60,72,72);
+      ctx.restore();
+    });
   }
   ctx.globalAlpha=1;ctx.lineCap='round';ctx.lineWidth=1.2;
-  const px=P.x-camX,py=P.y-PH*0.5,d=P.dashDir;
-  for(let i=0;i<5;i++){
-    const yo=(i-2)*8+(reduce?0:Math.sin(gameNow*30+i*2)*2);
-    const x0=px-d*(14+i*3),len=26+i*7+(reduce?0:Math.sin(gameNow*40+i)*6);
-    ctx.strokeStyle='rgba(239,227,200,'+(0.32-i*0.05).toFixed(2)+')';
-    ctx.beginPath();ctx.moveTo(x0,py+yo);ctx.lineTo(x0-d*len,py+yo);ctx.stroke();
+  if(lineK>0){
+    const px=P.x-camX,py=P.y-PH*0.5,d=P.dashDir;
+    for(let i=0;i<5;i++){
+      const yo=(i-2)*8+(reduce?0:Math.sin(gameNow*30+i*2)*2);
+      const x0=px-d*(14+i*3),len=26+i*7+(reduce?0:Math.sin(gameNow*40+i)*6);
+      ctx.strokeStyle='rgba(239,227,200,'+((0.32-i*0.05)*lineK).toFixed(3)+')';
+      ctx.beginPath();ctx.moveTo(x0,py+yo);ctx.lineTo(x0-d*len,py+yo);ctx.stroke();
+    }
   }
   ctx.restore();
 }
@@ -736,7 +770,8 @@ function initPlayer(){
      grabbed:null,swingTheta:0,swingOmega:0,
      swingPose:0.5,
      deathAnim:0,trickAnim:0,
-     canDash:sparkTaken,dashT:0,dashCd:0,dashDir:1,airDashUsed:false,trail:[]};
+     canDash:sparkTaken,dashT:0,dashCd:0,dashDir:1,airDashUsed:false,trail:[],
+     dashExit:0,dashExitD:EXIT_T,exitV0:0,dashEndT:-1e9};
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -799,13 +834,26 @@ function updatePlayer(dt){
   // dash: Shift (flanco) o doble toque; requiere desbloqueo, cooldown listo y (en suelo o aire sin usar)
   if(dashPressed&&P.canDash&&P.dashT<=0&&P.dashCd<=0&&(P.onGround||!P.airDashUsed))startDash();
   const dashing=P.dashT>0;
+  let wallStop=false;
 
   if(dashing){
-    P.dashT-=dt;P.vx=DASH_SPD*P.dashDir;P.vy=0;   // sin gravedad durante el dash
-    P.trail.push({x:P.x,y:P.y,f:P.facing});if(P.trail.length>5)P.trail.shift();
+    P.dashT-=dt;
+    // perfil ease-out: k = fracción transcurrida; pico al inicio, 0.45·pico al final
+    const k=Math.min(1,(DASH_TIME-P.dashT)/DASH_TIME);
+    P.vx=DASH_SPD_PEAK*(1-0.55*k*k)*P.dashDir;P.vy=0;   // sin gravedad durante el dash
+    P.trail.push({x:P.x,y:P.y,f:P.facing,t:gameNow});if(P.trail.length>5)P.trail.shift();
   }else{
     const left=wantsLeft(),right=wantsRight();
-    if(left&&!right){P.vx=-WALK_SPD;if(P.onGround)P.facing=-1;}
+    let gScale=1;
+    if(P.dashExit>0){
+      // fase de salida: la velocidad se mezcla desde la del final del dash hasta la objetivo (sin saltos bruscos)
+      P.dashExit-=dt;if(P.dashExit<0)P.dashExit=0;
+      const s=1-P.dashExit/P.dashExitD, e=s*s*(3-2*s);      // smoothstep 0..1
+      const tgt=(left&&!right)?-WALK_SPD:(right&&!left)?WALK_SPD:0;
+      P.vx=P.exitV0+(tgt-P.exitV0)*e;
+      if(tgt!==0&&P.onGround)P.facing=tgt>0?1:-1;
+      gScale=0.25+0.75*e;                                    // la caída arranca suave
+    }else if(left&&!right){P.vx=-WALK_SPD;if(P.onGround)P.facing=-1;}
     else if(right&&!left){P.vx=WALK_SPD;if(P.onGround)P.facing=1;}
     else P.vx*=Math.pow(0.0001,dt);
 
@@ -815,21 +863,25 @@ function updatePlayer(dt){
       tryGrab();
     }
 
-    P.vy+=GRAVITY*dt;
+    P.vy+=GRAVITY*dt*gScale;
   }
   const prevY=P.y,prevX=P.x;
   P.x+=P.vx*dt;
   P.y+=P.vy*dt;
 
-  // dash y deslizamiento posterior (|vx|>WALK_SPD): se detienen contra plataformas que cruzan la altura del cuerpo
-  if(dashing||Math.abs(P.vx)>WALK_SPD){
+  // dash, salida y deslizamiento posterior (|vx|>WALK_SPD): se detienen contra plataformas que cruzan la altura del cuerpo
+  if(dashing||P.dashExit>0||Math.abs(P.vx)>WALK_SPD){
     for(const pl of platforms){
       if(!(P.y>pl.y&&P.y-PH<pl.y+pl.h))continue;
       const plx=movingX(pl);
-      if(P.vx>0&&prevX+PW/2<=plx&&P.x+PW/2>plx){P.x=plx-PW/2;P.dashT=0;P.vx=0;break;}
-      if(P.vx<0&&prevX-PW/2>=plx+pl.w&&P.x-PW/2<plx+pl.w){P.x=plx+pl.w+PW/2;P.dashT=0;P.vx=0;break;}
+      if(P.vx>0&&prevX+PW/2<=plx&&P.x+PW/2>plx){P.x=plx-PW/2;P.dashT=0;P.vx=0;P.dashExit=0;wallStop=true;break;}
+      if(P.vx<0&&prevX-PW/2>=plx+pl.w&&P.x-PW/2<plx+pl.w){P.x=plx+pl.w+PW/2;P.dashT=0;P.vx=0;P.dashExit=0;wallStop=true;break;}
     }
-    if(P.dashT<=0)P.trail=[];
+  }
+  // fin del dash (por tiempo o por choque): marca el instante para desvanecer los fantasmas y arranca la salida
+  if(dashing&&P.dashT<=0){
+    P.dashEndT=gameNow;
+    if(!wallStop)startExit();
   }
 
   const wasOnGround=P.onGround;
@@ -849,7 +901,7 @@ function updatePlayer(dt){
 
   // aterrizar (en suelo) restaura el air dash; un dash iniciado en el suelo que se despega no lo restaura
   if(P.onGround&&P.dashT<=0)P.airDashUsed=false;
-  if(P.x<PW/2){P.x=PW/2;P.vx=0;}
+  if(P.x<PW/2){P.x=PW/2;P.vx=0;P.dashExit=0;}
   if(P.y>VH+100)die();
 
   if(P.onGround&&lv.goal&&P.x>lv.goal.x&&P.y<=lv.goal.y+30&&gState==='playing'){
@@ -857,12 +909,15 @@ function updatePlayer(dt){
     if(levelIdx+1>getSaved())setSaved(levelIdx+1);
   }
 
-  if(P.dashT>0){P.state='dash';}
+  // pose 'dash' durante el dash y la primera mitad de la salida
+  if(P.dashT>0||P.dashExit>P.dashExitD*0.5){P.state='dash';}
   else if(P.trickAnim>0){P.state='trick';P.trickAnim-=dt;}
   else if(!P.onGround&&P.vy<-100)P.state='jump';
   else if(!P.onGround)P.state='fall';
   else if(Math.abs(P.vx)>10)P.state='walk';
   else P.state='idle';
+  // los fantasmas se borran sólo cuando ya se han desvanecido
+  if(P.dashT<=0&&P.trail.length&&gameNow-P.dashEndT>GHOST_FADE)P.trail=[];
   P.animTime+=dt;
 }
 
@@ -900,7 +955,7 @@ function tryGrab(){
     if(d2<bd){bd=d2;best=tr;}
   });
   if(best){
-    P.grabbed=best;P.dashT=0;P.airDashUsed=false;   // agarrar un trapecio restaura el air dash
+    P.grabbed=best;P.dashT=0;P.dashExit=0;P.airDashUsed=false;   // agarrar un trapecio restaura el air dash
     P.swingTheta=Math.atan2(P.x-best.px,P.y-best.py);
     P.swingOmega=best.omega*0.4;
     P.vy=0;P.vx=0;
@@ -935,14 +990,21 @@ function updateTrapezes(dt){
 
 // Cámara con look-ahead: el ancla (posición de Afar en pantalla, fracción de VW) se desliza
 // a 0.33 al ir a la derecha y a 0.6 al ir a la izquierda (~2.5/s); camX persigue el objetivo.
-let camAnchor=0.33;
+let camAnchor=0.33,camRate=6,camLead=0;
 function camClamp(x){return Math.max(0,Math.min((lv.worldW||VW)-VW,x));}
-function snapCamera(){camAnchor=0.33;camX=camClamp(P.x-VW*camAnchor);}
+function snapCamera(){camAnchor=0.33;camRate=6;camLead=0;camX=camClamp(P.x-VW*camAnchor);}
+// Velocidad de seguimiento y adelanto (lead) escalados por el exceso de velocidad sobre WALK_SPD:
+// al caminar (|vx|<=WALK_SPD) el comportamiento es el de siempre (rate 6, sin lead).
 function updateCamera(dt){
   const dirRight=Math.abs(P.vx)>20?P.vx>0:P.facing===1;
   camAnchor+=((dirRight?0.33:0.6)-camAnchor)*Math.min(1,dt*2.5);
-  const target=camClamp(P.x-VW*camAnchor);
-  camX=camClamp(camX+(target-camX)*Math.min(1,dt*6));
+  const excess=Math.max(0,Math.abs(P.vx)-WALK_SPD);
+  const ex=Math.min(1,excess/(DASH_SPD_PEAK-WALK_SPD));
+  camRate+=((6+10*ex)-camRate)*Math.min(1,dt*8);
+  const leadT=Math.sign(P.vx)*Math.min(60,excess*0.08);
+  camLead+=(leadT-camLead)*Math.min(1,dt*8);
+  const target=camClamp(P.x-VW*camAnchor+camLead);
+  camX=camClamp(camX+(target-camX)*Math.min(1,dt*camRate));
 }
 
 function updateClouds(dt){
@@ -1271,7 +1333,7 @@ function render(ctx){
   drawGoal(ctx);
   drawSpark(ctx);
   if(gState==='playing'||gState==='levelEnd'){
-    if(P.dashT>0)drawDashTrail(ctx);
+    drawDashTrail(ctx);
     if(P.deathAnim<=0||Math.floor(P.deathAnim*8)%2===0){
       drawAfar(ctx,P.x-camX,P.y,P.facing,P.state,P.animTime,P.swingTheta);
     }
