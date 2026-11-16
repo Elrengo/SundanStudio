@@ -31,8 +31,6 @@
   "name": "Sundan Studio",
   "url": "https://sundanstudio.com/",
   "image": "https://sundanstudio.com/assets/og-image.png",
-  "email": "rafmoline@gmail.com",
-  "telephone": "+34623448706",
   "description": "Diseño y desarrollo de webs y apps a medida en Barcelona: tiendas online, paneles de gestión y experiencias interactivas.",
   "areaServed": "Worldwide",
   "knowsLanguage": [
@@ -653,6 +651,27 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 .confetti-back.is-off{opacity:0}
 </style>
 <script defer src="https://cloud.umami.is/script.js" data-website-id="1377f8f1-df62-427b-bc7d-eec5c112cc00" data-domains="sundanstudio.com"></script>
+<script>
+/* Contacto: el correo y el WhatsApp no aparecen en el HTML; se montan al cargar la página. */
+(function () {
+  function rev(s) { return s.split('').reverse().join(''); }
+  function addr() {
+    var el = document.querySelector('.js-mail');
+    return el ? rev(el.getAttribute('data-u')) + '@' + rev(el.getAttribute('data-d')) : '';
+  }
+  window.sdMailAddr = addr;
+  function fill() {
+    var a = addr(), els = document.querySelectorAll('.js-mail');
+    for (var i = 0; i < els.length; i++) {
+      els[i].setAttribute('href', 'mailto:' + a);
+      els[i].textContent = a;
+    }
+    var w = document.querySelector('.js-wa');
+    if (w) w.setAttribute('href', 'https://wa.me/' + rev(w.getAttribute('data-p')) + '?' + w.getAttribute('data-q'));
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fill); else fill();
+})();
+</script>
 </head>
 <body>
 <canvas class="confetti-back" aria-hidden="true"></canvas>
@@ -1628,13 +1647,13 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
     </div>
 
     <div class="cf-side">
-      <a class="wa-btn" href="https://wa.me/34623448706?text=Hola%20Rafa%2C%20vengo%20de%20sundanstudio.com%20y%20quiero%20contarte%20mi%20proyecto." target="_blank" rel="noopener" data-umami-event="clic-whatsapp">
+      <a class="wa-btn js-wa" href="#contacto" data-p="60784432643" data-q="text=Hola%20Rafa%2C%20vengo%20de%20sundanstudio.com%20y%20quiero%20contarte%20mi%20proyecto." target="_blank" rel="noopener" data-umami-event="clic-whatsapp">
         <svg class="wa-ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2.2a9.8 9.8 0 0 0-8.5 14.7L2.2 21.8l5-1.3A9.8 9.8 0 1 0 12 2.2zm0 1.8a8 8 0 1 1-4.1 14.9l-.3-.2-2.9.8.8-2.8-.2-.3A8 8 0 0 1 12 4zm-3.1 3.9c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.2 5 4.4 2.5 1 3 .8 3.5.7.6-.1 1.8-.7 2-1.4.3-.7.3-1.3.2-1.4-.1-.1-.3-.2-.6-.4l-2-1c-.3-.1-.5-.1-.7.1l-.9 1.1c-.2.2-.3.2-.6.1-.3-.1-1.1-.4-2.1-1.3-.8-.7-1.3-1.5-1.5-1.8-.2-.3 0-.4.1-.6l.5-.5.3-.5c.1-.2 0-.4 0-.5l-.9-2.2c-.2-.5-.4-.5-.6-.5h-.6z"/></svg>
-        <span class="wa-txt"><strong>Escríbeme por WhatsApp</strong><small>+34 623 44 87 06 · respuesta rápida en horario laboral</small></span>
+        <span class="wa-txt"><strong>Escríbeme por WhatsApp</strong><small>Respuesta rápida en horario laboral</small></span>
       </a>
       <ul class="how">
         <li><strong>Correo</strong>
-          <span class="mailrow"><a href="mailto:rafmoline@gmail.com" id="mailtxt" data-umami-event="clic-correo">rafmoline@gmail.com</a><button class="copybtn" id="copy" type="button">Copiar correo</button></span>
+          <span class="mailrow"><a class="js-mail" id="mailtxt" href="#contacto" data-u="enilomfar" data-d="moc.liamg" data-umami-event="clic-correo"><noscript>escríbeme desde el formulario de contacto</noscript></a><button class="copybtn" id="copy" type="button">Copiar correo</button></span>
           <span class="copy-live" id="copystatus" role="status" aria-live="polite"></span>
         </li>
         <li><strong>LinkedIn</strong><a href="https://www.linkedin.com/in/molinerorafael" target="_blank" rel="me noopener" data-umami-event="clic-linkedin">Rafael Molinero</a></li>
@@ -1669,7 +1688,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
       <a href="privacidad.html">Privacidad</a>
       <a href="https://www.linkedin.com/in/molinerorafael" target="_blank" rel="me noopener" data-umami-event="clic-linkedin">LinkedIn</a>
       <a href="https://www.malt.com/profile/rafaelmolinero" target="_blank" rel="me noopener" data-umami-event="clic-malt">Malt</a>
-      <a href="mailto:rafmoline@gmail.com" data-umami-event="clic-correo">rafmoline@gmail.com</a>
+      <a class="js-mail" href="#contacto" data-u="enilomfar" data-d="moc.liamg" data-umami-event="clic-correo"><noscript>escríbeme desde el formulario de contacto</noscript></a>
     </nav>
 </footer>
 
@@ -2973,7 +2992,7 @@ function drawMumi(c, p){
 (function () {
   var btn = document.getElementById('copy'), live = document.getElementById('copystatus'), mailEl = document.getElementById('mailtxt');
   if (!btn || !live || !mailEl) return;
-  var MAIL_TEXT = mailEl.textContent.trim(), label = btn.textContent, timer = null;
+  var label = btn.textContent, timer = null;
   function say(msg) {
     live.textContent = '';
     setTimeout(function () { live.textContent = msg; }, 30);
@@ -3012,11 +3031,11 @@ function drawMumi(c, p){
   }
   btn.addEventListener('click', function () {
     if (navigator.clipboard && window.isSecureContext) {
-      navigator.clipboard.writeText(MAIL_TEXT).then(okState, function () {
-        if (fallbackCopy(MAIL_TEXT)) okState(); else failState();
+      navigator.clipboard.writeText(window.sdMailAddr()).then(okState, function () {
+        if (fallbackCopy(window.sdMailAddr())) okState(); else failState();
       });
     } else {
-      if (fallbackCopy(MAIL_TEXT)) okState(); else failState();
+      if (fallbackCopy(window.sdMailAddr())) okState(); else failState();
     }
   });
 })();
@@ -3066,7 +3085,6 @@ function drawMumi(c, p){
   var TIMEOUT_MS = 12000;
   var RL_KEY = 'cf_sent', RL_MAX = 3, RL_WIN = 3600000;
   var MSG_MIN = 20, MSG_MAX = 1500;
-  var MAIL = 'rafmoline@gmail.com';
   var DRY = location.search.indexOf('cf=dry') !== -1;
   var FAIL = location.search.indexOf('cf=fail') !== -1;
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -3258,7 +3276,7 @@ function drawMumi(c, p){
   function onFail(motivo) {
     try { window.umami && umami.track && umami.track('formulario-error', { motivo: motivo || 'servicio' }); } catch (e) {}
     setBusy(false);
-    showAlert('No se ha podido enviar. Puedes intentarlo de nuevo o escribirme a ' + MAIL + '.');
+    showAlert('No se ha podido enviar. Puedes intentarlo de nuevo o escribirme a ' + window.sdMailAddr() + '.');
     alertBox.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block: 'nearest'});
   }
 
@@ -3287,7 +3305,7 @@ function drawMumi(c, p){
     }
 
     if (recentSends().length >= RL_MAX) {
-      showAlert('Ya has enviado varios mensajes hace poco. Puedes escribirme a ' + MAIL + ' directamente.');
+      showAlert('Ya has enviado varios mensajes hace poco. Puedes escribirme a ' + window.sdMailAddr() + ' directamente.');
       try { window.umami && umami.track && umami.track('formulario-error', { motivo: 'limite' }); } catch (e) {}
       return;
     }

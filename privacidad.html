@@ -40,6 +40,25 @@ a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .site-foot a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 </style>
 <script defer src="https://cloud.umami.is/script.js" data-website-id="1377f8f1-df62-427b-bc7d-eec5c112cc00" data-domains="sundanstudio.com"></script>
+<script>
+/* Contacto: el correo no aparece en el HTML; se monta al cargar la página. */
+(function () {
+  function rev(s) { return s.split('').reverse().join(''); }
+  function addr() {
+    var el = document.querySelector('.js-mail');
+    return el ? rev(el.getAttribute('data-u')) + '@' + rev(el.getAttribute('data-d')) : '';
+  }
+  window.sdMailAddr = addr;
+  function fill() {
+    var a = addr(), els = document.querySelectorAll('.js-mail');
+    for (var i = 0; i < els.length; i++) {
+      els[i].setAttribute('href', 'mailto:' + a);
+      els[i].textContent = a;
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fill); else fill();
+})();
+</script>
 </head>
 <body>
 <div class="awning" aria-hidden="true"></div>
@@ -48,7 +67,7 @@ a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
   <p class="updated">Última actualización: 15 de noviembre de 2026</p>
 
   <h2>Responsable del tratamiento</h2>
-  <p>El responsable del tratamiento es el titular de Sundan Studio, proyecto profesional en fase de lanzamiento. Puedes contactar en cualquier momento escribiendo a <a href="mailto:rafmoline@gmail.com">rafmoline@gmail.com</a>.</p>
+  <p>El responsable del tratamiento es el titular de Sundan Studio, proyecto profesional en fase de lanzamiento. Puedes contactar en cualquier momento escribiendo a <a class="js-mail" href="index.html#contacto" data-u="enilomfar" data-d="moc.liamg"><noscript>contacta a través del formulario de sundanstudio.com/#contacto</noscript></a>.</p>
 
   <h2>Qué datos se tratan</h2>
   <p>Esta web no tiene formularios de registro ni de compra. Solo tratamos los datos que nos envías tú mismo a través del formulario de contacto, por correo electrónico o al pedir una videollamada: tu nombre, tu dirección de correo, el tipo de proyecto, el presupuesto y el plazo orientativos, la franja de videollamada si la eliges y el contenido de tu mensaje.</p>
@@ -76,7 +95,7 @@ a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
   <p>La web sigue sin utilizar cookies: ni propias ni de terceros, y la analítica Umami tampoco las utiliza. Las demostraciones guardan datos de ejemplo solo en el almacenamiento local de tu navegador (localStorage). Puedes borrarlos cuando quieras desde la configuración de tu navegador o eliminando los datos del sitio.</p>
 
   <h2>Tus derechos</h2>
-  <p>Puedes pedir acceder a tus datos, rectificarlos, suprimirlos, oponerte a su tratamiento, limitarlo o solicitar su portabilidad escribiendo a <a href="mailto:rafmoline@gmail.com">rafmoline@gmail.com</a>.</p>
+  <p>Puedes pedir acceder a tus datos, rectificarlos, suprimirlos, oponerte a su tratamiento, limitarlo o solicitar su portabilidad escribiendo a <a class="js-mail" href="index.html#contacto" data-u="enilomfar" data-d="moc.liamg"><noscript>contacta a través del formulario de sundanstudio.com/#contacto</noscript></a>.</p>
   <p>También tienes derecho a presentar una reclamación ante la autoridad de control de protección de datos de tu país (en España, la Agencia Española de Protección de Datos).</p>
 </main>
 
@@ -90,7 +109,7 @@ a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
     <a href="index.html#faq">Preguntas</a>
     <a href="aviso-legal.html">Aviso legal</a>
     <a href="privacidad.html">Privacidad</a>
-    <a href="mailto:rafmoline@gmail.com">rafmoline@gmail.com</a>
+    <a class="js-mail" href="index.html#contacto" data-u="enilomfar" data-d="moc.liamg"><noscript>contacta a través del formulario de sundanstudio.com/#contacto</noscript></a>
   </nav>
 </footer>
 <script src="assets/sundan-bar.js" defer data-pos="bl"></script>

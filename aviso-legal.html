@@ -40,6 +40,25 @@ a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .site-foot a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 </style>
 <script defer src="https://cloud.umami.is/script.js" data-website-id="1377f8f1-df62-427b-bc7d-eec5c112cc00" data-domains="sundanstudio.com"></script>
+<script>
+/* Contacto: el correo no aparece en el HTML; se monta al cargar la página. */
+(function () {
+  function rev(s) { return s.split('').reverse().join(''); }
+  function addr() {
+    var el = document.querySelector('.js-mail');
+    return el ? rev(el.getAttribute('data-u')) + '@' + rev(el.getAttribute('data-d')) : '';
+  }
+  window.sdMailAddr = addr;
+  function fill() {
+    var a = addr(), els = document.querySelectorAll('.js-mail');
+    for (var i = 0; i < els.length; i++) {
+      els[i].setAttribute('href', 'mailto:' + a);
+      els[i].textContent = a;
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fill); else fill();
+})();
+</script>
 </head>
 <body>
 <div class="awning" aria-hidden="true"></div>
@@ -48,10 +67,10 @@ a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
   <p class="updated">Última actualización: 12 de noviembre de 2026</p>
 
   <h2>Titular del sitio web</h2>
-  <p>Sundan Studio es un proyecto profesional en fase de lanzamiento. Para cualquier consulta sobre el titular de este sitio, escribe a <a href="mailto:rafmoline@gmail.com">rafmoline@gmail.com</a>. Los datos identificativos completos se publicarán aquí en cuanto la actividad se formalice.</p>
+  <p>Sundan Studio es un proyecto profesional en fase de lanzamiento. Para cualquier consulta sobre el titular de este sitio, escribe a <a class="js-mail" href="index.html#contacto" data-u="enilomfar" data-d="moc.liamg"><noscript>contacta a través del formulario de sundanstudio.com/#contacto</noscript></a>. Los datos identificativos completos se publicarán aquí en cuanto la actividad se formalice.</p>
   <ul>
     <li>Nombre comercial: Sundan Studio</li>
-    <li>Correo electrónico: <a href="mailto:rafmoline@gmail.com">rafmoline@gmail.com</a></li>
+    <li>Correo electrónico: <a class="js-mail" href="index.html#contacto" data-u="enilomfar" data-d="moc.liamg"><noscript>contacta a través del formulario de sundanstudio.com/#contacto</noscript></a></li>
     <li>Dominio: sundanstudio.com</li>
   </ul>
 
@@ -82,7 +101,7 @@ a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
     <a href="index.html#faq">Preguntas</a>
     <a href="aviso-legal.html">Aviso legal</a>
     <a href="privacidad.html">Privacidad</a>
-    <a href="mailto:rafmoline@gmail.com">rafmoline@gmail.com</a>
+    <a class="js-mail" href="index.html#contacto" data-u="enilomfar" data-d="moc.liamg"><noscript>contacta a través del formulario de sundanstudio.com/#contacto</noscript></a>
   </nav>
 </footer>
 <script src="assets/sundan-bar.js" defer data-pos="bl"></script>
