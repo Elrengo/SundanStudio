@@ -2838,5 +2838,40 @@ function drawMumi(c, p){
   });
 })();
 </script>
+<script>
+(function(){
+  var h=document.querySelector('h1.site-title');
+  if(!h)return;
+  var text='Sundan Studio';
+  var chars=text.split('');
+  var len=chars.length;
+  h.setAttribute('aria-label',text);
+  h.textContent='';
+  var last=null;
+  chars.forEach(function(ch,i){
+    var s=document.createElement('span');
+    s.setAttribute('aria-hidden','true');
+    s.style.setProperty('--i',String(i));
+    if(ch===' '){s.appendChild(document.createTextNode(' '));}
+    else{s.textContent=ch;}
+    h.appendChild(s);
+    last=s;
+  });
+  var finished=false;
+  var fallback=null;
+  function finish(){
+    if(finished)return;
+    finished=true;
+    if(fallback)clearTimeout(fallback);
+    h.classList.add('done');
+  }
+  var reduce=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+  if(reduce){finish();return;}
+  last.addEventListener('animationend',function(e){
+    if(e.animationName==='rise')finish();
+  });
+  fallback=setTimeout(finish,300+70*len+1400+100);
+})();
+</script>
 </body>
 </html>
