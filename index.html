@@ -53,7 +53,7 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Instrument+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Instrument+Sans:wght@400;500&family=Rye&display=swap" rel="stylesheet">
 <style>
 :root{
   --ink:#14060f; --plum:#1b0812; --blood:#c1121f; --bone:#efe3c8; --gold:#e9b42f; --teal:#1f9e8f;
@@ -529,6 +529,32 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 @media (prefers-reduced-motion:reduce){
   .pricing .pr-card,.pricing .pr-card:hover,.pricing .pr-card:focus-within,.pricing .pr-card.pr-feat,.pricing .pr-card.pr-feat:hover{transition:none;transform:none}
 }
+/* LANZAMIENTO · utilidad decorativa Rye, ticket de oferta y ajustes de servicios */
+.rye{font-family:"Rye",Georgia,serif;font-weight:400;letter-spacing:.04em}
+.services .svc-claim{margin:0 0 .8rem;font-family:var(--display);font-size:1.05rem;line-height:1.3;color:var(--gold)}
+.services .tk-label.rye{font-family:"Rye",Georgia,serif;font-weight:400;font-size:.95rem;letter-spacing:.04em;text-transform:none}
+.services .svc-help{max-width:60ch;margin:2rem 0 0;padding:1.2rem 1.4rem;border:2px dashed var(--gold);background:rgba(233,180,47,.06)}
+.services .svc-help h3{margin:0 0 .4rem;font-family:var(--display);font-weight:400;font-size:1.4rem;line-height:1.15;color:var(--gold)}
+.services .svc-help p{margin:0;line-height:1.5;opacity:.9}
+.services .svc-help a{display:inline-block;margin-top:.9rem;padding:.45rem 1rem;border:2px solid var(--gold);border-radius:99px;color:var(--bone);text-decoration:none;font-family:var(--display);font-size:1.05rem}
+.services .svc-help a:hover{background:rgba(233,180,47,.15)}
+.pricing .pr-ribbon.rye{font-family:"Rye",Georgia,serif;font-weight:400;font-size:.95rem;letter-spacing:.04em;text-transform:none}
+.pricing .pr-from.rye{font-family:"Rye",Georgia,serif;font-size:.9rem;letter-spacing:.04em;text-transform:none;opacity:.85}
+.pricing .launch-price{margin:.5rem 0 0;font-size:.95rem;font-weight:600;color:var(--gold)}
+.pricing .pr-scope{margin:.5rem 0 0;font-size:.85rem;line-height:1.4;opacity:.75}
+.launch-ticket{position:relative;display:flex;align-items:stretch;margin:48px 0 0;border:2px dashed var(--gold);background:rgba(193,18,31,.12);min-width:0}
+.launch-ticket::before,.launch-ticket::after{content:"";position:absolute;top:50%;width:24px;height:24px;margin-top:-12px;border-radius:50%;background:var(--plum)}
+.launch-ticket::before{left:-12px}
+.launch-ticket::after{right:-12px}
+.lt-stub{flex:0 0 10rem;display:flex;align-items:center;justify-content:center;padding:1rem;text-align:center;border-right:2px dashed var(--gold);color:var(--gold);font-size:1.3rem;line-height:1.1}
+.lt-main{padding:1rem 1.3rem;min-width:0}
+.lt-big{margin:0;font-size:1.05rem;line-height:1.4;color:var(--bone)}
+.lt-big .rye{color:var(--gold);font-size:1.25rem}
+.lt-small{margin:.35rem 0 0;font-size:.9rem;opacity:.8}
+.launch-ticket + .pr-grid{margin-top:36px}
+.launch-note{color:var(--gold)}
+.launch-ticket[hidden],.launch-price[hidden],.launch-note[hidden]{display:none!important}
+@media (max-width:520px){.launch-ticket{flex-direction:column}.lt-stub{flex-basis:auto;border-right:0;border-bottom:2px dashed var(--gold)}}
 
 /* FAQ */
 .faq{background:var(--ink);color:var(--bone);position:relative;overflow:hidden;padding:0 0 clamp(56px,12vh,130px)}
@@ -625,7 +651,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
       <p class="site-sub">Webs y aplicaciones a medida</p>
       <p class="kicker-top">Barcelona y remoto · en español e inglés</p>
       <p class="lede lede-hero">Diseño y desarrollo webs y aplicaciones para negocios: webs corporativas, tiendas y reservas online, y paneles de gestión. Rápidas, a medida y con carácter. Lo que ves abajo son demos que funcionan: ábrelas y pruébalas.</p>
-      <div class="hero-ctas"><a class="pill main" href="#contacto" data-umami-event="cta-hero-presupuesto">Pide presupuesto</a><a class="pill" href="#servicios" data-umami-event="cta-hero-servicios">Servicios y precios</a><span class="hero-note">Presupuesto cerrado en 48 h, sin compromiso.</span></div>
+      <div class="hero-ctas"><a class="pill main" href="#contacto" data-umami-event="cta-hero-presupuesto">Pide presupuesto</a><a class="pill" href="#servicios" data-umami-event="cta-hero-servicios">Servicios y precios</a><span class="hero-note">Presupuesto cerrado en 48 h, sin compromiso.<span class="launch-note"> · −20 % de lanzamiento hasta el 30/11</span></span></div>
     </header>
     <h2 class="big proj-title" id="proyectos-titulo">Proyectos</h2>
     <nav class="pfilter" aria-label="Filtrar proyectos">
@@ -1055,40 +1081,43 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 
     <div class="tickets">
       <article class="ticket">
-        <p class="tk-label">Admisión Nº 01</p>
-        <h3>Webs a medida</h3>
-        <p class="tk-desc">Landing pages y webs corporativas rápidas, accesibles y con carácter.</p>
+        <p class="tk-label rye">Admisión Nº 01</p>
+        <h3>Webs profesionales</h3>
+        <p class="svc-claim">Tu negocio, bien presentado.</p>
+        <p class="tk-desc">Webs y landing pages rápidas y a medida, pensadas para que quien te visita acabe escribiéndote.</p>
         <ul>
-          <li>Diseño único (sin plantillas)</li>
-          <li>Adaptada a móvil</li>
-          <li>SEO técnico y velocidad</li>
-          <li>Panel para editar textos</li>
+          <li>Diseño propio, sin plantillas</li>
+          <li>Perfecta en el móvil</li>
+          <li>Preparada para Google (SEO técnico)</li>
+          <li>Editas tú los textos cuando quieras</li>
         </ul>
         <p class="tk-plazo">Plazo orientativo: 2–4 semanas</p>
       </article>
 
       <article class="ticket">
-        <p class="tk-label">Admisión Nº 02</p>
-        <h3>Aplicaciones web</h3>
-        <p class="tk-desc">Herramientas, reservas, paneles y tiendas que resuelven un problema real.</p>
+        <p class="tk-label rye">Admisión Nº 02</p>
+        <h3>Aplicaciones y herramientas</h3>
+        <p class="svc-claim">Menos trabajo manual, más control.</p>
+        <p class="tk-desc">Reservas, pedidos, tiendas online y paneles de gestión que ordenan el día a día de tu negocio.</p>
         <ul>
-          <li>Cuentas de usuario</li>
-          <li>Pagos y reservas</li>
-          <li>Base de datos y API</li>
-          <li>Funciona como app (PWA)</li>
+          <li>Reservas y calendarios</li>
+          <li>Tienda online y pedidos</li>
+          <li>Paneles con tus datos y cifras</li>
+          <li>Conectado a tus herramientas: pagos, correo, calendario</li>
         </ul>
         <p class="tk-plazo">Plazo orientativo: 4–10 semanas</p>
       </article>
 
       <article class="ticket">
-        <p class="tk-label">Admisión Nº 03</p>
+        <p class="tk-label rye">Admisión Nº 03</p>
         <h3>Experiencias interactivas</h3>
-        <p class="tk-desc">Animación, juegos y microinteracciones que hacen que tu marca se recuerde.</p>
+        <p class="svc-claim">Que tu marca no se olvide.</p>
+        <p class="tk-desc">Animaciones, configuradores y minijuegos que convierten una visita en un recuerdo.</p>
         <ul>
-          <li>Animación con Canvas y SVG</li>
+          <li>Configuradores de producto</li>
+          <li>Animaciones a medida</li>
           <li>Minijuegos de marca</li>
-          <li>Configuradores y demos</li>
-          <li>Rendimiento a 60 fps</li>
+          <li>Fluidas también en el móvil</li>
         </ul>
         <p class="tk-plazo">Plazo orientativo: 1–6 semanas</p>
       </article>
@@ -1102,6 +1131,12 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
       <li class="tag">Accesibilidad AA</li>
       <li class="tag">Textos y traducción</li>
     </ul>
+
+    <aside class="svc-help">
+      <h3>¿No sabes qué necesitas?</h3>
+      <p>Cuéntame cómo funciona tu negocio y qué te quita tiempo. Te propongo la solución más sencilla que funcione, aunque no sea la más cara.</p>
+      <a href="#contacto" data-umami-event="cta-no-se-que-necesito">Cuéntamelo →</a>
+    </aside>
 
     <div class="cta">
       <a class="pill main" href="#contacto">Pide presupuesto</a>
@@ -1209,18 +1244,27 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
       <p class="lede">Precios claros desde el principio. Cada proyecto es distinto, así que estos son puntos de partida: te doy un presupuesto cerrado tras la primera charla.</p>
     </div>
 
+    <div class="launch-ticket" data-until="2026-11-30T23:59:59+01:00">
+      <div class="lt-stub"><span class="rye">Lanzamiento</span></div>
+      <div class="lt-main">
+        <p class="lt-big"><span class="rye">−20 %</span> en proyectos contratados antes del 30 de noviembre</p>
+        <p class="lt-small">Se aplica a cualquier plan. Pídelo al contactar.</p>
+      </div>
+    </div>
+
     <div class="pr-grid">
       <article class="pr-card">
-        <h3 class="pr-name">Básico</h3>
+        <h3 class="pr-name">Esencial</h3>
         <div class="pr-price">
-          <span class="pr-from">desde</span>
-          <span class="pr-amount">450 €</span>
+          <span class="pr-from rye">desde</span>
+          <span class="pr-amount">650 €</span>
         </div>
+        <p class="launch-price">Lanzamiento: 520 €</p>
         <p class="pr-desc">Para empezar con buen pie.</p>
         <ul class="pr-list">
-          <li>Landing page de una sola página</li>
+          <li>Landing page o web de hasta 3 páginas</li>
           <li>Diseño adaptado a tu marca</li>
-          <li>Adaptada a móvil y rápida</li>
+          <li>Perfecta en móvil y rápida</li>
           <li>Formulario de contacto</li>
           <li>SEO básico y analítica</li>
         </ul>
@@ -1231,12 +1275,13 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
       </article>
 
       <article class="pr-card pr-feat">
-        <span class="pr-ribbon">Recomendado</span>
+        <span class="pr-ribbon rye">Recomendado</span>
         <h3 class="pr-name">Profesional</h3>
         <div class="pr-price">
-          <span class="pr-from">desde</span>
-          <span class="pr-amount">1.200 €</span>
+          <span class="pr-from rye">desde</span>
+          <span class="pr-amount">1.490 €</span>
         </div>
+        <p class="launch-price">Lanzamiento: 1.192 €</p>
         <p class="pr-desc">Una web completa que trabaja por ti.</p>
         <ul class="pr-list">
           <li>Hasta 6 páginas</li>
@@ -1253,12 +1298,14 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
       </article>
 
       <article class="pr-card pr-custom">
-        <h3 class="pr-name">A medida</h3>
+        <h3 class="pr-name">Aplicación web</h3>
         <div class="pr-price">
-          <span class="pr-from">según alcance</span>
-          <span class="pr-amount">Presupuesto</span>
+          <span class="pr-from rye">desde</span>
+          <span class="pr-amount">2.500 €</span>
         </div>
-        <p class="pr-desc">Aplicaciones, reservas, tiendas y paneles.</p>
+        <p class="launch-price">Lanzamiento: 2.000 €</p>
+        <p class="pr-scope">Precio final según alcance, cerrado antes de empezar.</p>
+        <p class="pr-desc">Reservas, tiendas, paneles y herramientas a medida.</p>
         <ul class="pr-list">
           <li>Aplicación web o PWA</li>
           <li>Cuentas de usuario y pagos</li>
@@ -1274,11 +1321,21 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
     </div>
 
     <div class="pr-addon">
-      <strong>Mantenimiento mensual</strong> — desde 40 €/mes: actualizaciones, copias de seguridad, pequeños cambios y soporte prioritario.
+      <strong>Mantenimiento mensual</strong> — desde 45 €/mes: actualizaciones, copias de seguridad, pequeños cambios y soporte prioritario. Con 1 h de cambios al mes: 90 €/mes.
     </div>
 
     <p class="pr-fine">Precios orientativos sin IVA. Pago en dos partes: 50% al empezar y 50% al publicar.</p>
   </div>
+
+  <script>
+    (function () {
+      var t = document.querySelector('.launch-ticket');
+      if (!t) return;
+      var until = Date.parse(t.getAttribute('data-until'));
+      if (isNaN(until) || Date.now() <= until) return;
+      document.querySelectorAll('.launch-ticket, .launch-price, .launch-note').forEach(function (el) { el.hidden = true; });
+    })();
+  </script>
 
   <a class="next" href="#faq">Preguntas frecuentes</a>
 </section>
@@ -1447,9 +1504,9 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
             <label for="cf-budget">Presupuesto orientativo</label>
             <select class="cf-input" id="cf-budget" name="presupuesto">
               <option value="">Elige una opción</option>
-              <option>Básico · desde 450 €</option>
-              <option>Profesional · desde 1.200 €</option>
-              <option>A medida · según alcance</option>
+              <option>Esencial · desde 650 €</option>
+              <option>Profesional · desde 1.490 €</option>
+              <option>Aplicación web · desde 2.500 €</option>
               <option>Aún no lo sé</option>
             </select>
           </div>
