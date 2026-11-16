@@ -1369,7 +1369,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
         </div>
 
         <div class="cf-video">
-          <label class="cf-check"><input type="checkbox" id="cf-video" name="quiere_videollamada" data-umami-event="cf-videollamada-check"> Quiero una videollamada de 20 minutos</label>
+          <label class="cf-check"><input type="checkbox" id="cf-video" name="quiere_videollamada" data-umami-event="cf-videollamada-check"> Quiero una videollamada</label>
           <div id="cf-video-box" hidden>
             <div class="card" id="card">
               <div id="cardbody">
@@ -2429,7 +2429,7 @@ function drawMumi(c, p){
 
 (function(){
   // Pega aquí el enlace de tu página de reservas de Google Calendar (Programación de citas)
-  var GCAL_BOOKING_URL = '';
+  var GCAL_BOOKING_URL = 'https://calendar.google.com/calendar/appointments/schedules/AcZssZ2DZNKbzS06G9XRAHxm69E-JWPHPf2M0OT6kJTZWcQ-myLQmZeydpXglljPdoaE4zoUep_jXwej';
   var gcalOk = /^https:\/\/(calendar\.google\.com|calendar\.app\.google)\//.test(GCAL_BOOKING_URL);
   var confirmed = false, rendered = false;
   var body=document.getElementById("cardbody");
