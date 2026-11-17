@@ -285,6 +285,14 @@ html:not([data-theme="carpa"]) .i-moon { display: none; }
 .grid-line { stroke: var(--line); stroke-width: 1; }
 .line-path { fill: none; stroke: var(--accent); stroke-width: 2.25; stroke-linejoin: round; stroke-linecap: round; }
 .prev-line { fill: none; stroke: var(--muted); stroke-width: 1.6; stroke-dasharray: 5 4; stroke-linejoin: round; }
+.trend-legend{display:inline-flex;gap:14px;align-items:center;font-size:12px;color:var(--muted);margin-top:4px}
+.trend-legend i{display:inline-block;width:18px;height:0;border-top:2px solid var(--accent);margin-right:6px;vertical-align:middle}
+.trend-legend i.dash{border-top:2px dashed var(--muted)}
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes cmpflash{0%{background:color-mix(in srgb,var(--accent) 28%,transparent)}100%{background:transparent}}
+  .delta.flash{animation:cmpflash 1.2s ease-out;border-radius:6px}
+}
+.prev-line.flash{animation:none}
 .stop-a { stop-color: var(--accent); stop-opacity: .22; }
 .stop-b { stop-color: var(--accent); stop-opacity: 0; }
 .guide { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; }
@@ -1134,6 +1142,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
             <div>
               <h2 id="t-trend">Evolución diaria</h2>
               <p id="trend-sub"></p>
+              <span class="trend-legend" id="trend-legend" hidden><span><i aria-hidden="true"></i>Periodo actual</span><span><i class="dash" aria-hidden="true"></i><span id="trend-legend-prev">Periodo anterior</span></span></span>
             </div>
             <div class="seg" role="group" aria-label="Métrica del gráfico" id="metric">
               <button type="button" data-metric="vol" aria-pressed="true">Volumen</button>
@@ -3321,11 +3330,13 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     var noneMer = !F.mask.some(Boolean);
     $('#view-resumen').classList.toggle('is-empty', noneMer);
     $('#res-empty').hidden = !noneMer;
-    if (noneMer) return;
+    if (noneMer) { $('#trend-legend').hidden = true; return; }
     var rangeTxt = periodPhrase();
     if (state.metric === 'margin' && !can('see.margin')) state.metric = 'vol';
     $('#trend-sub').textContent = rangeTxt + (F.hasPrev && state.compare ? ' · ' + compLabel() : '') +
       (F.hasPrev ? '' : '. Sin histórico suficiente para comparar este rango');
+    $('#trend-legend').hidden = !(F.hasPrev && state.compare);
+    $('#trend-legend-prev').textContent = state.cmpMode === 'yoy' ? 'Mismo periodo del año anterior' : 'Periodo anterior';
     renderKpis(F, t, F.hasPrev && state.compare ? p : null);
     renderTrend(F);
     renderShare(F);
@@ -4303,6 +4314,12 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     (VIEW_TBLS[state.view] || []).forEach(function (id) { COLS[id].forEach(function (c) { if (!c.bind && cfGet(id, c.key)) n++; }); });
     return n;
   }
+  function prevRangeText() {
+    if (!state.compare) return '';
+    var cmpF = filtered();
+    if (!cmpF || !cmpF.hasPrev) return '';
+    return pad(dayDate(cmpF.prevFrom).getDate(), 2) + '/' + pad(dayDate(cmpF.prevFrom).getMonth() + 1, 2) + ' – ' + pad(dayDate(cmpF.prevTo).getDate(), 2) + '/' + pad(dayDate(cmpF.prevTo).getMonth() + 1, 2);
+  }
   function renderControls() {
     $$('.controls [data-range]').forEach(function (b) {
       b.setAttribute('aria-pressed', String(RANGE_CODES[b.getAttribute('data-range')] === state.range));
@@ -4343,8 +4360,9 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   function renderHeader() {
     var vt = VIEW_TITLES[state.view];
     $('#page-title').textContent = vt[0];
+    var prevR = state.view === 'resumen' ? prevRangeText() : '';
     $('#page-sub').textContent = state.view === 'resumen'
-      ? periodPhrase() + (state.compare ? ' · ' + compLabel() : '')
+      ? periodPhrase() + (state.compare ? ' · ' + compLabel() + (prevR ? ' (' + prevR + ')' : '') : '')
       : vt[1];
     $$('.nav-item').forEach(function (b) {
       if (b.getAttribute('data-view') === state.view) b.setAttribute('aria-current', 'page');
@@ -4498,6 +4516,16 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       state.compare = !state.compare;
       prefs.compare = state.compare; savePrefs();
       render();
+      if (state.compare) {
+        toast('Comparación activada (' + compLabel() + '). Verás la variación en cada KPI y el periodo anterior en línea punteada.');
+        $$('.kpi .delta, .prev-line').forEach(function (el) {
+          if (!el.getClientRects().length) return;
+          el.classList.add('flash');
+          setTimeout(function () { el.classList.remove('flash'); }, 1200);
+        });
+      } else {
+        toast('Comparación desactivada.');
+      }
     });
     $('#clear').addEventListener('click', clearAllFilters);
     FILTER_KEYS.forEach(function (k) {
