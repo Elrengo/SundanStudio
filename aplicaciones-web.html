@@ -124,6 +124,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Gloock&family=Instrument+Sans:wght@400;500&family=Rye&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Instrument+Sans:wght@400;500&family=Rye&display=swap"></noscript>
+<link rel="stylesheet" href="assets/sundan-fx.css">
 <style>
 :root{
   --ink:#14060f; --plum:#1b0812; --blood:#c1121f; --bone:#efe3c8; --gold:#e9b42f; --teal:#1f9e8f;
@@ -136,7 +137,7 @@
 }
 html{scroll-padding-top:calc(64px + env(safe-area-inset-top,0px));scroll-behavior:smooth;background:var(--ink)}
 *{box-sizing:border-box}
-body{margin:0;background:var(--ink);color:var(--bone);font-family:var(--body);line-height:1.5;overflow-x:hidden}
+body{margin:0;background:transparent;color:var(--bone);font-family:var(--body);line-height:1.5;overflow-x:hidden}
 h1,h2,h3{font-weight:400}
 p{margin:0}
 a{color:var(--bone)}
@@ -230,8 +231,9 @@ img,svg{max-width:100%}
 .checks li{position:relative;padding-left:1.5em;margin:.45rem 0;line-height:1.45}
 .checks li::before{content:"\25C6";position:absolute;left:0;top:0;color:var(--gold)}
 
-/* BUNTING (decorative separator from the homepage pricing) */
-.pr-bunting{height:38px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='26' viewBox='0 0 160 26'%3E%3Cpath d='M0 2H160' stroke='%23e9b42f' stroke-width='2'/%3E%3Cpath d='M4 2H36L20 24Z' fill='%23c1121f'/%3E%3Cpath d='M44 2H76L60 24Z' fill='%23efe3c8'/%3E%3Cpath d='M84 2H116L100 24Z' fill='%23e9b42f'/%3E%3Cpath d='M124 2H156L140 24Z' fill='%231f9e8f'/%3E%3C/svg%3E") 0 0/232px 38px repeat-x}
+.rye{font-family:"Rye",Georgia,serif;font-weight:400;letter-spacing:.04em}
+.pr-ribbon.rye{font-family:"Rye",Georgia,serif;font-weight:400;font-size:.95rem;letter-spacing:.04em;text-transform:none}
+.pr-from.rye{font-family:"Rye",Georgia,serif;font-size:.9rem;letter-spacing:.04em;text-transform:none;opacity:.85}
 
 /* PRICING */
 .pr-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:36px 28px;margin-top:.5rem;min-width:0}
@@ -261,7 +263,7 @@ img,svg{max-width:100%}
 .faq-list details p{margin:.5rem 0 0;line-height:1.6;opacity:.9}
 
 /* FINAL CTA */
-.final{text-align:center;padding:clamp(56px,9vh,96px) 0;border-top:2px solid var(--gold);background:var(--plum)}
+.final{text-align:center;padding:clamp(56px,9vh,96px) 0;border-top:2px solid var(--gold);background:rgba(27,8,18,.82)}
 .final h2{font-family:var(--display);font-size:clamp(2.2rem,5.4vw,4rem);line-height:1;margin:0 0 .9rem}
 .final .lede{margin:0 auto 1.8rem}
 .final .btns{justify-content:center}
@@ -314,7 +316,7 @@ img,svg{max-width:100%}
   </ol>
 </nav>
 
-<section class="hero" aria-labelledby="titulo">
+<section class="hero" data-spot aria-labelledby="titulo">
   <div class="wrap">
     <p class="kicker">Servicio · Aplicaciones y herramientas</p>
     <h1 id="titulo">Aplicaciones web a medida: reservas, pedidos y tiendas online</h1>
@@ -327,7 +329,7 @@ img,svg{max-width:100%}
   </div>
 </section>
 
-<section class="band alt" aria-labelledby="suena">
+<section class="band alt" data-spot aria-labelledby="suena">
   <div class="wrap">
     <p class="kicker">Te suena</p>
     <h2 class="sec-title" id="suena">¿Te suena esto?</h2>
@@ -356,7 +358,7 @@ img,svg{max-width:100%}
   </div>
 </section>
 
-<section class="band" aria-labelledby="construir">
+<section class="band" data-spot aria-labelledby="construir">
   <div class="wrap">
     <p class="kicker">Alcance</p>
     <h2 class="sec-title" id="construir">Qué puedo construir</h2>
@@ -390,7 +392,7 @@ img,svg{max-width:100%}
   </div>
 </section>
 
-<section class="band alt" aria-labelledby="ejemplos">
+<section class="band alt" data-spot aria-labelledby="ejemplos">
   <div class="wrap">
     <p class="kicker">Ejemplos</p>
     <h2 class="sec-title" id="ejemplos">Ejemplos que puedes probar</h2>
@@ -456,7 +458,7 @@ img,svg{max-width:100%}
   </div>
 </section>
 
-<section class="band" aria-labelledby="como">
+<section class="band" data-spot aria-labelledby="como">
   <div class="wrap">
     <p class="kicker">Proceso</p>
     <h2 class="sec-title" id="como">Cómo trabajo</h2>
@@ -481,9 +483,9 @@ img,svg{max-width:100%}
   </div>
 </section>
 
-<div class="pr-bunting" aria-hidden="true"></div>
+<div class="sep-garland" data-garland aria-hidden="true"></div>
 
-<section class="band alt" id="precios" aria-labelledby="precios-titulo">
+<section class="band alt" data-spot id="precios" aria-labelledby="precios-titulo">
   <div class="wrap">
     <p class="kicker">Precios</p>
     <h2 class="sec-title" id="precios-titulo">Precios orientativos</h2>
@@ -491,7 +493,7 @@ img,svg{max-width:100%}
     <div class="pr-grid">
       <article class="pr-card pr-feat">
         <h3 class="pr-name">Aplicación web</h3>
-        <p class="pr-price"><span class="pr-from">desde</span><span class="pr-amount">2.500 €</span></p>
+        <p class="pr-price"><span class="pr-from rye">desde</span><span class="pr-amount">2.500 €</span></p>
         <p class="pr-desc">Reservas, pedidos, paneles y herramientas a medida. El precio depende del alcance.</p>
         <ul class="pr-list">
           <li>Sencilla: reservas, catálogo o formulario avanzado, desde 2.500 €</li>
@@ -502,7 +504,7 @@ img,svg{max-width:100%}
       </article>
       <article class="pr-card">
         <h3 class="pr-name">Mantenimiento</h3>
-        <p class="pr-price"><span class="pr-from">desde</span><span class="pr-amount">45 €/mes</span></p>
+        <p class="pr-price"><span class="pr-from rye">desde</span><span class="pr-amount">45 €/mes</span></p>
         <p class="pr-desc">Para que la aplicación siga funcionando y al día.</p>
         <ul class="pr-list">
           <li>Actualizaciones y copias de seguridad</li>
@@ -516,7 +518,7 @@ img,svg{max-width:100%}
   </div>
 </section>
 
-<section class="band" aria-labelledby="faq-titulo">
+<section class="band" data-spot aria-labelledby="faq-titulo">
   <div class="wrap">
     <p class="kicker">Preguntas</p>
     <h2 class="sec-title" id="faq-titulo">Preguntas frecuentes</h2>
@@ -545,7 +547,7 @@ img,svg{max-width:100%}
   </div>
 </section>
 
-<section class="final" aria-labelledby="cta-final">
+<section class="final" data-spot aria-labelledby="cta-final">
   <div class="wrap">
     <h2 id="cta-final">¿Qué te quita tiempo en tu negocio?</h2>
     <p class="lede">Cuéntamelo y te propongo la solución más sencilla que funcione.</p>
@@ -587,5 +589,6 @@ img,svg{max-width:100%}
 })();
 </script>
 <script src="assets/sundan-bar.js" defer data-pos="bl" data-base="/"></script>
+<script src="assets/sundan-fx.js" defer></script>
 </body>
 </html>
