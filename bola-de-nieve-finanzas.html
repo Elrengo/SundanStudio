@@ -1,0 +1,1295 @@
+<!doctype html>
+<html lang="es-ES">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#fff8f1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1d1519" media="(prefers-color-scheme: dark)">
+<meta name="description" content="Demo de panel financiero para una heladería: ingresos, gastos de personal, proveedores y luz, punto de equilibrio y proyección a 12 meses.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://sundanstudio.com/bola-de-nieve-finanzas.html">
+<meta property="og:title" content="Bola de Nieve · Finanzas">
+<meta property="og:description" content="Demo de panel financiero para una heladería: ingresos, gastos de personal, proveedores y luz, punto de equilibrio y proyección a 12 meses.">
+<meta property="og:url" content="https://sundanstudio.com/bola-de-nieve-finanzas.html">
+<meta property="og:image" content="https://sundanstudio.com/assets/og-image.png">
+<title>Bola de Nieve · Finanzas · Demo de panel de gestión · Sundan Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fraunces:wght@600;700&display=swap" rel="stylesheet">
+<script defer src="https://cloud.umami.is/script.js" data-website-id="1377f8f1-df62-427b-bc7d-eec5c112cc00" data-domains="sundanstudio.com"></script>
+<style>
+  /* ===== CSS: tokens ===== */
+  :root {
+    --bg:#fff8f1; --surface:#ffffff; --ink:#2b1d24; --muted:#6e5b64;
+    --brand:#e8516b; --brand-ink:#ffffff; --mint:#bfe3d4; --pink:#f7c6d0;
+    --vanilla:#f6e2a8; --choco:#7b4a35; --line:#f0e1d6; --err:#c0354f;
+    --brand-soft:#fde3e8; --ok:#2f7d5b; --warn:#9a4a00;
+    --r-card:18px; --r-pill:999px;
+    --shadow:0 6px 20px rgba(43,29,36,.08);
+    --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px; --s8:32px; --s10:40px;
+    --ease:cubic-bezier(.2,.7,.3,1);
+    --side:900px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:#1d1519; --surface:#2a1f25; --ink:#fbeef2; --muted:#c3adb6;
+      --brand:#ff6f88; --brand-ink:#2b1d24; --mint:#2f5246; --pink:#4d2c38;
+      --vanilla:#4a3f22; --choco:#8f5d46; --line:#3d2c34; --err:#ff9fb0;
+      --brand-soft:#3f2630; --ok:#8fd6b4; --warn:#f2b47a; --shadow:0 6px 20px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#1d1519; --surface:#2a1f25; --ink:#fbeef2; --muted:#c3adb6;
+    --brand:#ff6f88; --brand-ink:#2b1d24; --mint:#2f5246; --pink:#4d2c38;
+    --vanilla:#4a3f22; --choco:#8f5d46; --line:#3d2c34; --err:#ff9fb0;
+    --brand-soft:#3f2630; --ok:#8fd6b4; --warn:#f2b47a; --shadow:0 6px 20px rgba(0,0,0,.35);
+  }
+  :root { --caja:#3fa7a0; --online:#f39a6b; --tortas:#8f5bd6; --card-sh:0 1px 0 rgba(255,255,255,.6) inset, 0 12px 28px -16px rgba(43,29,36,.28); }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --caja:#7fd3cc; --online:#f7b08a; --tortas:#b294f0; --card-sh:0 1px 0 rgba(255,255,255,.04) inset, 0 18px 34px -18px rgba(0,0,0,.75); }
+  }
+  :root[data-theme="dark"] { --caja:#7fd3cc; --online:#f7b08a; --tortas:#b294f0; --card-sh:0 1px 0 rgba(255,255,255,.04) inset, 0 18px 34px -18px rgba(0,0,0,.75); }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; min-height: 100vh; overflow-x: clip; color: var(--ink);
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(900px 520px at 6% -8%, var(--pink), transparent 62%),
+      radial-gradient(760px 480px at 100% 4%, var(--mint), transparent 58%),
+      radial-gradient(860px 520px at 55% 115%, var(--vanilla), transparent 62%);
+    background-repeat: no-repeat; background-attachment: fixed;
+    font: 400 16px/1.5 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+  h1, h2, h3 { font-family: 'Fraunces', Georgia, serif; font-weight: 700; line-height: 1.15; margin: 0; }
+  p { margin: 0; }
+  button, a { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
+
+  .bf-wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px 56px; }
+  .bf-top { display: flex; align-items: center; justify-content: space-between; gap: 12px 16px; flex-wrap: wrap; padding: 18px 0 10px; }
+  .bf-logo { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .bf-logo-mark { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--card-sh); }
+  .bf-logo h1 { font-size: 24px; }
+  .bf-tag { font-size: 11.5px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--brand); background: var(--brand-soft); padding: 3px 9px; border-radius: var(--r-pill); }
+  .bf-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 14px; color: var(--muted); }
+  .bf-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 8px 14px; border-radius: var(--r-pill); border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none; font-size: 14px; font-weight: 500; box-shadow: var(--card-sh); }
+  .bf-theme { width: 42px; padding: 0; }
+  .bf-demo { margin: 0 0 14px; font-size: 13.5px; color: var(--muted); background: var(--surface); border: 1px dashed var(--line); border-radius: 14px; padding: 8px 14px; }
+  .bf-demo a { color: var(--brand); font-weight: 500; }
+  .bf-tabs { display: flex; gap: 6px; overflow-x: auto; padding: 5px; border-radius: var(--r-pill); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--card-sh); scrollbar-width: none; }
+  .bf-tab { flex: 1 0 auto; border: 0; background: transparent; color: var(--muted); padding: 10px 16px; min-height: 44px; border-radius: var(--r-pill); font-weight: 500; white-space: nowrap; }
+  .bf-tab[aria-selected="true"] { background: var(--brand); color: var(--brand-ink); box-shadow: 0 8px 18px -10px var(--brand); }
+  .bf-main { margin-top: 18px; }
+  .bf-seg { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 14px; }
+  .bf-seg button { border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 8px 14px; min-height: 40px; border-radius: var(--r-pill); font-size: 14px; }
+  .bf-seg button[aria-pressed="true"] { background: var(--brand-soft); border-color: var(--brand); font-weight: 700; }
+  .bf-card { position: relative; overflow: hidden; min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); padding: 20px; box-shadow: var(--card-sh); }
+  .bf-section { margin-top: 16px; }
+  .bf-h2 { font-size: 21px; }
+  .bf-sub { font-size: 14px; color: var(--muted); margin: 4px 0 12px; }
+  .bf-kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 4px; }
+  .bf-kpi { padding: 18px 18px 12px; }
+  .bf-kpi::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: var(--stripe, var(--brand)); }
+  .bf-k1, .bf-k2, .bf-k5 { --stripe: var(--brand); }
+  .bf-k3 { --stripe: var(--choco); }
+  .bf-k4 { --stripe: var(--ok); }
+  .bf-k6 { --stripe: linear-gradient(90deg, var(--caja), var(--mint)); }
+  .bf-kpi-label { font-size: 13px; color: var(--muted); font-weight: 500; }
+  .bf-kpi-val { font-family: 'Fraunces', Georgia, serif; font-weight: 700; font-size: clamp(21px, 2.6vw, 29px); line-height: 1.1; margin: 6px 0 4px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .bf-kpi-extra { font-size: 12.5px; color: var(--muted); }
+  .bf-var { font-size: 12.5px; margin-top: 4px; }
+  .bf-pos { color: var(--ok); }
+  .bf-neg { color: var(--err); }
+  .bf-muted { color: var(--muted); }
+  .bf-spark { display: block; width: 100%; height: 40px; margin-top: 8px; }
+  .bf-spark-l { fill: none; stroke-width: 2; vector-effect: non-scaling-stroke; }
+  .bf-grid2 { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 16px; margin-top: 16px; }
+  .bf-chart { position: relative; width: 100%; min-height: 150px; }
+  .bf-svg { display: block; max-width: 100%; height: auto; overflow: visible; }
+  .bf-svg:focus { outline: none; }
+  .bf-svg:focus-visible { outline: 3px solid var(--brand); outline-offset: 4px; border-radius: 8px; }
+  .bf-ax { font: 500 11.5px 'DM Sans', system-ui, sans-serif; fill: var(--muted); }
+  .bf-ax-y { font-size: 10.5px; }
+  .bf-lbl { font: 500 13px 'DM Sans', system-ui, sans-serif; fill: var(--ink); }
+  .bf-val { font: 700 12.5px 'DM Sans', system-ui, sans-serif; fill: var(--ink); }
+  .bf-grid-l { stroke: var(--line); stroke-width: 1; }
+  .bf-sel { fill: var(--brand-soft); opacity: .7; }
+  .bf-line-choco { fill: none; stroke: var(--choco); stroke-width: 2.2; stroke-linejoin: round; }
+  .bf-line-dash { stroke-dasharray: 6 5; }
+  .bf-anno { fill: var(--ink); }
+  .bf-anno-t { font: 700 11px 'DM Sans', sans-serif; fill: var(--surface); }
+  .bf-donut-big { font: 700 15px 'Fraunces', Georgia, serif; fill: var(--ink); }
+  .bf-tip { position: absolute; top: 4px; left: 0; pointer-events: none; min-width: 190px; max-width: 240px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); padding: 8px 10px; font-size: 13px; z-index: 2; }
+  .bf-tip[hidden] { display: none; }
+  .bf-tl { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); }
+  .bf-tl b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .bf-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--muted); margin: 10px 0 0; padding: 0; list-style: none; }
+  .bf-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+  .bf-notes { font-size: 13px; color: var(--muted); margin: 10px 0 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+  .bf-notes b { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: var(--ink); color: var(--surface); font-size: 11px; margin-right: 6px; }
+  .bf-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .bf-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .bf-table { width: 100%; border-collapse: collapse; font-size: 14.5px; font-variant-numeric: tabular-nums; }
+  .bf-table th, .bf-table td { padding: 10px 8px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; font-weight: 500; }
+  .bf-table th:first-child, .bf-table td:first-child { text-align: left; }
+  .bf-table thead th { font-size: 12.5px; color: var(--muted); }
+  .bf-table tfoot th, .bf-table tfoot td { font-weight: 700; border-bottom: 0; }
+  .bf-table .bf-subrow th, .bf-table .bf-subrow td { font-size: 13.5px; color: var(--muted); background: var(--bg); }
+  .bf-table .bf-indent { padding-left: 30px; }
+  .bf-exp { border: 0; background: none; padding: 0; color: inherit; font: inherit; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; min-height: 32px; }
+  .bf-chip { display: inline-block; padding: 2px 10px; border-radius: var(--r-pill); font-size: 12.5px; font-weight: 700; }
+  .bf-chip-ok { background: color-mix(in srgb, var(--ok) 18%, var(--surface)); color: var(--ok); }
+  .bf-chip-warn { background: color-mix(in srgb, var(--warn) 18%, var(--surface)); color: var(--warn); }
+  .bf-chip-err { background: color-mix(in srgb, var(--err) 18%, var(--surface)); color: var(--err); }
+  .bf-ctl { display: grid; gap: 6px; margin: 10px 0; }
+  .bf-ctl-top { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; }
+  .bf-ctl output { font-weight: 700; font-variant-numeric: tabular-nums; }
+  .bf-ctl-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 26px; }
+  input[type=range] { width: 100%; accent-color: var(--brand); margin: 0; min-height: 28px; }
+  .bf-check { display: flex; align-items: center; gap: 10px; font-size: 14.5px; margin: 10px 0; min-height: 36px; }
+  .bf-check input { width: 20px; height: 20px; accent-color: var(--brand); }
+  .bf-prog { height: 14px; border-radius: var(--r-pill); background: var(--line); overflow: hidden; margin-top: 10px; }
+  .bf-prog i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--mint), var(--ok)); }
+  .bf-meter { display: grid; gap: 10px; margin-top: 10px; }
+  .bf-meter-row { display: grid; grid-template-columns: minmax(96px, 140px) minmax(0, 1fr) auto; gap: 10px; align-items: center; font-size: 13.5px; }
+  .bf-bar { height: 14px; border-radius: var(--r-pill); background: var(--line); overflow: hidden; }
+  .bf-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--brand), var(--online)); }
+  .bf-bar-be i { background: linear-gradient(90deg, var(--choco), var(--tortas)); }
+  .bf-alert { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; padding: 12px 14px; border-radius: 14px; background: var(--bg); border: 1px solid var(--line); margin-top: 10px; font-size: 14.5px; }
+  .bf-alert-ic { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px; color: #fff; background: var(--ok); }
+  .bf-alert-warn .bf-alert-ic { background: var(--warn); }
+  .bf-alert-risk .bf-alert-ic { background: var(--err); }
+  .bf-phr { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; font-size: 15px; }
+  .bf-phr li { padding: 10px 12px; border-radius: 14px; background: var(--bg); border: 1px solid var(--line); }
+  .bf-cal { display: grid; grid-template-columns: 64px repeat(12, minmax(56px, 1fr)); gap: 4px; min-width: 760px; }
+  .bf-cal > div { display: grid; place-items: center; min-height: 40px; border-radius: 10px; font-size: 12.5px; font-variant-numeric: tabular-nums; text-align: center; padding: 4px; }
+  .bf-cal .bf-h { font-weight: 500; color: var(--muted); }
+  .bf-cal .bf-ylab { font-weight: 700; }
+  .bf-cal .bf-empty { color: var(--muted); background: var(--bg); border: 1px dashed var(--line); }
+  .bf-hint { font-size: 12.5px; color: var(--muted); margin-top: 8px; }
+  .bf-big-txt { font-size: 14.5px; margin-top: 8px; }
+  @media (max-width: 860px) {
+    .bf-grid2 { grid-template-columns: minmax(0, 1fr); }
+    .bf-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 560px) {
+    .bf-wrap { padding: 0 16px 48px; }
+    .bf-kpi { padding: 14px 14px 10px; }
+    .bf-card { padding: 16px; }
+    .bf-kpi-val { font-size: 21px; }
+    .bf-ctl-grid { grid-template-columns: minmax(0, 1fr); }
+    .bf-logo h1 { font-size: 21px; }
+  }
+  @media (max-width: 600px) {
+    .bf-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: visible; }
+    .bf-tab { flex: none; width: 100%; min-width: 0; padding: 10px 8px; white-space: normal; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* MODEL START */
+'use strict';
+// ---------- Constantes del negocio (ficticio) ----------
+var BF_SEED = 2026;
+var BF_CAJA_INI = 30800;           // caja a 1/1/2025 (calibrada: mínimo de 2025 en abril, ≈ 5.000 €)
+var BF_RETIRADAS = 1000;           // retiradas de la dueña: solo caja, todos los meses
+var BF_TICKET_MULT = 0.95;         // multiplicador global de tickets diarios (calibración: 1 da 270 k€ de ingresos 2025)
+var BF_N = 34;                     // k=0 ene 2025 ... k=33 oct 2027
+var BF_HIST = 22;                  // k<22 histórico (hasta oct 2026); k>=22 proyección
+var BF_BASE_DAILY = [36,42,66,108,156,228,270,252,180,102,54,60];
+var BF_BASE_UNITS = [18,22,28,32,38,42,36,26,32,38,44,105];
+var BF_DEP = [1,1,1,2,3,4,4,4,3,2,1,2];
+var BF_SEASON = [0.8,0.8,0.9,1.0,1.2,1.5,1.7,1.7,1.4,1.1,0.9,0.9];
+var BF_MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+var BF_SCEN = {
+  prudente:   { vol:-0.06, price:0,    elec:0.15, sal:0.03, tortas:0,    extraDep:false, rent:0, extraRest:false },
+  base:       { vol:0.04,  price:0.02, elec:0,    sal:0.03, tortas:0,    extraDep:false, rent:0, extraRest:false },
+  optimista:  { vol:0.09,  price:0.02, elec:0,    sal:0.03, tortas:0.20, extraDep:false, rent:0, extraRest:true  }
+};
+
+// ---------- Generadores deterministas ----------
+function mulberry32(seed) {
+  var a = seed >>> 0;
+  return function () {
+    a = (a + 0x6D2B79F5) | 0;
+    var t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function noiseSeries(n) {
+  var r = mulberry32(BF_SEED), out = [];
+  for (var i = 0; i < n; i++) out.push((r() * 2 - 1) * 0.04);   // ±4 %
+  return out;
+}
+// Días abiertos: nov-mar cierra los lunes; abr-oct abre todos los días
+function openDays(y, cm) {
+  var days = new Date(Date.UTC(y, cm, 0)).getUTCDate();
+  if (cm >= 4 && cm <= 10) return days;
+  var n = 0;
+  for (var d = 1; d <= days; d++) if (new Date(Date.UTC(y, cm - 1, d)).getUTCDay() !== 1) n++;
+  return n;
+}
+// Préstamo ICO: 35.000 € al 5 %, 60 cuotas de 660,49 € desde enero de 2024 (L=0)
+function loanSchedule() {
+  var r = 0.05 / 12, pay = 660.49, bal = 35000, out = [];
+  for (var L = 0; L < 60; L++) {
+    var interest = bal * r, principal = pay - interest;
+    out.push({ interest: interest, principal: principal });
+    bal -= principal;
+  }
+  return out;
+}
+
+// ---------- Modelo mensual ----------
+// sc: { vol, price, elec, sal, tortas, extraDep, rent, extraRest }  (solo afecta a k>=22)
+function buildModel(sc) {
+  var LOAN = loanSchedule(), NOISE = noiseSeries(BF_HIST), rows = [];
+  for (var k = 0; k < BF_N; k++) {
+    var year = 2025 + Math.floor(k / 12), cm = (k % 12) + 1, proj = k >= BF_HIST;
+    var summer = cm >= 6 && cm <= 9;
+    var r = { k: k, year: year, cm: cm, proj: proj, label: BF_MONTHS[cm - 1] + ' ' + year };
+    var yoyVol = cm === 6 ? 0.88 : 1.06;     // Junio lluvioso 2026: -12 %; resto +6 %
+
+    // Mostrador
+    if (k < 12) r.daily = BF_BASE_DAILY[cm - 1] * (1 + NOISE[k]) * BF_TICKET_MULT;
+    else if (k < BF_HIST) r.daily = BF_BASE_DAILY[cm - 1] * yoyVol * (1 + NOISE[k]) * BF_TICKET_MULT;
+    else r.daily = rows[k - 12].daily * (k < 24 ? yoyVol : 1) * (1 + sc.vol);
+    r.open = openDays(year, cm);
+    r.tickets = r.daily * r.open;
+    var priceIdx = (k >= 14 ? 1.03 : 1) * (k >= 26 ? 1 + sc.price : 1) * (k >= BF_HIST ? 1 + (sc.priceAll || 0) : 1);   // +3 % desde mar 2026; +precio desde mar 2027
+    r.priceIdx = priceIdx;
+    var ticketSummer = cm >= 5 && cm <= 9;
+    r.ticket = (ticketSummer ? 4.60 : 4.10) * priceIdx;
+    r.revMost = r.tickets * r.ticket;
+
+    // Online (lanzamiento: mar 30 %, abr 60 %, may 85 %, desde jun 100 %)
+    var launch = k < 2 ? 0 : k === 2 ? 0.30 : k === 3 ? 0.60 : k === 4 ? 0.85 : 1;
+    r.orders = 0.09 * r.tickets * launch;
+    r.ship = r.orders * 0.40;
+    r.revOnline = r.orders * 9.80 * priceIdx + r.ship * 3.50;
+
+    // Tortas por encargo
+    if (k < 12) r.units = BF_BASE_UNITS[cm - 1];
+    else if (k < BF_HIST) r.units = BF_BASE_UNITS[cm - 1] * 1.12;
+    else r.units = rows[k - 12].units * (k < 24 ? 1.12 : 1) * (1 + sc.tortas);
+    r.revTortas = r.units * 46 * priceIdx;
+
+    // Restaurantes (cubetas 5 L)
+    var restBase = k < 8 ? 0 : k < 15 ? 520 : 780;
+    r.revRest = restBase * (summer ? 1.4 : 1) + (proj && sc.extraRest && k >= 27 ? 260 : 0);
+
+    r.rev = r.revMost + r.revOnline + r.revTortas + r.revRest;
+
+    // Costes variables
+    var raw = k >= 12 ? 1.04 : 1;                       // materias primas +4 % en 2026
+    // Materias y envases dependen del volumen (ingreso a precios base); comisiones sí cobran el precio real
+    var bMost = r.revMost / priceIdx, bOnl = r.orders * 9.80 + r.ship * 3.50, bTor = r.revTortas / priceIdx;
+    r.mat = raw * (0.24 * (bMost + bOnl) + 0.30 * bTor + 0.36 * r.revRest);
+    r.mermas = 0.03 * r.mat;
+    r.envases = 0.05 * bMost + 0.07 * bOnl + 0.04 * bTor + 0.02 * r.revRest;
+    r.comisiones = 0.8 * 0.006 * r.revMost + 0.014 * r.revOnline + 0.25 * r.orders + 0.008 * r.revTortas;
+    r.reparto = 4.20 * r.ship;
+    r.variable = r.mat + r.mermas + r.envases + r.comisiones + r.reparto;
+    r.margen = r.rev - r.variable;
+
+    // Costes fijos
+    var wage = (k >= 12 ? 1.04 : 1) * (k >= 24 ? 1 + sc.sal : 1);   // convenio +4 % 2026; salarios escenario desde 2027
+    var dep = BF_DEP[cm - 1] + (proj && sc.extraDep && summer ? 1 : 0);
+    r.dep = dep;
+    r.marta = 1900 * 1.31 * wage;
+    r.jordi = 1750 * 1.31 * wage;
+    r.deps = dep * 900 * 1.31 * wage;
+    r.personal = r.marta + r.jordi + r.deps;
+    r.alquiler = 2400 * (k >= 12 ? 1.028 : 1) * (k >= 24 ? 1 + sc.rent : 1);
+    r.luz = 600 * BF_SEASON[cm - 1] * (k >= 13 ? 0.95 : 1) * (proj ? 1 + sc.elec : 1);
+    r.agua = 70 + 25 * BF_SEASON[cm - 1];
+    r.energia = r.luz + r.agua;
+    r.marketing = (cm >= 4 && cm <= 9) ? 320 : 150;
+    r.averia = k === 6 ? 1400 : 0;                      // compresor vitrina, julio 2025
+    // autónomo 310 + seguros 85 + gestoría 150 + software 95 + teléfono 55 + mantenimiento 120 + limpieza 110 + tasas 175
+    r.otros = 1100 + r.averia;
+    r.fijosCaja = r.personal + r.alquiler + r.energia + r.marketing + r.otros;
+    r.ebitda = r.margen - r.fijosCaja;
+    r.amort = 500;                                      // 48.000 € / 96 meses
+    r.interes = LOAN[k + 12].interest;                  // k=0 es ene 2025 = L 12
+    r.principal = LOAN[k + 12].principal;
+    r.bai = r.ebitda - r.amort - r.interes;
+    rows.push(r);
+  }
+  // Caja (impuesto de sociedades 23 % del BAI anual positivo, pagado en julio del año siguiente)
+  var sumBai = function (y) { return rows.reduce(function (a, r) { return a + (r.year === y ? r.bai : 0); }, 0); };
+  var caja = BF_CAJA_INI;
+  rows.forEach(function (r) {
+    r.taxPaid = (r.cm === 7 && r.year >= 2026) ? 0.23 * Math.max(0, sumBai(r.year - 1)) : 0;
+    r.retirada = BF_RETIRADAS;
+    caja += r.bai + r.amort - r.principal - r.taxPaid - r.retirada;
+    r.caja = caja;
+  });
+  return rows;
+}
+
+// ---------- Agregados ----------
+var BF_PERIODS = {
+  oct26:  { label: 'Octubre 2026',     ks: [21],                                                prev: [9],          prevLabel: 'oct 2025' },
+  ult12:  { label: 'Últimos 12 meses', ks: [10,11,12,13,14,15,16,17,18,19,20,21],               prev: null,         prevLabel: null },
+  y2025:  { label: '2025',             ks: [0,1,2,3,4,5,6,7,8,9,10,11],                         prev: null,         prevLabel: null },
+  ytd26:  { label: '2026 hasta oct',   ks: [12,13,14,15,16,17,18,19,20,21],                     prev: [0,1,2,3,4,5,6,7,8,9], prevLabel: 'ene–oct 2025' }
+};
+function pickRows(rows, ks) { return ks.map(function (k) { return rows[k]; }); }
+function agg(list) {
+  var s = function (f) { return list.reduce(function (a, r) { return a + f(r); }, 0); };
+  var o = {
+    n: list.length,
+    rev: s(function (r) { return r.rev; }),
+    revMost: s(function (r) { return r.revMost; }),
+    revOnline: s(function (r) { return r.revOnline; }),
+    revTortas: s(function (r) { return r.revTortas; }),
+    revRest: s(function (r) { return r.revRest; }),
+    tickets: s(function (r) { return r.tickets; }),
+    open: s(function (r) { return r.open; }),
+    mat: s(function (r) { return r.mat + r.mermas; }),
+    envases: s(function (r) { return r.envases; }),
+    comReparto: s(function (r) { return r.comisiones + r.reparto; }),
+    variable: s(function (r) { return r.variable; }),
+    margen: s(function (r) { return r.margen; }),
+    personal: s(function (r) { return r.personal; }),
+    alquiler: s(function (r) { return r.alquiler; }),
+    energia: s(function (r) { return r.energia; }),
+    otrosFijos: s(function (r) { return r.marketing + r.otros; }),
+    fijosCaja: s(function (r) { return r.fijosCaja; }),
+    ebitda: s(function (r) { return r.ebitda; }),
+    amortInt: s(function (r) { return r.amort + r.interes; }),
+    interes: s(function (r) { return r.interes; }),
+    principal: s(function (r) { return r.principal; }),
+    bai: s(function (r) { return r.bai; }),
+    gastos: s(function (r) { return r.rev - r.bai; }),
+    caja: list.length ? list[list.length - 1].caja : null,
+    cajaMin: list.length ? Math.min.apply(null, list.map(function (r) { return r.caja; })) : null
+  };
+  o.tax = 0.23 * Math.max(0, o.bai);
+  o.margenPct = o.rev ? o.margen / o.rev : 0;
+  o.baiPct = o.rev ? o.bai / o.rev : 0;
+  o.ticketMedio = o.tickets ? o.revMost / o.tickets : 0;
+  return o;
+}
+function gastosTotales(r) { return r.rev - r.bai; }
+// Punto de equilibrio: gastos fijos (incl. amortización e intereses) / margen de contribución %
+function breakEven(list) {
+  var a = agg(list);
+  var fixedAll = a.fijosCaja + a.amortInt;
+  var cmPct = a.margenPct;
+  var be = a.n ? (fixedAll / a.n) / cmPct : 0;
+  var mostShare = a.rev ? a.revMost / a.rev : 0;
+  var ticketAvg = a.tickets ? a.revMost / a.tickets : 0;
+  var openAvg = a.n ? a.open / a.n : 0;
+  var ticketsDay = be * mostShare / ticketAvg / openAvg;
+  return { be: be, cmPct: cmPct, fixedMonthly: fixedAll / a.n, ticketsDay: ticketsDay, mostShare: mostShare, ticketAvg: ticketAvg, openAvg: openAvg };
+}
+// Tickets diarios necesarios para un mes concreto
+function neededDailyTickets(r) {
+  var cmPct = r.rev ? r.margen / r.rev : 0;
+  if (cmPct <= 0) return null;
+  var fixedAll = r.fijosCaja + r.amort + r.interes;
+  var needRev = fixedAll / cmPct;
+  return needRev * (r.revMost / r.rev) / r.ticket / r.open;
+}
+// Escenario Base de referencia (para la comprobación del modelo)
+function projectionRows(sc) { return buildModel(sc).slice(BF_HIST); }
+/* MODEL END */
+
+/* UI START */
+// ---------- Estado ----------
+var $ = function (id) { return document.getElementById(id); };
+var GID = 0;
+function gid() { return 'bfg' + (++GID); }
+var MES3 = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+var TABS = [['resumen','Resumen'],['gastos','Gastos'],['sostenibilidad','Sostenibilidad'],['proyeccion','Proyección']];
+var ULT = [10,11,12,13,14,15,16,17,18,19,20,21];
+var ST = { tab: 'resumen', period: 'oct26', scen: 'base', sim: null, gView: 'persona' };
+var ROWS = [];
+var CHARTS = {}, TIPS = {};
+var SCEN_LABEL = { prudente: 'Prudente', base: 'Base', optimista: 'Optimista' };
+var SCEN_DESC = {
+  prudente: 'Volumen −6 %, luz +15 %, sin subida de precios.',
+  base: 'Volumen +4 %, precios +2 % desde marzo de 2027, salarios +3 %.',
+  optimista: 'Volumen +9 %, tortas +20 %, un cuarto restaurante desde abril de 2027 (+260 €/mes).'
+};
+var ICON_SUN = '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4.2" fill="var(--warn)"/><g stroke="var(--warn)" stroke-width="2" stroke-linecap="round"><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></g></svg>';
+var ICON_MOON = '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="var(--choco)"/></svg>';
+var ICON_LOGO = '<svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true" focusable="false"><path d="M7 13 L14 26 L21 13 Z" fill="var(--choco)"/><circle cx="14" cy="10.5" r="7" fill="var(--brand)"/><circle cx="11" cy="8" r="2" fill="#fff" opacity=".55"/></svg>';
+
+function copyScen(k) { var o = {}; for (var p in BF_SCEN[k]) o[p] = BF_SCEN[k][p]; return o; }
+function recalc() {
+  ROWS = buildModel(ST.sim);
+  ROWS.forEach(function (r) {
+    r.gastos = r.rev - r.bai;
+    r.ticketMed = r.tickets ? r.revMost / r.tickets : 0;
+  });
+}
+
+// ---------- Formato (es-ES) ----------
+var NF = [0, 1, 2].map(function (d) {
+  return new Intl.NumberFormat('es-ES', { minimumFractionDigits: d, maximumFractionDigits: d, useGrouping: 'always' });
+});
+function grp(s) { return s.replace(/(^|[^\d.,])(\d)(\d{3})(?!\d)/g, '$1$2.$3'); }
+function fN(n, d) {
+  d = d || 0;
+  if (!isFinite(n)) return '—';
+  if (Math.abs(n) < 0.5 * Math.pow(10, -d)) n = 0;
+  return grp(NF[d].format(n));
+}
+function fE(n, d) { return fN(n, d || 0) + ' €'; }
+function fP(x, d) { return fN(x * 100, d === undefined ? 1 : d) + ' %'; }
+function fX(n) { return fN(n, 2) + ' ×'; }
+function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function sumF(list, f) { return list.reduce(function (a, r) { return a + r[f]; }, 0); }
+function pickP(id) { return pickRows(ROWS, BF_PERIODS[id].ks); }
+
+// ---------- Helpers SVG ----------
+function svgOf(w, h, label, inner) {
+  return '<svg role="img" aria-label="' + esc(label) + '" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" class="bf-svg">' + inner + '</svg>';
+}
+function txt(x, y, s, anchor, cls) {
+  return '<text x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" text-anchor="' + (anchor || 'middle') + '" class="' + (cls || 'bf-ax') + '">' + esc(s) + '</text>';
+}
+function gradDef(id, color, op) {
+  return '<linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:' + color + '"/><stop offset="1" style="stop-color:' + color + ';stop-opacity:' + (op === undefined ? 0.55 : op) + '"/></linearGradient>';
+}
+function niceStep(raw) {
+  raw = raw || 1;
+  var p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+  return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p;
+}
+function niceMax(v) { var s = niceStep(v / 5); return Math.ceil(v / s) * s; }
+function ticksOf(lo, hi, n) {
+  var s = niceStep((hi - lo) / n), out = [];
+  for (var v = Math.ceil(lo / s) * s; v <= hi + 1e-9; v += s) out.push(v);
+  return out;
+}
+function pathOf(pts) {
+  return pts.map(function (p, i) { return (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' ');
+}
+function tl(label, val) { return '<div class="bf-tl"><span>' + label + '</span><b>' + val + '</b></div>'; }
+function srTable(cap, heads, rows) {
+  return '<table class="bf-sr"><caption>' + esc(cap) + '</caption><thead><tr>' +
+    heads.map(function (h) { return '<th scope="col">' + esc(h) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+    rows.map(function (r) { return '<tr>' + r.map(function (c) { return '<td>' + esc(c) + '</td>'; }).join('') + '</tr>'; }).join('') +
+    '</tbody></table>';
+}
+
+// ---------- Gráficos ----------
+CHARTS.monthly = function (w, h) {
+  var rows = ROWS.slice(0, 22), n = 22, padL = 56, padR = 8, padT = 24, padB = 38;
+  var pw = w - padL - padR, ph = h - padT - padB, bw = pw / n, bar = Math.max(5, bw * 0.64);
+  var maxR = Math.max.apply(null, rows.map(function (r) { return r.rev; }));
+  var minB = Math.min.apply(null, rows.map(function (r) { return r.bai; }));
+  var yMax = niceMax(maxR), yMin = minB < 0 ? -niceMax(-minB) : 0;
+  var Y = function (v) { return padT + (yMax - v) / (yMax - yMin) * ph; };
+  var X = function (i) { return padL + (i + 0.5) * bw; };
+  var sel = BF_PERIODS[ST.period].ks;
+  var ids = { most: gid(), onl: gid(), tor: gid(), res: gid() };
+  var s = '<defs>' + gradDef(ids.most, 'var(--brand)') + gradDef(ids.onl, 'var(--online)') + gradDef(ids.tor, 'var(--tortas)') + gradDef(ids.res, 'var(--caja)') + '</defs>';
+  ticksOf(yMin, yMax, 5).forEach(function (v) {
+    s += '<line x1="' + padL + '" x2="' + (w - padR) + '" y1="' + Y(v) + '" y2="' + Y(v) + '" class="bf-grid-l"/>' + txt(padL - 8, Y(v) + 4, fN(v), 'end');
+  });
+  sel.forEach(function (i) {
+    s += '<rect x="' + (padL + i * bw) + '" y="' + padT + '" width="' + bw + '" height="' + ph + '" class="bf-sel"/>';
+  });
+  rows.forEach(function (r, i) {
+    var cum = 0;
+    [['revMost', ids.most], ['revOnline', ids.onl], ['revTortas', ids.tor], ['revRest', ids.res]].forEach(function (c) {
+      var v = r[c[0]];
+      if (v <= 0) return;
+      s += '<rect x="' + (X(i) - bar / 2) + '" y="' + Y(cum + v) + '" width="' + bar + '" height="' + (Y(cum) - Y(cum + v)) + '" rx="2" fill="url(#' + c[1] + ')"/>';
+      cum += v;
+    });
+  });
+  var pts = rows.map(function (r, i) { return [X(i), Y(r.gastos)]; });
+  s += '<path d="' + pathOf(pts) + '" class="bf-line-choco"/>';
+  pts.forEach(function (p) { s += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="2.4" style="fill:var(--choco)"/>'; });
+  rows.forEach(function (r, i) {
+    s += '<circle cx="' + X(i) + '" cy="' + Y(r.bai) + '" r="4.5" style="fill:' + (r.bai >= 0 ? 'var(--ok)' : 'var(--err)') + ';stroke:var(--surface);stroke-width:1.5"/>';
+  });
+  rows.forEach(function (r, i) {
+    if (bw < 22 && i % 2) return;
+    s += txt(X(i), padT + ph + 16, bw >= 22 ? MES3[r.cm - 1] : MES3[r.cm - 1].charAt(0));
+    if (r.cm === 1) s += txt(X(i), padT + ph + 31, String(r.year), 'middle', 'bf-ax bf-ax-y');
+  });
+  [[6, '1'], [11, '2'], [17, '3']].forEach(function (a) {
+    var x = X(a[0]), y = padT - 10;
+    s += '<circle cx="' + x + '" cy="' + y + '" r="8" class="bf-anno"/><text x="' + x + '" y="' + (y + 4) + '" text-anchor="middle" class="bf-anno-t">' + a[1] + '</text>';
+  });
+  TIPS.monthly = {
+    n: n, x: X,
+    idxAt: function (px) { return Math.floor((px - padL) / bw); },
+    tip: function (i) {
+      var r = rows[i];
+      return '<strong>' + BF_MONTHS[r.cm - 1] + ' ' + r.year + '</strong>' +
+        tl('Mostrador', fE(r.revMost)) + tl('Online', fE(r.revOnline)) + tl('Tortas', fE(r.revTortas)) + tl('Restaurantes', fE(r.revRest)) +
+        tl('Ingresos', fE(r.rev)) + tl('Gastos', fE(r.gastos)) + tl('Beneficio', fE(r.bai)) + tl('Caja', fE(r.caja));
+    }
+  };
+  return svgOf(w, h, 'Ingresos apilados por canal, gastos totales y beneficio mensual de enero de 2025 a octubre de 2026', s);
+};
+
+CHARTS.cascada = function (w) {
+  var A = agg(pickP(ST.period));
+  var items = [
+    ['Ingresos', A.rev, 'total'], ['Materias primas y mermas', A.mat, 'cost'], ['Envases', A.envases, 'cost'],
+    ['Comisiones y reparto', A.comReparto, 'cost'], ['Personal', A.personal, 'cost'], ['Alquiler', A.alquiler, 'cost'],
+    ['Energía y agua', A.energia, 'cost'], ['Otros fijos', A.otrosFijos, 'cost'], ['Amortización e intereses', A.amortInt, 'cost'],
+    ['Beneficio (BAI)', A.bai, 'result']
+  ];
+  var lw = w < 520 ? Math.min(w * 0.4, 150) : 220, vw = 96, rowH = 32, top = 6;
+  var pw = w - lw - vw, h = top + items.length * rowH + 8;
+  var X = function (v) { return lw + v / A.rev * pw; };
+  var ids = { ing: gid(), cost: gid(), ok: gid(), err: gid() };
+  var s = '<defs>' + gradDef(ids.ing, 'var(--brand)', 0.7) + gradDef(ids.cost, 'var(--choco)', 0.6) + gradDef(ids.ok, 'var(--ok)', 0.6) + gradDef(ids.err, 'var(--err)', 0.6) + '</defs>';
+  var cum = A.rev;
+  items.forEach(function (it, i) {
+    var y = top + i * rowH, a, b, col, v = it[1], kind = it[2];
+    if (kind === 'total') { a = 0; b = v; col = ids.ing; cum = v; }
+    else if (kind === 'cost') { a = cum - v; b = cum; cum = a; col = ids.cost; }
+    else { a = 0; b = Math.max(v, 0); col = v >= 0 ? ids.ok : ids.err; }
+    var x1 = X(Math.min(a, b)), x2 = X(Math.max(a, b));
+    var nm = w < 520 ? it[0].replace('Materias primas y mermas', 'Materias primas').replace('Comisiones y reparto', 'Comisiones').replace('Amortización e intereses', 'Amortización') : it[0];
+    s += txt(lw - 10, y + rowH / 2 + 4, nm, 'end', 'bf-lbl');
+    s += '<rect x="' + x1.toFixed(1) + '" y="' + (y + 7) + '" width="' + Math.max(4, x2 - x1).toFixed(1) + '" height="' + (rowH - 14) + '" rx="5" fill="url(#' + col + ')"/>';
+    s += txt(w - 2, y + rowH / 2 + 4, (kind === 'cost' || v < 0 ? '−' : '') + fE(Math.abs(v)), 'end', 'bf-val');
+  });
+  return svgOf(w, h, 'Cascada: de los ingresos al beneficio del periodo', s);
+};
+
+CHARTS.donut = function (w) {
+  var A = agg(pickP(ST.period));
+  var size = Math.min(w, 230), cx = size / 2, cy = size / 2, R = size / 2 - 4, r = R * 0.62;
+  var parts = [['Mostrador', A.revMost, 'var(--brand)'], ['Online', A.revOnline, 'var(--online)'], ['Tortas', A.revTortas, 'var(--tortas)'], ['Restaurantes', A.revRest, 'var(--caja)']];
+  var s = '<defs>';
+  parts.forEach(function (p) { p.id = gid(); s += gradDef(p.id, p[2], 0.7); });
+  s += '</defs>';
+  var a0 = -Math.PI / 2, P = function (rad, a) { return (cx + rad * Math.cos(a)).toFixed(2) + ' ' + (cy + rad * Math.sin(a)).toFixed(2); };
+  parts.forEach(function (p) {
+    var frac = p[1] / A.rev;
+    if (frac <= 0) return;
+    var a1 = a0 + frac * 2 * Math.PI, large = frac > 0.5 ? 1 : 0;
+    s += '<path d="M' + P(R, a0) + ' A' + R + ' ' + R + ' 0 ' + large + ' 1 ' + P(R, a1) + ' L' + P(r, a1) + ' A' + r + ' ' + r + ' 0 ' + large + ' 0 ' + P(r, a0) + ' Z" fill="url(#' + p.id + ')"/>';
+    a0 = a1;
+  });
+  s += '<text x="' + cx + '" y="' + (cy - 2) + '" text-anchor="middle" class="bf-donut-big">' + fE(A.rev) + '</text>' +
+    '<text x="' + cx + '" y="' + (cy + 17) + '" text-anchor="middle" class="bf-ax">ingresos</text>';
+  return svgOf(size, size, 'Reparto de los ingresos del periodo por canal', s);
+};
+
+CHARTS.elec = function (w, h) {
+  var padL = 48, padR = 10, padT = 14, padB = 28, pw = w - padL - padR, ph = h - padT - padB;
+  var s25 = ROWS.slice(0, 12).map(function (r) { return r.luz; });
+  var s26 = ROWS.slice(12, 22).map(function (r) { return r.luz; });
+  var yMax = niceMax(Math.max.apply(null, s25.concat(s26)));
+  var X = function (i) { return padL + i / 11 * pw; };
+  var Y = function (v) { return padT + (yMax - v) / yMax * ph; };
+  var s = '';
+  ticksOf(0, yMax, 4).forEach(function (v) {
+    s += '<line x1="' + padL + '" x2="' + (w - padR) + '" y1="' + Y(v) + '" y2="' + Y(v) + '" class="bf-grid-l"/>' + txt(padL - 8, Y(v) + 4, fN(v), 'end');
+  });
+  var p25 = s25.map(function (v, i) { return [X(i), Y(v)]; });
+  var p26 = s26.map(function (v, i) { return [X(i), Y(v)]; });
+  s += '<path d="' + pathOf(p25) + '" class="bf-line-choco bf-line-dash" style="stroke:var(--muted)"/>';
+  s += '<path d="' + pathOf(p26) + '" class="bf-line-choco" style="stroke:var(--brand)"/>';
+  p26.forEach(function (p) { s += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="3" style="fill:var(--brand)"/>'; });
+  for (var i = 0; i < 12; i++) s += txt(X(i), padT + ph + 17, w < 420 ? MES3[i].charAt(0) : MES3[i]);
+  return svgOf(w, h, 'Consumo de luz por mes, 2025 y 2026 superpuestos', s);
+};
+
+CHARTS.personal = function (w, h) {
+  var rows = ROWS.slice(0, 22), n = rows.length, selK = BF_PERIODS[ST.period].ks;
+  var padL = 56, padR = 8, padT = 24, padB = 34, pw = w - padL - padR, ph = h - padT - padB;
+  var bw = pw / n, bar = Math.min(46, bw * 0.6);
+  var yMax = niceMax(Math.max.apply(null, rows.map(function (r) { return r.personal; })));
+  var Y = function (v) { return padT + (yMax - v) / yMax * ph; };
+  var X = function (i) { return padL + (i + 0.5) * bw; };
+  var id = gid();
+  var s = '<defs>' + gradDef(id, 'var(--choco)', 0.5) + '</defs>';
+  selK.forEach(function (k) { s += '<rect x="' + (padL + k * bw) + '" y="' + padT + '" width="' + bw + '" height="' + ph + '" class="bf-sel"/>'; });
+  ticksOf(0, yMax, 4).forEach(function (v) {
+    s += '<line x1="' + padL + '" x2="' + (w - padR) + '" y1="' + Y(v) + '" y2="' + Y(v) + '" class="bf-grid-l"/>' + txt(padL - 8, Y(v) + 4, fN(v), 'end');
+  });
+  rows.forEach(function (r, i) {
+    s += '<rect x="' + (X(i) - bar / 2) + '" y="' + Y(r.personal) + '" width="' + bar + '" height="' + (padT + ph - Y(r.personal)) + '" rx="4" fill="url(#' + id + ')"/>';
+    s += txt(X(i), Y(r.personal) - 6, String(r.dep + 2), 'middle', 'bf-val');
+    if (bw >= 22 || i % 2 === 0) s += txt(X(i), padT + ph + 16, bw >= 30 ? MES3[r.cm - 1] : MES3[r.cm - 1].charAt(0));
+    if (r.cm === 1) s += txt(X(i), padT + ph + 31, String(r.year), 'middle', 'bf-ax bf-ax-y');
+  });
+  return svgOf(w, h, 'Coste mensual del personal y número de personas por mes del periodo', s);
+};
+
+CHARTS.tickets = function (w, h) {
+  var rows = ROWS.slice(0, 22), n = 22, padL = 48, padR = 10, padT = 16, padB = 34;
+  var pw = w - padL - padR, ph = h - padT - padB;
+  var real = rows.map(function (r) { return r.daily; });
+  var need = rows.map(function (r) { var v = neededDailyTickets(r); return v === null ? 0 : v; });
+  var yMax = niceMax(Math.max.apply(null, real.concat(need)));
+  var X = function (i) { return padL + i * (pw / (n - 1)); };
+  var Y = function (v) { return padT + (yMax - v) / yMax * ph; };
+  var s = '';
+  ticksOf(0, yMax, 4).forEach(function (v) {
+    s += '<line x1="' + padL + '" x2="' + (w - padR) + '" y1="' + Y(v) + '" y2="' + Y(v) + '" class="bf-grid-l"/>' + txt(padL - 8, Y(v) + 4, fN(v), 'end');
+  });
+  for (var i = 0; i < n - 1; i++) {
+    var ok = (real[i] + real[i + 1]) >= (need[i] + need[i + 1]);
+    s += '<polygon points="' + X(i) + ',' + Y(real[i]) + ' ' + X(i + 1) + ',' + Y(real[i + 1]) + ' ' + X(i + 1) + ',' + Y(need[i + 1]) + ' ' + X(i) + ',' + Y(need[i]) + '" style="fill:' + (ok ? 'var(--ok)' : 'var(--err)') + ';opacity:.28"/>';
+  }
+  s += '<path d="' + pathOf(need.map(function (v, i) { return [X(i), Y(v)]; })) + '" class="bf-line-choco bf-line-dash"/>';
+  s += '<path d="' + pathOf(real.map(function (v, i) { return [X(i), Y(v)]; })) + '" class="bf-line-choco" style="stroke:var(--brand)"/>';
+  rows.forEach(function (r, i) {
+    if (i % 2) return;
+    s += txt(X(i), padT + ph + 16, MES3[r.cm - 1] + (r.cm === 1 ? ' ' + String(r.year).slice(2) : ''), 'middle', 'bf-ax');
+  });
+  TIPS.tickets = {
+    n: n, x: X,
+    idxAt: function (px) { return Math.round((px - padL) / (pw / (n - 1))); },
+    tip: function (i) {
+      return '<strong>' + BF_MONTHS[rows[i].cm - 1] + ' ' + rows[i].year + '</strong>' +
+        tl('Tickets reales al día', fN(real[i], 0)) + tl('Tickets necesarios', fN(need[i], 0));
+    }
+  };
+  return svgOf(w, h, 'Tickets diarios reales frente a tickets necesarios para cubrir gastos, por mes', s);
+};
+
+CHARTS.proj = function (w, h) {
+  var rows = ROWS.slice(16, 34), n = rows.length, padL = 52, padR = 60, padT = 20, padB = 36;
+  var pw = w - padL - padR, ph = h - padT - padB, bw = pw / n, bar = Math.max(6, bw * 0.56);
+  var bais = rows.map(function (r) { return r.bai; });
+  var yB1 = niceMax(Math.max.apply(null, bais.concat([1]))), yB0 = Math.min.apply(null, bais.concat([0])) < 0 ? -niceMax(-Math.min.apply(null, bais)) : 0;
+  var YB = function (v) { return padT + (yB1 - v) / (yB1 - yB0) * ph; };
+  var band = function (r) { return r.k >= BF_HIST ? 0.04 + 0.01 * (r.k - 21) : 0; };
+  var up = rows.map(function (r) { return r.caja * (1 + band(r)); });
+  var lo = rows.map(function (r) { return r.caja * (1 - band(r)); });
+  var cMax = Math.max.apply(null, up.concat([0])), cMin = Math.min.apply(null, lo.concat([0]));
+  var yC1 = niceMax(cMax), yC0 = cMin < 0 ? -niceMax(-cMin) : 0;
+  var YC = function (v) { return padT + (yC1 - v) / (yC1 - yC0) * ph; };
+  var X = function (i) { return padL + (i + 0.5) * bw; };
+  var ids = { ok: gid(), err: gid() };
+  var s = '<defs>' + gradDef(ids.ok, 'var(--ok)', 0.6) + gradDef(ids.err, 'var(--err)', 0.6) + '</defs>';
+  ticksOf(yB0, yB1, 4).forEach(function (v) {
+    s += '<line x1="' + padL + '" x2="' + (w - padR) + '" y1="' + YB(v) + '" y2="' + YB(v) + '" class="bf-grid-l"/>' + txt(padL - 8, YB(v) + 4, fN(v), 'end');
+  });
+  ticksOf(yC0, yC1, 4).forEach(function (v) {
+    s += txt(w - padR + 6, YC(v) + 4, fN(v), 'start');
+  });
+  var div = padL + 6 * bw;
+  s += '<line x1="' + div + '" x2="' + div + '" y1="' + padT + '" y2="' + (padT + ph) + '" style="stroke:var(--muted);stroke-dasharray:3 4"/>';
+  s += txt(div - 6, padT + 12, 'Real', 'end') + txt(div + 6, padT + 12, 'Previsto', 'start');
+  rows.forEach(function (r, i) {
+    s += '<rect x="' + (X(i) - bar / 2) + '" y="' + Math.min(YB(0), YB(r.bai)) + '" width="' + bar + '" height="' + Math.max(1, Math.abs(YB(r.bai) - YB(0))) + '" rx="3" fill="url(#' + (r.bai >= 0 ? ids.ok : ids.err) + ')"' + (r.k >= BF_HIST ? ' opacity=".6"' : '') + '/>';
+  });
+  // banda de incertidumbre sobre la caja prevista
+  var bandUp = [], bandLo = [];
+  rows.forEach(function (r, i) { if (r.k >= 21) { bandUp.push([X(i), YC(up[i])]); bandLo.push([X(i), YC(lo[i])]); } });
+  if (bandUp.length) s += '<path d="' + pathOf(bandUp) + ' ' + bandLo.reverse().map(function (p) { return 'L' + p[0].toFixed(1) + ' ' + p[1].toFixed(1); }).join(' ') + ' Z" style="fill:var(--brand);opacity:.16"/>';
+  var realPts = rows.filter(function (r) { return r.k <= 21; }).map(function (r) { return [X(rows.indexOf(r)), YC(r.caja)]; });
+  var fcPts = rows.filter(function (r) { return r.k >= 21; }).map(function (r) { return [X(rows.indexOf(r)), YC(r.caja)]; });
+  s += '<path d="' + pathOf(realPts) + '" class="bf-line-choco" style="stroke:var(--caja);stroke-width:2.6"/>';
+  s += '<path d="' + pathOf(fcPts) + '" class="bf-line-choco bf-line-dash" style="stroke:var(--caja);stroke-width:2.6"/>';
+  var alertY = YC(5000);
+  s += '<line x1="' + padL + '" x2="' + (w - padR) + '" y1="' + alertY + '" y2="' + alertY + '" style="stroke:var(--err);stroke-dasharray:2 4;opacity:.7"/>';
+  rows.forEach(function (r, i) {
+    if (bw < 30 && i % 3) return;
+    s += txt(X(i), padT + ph + 16, MES3[r.cm - 1]);
+    if (r.cm === 1) s += txt(X(i), padT + ph + 31, String(r.year), 'middle', 'bf-ax bf-ax-y');
+  });
+  TIPS.proj = {
+    n: n, x: X,
+    idxAt: function (px) { return Math.floor((px - padL) / bw); },
+    tip: function (i) {
+      var r = rows[i];
+      return '<strong>' + BF_MONTHS[r.cm - 1] + ' ' + r.year + (r.k >= BF_HIST ? ' · previsto' : ' · real') + '</strong>' +
+        tl('Ingresos', fE(r.rev)) + tl('Gastos', fE(r.gastos)) + tl('Beneficio', fE(r.bai)) + tl('Caja', fE(r.caja));
+    }
+  };
+  return svgOf(w, h, 'Proyección de noviembre de 2026 a octubre de 2027: beneficio mensual y caja', s);
+};
+
+// ---------- Dibujo y eventos de gráficos ----------
+function hydrate() {
+  document.querySelectorAll('[data-chart]').forEach(function (el) {
+    var name = el.getAttribute('data-chart'), h = +el.getAttribute('data-h') || 260;
+    var w = Math.max(240, Math.floor(el.clientWidth || 600));
+    el.innerHTML = CHARTS[name](w, h) + '<div class="bf-tip" hidden></div>';
+    var svg = el.querySelector('svg');
+    if (TIPS[name] && svg) { svg.setAttribute('tabindex', '0'); bindTip(el, name); }
+  });
+}
+function bindTip(el, name) {
+  var t = TIPS[name], svg = el.querySelector('svg'), tip = el.querySelector('.bf-tip');
+  var idx = t.n - 1;
+  var show = function (i) {
+    idx = Math.max(0, Math.min(t.n - 1, i));
+    tip.innerHTML = t.tip(idx);
+    tip.hidden = false;
+    var x = t.x(idx), tw = tip.offsetWidth, W = el.clientWidth;
+    tip.style.left = Math.max(0, Math.min(W - tw, x - tw / 2)) + 'px';
+  };
+  var at = function (e) { var r = svg.getBoundingClientRect(); show(t.idxAt(e.clientX - r.left)); };
+  svg.addEventListener('pointermove', at);
+  svg.addEventListener('pointerdown', at);
+  el.addEventListener('pointerleave', function () { tip.hidden = true; });
+  svg.addEventListener('focus', function () { show(idx); });
+  svg.addEventListener('blur', function () { tip.hidden = true; });
+  svg.addEventListener('keydown', function (e) {
+    var k = e.key;
+    if (k === 'ArrowRight') show(idx + 1);
+    else if (k === 'ArrowLeft') show(idx - 1);
+    else if (k === 'Home') show(0);
+    else if (k === 'End') show(t.n - 1);
+    else if (k === 'Escape') { tip.hidden = true; return; }
+    else return;
+    e.preventDefault();
+  });
+}
+
+// ---------- Componentes ----------
+function spark(vals, color) {
+  var mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals), rg = (mx - mn) || 1, n = vals.length;
+  var pts = vals.map(function (v, i) { return [i / (n - 1) * 120, 36 - (v - mn) / rg * 32]; });
+  var d = pathOf(pts), id = gid();
+  return '<svg class="bf-spark" viewBox="0 0 120 40" preserveAspectRatio="none" aria-hidden="true" focusable="false"><defs>' + gradDef(id, color, 0) + '</defs>' +
+    '<path d="' + d + ' L120 40 L0 40 Z" fill="url(#' + id + ')" opacity=".55"/><path d="' + d + '" class="bf-spark-l" style="stroke:' + color + '"/></svg>';
+}
+function kpi(cls, label, value, extra, vh, series, color) {
+  return '<article class="bf-card bf-kpi ' + cls + '"><p class="bf-kpi-label">' + label + '</p><p class="bf-kpi-val">' + value + '</p>' +
+    (extra ? '<p class="bf-kpi-extra">' + extra + '</p>' : '') + (vh || '') + (series ? spark(series, color) : '') + '</article>';
+}
+function noCmp() { return '<p class="bf-var bf-muted">Sin comparación en este periodo</p>'; }
+function varTxt(cur, prev, lb) {
+  if (prev === null || prev === undefined || !isFinite(prev)) return noCmp();
+  if (prev === 0) return '<p class="bf-var bf-muted">—</p>';
+  var d = (cur - prev) / Math.abs(prev), up = d >= 0;
+  return '<p class="bf-var ' + (up ? 'bf-pos' : 'bf-neg') + '">' + (up ? '▲ ' : '▼ ') + fP(Math.abs(d), 1) + ' vs ' + esc(lb) + '</p>';
+}
+function varAbs(cur, prev, lb) {
+  if (prev === null || prev === undefined || !isFinite(prev)) return noCmp();
+  var d = cur - prev, up = d >= 0;
+  return '<p class="bf-var ' + (up ? 'bf-pos' : 'bf-neg') + '">' + (up ? '▲ ' : '▼ ') + fE(Math.abs(d)) + ' vs ' + esc(lb) + '</p>';
+}
+function chip(t, cls) { return '<span class="bf-chip bf-chip-' + cls + '">' + t + '</span>'; }
+function periodBar() {
+  return '<div class="bf-seg" role="group" aria-label="Periodo">' + Object.keys(BF_PERIODS).map(function (id) {
+    return '<button type="button" data-period="' + id + '" aria-pressed="' + (ST.period === id) + '">' + BF_PERIODS[id].label + '</button>';
+  }).join('') + '</div>';
+}
+function legendChips(items) {
+  return '<ul class="bf-legend">' + items.map(function (it) {
+    return '<li><span class="bf-dot" style="background:' + it[1] + '"></span>' + it[0] + '</li>';
+  }).join('') + '</ul>';
+}
+
+// ---------- Pestaña Resumen ----------
+function viewResumen() {
+  var P = BF_PERIODS[ST.period], cur = pickP(ST.period), A = agg(cur);
+  var pv = P.prev ? agg(pickRows(ROWS, P.prev)) : null, lb = P.prevLabel;
+  var vh = function (c, key) { return pv ? varTxt(c, pv[key], lb) : noCmp(); };
+  var l12 = pickRows(ROWS, ULT);
+  var cards = [
+    kpi('bf-k1', 'Ingresos', fE(A.rev), '', vh(A.rev, 'rev'), l12.map(function (r) { return r.rev; }), 'var(--brand)'),
+    kpi('bf-k2', 'Margen bruto', fE(A.margen), fP(A.margenPct) + ' de los ingresos', vh(A.margen, 'margen'), l12.map(function (r) { return r.margen; }), 'var(--brand)'),
+    kpi('bf-k3', 'Gastos totales', fE(A.gastos), 'incluye amortización e intereses', vh(A.gastos, 'gastos'), l12.map(function (r) { return r.gastos; }), 'var(--choco)'),
+    kpi('bf-k4', 'Beneficio (BAI)', '<span class="' + (A.bai >= 0 ? 'bf-pos' : 'bf-neg') + '">' + fE(A.bai) + '</span>', fP(A.baiPct) + ' de margen', (pv ? varAbs(A.bai, pv.bai, lb) : noCmp()), l12.map(function (r) { return r.bai; }), A.bai >= 0 ? 'var(--ok)' : 'var(--err)'),
+    kpi('bf-k5', 'Ticket medio en mostrador', fN(A.ticketMedio, 2) + ' €', '', vh(A.ticketMedio, 'ticketMedio'), l12.map(function (r) { return r.ticketMed; }), 'var(--brand)'),
+    kpi('bf-k6', 'Caja al final del periodo', fE(A.caja), '', vh(A.caja, 'caja'), l12.map(function (r) { return r.caja; }), 'var(--caja)')
+  ].join('');
+
+  // Frases automáticas
+  var sumer = cur.filter(function (r) { return r.cm >= 6 && r.cm <= 9; }).reduce(function (a, r) { return a + r.rev; }, 0);
+  var best = cur.reduce(function (a, r) { return r.bai > a.bai ? r : a; }, cur[0]);
+  var lowest = cur.reduce(function (a, r) { return r.caja < a.caja ? r : a; }, cur[0]);
+  var phr = [];
+  phr.push('El personal se lleva el ' + fP(A.personal / A.rev, 0) + ' de las ventas (referencia del sector: 30–35 %).');
+  var shareNow = A.revTortas / A.rev;
+  if (pv) {
+    var shareBefore = pv.revTortas / pv.rev, dsh = shareNow - shareBefore;
+    if (Math.abs(dsh) >= 0.01) {
+      phr.push('Las tortas ' + (dsh > 0 ? 'suben' : 'bajan') + ' del ' + fP(shareBefore, 0) + ' al ' + fP(shareNow, 0) + ' de los ingresos frente a ' + P.prevLabel + '.');
+    } else {
+      var chans = [['Mostrador', 'revMost'], ['Online', 'revOnline'], ['Tortas', 'revTortas'], ['Restaurantes', 'revRest']]
+        .filter(function (c) { return pv[c[1]] > 0; })
+        .map(function (c) { return { n: c[0], g: (A[c[1]] - pv[c[1]]) / pv[c[1]] }; })
+        .sort(function (a, b) { return b.g - a.g; });
+      if (chans.length) phr.push(chans[0].n + ' es el canal con mejor evolución: ' + (chans[0].g >= 0 ? '+' : '') + fP(chans[0].g, 0) + ' frente a ' + P.prevLabel + '.');
+    }
+  } else phr.push('Las tortas son el ' + fP(shareNow, 0) + ' de los ingresos del periodo.');
+  phr.push('El margen bruto es del ' + fP(A.margenPct, 0) + ' de los ingresos.');
+  if (P.prev) {
+    var lm = cur[cur.length - 1], pl = pickRows(ROWS, P.prev).slice(-1)[0], dd = lm.bai - pl.bai;
+    phr.push(BF_MONTHS[lm.cm - 1] + ' cerró con ' + (lm.bai >= 0 ? fE(lm.bai) + ' de beneficio' : fE(-lm.bai) + ' de pérdida') + ', ' + fE(Math.abs(dd)) + (dd >= 0 ? ' más' : ' menos') + ' que en ' + BF_MONTHS[pl.cm - 1].toLowerCase() + ' de ' + pl.year + '.');
+  } else {
+    phr.push('El mejor mes del periodo fue ' + BF_MONTHS[best.cm - 1].toLowerCase() + ' de ' + best.year + ', con ' + fE(best.bai) + ' de beneficio.');
+  }
+  if (lowest.caja < 5000) phr.push('Aviso: la caja baja de 5.000 € en el periodo; el mínimo es de ' + fE(lowest.caja) + ' (' + BF_MONTHS[lowest.cm - 1].toLowerCase() + ' ' + lowest.year + ').');
+  else phr.push('La caja cierra el periodo en ' + fE(A.caja) + '.');
+  if (cur.length > 1 && sumer > 0) phr.push('De junio a septiembre sale el ' + fP(sumer / A.rev, 0) + ' de las ventas del periodo.');
+
+  var monthRows = cur.map(function (r) {
+    return [BF_MONTHS[r.cm - 1] + ' ' + r.year, fE(r.rev), fE(r.gastos), fE(r.bai), fE(r.caja)];
+  });
+  return '' +
+    '<div class="bf-seg-wrap">' + periodBar() + '</div>' +
+    '<div class="bf-kpis">' + cards + '</div>' +
+    '<section class="bf-card bf-section" aria-labelledby="h-mes">' +
+      '<h2 id="h-mes" class="bf-h2">Ingresos y gastos por mes</h2>' +
+      '<p class="bf-sub">De enero de 2025 a octubre de 2026. Los meses del periodo seleccionado están resaltados. Pasa el ratón, toca o usa las flechas sobre el gráfico.</p>' +
+      '<div class="bf-chart" data-chart="monthly" data-h="320"></div>' +
+      legendChips([['Mostrador', 'var(--brand)'], ['Online', 'var(--online)'], ['Tortas', 'var(--tortas)'], ['Restaurantes', 'var(--caja)'], ['Gastos totales', 'var(--choco)'], ['Beneficio (verde ≥ 0, rojo < 0)', 'var(--ok)']]) +
+      '<ol class="bf-notes"><li><b>1</b>Avería del compresor de la vitrina (julio de 2025)</li><li><b>2</b>Campaña de tortas de Navidad (diciembre de 2025)</li><li><b>3</b>Junio lluvioso (junio de 2026)</li></ol>' +
+      srTable('Ingresos, gastos, beneficio y caja por mes', ['Mes', 'Ingresos', 'Gastos', 'Beneficio', 'Caja'], ROWS.slice(0, 22).map(function (r) {
+        return [BF_MONTHS[r.cm - 1] + ' ' + r.year, fE(r.rev), fE(r.gastos), fE(r.bai), fE(r.caja)];
+      })) +
+    '</section>' +
+    '<section class="bf-card bf-section" aria-labelledby="h-casc">' +
+      '<h2 id="h-casc" class="bf-h2">De las ventas al beneficio</h2>' +
+      '<p class="bf-sub">Periodo seleccionado: de los ingresos a Beneficio antes de impuestos.</p>' +
+      '<div class="bf-chart" data-chart="cascada" data-h="0"></div>' +
+      srTable('Cascada del periodo', ['Concepto', 'Importe'], [
+        ['Ingresos', fE(A.rev)], ['Materias primas y mermas', fE(A.mat)], ['Envases', fE(A.envases)], ['Comisiones y reparto', fE(A.comReparto)],
+        ['Personal', fE(A.personal)], ['Alquiler', fE(A.alquiler)], ['Energía y agua', fE(A.energia)], ['Otros fijos', fE(A.otrosFijos)],
+        ['Amortización e intereses', fE(A.amortInt)], ['Beneficio', fE(A.bai)]
+      ]) +
+    '</section>' +
+    '<div class="bf-grid2">' +
+      '<section class="bf-card" aria-labelledby="h-don"><h2 id="h-don" class="bf-h2">De dónde viene el dinero</h2>' +
+        '<p class="bf-sub">Reparto de ingresos por canal en el periodo.</p>' +
+        '<div class="bf-chart" data-chart="donut" data-h="230"></div>' +
+        legendChips([]) +
+        '<ul class="bf-legend" style="flex-direction:column;gap:6px;color:var(--ink)">' +
+          [['Mostrador', A.revMost, 'var(--brand)'], ['Online', A.revOnline, 'var(--online)'], ['Tortas', A.revTortas, 'var(--tortas)'], ['Restaurantes', A.revRest, 'var(--caja)']].map(function (c) {
+            return '<li><span class="bf-dot" style="background:' + c[2] + '"></span>' + c[0] + ': <b>' + fP(c[1] / A.rev, 0) + '</b> · ' + fE(c[1]) + '</li>';
+          }).join('') +
+        '</ul></section>' +
+      '<section class="bf-card" aria-labelledby="h-imp"><h2 id="h-imp" class="bf-h2">Lo más importante este periodo</h2>' +
+        '<ul class="bf-phr" style="margin-top:12px">' + phr.slice(0, 5).map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul>' +
+        '<p class="bf-hint">Frases generadas a partir de los datos del periodo.</p></section>' +
+    '</div>';
+}
+
+// ---------- Pestaña Gastos ----------
+function catValues(list) {
+  var A = agg(list);
+  return { mat: A.mat, env: A.envases, com: A.comReparto, pers: A.personal, alq: A.alquiler, ener: A.energia,
+    mkt: sumF(list, 'marketing'), otros: sumF(list, 'otros'), amort: A.amortInt };
+}
+function viewGastos() {
+  var P = BF_PERIODS[ST.period], cur = pickP(ST.period), A = agg(cur), n = cur.length;
+  var pvRows = P.prev ? pickRows(ROWS, P.prev) : null, pvA = pvRows ? agg(pvRows) : null;
+  var C = catValues(cur), CP = pvRows ? catValues(pvRows) : null;
+  var part = {
+    marta: sumF(cur, 'marta'), jordi: sumF(cur, 'jordi'), deps: sumF(cur, 'deps'), depsAvg: sumF(cur, 'dep') / n,
+    partidas: [['Cuota de autónomo', 310 * n], ['Seguros (RC y local)', 85 * n], ['Gestoría', 150 * n], ['Software (TPV, web y app)', 95 * n],
+      ['Teléfono e internet', 55 * n], ['Mantenimiento de maquinaria', 120 * n], ['Avería del compresor (julio de 2025)', sumF(cur, 'averia')],
+      ['Limpieza y consumibles', 110 * n], ['Tasas municipales', 175 * n]]
+  };
+  var cats = [
+    { id: 'mat', name: 'Materias primas y mermas', col: 'var(--brand)', ref: [0.25, 0.30], refTxt: '25–30 %' },
+    { id: 'env', name: 'Envases', col: 'var(--online)', ref: [0, 0.06], refTxt: 'menos del 6 %' },
+    { id: 'com', name: 'Comisiones y reparto', col: 'var(--tortas)', ref: null, refTxt: '—' },
+    { id: 'pers', name: 'Personal', col: 'var(--choco)', ref: [0.30, 0.35], refTxt: '30–35 %', exp: 'pers' },
+    { id: 'alq', name: 'Alquiler', col: 'var(--warn)', ref: [0, 0.12], refTxt: 'menos del 12 %' },
+    { id: 'ener', name: 'Energía y agua', col: 'var(--caja)', ref: [0, 0.06], refTxt: 'menos del 6 %' },
+    { id: 'mkt', name: 'Marketing', col: 'var(--muted)', ref: [0.01, 0.03], refTxt: '1–3 %' },
+    { id: 'otros', name: 'Otros fijos', col: 'var(--muted)', ref: null, refTxt: '—', exp: 'otros' },
+    { id: 'amort', name: 'Amortización e intereses', col: 'var(--ink)', ref: null, refTxt: '—' }
+  ];
+  var estado = function (c, pct) {
+    if (!c.ref) return '<span class="bf-muted">—</span>';
+    var hi = c.ref[1];
+    if (pct <= hi) return chip('Bien', 'ok');
+    if (pct <= hi + 0.03) return chip('Vigilar', 'warn');
+    return chip('Alto', 'err');
+  };
+  var rowsHtml = cats.map(function (c) {
+    var v = C[c.id], pct = v / A.rev, vs = CP ? (v - CP[c.id]) / CP[c.id] : null;
+    var vsTxt = vs === null ? '<span class="bf-muted">—</span>' : '<span class="' + (vs > 0 ? 'bf-neg' : 'bf-pos') + '">' + (vs >= 0 ? '+' : '') + fP(vs, 1) + '</span>';
+    var name = c.exp
+      ? '<button type="button" class="bf-exp" data-exp="' + c.exp + '" aria-expanded="false"><span aria-hidden="true">▸</span> <span class="bf-dot" style="background:' + c.col + '"></span>' + c.name + '</button>'
+      : '<span class="bf-dot" style="background:' + c.col + '"></span>' + c.name;
+    var html = '<tr><th scope="row">' + name + '</th><td>' + fE(v) + '</td><td>' + fP(pct, 1) + '</td><td>' + vsTxt + '</td><td>' + c.refTxt + '</td><td>' + estado(c, pct) + '</td></tr>';
+    if (c.exp === 'pers') {
+      var subs = ST.gView === 'persona'
+        ? [['Marta · encargada, jornada completa', part.marta], ['Jordi · heladero de obrador, jornada completa', part.jordi], ['Dependientes, media jornada (media de ' + fN(part.depsAvg, 1) + ' personas)', part.deps]]
+        : [['Plantilla a jornada completa (encargada y heladero)', part.marta + part.jordi], ['Dependientes a media jornada', part.deps]];
+      subs.forEach(function (sr) {
+        html += '<tr class="bf-subrow" data-grp="pers" hidden><th scope="row" class="bf-indent">' + sr[0] + '</th><td>' + fE(sr[1]) + '</td><td>' + fP(sr[1] / A.rev, 1) + '</td><td></td><td></td><td></td></tr>';
+      });
+    }
+    if (c.exp === 'otros') {
+      part.partidas.forEach(function (sr) {
+        html += '<tr class="bf-subrow" data-grp="otros" hidden><th scope="row" class="bf-indent">' + sr[0] + '</th><td>' + fE(sr[1]) + '</td><td>' + fP(sr[1] / A.rev, 1) + '</td><td></td><td></td><td></td></tr>';
+      });
+    }
+    return html;
+  }).join('');
+  var grow = CP ? cats.filter(function (c) { return CP[c.id] > 0; }).map(function (c) {
+    return { name: c.name, vs: (C[c.id] - CP[c.id]) / CP[c.id], d: C[c.id] - CP[c.id] };
+  }).sort(function (a, b) { return b.vs - a.vs; }).slice(0, 3) : null;
+  var growHtml = grow
+    ? '<ol class="bf-phr" style="list-style:decimal;padding-left:20px;margin-top:12px">' + grow.map(function (g) {
+        return '<li style="list-style:decimal;border:0;background:none;padding:4px 0">' + esc(g.name) + ': <b class="bf-neg">+' + fP(g.vs, 1) + '</b> (' + (g.d >= 0 ? '+' : '') + fE(g.d) + ' frente a ' + esc(P.prevLabel) + ')</li>';
+      }).join('') + '</ol>'
+    : '<p class="bf-sub" style="margin-top:12px">Sin comparación para este periodo. Elige Octubre 2026 o 2026 hasta oct para ver qué ha crecido.</p>';
+  var totalVs = pvA ? (A.gastos - pvA.gastos) / pvA.gastos : null;
+  var meseLuz = ROWS;
+  return '' +
+    '<div class="bf-seg-wrap">' + periodBar() + '</div>' +
+    '<section class="bf-card bf-section" aria-labelledby="h-tab">' +
+      '<h2 id="h-tab" class="bf-h2">Gastos por categoría</h2>' +
+      '<p class="bf-sub">Porcentajes sobre las ventas del periodo. Pulsa una fila para ver el detalle.</p>' +
+      '<div class="bf-seg" role="group" aria-label="Vista del personal">' +
+        '<button type="button" data-view="persona" aria-pressed="' + (ST.gView === 'persona') + '">Personal por persona</button>' +
+        '<button type="button" data-view="tipo" aria-pressed="' + (ST.gView === 'tipo') + '">Personal por tipo</button></div>' +
+      '<div class="bf-scroll"><table class="bf-table"><caption class="bf-sr">Gastos por categoría del periodo</caption>' +
+        '<thead><tr><th scope="col">Categoría</th><th scope="col">Importe</th><th scope="col">% sobre ventas</th><th scope="col">vs año anterior</th><th scope="col">Referencia del sector</th><th scope="col">Estado</th></tr></thead>' +
+        '<tbody>' + rowsHtml + '</tbody>' +
+        '<tfoot><tr><th scope="row">Total gastos</th><td>' + fE(A.gastos) + '</td><td>' + fP(A.gastos / A.rev, 1) + '</td><td>' +
+          (totalVs === null ? '<span class="bf-muted">—</span>' : '<span class="' + (totalVs > 0 ? 'bf-neg' : 'bf-pos') + '">' + (totalVs >= 0 ? '+' : '') + fP(totalVs, 1) + '</span>') +
+          '</td><td></td><td></td></tr></tfoot></table></div>' +
+    '</section>' +
+    '<div class="bf-grid2">' +
+      '<section class="bf-card" aria-labelledby="h-luz"><h2 id="h-luz" class="bf-h2">Electricidad por mes</h2>' +
+        '<p class="bf-sub">2025 en línea punteada y 2026 en continua.</p>' +
+        '<div class="bf-chart" data-chart="elec" data-h="230"></div>' +
+        '<p class="bf-hint">La luz cuesta el doble en verano: vitrinas y aire acondicionado a pleno rendimiento.</p>' +
+        srTable('Luz por mes 2025 y 2026', ['Mes', '2025', '2026'], MES3.map(function (m, i) {
+          return [m, i < 12 ? fE(ROWS[i].luz) : '—', i < 10 ? fE(ROWS[12 + i].luz) : '—'];
+        })) +
+      '</section>' +
+      '<section class="bf-card" aria-labelledby="h-per"><h2 id="h-per" class="bf-h2">Personal: personas y coste</h2>' +
+        '<p class="bf-sub">De enero de 2025 a octubre de 2026, con el número de personas encima. El periodo seleccionado está resaltado.</p>' +
+        '<div class="bf-chart" data-chart="personal" data-h="230"></div>' +
+        srTable('Personal por mes del periodo', ['Mes', 'Personas', 'Coste'], cur.map(function (r) {
+          return [BF_MONTHS[r.cm - 1] + ' ' + r.year, String(r.dep + 2), fE(r.personal)];
+        })) +
+      '</section>' +
+    '</div>' +
+    '<section class="bf-card bf-section" aria-labelledby="h-crec"><h2 id="h-crec" class="bf-h2">Gastos que más han crecido</h2>' + growHtml + '</section>';
+}
+
+// ---------- Pestaña Sostenibilidad ----------
+function viewSost() {
+  var ult = pickRows(ROWS, ULT), AU = agg(ult), last = ROWS[21];
+  var beU = breakEven(ult), beO = breakEven([last]);
+  var meter = function (real, bev) {
+    var mx = Math.max(real, bev) * 1.05;
+    return '<div class="bf-meter">' +
+      '<div class="bf-meter-row"><span>Ventas reales</span><div class="bf-bar"><i style="width:' + (real / mx * 100).toFixed(1) + '%"></i></div><b>' + fE(real) + '</b></div>' +
+      '<div class="bf-meter-row"><span>Punto de equilibrio</span><div class="bf-bar bf-bar-be"><i style="width:' + (bev / mx * 100).toFixed(1) + '%"></i></div><b>' + fE(bev) + '</b></div></div>';
+  };
+  var beText = function (b) {
+    return 'Necesitas ' + fE(b.be) + ' al mes, es decir, unos ' + fN(b.ticketsDay, 0) + ' tickets al día en mostrador, para cubrir gastos.';
+  };
+  var summerShare = AU.rev ? ult.filter(function (r) { return r.cm >= 6 && r.cm <= 9; }).reduce(function (a, r) { return a + r.rev; }, 0) / AU.rev : 0;
+  var diversif = AU.rev ? 1 - AU.revMost / AU.rev : 0;
+  var monthsProfit = ult.filter(function (r) { return r.bai > 0; }).length;
+  var colchon = last.caja / (AU.fijosCaja / 12);
+  var cobertura = AU.ebitda / (660.49 * 12);
+  var hist = ROWS.slice(0, 22);
+  var maxAbs = Math.max.apply(null, hist.map(function (r) { return Math.abs(r.bai); }));
+  var tcol = function (t) {
+    return t >= 0 ? 'color-mix(in srgb, var(--ok) ' + (30 + 60 * t).toFixed(0) + '%, var(--surface))'
+      : 'color-mix(in srgb, var(--err) ' + (30 + 60 * -t).toFixed(0) + '%, var(--surface))';
+  };
+  var cal = '<div class="bf-scroll"><div class="bf-cal" role="table" aria-label="Beneficio antes de impuestos por mes y año">' +
+    '<div class="bf-h" role="columnheader"></div>' + MES3.map(function (m) { return '<div class="bf-h" role="columnheader">' + m + '</div>'; }).join('');
+  [2025, 2026].forEach(function (y) {
+    cal += '<div class="bf-ylab" role="rowheader">' + y + '</div>';
+    for (var cm = 1; cm <= 12; cm++) {
+      var r = ROWS[(y - 2025) * 12 + cm - 1];
+      if (!r || r.k >= 22) { cal += '<div class="bf-empty" role="cell">—</div>'; continue; }
+      cal += '<div role="cell" style="background:' + tcol(r.bai / maxAbs) + '" aria-label="' + BF_MONTHS[cm - 1] + ' ' + y + ': ' + fE(r.bai) + '">' + fE(r.bai) + '</div>';
+    }
+  });
+  cal += '</div></div>';
+
+  var wr = ROWS.slice(22, 27);
+  var net = wr.reduce(function (a, r) { return a + r.bai; }, 0);
+  var loss = Math.max(0, -net);
+  var caja = last.caja;
+  var pctRes = loss > 0 ? Math.min(1, caja / loss) : 1;
+  var resTxt = loss > 0
+    ? 'Hay que guardar ' + fE(loss) + ' de mayo a septiembre para cubrir las pérdidas previstas de noviembre a marzo (escenario ' + SCEN_LABEL[ST.scen] + ').' +
+      (caja >= loss ? ' La caja actual, ' + fE(caja) + ', alcanza.' : ' La caja actual, ' + fE(caja) + ', no alcanza: faltan ' + fE(loss - caja) + '.')
+    : 'Con el escenario elegido, noviembre a marzo no cierra en pérdidas: no hace falta reserva.';
+
+  var alerts = [];
+  var hMin = hist.reduce(function (a, r) { return r.caja < a.caja ? r : a; }, hist[0]);
+  if (hMin.caja < 5000) alerts.push(['warn', 'Aviso: la caja bajó de 5.000 € en ' + BF_MONTHS[hMin.cm - 1].toLowerCase() + ' ' + hMin.year + ' (mínimo ' + fE(hMin.caja) + '). Es el punto más débil de la serie.']);
+  var pMin = ROWS.slice(22).reduce(function (a, r) { return r.caja < a.caja ? r : a; }, ROWS[22]);
+  if (pMin.caja < 5000) alerts.push(['risk', 'En la proyección la caja baja de 5.000 € en ' + BF_MONTHS[pMin.cm - 1].toLowerCase() + ' ' + pMin.year + '.']);
+  else alerts.push(['ok', 'En la proyección del escenario ' + SCEN_LABEL[ST.scen] + ' la caja no baja de 5.000 €. Mínimo: ' + fE(pMin.caja) + ' (' + BF_MONTHS[pMin.cm - 1].toLowerCase() + ' ' + pMin.year + ').']);
+  alerts.push([cobertura >= 1.25 ? 'ok' : 'warn', 'La cobertura de la deuda es de ' + fX(cobertura) + ' (referencia: más de 1,25 ×).']);
+  alerts.push([last.rev >= beO.be ? 'ok' : 'risk', last.rev >= beO.be ? 'Octubre de 2026 cubrió sus gastos con ' + fE(last.rev - beO.be) + ' de ventas por encima del punto de equilibrio.' : 'Octubre de 2026 no llegó al punto de equilibrio: faltaron ' + fE(beO.be - last.rev) + '.']);
+  var negMonths = ult.length - monthsProfit;
+  if (negMonths >= 4) alerts.push(['warn', negMonths + ' meses del año móvil cierran en pérdidas.']);
+  if (summerShare > 0.5) alerts.push(['warn', 'Más de la mitad de las ventas (' + fP(summerShare, 0) + ') se hacen de junio a septiembre.']);
+  var verdict = alerts.map(function (a) {
+    var ic = a[0] === 'ok' ? '✓' : a[0] === 'warn' ? '!' : '▲';
+    var lab = a[0] === 'ok' ? 'Ok' : a[0] === 'warn' ? 'Aviso' : 'Riesgo';
+    return '<div class="bf-alert bf-alert-' + a[0] + '" role="status"><span class="bf-alert-ic" aria-hidden="true">' + ic + '</span><span><b>' + lab + '.</b> ' + esc(a[1]) + '</span></div>';
+  }).join('');
+
+  var kpis = [
+    kpi('bf-k1', 'Meses en beneficio (año móvil)', monthsProfit + ' de 12', 'de noviembre de 2025 a octubre de 2026', '', null),
+    kpi('bf-k2', 'Dependencia del verano', fP(summerShare, 0), '% de las ventas de junio a septiembre', '', null),
+    kpi('bf-k3', 'Diversificación', fP(diversif, 0), 'ingresos fuera del mostrador', '', null),
+    kpi('bf-k4', 'Meses de colchón', fN(colchon, 1) + ' meses', 'caja actual ÷ gasto fijo medio mensual', '', null),
+    kpi('bf-k5', 'Cobertura de la deuda', fX(cobertura), 'EBITDA anual ÷ cuotas anuales (referencia: más de 1,25 ×) ' + (cobertura >= 1.25 ? chip('Bien', 'ok') : chip('Bajo', 'warn')), '', null)
+  ].join('');
+
+  return '' +
+    '<div class="bf-seg-wrap" style="margin-bottom:6px"><p class="bf-sub">Indicadores del año móvil (noviembre de 2025 a octubre de 2026) salvo que se indique lo contrario. La caja descuenta 1.000 €/mes de retiradas de la dueña.</p></div>' +
+    '<div class="bf-grid2" style="margin-top:0">' +
+      '<section class="bf-card" aria-labelledby="h-pe1"><h2 id="h-pe1" class="bf-h2">Punto de equilibrio: octubre de 2026</h2>' +
+        '<p class="bf-sub">Último mes completo.</p>' + meter(last.rev, beO.be) +
+        '<p class="bf-big-txt">' + beText(beO) + '</p></section>' +
+      '<section class="bf-card" aria-labelledby="h-pe2"><h2 id="h-pe2" class="bf-h2">Punto de equilibrio: año móvil</h2>' +
+        '<p class="bf-sub">Media mensual de los últimos 12 meses.</p>' + meter(AU.rev / 12, beU.be) +
+        '<p class="bf-big-txt">' + beText(beU) + '</p></section>' +
+    '</div>' +
+    '<section class="bf-card bf-section" aria-labelledby="h-tk"><h2 id="h-tk" class="bf-h2">Tickets al día: reales frente a necesarios</h2>' +
+      '<p class="bf-sub">Verde: por encima de lo necesario para cubrir gastos. Rojo: por debajo.</p>' +
+      '<div class="bf-chart" data-chart="tickets" data-h="290"></div>' +
+      legendChips([['Reales', 'var(--brand)'], ['Necesarios (línea discontinua)', 'var(--choco)'], ['Por encima', 'var(--ok)'], ['Por debajo', 'var(--err)']]) +
+    '</section>' +
+    '<section class="bf-card bf-section" aria-labelledby="h-cal"><h2 id="h-cal" class="bf-h2">Calendario de rentabilidad</h2>' +
+      '<p class="bf-sub">Beneficio antes de impuestos por mes. Del rojo (pérdida) al verde (beneficio). Es el mapa de la estacionalidad.</p>' +
+      cal + '<p class="bf-hint">Noviembre y diciembre de 2026 todavía son previsiones y no se muestran aquí.</p></section>' +
+    '<div class="bf-kpis" style="margin-top:16px">' + kpis + '</div>' +
+    '<div class="bf-grid2">' +
+      '<section class="bf-card" aria-labelledby="h-res"><h2 id="h-res" class="bf-h2">Reserva para el invierno</h2>' +
+        '<p class="bf-sub">Pérdidas previstas de noviembre de 2026 a marzo de 2027.</p>' +
+        '<p class="bf-kpi-val" style="font-size:24px">' + fE(loss) + '</p>' +
+        '<div class="bf-prog" role="progressbar" aria-label="Caja frente a la reserva necesaria" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + Math.round(pctRes * 100) + '"><i style="width:' + (pctRes * 100).toFixed(1) + '%"></i></div>' +
+        '<p class="bf-big-txt">' + esc(resTxt) + '</p></section>' +
+      '<section class="bf-card" aria-labelledby="h-al"><h2 id="h-al" class="bf-h2">Alertas</h2>' + verdict + '</section>' +
+    '</div>';
+}
+
+// ---------- Pestaña Proyección ----------
+function sliderRow(key, label, min, max, step) {
+  var v = +(ST.sim[key] * 100).toFixed(1);
+  return '<label class="bf-ctl"><span class="bf-ctl-top"><span>' + label + '</span><output id="lbl-' + key + '">' + sgn(v) + '</output></span>' +
+    '<input type="range" min="' + min + '" max="' + max + '" step="' + step + '" value="' + v + '" data-sim="' + key + '" aria-valuetext="' + sgn(v) + '"></label>';
+}
+function sgn(v) { return (v > 0 ? '+' : '') + fN(v, 1).replace(/,0$/, '') + ' %'; }
+function viewProy() {
+  var sc = ST.sim;
+  var scen = ['prudente', 'base', 'optimista'].map(function (k) {
+    return '<button type="button" data-scen="' + k + '" aria-pressed="' + (ST.scen === k) + '" data-umami-event="bf-escenario-' + k + '">' + SCEN_LABEL[k] + '</button>';
+  }).join('');
+  return '' +
+    '<section class="bf-card" aria-labelledby="h-esc"><h2 id="h-esc" class="bf-h2">Escenarios y simulador</h2>' +
+      '<p class="bf-sub">Noviembre de 2026 a octubre de 2027. ' + esc(SCEN_LABEL[ST.scen]) + ': ' + esc(SCEN_DESC[ST.scen]) + '</p>' +
+      '<div class="bf-seg" role="group" aria-label="Escenario">' + scen + '</div>' +
+      '<p class="bf-sub" style="margin-top:14px"><b>¿Y si…?</b> Mueve los controles para partir del escenario y ver el efecto.</p>' +
+      '<div class="bf-ctl-grid">' +
+        sliderRow('vol', 'Ventas (volumen)', -20, 20, 1) +
+        sliderRow('price', 'Subida de precios (desde marzo de 2027)', 0, 10, 0.5) +
+        sliderRow('elec', 'Coste de la luz', -20, 40, 1) +
+        sliderRow('sal', 'Subida salarial (desde enero de 2027)', 0, 8, 0.5) +
+        sliderRow('tortas', 'Tortas por encargo', -30, 50, 1) +
+        sliderRow('rent', 'Alquiler (subida desde enero de 2027)', 0, 15, 0.5) +
+      '</div>' +
+      '<label class="bf-check"><input type="checkbox" data-sim="extraDep"' + (sc.extraDep ? ' checked' : '') + '> Contratar 1 dependiente extra en verano (de junio a septiembre)</label>' +
+      '<button type="button" class="bf-btn" data-reset>Restablecer escenario</button>' +
+    '</section>' +
+    '<div id="bf-proy-out"></div>';
+}
+function paintProy() {
+  var out = $('bf-proy-out');
+  if (!out) return;
+  var pr = ROWS.slice(BF_HIST), A = agg(pr), last = pr[pr.length - 1];
+  var mn = pr.reduce(function (a, r) { return r.caja < a.caja ? r : a; }, pr[0]);
+  var neg = pr.filter(function (r) { return r.bai < 0; }).length;
+  var winter = pr.slice(0, 5), winterNet = winter.reduce(function (a, r) { return a + r.bai; }, 0);
+  var kp = [
+    kpi('bf-k1', 'Ingresos previstos a 12 meses', fE(A.rev), 'de noviembre de 2026 a octubre de 2027', '', null),
+    kpi('bf-k2', 'Beneficio previsto (BAI)', '<span class="' + (A.bai >= 0 ? 'bf-pos' : 'bf-neg') + '">' + fE(A.bai) + '</span>', '', '', null),
+    kpi('bf-k3', 'Margen (BAI sobre ingresos)', fP(A.baiPct), 'margen de beneficio', '', null),
+    kpi('bf-k4', 'Caja mínima prevista', fE(mn.caja), 'mes más ajustado: ' + BF_MONTHS[mn.cm - 1] + ' ' + mn.year, '', null),
+    kpi('bf-k5', 'Caja a octubre de 2027', fE(last.caja), '', '', null),
+    kpi('bf-k6', 'Meses en pérdidas previstos', neg + ' de 12', '', '', null)
+  ].join('');
+
+  // Equivalencia precio / volumen (mismo beneficio previsto)
+  var tgt = agg(buildModel(Object.assign({}, ST.sim, { priceAll: (ST.sim.priceAll || 0) + 0.03 })).slice(BF_HIST)).bai;
+  var f = function (v) { return agg(buildModel(Object.assign({}, ST.sim, { vol: ST.sim.vol + v })).slice(BF_HIST)).bai - tgt; };
+  var lo = 0, hi = 0.5;
+  for (var it = 0; it < 40; it++) { var mid = (lo + hi) / 2; if (f(mid) < 0) lo = mid; else hi = mid; }
+  var equiv = (lo + hi) / 2;
+
+  var phr = [
+    'Con este escenario cierras octubre de 2027 con ' + fE(last.caja) + ' en caja.',
+    BF_MONTHS[mn.cm - 1] + ' será el mes más ajustado, con ' + fE(mn.caja) + ' en caja.',
+    'Subir precios un 3 % durante todo el año equivale a vender un ' + fP(equiv, 0) + ' más.',
+    winterNet < 0 ? 'De noviembre a marzo se prevén ' + fE(-winterNet) + ' de pérdidas acumuladas.' : 'De noviembre a marzo no se prevén pérdidas acumuladas.'
+  ];
+  var tbl = pr.map(function (r) {
+    return '<tr><th scope="row">' + BF_MONTHS[r.cm - 1] + ' ' + r.year + '</th><td>' + fE(r.rev) + '</td><td>' + fE(r.gastos) + '</td>' +
+      '<td class="' + (r.bai >= 0 ? 'bf-pos' : 'bf-neg') + '">' + fE(r.bai) + '</td><td>' + fE(r.caja) + '</td></tr>';
+  }).join('');
+  out.innerHTML = '' +
+    '<div class="bf-kpis" style="margin-top:16px">' + kp + '</div>' +
+    '<section class="bf-card bf-section" aria-labelledby="h-pj"><h2 id="h-pj" class="bf-h2">Beneficio mensual y caja</h2>' +
+      '<p class="bf-sub">Línea continua: real. Punteada: previsto. Barras: beneficio mensual (escala izquierda). Línea: caja (escala derecha) con banda de ±(4 % + 1 % por mes). Línea roja: 5.000 € de caja.</p>' +
+      '<div class="bf-chart" data-chart="proj" data-h="320"></div>' +
+      srTable('Proyección mensual', ['Mes', 'Ingresos', 'Gastos', 'Beneficio', 'Caja'], pr.map(function (r) {
+        return [BF_MONTHS[r.cm - 1] + ' ' + r.year, fE(r.rev), fE(r.gastos), fE(r.bai), fE(r.caja)];
+      })) +
+    '</section>' +
+    '<div class="bf-grid2">' +
+      '<section class="bf-card" aria-labelledby="h-tb"><h2 id="h-tb" class="bf-h2">Tabla mensual</h2>' +
+        '<div class="bf-scroll" style="margin-top:10px"><table class="bf-table"><caption class="bf-sr">Proyección mensual</caption>' +
+        '<thead><tr><th scope="col">Mes</th><th scope="col">Ingresos</th><th scope="col">Gastos</th><th scope="col">Beneficio</th><th scope="col">Caja</th></tr></thead>' +
+        '<tbody>' + tbl + '</tbody></table></div></section>' +
+      '<section class="bf-card" aria-labelledby="h-fr"><h2 id="h-fr" class="bf-h2">Lo que dice el escenario</h2>' +
+        '<ul class="bf-phr" style="margin-top:12px">' + phr.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul>' +
+        '<p class="bf-hint">Base de cálculo: cada mes se estima con el mismo mes del año anterior (noviembre y diciembre de 2026 desde 2025, y de enero a octubre de 2027 desde 2026), con la tendencia ya aplicada. La caja incluye 1.000 €/mes de retiradas de la dueña. El préstamo sigue su calendario y el impuesto de 2026 se paga en julio de 2027.</p></section>' +
+    '</div>';
+  hydrate();
+}
+
+// ---------- Vistas, eventos y arranque ----------
+function viewFor(tab) {
+  if (tab === 'gastos') return viewGastos();
+  if (tab === 'sostenibilidad') return viewSost();
+  if (tab === 'proyeccion') return viewProy();
+  return viewResumen();
+}
+function renderTab() {
+  var m = $('bf-main');
+  m.innerHTML = viewFor(ST.tab);
+  m.setAttribute('aria-labelledby', 'tab-' + ST.tab);
+  document.querySelectorAll('[data-tab]').forEach(function (b) {
+    var on = b.getAttribute('data-tab') === ST.tab;
+    b.setAttribute('aria-selected', on ? 'true' : 'false');
+    b.tabIndex = on ? 0 : -1;
+  });
+  if (ST.tab === 'proyeccion') paintProy(); else hydrate();
+}
+function shell() {
+  return '<div class="bf-wrap">' +
+    '<header class="bf-top">' +
+      '<div class="bf-logo"><span class="bf-logo-mark">' + ICON_LOGO + '</span><h1>Bola de Nieve</h1><span class="bf-tag">Finanzas</span></div>' +
+      '<div class="bf-actions"><span>Importes sin IVA</span>' +
+        '<button id="bf-theme" class="bf-btn bf-theme" type="button"></button>' +
+        '<a class="bf-btn" href="demo-heladeria.html">← Volver a la tienda</a></div>' +
+    '</header>' +
+    '<p class="bf-demo">Demo con datos ficticios · creada por <a href="index.html">Sundan Studio</a></p>' +
+    '<nav aria-label="Secciones"><div class="bf-tabs" role="tablist">' + TABS.map(function (t) {
+      return '<button type="button" role="tab" id="tab-' + t[0] + '" class="bf-tab" data-tab="' + t[0] + '" aria-controls="bf-main" data-umami-event="bf-tab-' + t[0] + '">' + t[1] + '</button>';
+    }).join('') + '</div></nav>' +
+    '<main id="bf-main" class="bf-main" role="tabpanel" tabindex="-1"></main>' +
+  '</div>';
+}
+function isDark() {
+  var a = document.documentElement.getAttribute('data-theme');
+  if (a) return a === 'dark';
+  return !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+}
+function themeIcon() {
+  var b = $('bf-theme');
+  if (!b) return;
+  var dark = isDark();
+  b.setAttribute('aria-label', dark ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro');
+  b.innerHTML = dark ? ICON_SUN : ICON_MOON;
+}
+function toggleTheme() {
+  var t = isDark() ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+  try { localStorage.setItem('bf-theme', t); } catch (e) { /* sin almacenamiento: el tema solo dura esta visita */ }
+  themeIcon();
+  hydrate();
+}
+function applyTheme() {
+  try {
+    var t = localStorage.getItem('bf-theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+  } catch (e) { /* sin almacenamiento */ }
+}
+function setFromHash() {
+  var h = (location.hash || '').replace('#', '');
+  ST.tab = TABS.some(function (t) { return t[0] === h; }) ? h : 'resumen';
+}
+function onClick(e) {
+  var t = e.target.closest('[data-tab],[data-period],[data-scen],[data-view],[data-exp],[data-reset],#bf-theme');
+  if (!t) return;
+  if (t.id === 'bf-theme') { toggleTheme(); return; }
+  if (t.hasAttribute('data-tab')) { location.hash = t.getAttribute('data-tab'); return; }
+  if (t.hasAttribute('data-period')) { ST.period = t.getAttribute('data-period'); renderTab(); return; }
+  if (t.hasAttribute('data-scen')) {
+    ST.scen = t.getAttribute('data-scen'); ST.sim = copyScen(ST.scen); recalc(); renderTab(); return;
+  }
+  if (t.hasAttribute('data-view')) { ST.gView = t.getAttribute('data-view'); renderTab(); return; }
+  if (t.hasAttribute('data-reset')) { ST.sim = copyScen(ST.scen); recalc(); renderTab(); return; }
+  if (t.hasAttribute('data-exp')) {
+    var grp = t.getAttribute('data-exp'), open = t.getAttribute('aria-expanded') !== 'true';
+    t.setAttribute('aria-expanded', open ? 'true' : 'false');
+    t.querySelector('span').textContent = open ? '▾' : '▸';
+    document.querySelectorAll('[data-grp="' + grp + '"]').forEach(function (r) { r.hidden = !open; });
+  }
+}
+function onInput(e) {
+  var t = e.target;
+  if (!t.hasAttribute || !t.hasAttribute('data-sim')) return;
+  var key = t.getAttribute('data-sim');
+  if (key === 'extraDep') ST.sim.extraDep = t.checked;
+  else {
+    ST.sim[key] = +t.value / 100;
+    var lbl = $('lbl-' + key);
+    if (lbl) lbl.textContent = sgn(+t.value);
+    t.setAttribute('aria-valuetext', sgn(+t.value));
+  }
+  recalc();
+  paintProy();
+}
+function onTabKey(e) {
+  var t = e.target;
+  if (!t.hasAttribute || !t.hasAttribute('data-tab')) return;
+  var tabs = [].slice.call(document.querySelectorAll('[data-tab]')), i = tabs.indexOf(t), j = -1;
+  if (e.key === 'ArrowRight') j = (i + 1) % tabs.length;
+  else if (e.key === 'ArrowLeft') j = (i - 1 + tabs.length) % tabs.length;
+  else if (e.key === 'Home') j = 0;
+  else if (e.key === 'End') j = tabs.length - 1;
+  if (j < 0) return;
+  e.preventDefault();
+  tabs[j].focus();
+  location.hash = tabs[j].getAttribute('data-tab');
+}
+function init() {
+  applyTheme();
+  var app = $('app');
+  app.innerHTML = shell();
+  ST.sim = copyScen('base');
+  recalc();
+  app.addEventListener('click', onClick);
+  app.addEventListener('input', onInput);
+  app.addEventListener('keydown', onTabKey);
+  themeIcon();
+  window.addEventListener('hashchange', function () { setFromHash(); renderTab(); });
+  var rt = null;
+  window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { if (ST.tab === 'proyeccion') paintProy(); else hydrate(); }, 150); });
+  setFromHash();
+  renderTab();
+}
+init();
+/* UI END */
+</script>
+</body>
+</html>
