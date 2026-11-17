@@ -16,17 +16,44 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gloock&family=Inter:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<script>
+  (function () {
+    var t = 'dark';
+    try {
+      var p = JSON.parse(localStorage.getItem('pulso-prefs') || '{}');
+      if (p && p.theme === 'carpa') t = 'carpa';
+    } catch (e) {}
+    document.documentElement.setAttribute('data-theme', t);
+  })();
+</script>
 <style>
+/* Noche (predeterminado) */
 :root, html[data-theme="dark"] {
   --bg:#0b1020; --surface:#121a2e; --ink:#e5e9f5; --muted:#8b95ad; --line:#1f2a44;
   --accent:#818cf8; --accent-soft:#1e1b4b; --on-accent:#0b1020;
   --ok:#4ade80; --warn:#fbbf24; --bad:#f87171;
-  --hover:#18223b;
-  --radius:12px;
+  --hover:#18223b; --gold:#fbbf24;
+  --c1:#818cf8; --c2:#22d3ee; --c3:#fbbf24; --c4:#f472b6; --c5:#a78bfa; --c6:#a3e635; --c7:#fb7185;
+  --radius:12px; --shadow:none; --sh-rgb:15,23,42; --scrim:rgba(var(--sh-rgb),.45);
   --font:"Inter", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-ui:var(--font); --font-head:var(--font); --font-num:var(--mono);
   --mono:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   color-scheme: dark;
 }
+/* Carpa: cartel de circo vintage sobre papel fino */
+html[data-theme="carpa"] {
+  --bg:#f3ead6; --surface:#fbf6ea; --ink:#1b0812; --muted:#6b4f57; --line:#e2d3b4;
+  --accent:#a50f1c; --accent-soft:#f6e1d6; --on-accent:#fbf6ea;
+  --ok:#166458; --warn:#8f6109; --bad:#a50f1c;
+  --hover:#efe3c8; --ribbon:#1b0812; --on-ribbon:#efe3c8; --gold:#b98a1e; --toast-link:#e9b42f;
+  --c1:#a50f1c; --c2:#1f7a6e; --c3:#a8760e; --c4:#5b1f3a; --c5:#a0785a; --c6:#6e8b5e; --c7:#8f5f7a;
+  --shadow:0 1px 2px rgba(27,8,18,.06), 0 1px 3px rgba(27,8,18,.06); --sh-rgb:27,8,18; --scrim:rgba(27,8,18,.4);
+  --font-ui:"Instrument Sans", var(--font); --font-head:"Gloock", Georgia, "Times New Roman", serif; --font-num:"Gloock", Georgia, serif;
+  color-scheme: light;
+}
+html[data-theme="carpa"] { --stripe:#b8131f; }
+html[data-theme="carpa"] body { font-family: var(--font-ui, var(--font)); }
+html[data-theme="carpa"] :is(h1, h2, .pt-kpi-v){font-family:var(--font-head);font-weight:400;letter-spacing:0}
 
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -78,6 +105,17 @@ a { color: var(--accent); }
 .pt-navlinks a { color: var(--muted); text-decoration: none; }
 .pt-navlinks a:hover { color: var(--ink); }
 @media (max-width: 600px) { .pt-sub { display: none; } }
+.pt-icon-btn {
+  width: 36px; height: 36px; flex: none; padding: 0; border-radius: 50%;
+  display: inline-grid; place-items: center; border: 1px solid var(--line);
+  background: var(--surface); color: var(--ink);
+  transition: background-color 200ms ease, border-color 200ms ease;
+}
+.pt-icon-btn:hover { background: var(--hover); }
+.pt-icon-btn .pt-i { width: 18px; height: 18px; }
+.pt-ico-moon, .pt-ico-tent { display: none; place-items: center; }
+html:not([data-theme="carpa"]) .pt-ico-moon,
+html[data-theme="carpa"] .pt-ico-tent { display: grid; }
 
 /* Layout */
 .pt-main { padding-top: 28px; }
@@ -220,6 +258,156 @@ a { color: var(--accent); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
 }
+/* === PROFUNDIDAD: capa visual para Noche y Carpa (adaptada de pulso-depth.css, solo pantalla) === */
+@media screen {
+  /* Fondo */
+  html:not([data-theme="carpa"]) body {
+    background:
+      radial-gradient(1100px 640px at 8% -10%, rgba(129,140,248,.17), transparent 62%),
+      radial-gradient(900px 620px at 108% 18%, rgba(34,211,238,.08), transparent 60%),
+      radial-gradient(900px 520px at 45% 112%, rgba(244,114,182,.07), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+  }
+  html[data-theme="carpa"] body {
+    background:
+      radial-gradient(1200px 700px at 50% -12%, rgba(255,255,255,.6), transparent 62%),
+      radial-gradient(900px 600px at 100% 100%, rgba(165,15,28,.07), transparent 55%),
+      radial-gradient(700px 500px at 0% 100%, rgba(185,138,30,.08), transparent 55%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .11 0 0 0 0 .03 0 0 0 0 .07 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+      var(--bg);
+    background-attachment: fixed;
+  }
+
+  /* Cabecera: pegajosa y con cristal */
+  .pt-top {
+    position: sticky; top: 0; z-index: 20;
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    -webkit-backdrop-filter: blur(12px) saturate(140%); backdrop-filter: blur(12px) saturate(140%);
+  }
+  html:not([data-theme="carpa"]) .pt-top {
+    background: color-mix(in srgb, var(--bg) 72%, transparent);
+    border-bottom-color: color-mix(in srgb, var(--c1) 14%, transparent);
+  }
+  html:not([data-theme="carpa"]) .pt-dot {
+    background: linear-gradient(135deg, var(--c1), var(--c5));
+    box-shadow: 0 0 10px color-mix(in srgb, var(--c1) 70%, transparent);
+  }
+  html[data-theme="carpa"] .pt-dot { box-shadow: 0 0 0 2px color-mix(in srgb, var(--gold) 40%, transparent); }
+
+  /* Tarjetas */
+  html:not([data-theme="carpa"]) .pt-card {
+    background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,0) 44%), var(--surface);
+    border-color: color-mix(in srgb, var(--c1) 16%, var(--line));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 14px 34px -16px rgba(0,0,0,.7), 0 2px 6px -2px rgba(0,0,0,.35);
+  }
+  html[data-theme="carpa"] .pt-card {
+    background: linear-gradient(180deg, #fffdf7, var(--surface) 60%);
+    border-color: color-mix(in srgb, var(--gold) 45%, var(--line));
+    box-shadow: inset 0 1px 0 #ffffff, 0 0 0 3px var(--surface), 0 0 0 4px color-mix(in srgb, var(--gold) 38%, transparent),
+      0 16px 30px -18px color-mix(in srgb, var(--ink) 42%, transparent);
+  }
+
+  /* Botones primarios */
+  html:not([data-theme="carpa"]) .pt-btn--primary {
+    background: linear-gradient(135deg, var(--c1), var(--c5));
+    border-color: transparent;
+    box-shadow: 0 8px 20px -8px color-mix(in srgb, var(--c1) 75%, transparent);
+  }
+  html[data-theme="carpa"] .pt-btn--primary {
+    background: linear-gradient(180deg, var(--stripe), var(--accent));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gold) 75%, transparent), inset 0 1px 0 rgba(255,255,255,.18),
+      0 6px 14px -8px color-mix(in srgb, var(--accent) 80%, transparent);
+  }
+
+  /* Selector Dia / Semana / Mes */
+  html:not([data-theme="carpa"]) .pt-seg button[aria-pressed="true"] {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--c1) 30%, transparent), color-mix(in srgb, var(--c1) 12%, transparent));
+    color: var(--ink);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c1) 45%, transparent);
+  }
+
+  /* Grafico de evolucion: area con degradado y linea con brillo */
+  .pt-area { fill: url(#pt-grad); opacity: 1; }
+  .pt-stop-a { stop-color: var(--accent); stop-opacity: .38; }
+  .pt-stop-b { stop-color: var(--accent); stop-opacity: 0; }
+  html[data-theme="carpa"] .pt-stop-a { stop-opacity: .3; }
+  html:not([data-theme="carpa"]) .pt-linepath { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--c1) 55%, transparent)); }
+  html[data-theme="carpa"] .pt-linepath { filter: drop-shadow(0 2px 0 color-mix(in srgb, var(--gold) 35%, transparent)); }
+
+  /* Barras de dias de la semana: la mejor, con degradado (Noche) o franjas (Carpa) */
+  .pt-bar-s1 { stop-color: var(--accent); }
+  .pt-bar-s2 { stop-color: color-mix(in srgb, var(--accent) 55%, var(--c2)); }
+  .pt-stripe-a { fill: var(--accent); }
+  .pt-stripe-b { fill: var(--stripe); }
+  html:not([data-theme="carpa"]) .pt-bar--best { fill: url(#pt-bar-grad); }
+  html[data-theme="carpa"] .pt-bar--best { fill: url(#pt-stripes); }
+
+  /* KPI: cada tarjeta con su color (franja superior y brillo en la esquina) */
+  .pt-kpis > .pt-kpi { position: relative; }
+  .pt-kpis > .pt-kpi:nth-child(5n+1) { --k: var(--c1); }
+  .pt-kpis > .pt-kpi:nth-child(5n+2) { --k: var(--c2); }
+  .pt-kpis > .pt-kpi:nth-child(5n+3) { --k: var(--c4); }
+  .pt-kpis > .pt-kpi:nth-child(5n+4) { --k: var(--c3); }
+  .pt-kpis > .pt-kpi:nth-child(5n+5) { --k: var(--c5); }
+  html:not([data-theme="carpa"]) .pt-kpi {
+    background:
+      radial-gradient(240px 150px at 100% 0%, color-mix(in srgb, var(--k, var(--c1)) 16%, transparent), transparent 70%),
+      linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,0) 44%), var(--surface);
+  }
+  html:not([data-theme="carpa"]) .pt-kpi::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; pointer-events: none;
+    border-radius: var(--radius) var(--radius) 0 0;
+    background: linear-gradient(90deg, var(--k, var(--c1)), transparent 85%);
+  }
+  html[data-theme="carpa"] .pt-kpi {
+    background:
+      radial-gradient(220px 140px at 100% 0%, color-mix(in srgb, var(--k, var(--c1)) 10%, transparent), transparent 70%),
+      linear-gradient(180deg, #fffdf7, var(--surface) 60%);
+    padding-top: 22px;
+  }
+  html[data-theme="carpa"] .pt-kpi::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 6px; pointer-events: none;
+    border-radius: var(--radius) var(--radius) 0 0;
+    background: repeating-linear-gradient(90deg, var(--k, var(--accent)) 0 12px, var(--surface) 12px 24px);
+    opacity: .85;
+  }
+
+  /* Zona de carga */
+  html:not([data-theme="carpa"]) .pt-drop {
+    background-image: linear-gradient(180deg, color-mix(in srgb, var(--c1) 9%, transparent), transparent 75%);
+  }
+  html:not([data-theme="carpa"]) .pt-drop.pt-drop--over {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+  html[data-theme="carpa"] .pt-drop { border-color: var(--gold); background-color: var(--surface); }
+  html[data-theme="carpa"] .pt-drop.pt-drop--over { border-color: var(--accent); background-color: var(--accent-soft); }
+
+  /* Barras horizontales: Que se vende mas / Mejores clientes */
+  html:not([data-theme="carpa"]) .pt-fill {
+    background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 55%, var(--c2)));
+  }
+  html[data-theme="carpa"] .pt-fill {
+    background: repeating-linear-gradient(135deg, var(--accent) 0 8px, var(--stripe) 8px 16px);
+  }
+
+  /* Lo que dicen tus datos */
+  html:not([data-theme="carpa"]) .pt-ins-ico { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent); }
+  html[data-theme="carpa"] .pt-ins-ico { box-shadow: inset 0 0 0 1px var(--gold); }
+
+  /* Tarjeta CTA */
+  html:not([data-theme="carpa"]) .pt-cta {
+    border-color: var(--accent);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--c1) 18%, transparent), color-mix(in srgb, var(--c2) 6%, transparent)), var(--surface);
+  }
+  html[data-theme="carpa"] .pt-cta {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--gold);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .pt-top { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+}
 </style>
 <script defer src="https://cloud.umami.is/script.js" data-website-id="1377f8f1-df62-427b-bc7d-eec5c112cc00" data-domains="sundanstudio.com"></script>
 </head>
@@ -228,6 +416,10 @@ a { color: var(--accent); }
   <div class="pt-wrap pt-top-in">
     <div class="pt-brand"><span class="pt-word">Pulso<span class="pt-dot" aria-hidden="true"></span></span><span class="pt-sub"> · Prueba con tus datos</span></div>
     <nav class="pt-navlinks" aria-label="Enlaces de la página">
+      <button type="button" class="pt-icon-btn" id="pt-theme" aria-label="Tema Carpa" title="Tema Carpa">
+        <span class="pt-ico-moon" aria-hidden="true"><svg class="pt-i" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></span>
+        <span class="pt-ico-tent" aria-hidden="true"><svg class="pt-i" viewBox="0 0 24 24"><path d="M3 20L12 4l9 16z"/><path d="M9 20l3-5 3 5"/><path d="M12 4V2.5"/></svg></span>
+      </button>
       <a href="demo-panel.html">← Volver a la demo</a>
       <a href="index.html">Sundan Studio</a>
     </nav>
@@ -987,6 +1179,7 @@ a { color: var(--accent); }
     var label = 'Evolución de las ventas: ' + n + ' periodos, total ' + money(st.total, 0) + '.';
     host.innerHTML =
       '<svg class="pt-svg" viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '" height="' + h + '" role="img" tabindex="0" aria-label="' + esc(label) + '">' +
+      '<defs><linearGradient id="pt-grad" x1="0" y1="0" x2="0" y2="1"><stop class="pt-stop-a" offset="0"/><stop class="pt-stop-b" offset="1"/></linearGradient></defs>' +
       g +
       '<path class="pt-area" d="' + area + '"/>' +
       '<path class="pt-linepath" d="' + line + '"/>' +
@@ -1087,7 +1280,10 @@ a { color: var(--accent); }
     var label = 'Ventas medias por día de la semana. ' +
       (best >= 0 ? 'Mejor día: ' + WD_LONG[best] + ', con una media de ' + money(avg[best], 0) + '.' : 'Sin datos.');
     host.innerHTML = '<svg class="pt-svg" viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '" height="' + h +
-      '" role="img" aria-label="' + esc(label) + '">' + g + '</svg>';
+      '" role="img" aria-label="' + esc(label) + '">' +
+      '<defs><linearGradient id="pt-bar-grad" x1="0" y1="0" x2="0" y2="1"><stop class="pt-bar-s1" offset="0"/><stop class="pt-bar-s2" offset="1"/></linearGradient>' +
+      '<pattern id="pt-stripes" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect class="pt-stripe-a" x="0" y="0" width="8" height="16"/><rect class="pt-stripe-b" x="8" y="0" width="8" height="16"/></pattern></defs>' +
+      g + '</svg>';
     var rows = WD_LONG.map(function (name, j) {
       return '<tr><th scope="row">' + esc(name) + '</th><td>' + esc(money(avg[j], 2)) + '</td><td>' + occ[j] + '</td></tr>';
     }).join('');
@@ -1399,6 +1595,37 @@ a { color: var(--accent); }
       'pulso-resumen-' + v.gran + '.csv');
   }
 
+  // ---------- tema (Noche / Carpa) ----------
+  var THEME_KEY = 'pulso-prefs';
+  function curTheme() {
+    return document.documentElement.getAttribute('data-theme') === 'carpa' ? 'carpa' : 'dark';
+  }
+  function paintTheme(t) {
+    var carpa = t === 'carpa', btn = $('pt-theme');
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', carpa ? '#f3ead6' : '#0b1020');
+    if (btn) {
+      var lbl = carpa ? 'Tema Noche' : 'Tema Carpa';
+      btn.setAttribute('aria-label', lbl);
+      btn.setAttribute('title', lbl);
+    }
+  }
+  function saveTheme(t) {
+    try {
+      var p = JSON.parse(localStorage.getItem(THEME_KEY) || '{}');
+      if (!p || typeof p !== 'object' || Array.isArray(p)) p = {};
+      p.theme = t;
+      localStorage.setItem(THEME_KEY, JSON.stringify(p));
+    } catch (e) { /* preferencia opcional */ }
+  }
+  function toggleTheme() {
+    var t = curTheme() === 'carpa' ? 'dark' : 'carpa';
+    document.documentElement.setAttribute('data-theme', t);
+    paintTheme(t);
+    saveTheme(t);
+    if (!$('pt-s3').hidden && S.stats) { drawLine(); drawWeek(); }
+  }
+
   // ---------- arranque ----------
   function init() {
     setCurrency('EUR');
@@ -1446,6 +1673,8 @@ a { color: var(--accent); }
       });
     });
     bindLine();
+    $('pt-theme').addEventListener('click', toggleTheme);
+    paintTheme(curTheme());
     var rt = null;
     window.addEventListener('resize', function () {
       clearTimeout(rt);
