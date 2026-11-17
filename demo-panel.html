@@ -258,6 +258,7 @@ html:not([data-theme="carpa"]) .i-moon { display: none; }
 
 /* KPIs */
 .kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.rent-kpis { margin-bottom: 0; }
 .kpi { display: flex; flex-direction: column; gap: 6px; padding: 16px 18px; }
 .kpi-label { font-size: 13px; font-weight: 500; color: var(--muted); }
 .kpi-value {
@@ -290,7 +291,7 @@ html:not([data-theme="carpa"]) .i-moon { display: none; }
 .trend-legend i.dash{border-top:2px dashed var(--muted)}
 @media (prefers-reduced-motion: no-preference) {
   @keyframes cmpflash{0%{background:color-mix(in srgb,var(--accent) 28%,transparent)}100%{background:transparent}}
-  .delta.flash{animation:cmpflash 1.2s ease-out;border-radius:6px}
+  .delta.flash,.bh-delta.flash,td.flash{animation:cmpflash 1.2s ease-out;border-radius:6px}
 }
 .prev-line.flash{animation:none}
 .stop-a { stop-color: var(--accent); stop-opacity: .22; }
@@ -343,6 +344,8 @@ html:not([data-theme="carpa"]) .i-moon { display: none; }
 .bars-h { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
 .bh-top { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; }
 .bh-val { font-family: var(--mono); font-weight: 500; color: var(--muted); white-space: nowrap; }
+.bh-delta { font-size: 12px; font-weight: 600; margin-left: 8px; color: var(--ok); white-space: nowrap; }
+.bh-delta.down { color: var(--bad); }
 .bh-track { height: 8px; border-radius: 999px; background: var(--hover); margin-top: 6px; overflow: hidden; }
 .bh-track span { display: block; height: 100%; border-radius: 999px; background: var(--bad); opacity: .8; }
 
@@ -1358,6 +1361,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
 
       <!-- VISTA: RENTABILIDAD -->
       <section id="view-rentabilidad" class="view" aria-label="Rentabilidad" hidden>
+        <div class="kpi-grid rent-kpis" id="rent-kpis"></div>
         <article class="card" aria-labelledby="t-wf">
           <div class="card-head">
             <div>
@@ -3192,7 +3196,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     var deltaEl = h('div', { class: 'delta' });
     if (prev) {
       var v = cur[def.key], pv = prev[def.key], up, text;
-      if (def.kind === 'pp') { var diff = v - pv; up = diff >= 0; text = fmtSigned(diff, 1) + ' pp'; }
+      if (def.kind === 'pp') { var diff = v - pv; up = diff >= 0; text = fmtSigned(diff, def.dec || 1) + ' pp'; }
       else { var c = pctChange(v, pv); up = c >= 0; text = fmtSigned(c, 1) + ' %'; }
       var good = def.bad === 'up' ? !up : up;
       deltaEl.className = 'delta' + (good ? '' : ' down');
@@ -4324,6 +4328,9 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     $$('.controls [data-range]').forEach(function (b) {
       b.setAttribute('aria-pressed', String(RANGE_CODES[b.getAttribute('data-range')] === state.range));
     });
+    var cmpOn = state.view === 'resumen' || state.view === 'rentabilidad';
+    $('#cmp').hidden = !cmpOn;
+    $('#cmp-mode-wrap').hidden = !cmpOn;
     $('#cmp').setAttribute('aria-pressed', String(state.compare));
     $('#cmp-mode').value = state.cmpMode;
     $('#cmp-mode').disabled = !state.compare;
@@ -4360,10 +4367,10 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   function renderHeader() {
     var vt = VIEW_TITLES[state.view];
     $('#page-title').textContent = vt[0];
-    var prevR = state.view === 'resumen' ? prevRangeText() : '';
+    var prevR = state.view === 'resumen' || state.view === 'rentabilidad' ? prevRangeText() : '';
     $('#page-sub').textContent = state.view === 'resumen'
       ? periodPhrase() + (state.compare ? ' · ' + compLabel() + (prevR ? ' (' + prevR + ')' : '') : '')
-      : vt[1];
+      : vt[1] + (state.view === 'rentabilidad' && prevR ? ' · ' + compLabel() + ' (' + prevR + ')' : '');
     $$('.nav-item').forEach(function (b) {
       if (b.getAttribute('data-view') === state.view) b.setAttribute('aria-current', 'page');
       else b.removeAttribute('aria-current');
@@ -4518,7 +4525,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
       render();
       if (state.compare) {
         toast('Comparación activada (' + compLabel() + '). Verás la variación en cada KPI y el periodo anterior en línea punteada.');
-        $$('.kpi .delta, .prev-line').forEach(function (el) {
+        $$('.kpi .delta, .prev-line, .bh-delta, #pt-body td[data-label="vs. anterior"]').forEach(function (el) {
           if (!el.getClientRects().length) return;
           el.classList.add('flash');
           setTimeout(function () { el.classList.remove('flash'); }, 1200);
@@ -4966,6 +4973,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
         tr.appendChild(th);
       });
     });
+    ensurePtCmpHead(ptCmpActive);   /* buildHeads descarta la celda «vs. anterior» si estaba activa */
     hydrateIcons(document);
   }
   function refreshHeads() {
@@ -5393,44 +5401,85 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     mount.appendChild(srTable('Cascada de margen del periodo', ['Concepto', 'Importe'],
       steps.map(function (s) { return [s.name, (s.type === 'neg' ? '−' : '') + money(s.v, 2)]; })));
   }
-  function renderGroupBars(sel, keys, keyOf, labelOf, F, tots) {
-    var acc = {}, total = 0, max = 0, ul = $(sel);
-    keys.forEach(function (k) { acc[k] = emptyRow(-1, -1); });
-    DATA.merchants.forEach(function (m, mi) { if (F.mask[mi]) addRow(acc[keyOf(m)], tots[mi]); });
+  /* Variación del margen neto frente al periodo anterior (▲/▼ en %, «—» si no hay base) */
+  function marginDeltaEl(cur, prev) {
+    var el = h('span', { class: 'bh-delta' });
+    if (!prev) { el.textContent = '—'; return el; }
+    var c = pctChange(cur, prev), up = c >= 0;
+    el.className = 'bh-delta' + (up ? '' : ' down');
+    el.textContent = (up ? '▲ ' : '▼ ') + fmtSigned(c, 1) + ' %';
+    return el;
+  }
+  /* prevTots (opcional): totales por comercio del periodo anterior; activa la variación por grupo */
+  function renderGroupBars(sel, keys, keyOf, labelOf, F, tots, prevTots) {
+    var acc = {}, pacc = {}, total = 0, max = 0, ul = $(sel);
+    keys.forEach(function (k) { acc[k] = emptyRow(-1, -1); pacc[k] = emptyRow(-1, -1); });
+    DATA.merchants.forEach(function (m, mi) {
+      if (!F.mask[mi]) return;
+      addRow(acc[keyOf(m)], tots[mi]);
+      if (prevTots) addRow(pacc[keyOf(m)], prevTots[mi]);
+    });
     keys.forEach(function (k) { total += acc[k].margin; max = Math.max(max, acc[k].margin); });
     ul.textContent = '';
     keys.forEach(function (k) {
       var a = acc[k], share = total ? a.margin / total * 100 : 0, w = max > 0 ? a.margin / max * 100 : 0;
+      var top = h('div', { class: 'bh-top' }, h('span', null, labelOf(k)), h('span', { class: 'bh-val' }, money(a.margin, 0) + ' · ' + fmtPct(share, 0)));
+      if (prevTots) top.appendChild(marginDeltaEl(a.margin, (pacc[k] || emptyRow(-1, -1)).margin));
       ul.appendChild(h('li', null,
-        h('div', { class: 'bh-top' }, h('span', null, labelOf(k)), h('span', { class: 'bh-val' }, money(a.margin, 0) + ' · ' + fmtPct(share, 0))),
+        top,
         h('div', { class: 'bh-track', 'aria-hidden': 'true' }, h('span', { style: 'width:' + Math.max(0, w).toFixed(1) + '%;background:var(--accent)' }))));
     });
   }
-  function ptRow(name, share, a, isTot) {
-    return h('tr', isTot ? { class: 'tot' } : null,
+  /* cmpEl (opcional): celda «vs. anterior»; sin él no se añade la columna */
+  function ptRow(name, share, a, isTot, cmpEl) {
+    var tr = h('tr', isTot ? { class: 'tot' } : null,
       h('td', { 'data-label': 'Partner' }, h('strong', null, name)),
       h('td', { 'data-label': 'Reparto con partners', class: 'amount' }, share),
       h('td', { 'data-label': 'Volumen', class: 'amount' }, money(a.vol, 0)),
       h('td', { 'data-label': 'Comisión bruta', class: 'amount' }, money(a.fee, 0)),
       h('td', { 'data-label': 'Reparto con partners', class: 'amount' }, money(a.par, 0)),
       h('td', { 'data-label': 'Margen neto', class: 'amount' }, money(a.margin, 0)));
+    if (cmpEl) tr.appendChild(h('td', { 'data-label': 'vs. anterior', class: 'amount' }, cmpEl));
+    return tr;
   }
-  /* Filas por partner (base); el total no depende de los filtros de columna */
-  function ptRows(F, tots) {
+  /* Filas por partner (base); el total no depende de los filtros de columna. prevTots: margen del periodo anterior por partner */
+  function ptRows(F, tots, prevTots) {
     F = F || filtered();
     tots = tots || merchTotals(F.curFrom, F.curTo);
     var acc = DATA.partners.map(function () { return emptyRow(-1, -1); });
-    DATA.merchants.forEach(function (m, mi) { if (F.mask[mi]) addRow(acc[m.partner], tots[mi]); });
+    var pacc = prevTots ? DATA.partners.map(function () { return emptyRow(-1, -1); }) : null;
+    DATA.merchants.forEach(function (m, mi) {
+      if (!F.mask[mi]) return;
+      addRow(acc[m.partner], tots[mi]);
+      if (pacc) addRow(pacc[m.partner], prevTots[mi]);
+    });
     return DATA.partners.map(function (p, i) {
-      return { name: p.name, share: p.share * 100, vol: acc[i].vol, fee: acc[i].fee, par: acc[i].par, margin: acc[i].margin, acc: acc[i] };
+      return { name: p.name, share: p.share * 100, vol: acc[i].vol, fee: acc[i].fee, par: acc[i].par, margin: acc[i].margin, acc: acc[i], pacc: pacc ? pacc[i] : null };
     });
   }
-  function renderPartnerTable(F, tots) {
-    var all = ptRows(F, tots), tot = emptyRow(-1, -1), body = $('#pt-body');
-    all.forEach(function (r) { addRow(tot, r.acc); });
+  /* Cabecera «vs. anterior» de la tabla de partners: la genera buildHeads, así que se asegura en cada render */
+  var ptCmpActive = false;
+  function ensurePtCmpHead(active) {
+    ptCmpActive = !!active;
+    var tr = document.querySelector('#pt-table thead tr');
+    if (!tr) return;
+    var th = tr.querySelector('#pt-cmp-th');
+    if (ptCmpActive) {
+      if (!th) th = h('th', { scope: 'col', class: 'num-col', id: 'pt-cmp-th' }, 'vs. anterior');
+      tr.appendChild(th);   /* siempre como última celda */
+    } else if (th) {
+      tr.removeChild(th);
+    }
+  }
+  function renderPartnerTable(F, tots, prevTots) {
+    var all = ptRows(F, tots, prevTots), tot = emptyRow(-1, -1), prevTot = prevTots ? emptyRow(-1, -1) : null, body = $('#pt-body');
+    all.forEach(function (r) { addRow(tot, r.acc); if (prevTot) addRow(prevTot, r.pacc); });
+    ensurePtCmpHead(!!prevTots);
     body.textContent = '';
-    applyCols('pt', all).forEach(function (r) { body.appendChild(ptRow(r.name, fmtPct(r.share, 0), r.acc, false)); });
-    body.appendChild(ptRow('Total', '—', tot, true));
+    applyCols('pt', all).forEach(function (r) {
+      body.appendChild(ptRow(r.name, fmtPct(r.share, 0), r.acc, false, prevTots ? marginDeltaEl(r.acc.margin, r.pacc.margin) : null));
+    });
+    body.appendChild(ptRow('Total', '—', tot, true, prevTots ? marginDeltaEl(tot.margin, prevTot.margin) : null));
   }
   function syncSimSliders(p) {
     $('#s-mdr').value = String(p.mdr);
@@ -5473,14 +5522,40 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     $('#lbl-proj').textContent = money(proj, 0);
     $('#sim-note').textContent = 'Margen neto del periodo: comisión bruta menos coste de procesamiento, reembolsos, pérdidas por contracargos, reparto con partners y costes operativos (12 %). «Actual» es el margen neto real del periodo, igual que en la cascada.';
   }
+  /* KPIs de rentabilidad: margen neto, margen sobre volumen, comisión bruta y reparto con partners */
+  function renderRentabKpis(F, t, pt) {
+    var mv = function (x) { return x.vol ? x.margin / x.vol * 100 : 0; };
+    var cur = { margin: t.margin, mv: mv(t), fee: t.fee, par: t.par };
+    var prev = pt ? { margin: pt.margin, mv: mv(pt), fee: pt.fee, par: pt.par } : null;
+    var series = F.cur.map(function (d) { return { margin: d.margin, mv: mv(d), fee: d.fee, par: d.par }; });
+    var defs = [
+      { key: 'margin', label: 'Margen neto', fmt: function (v) { return money(v, 0); } },
+      { key: 'mv', label: 'Margen sobre volumen', kind: 'pp', dec: 2, fmt: function (v) { return fmtPct(v, 2); } },
+      { key: 'fee', label: 'Comisión bruta', fmt: function (v) { return money(v, 0); } },
+      { key: 'par', label: 'Reparto con partners', bad: 'up', fmt: function (v) { return money(v, 0); } }
+    ];
+    var grid = $('#rent-kpis');
+    grid.textContent = '';
+    defs.forEach(function (def) {
+      var spark = h('div', { class: 'spark', 'aria-hidden': 'true' });
+      spark.innerHTML = sparkSvg(series.map(function (s) { return s[def.key]; }));
+      grid.appendChild(h('article', { class: 'card kpi' },
+        h('p', { class: 'kpi-label' }, def.label),
+        h('p', { class: 'kpi-value' }, def.fmt(cur[def.key])),
+        kpiDelta(def, cur, prev), spark));
+    });
+  }
   function renderRentab() {
     var F = filtered(), t = sumDays(F.cur), tots = merchTotals(F.curFrom, F.curTo);
+    var P = F.hasPrev && state.compare;
+    var prevTots = P ? merchTotals(F.prevFrom, F.prevTo) : null;
     var M = marginModel(t);
-    $('#wf-sub').textContent = 'Del volumen procesado al margen neto · ' + periodLabel();
+    $('#wf-sub').textContent = 'Del volumen procesado al margen neto · ' + periodLabel() + (P ? ' · ' + compLabel() + ' (' + prevRangeText() + ')' : '');
+    renderRentabKpis(F, t, P ? sumDays(F.prev) : null);
     renderWaterfall(t, M);
-    renderGroupBars('#by-channel', CHANNEL_IDS, function (m) { return m.channel; }, function (k) { return CHANNELS[k]; }, F, tots);
-    renderGroupBars('#by-plan', PLANS, function (m) { return m.plan; }, function (k) { return k; }, F, tots);
-    renderPartnerTable(F, tots);
+    renderGroupBars('#by-channel', CHANNEL_IDS, function (m) { return m.channel; }, function (k) { return CHANNELS[k]; }, F, tots, prevTots);
+    renderGroupBars('#by-plan', PLANS, function (m) { return m.plan; }, function (k) { return k; }, F, tots, prevTots);
+    renderPartnerTable(F, tots, prevTots);
     state.simB = {
       base: {
         mdr: t.vol ? (t.fee - 0.12 * t.ok) / t.vol * 100 : 0,
