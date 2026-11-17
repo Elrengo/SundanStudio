@@ -51,7 +51,8 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Instrument+Sans:wght@400;500&family=Rye&display=swap" rel="stylesheet">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Gloock&family=Instrument+Sans:wght@400;500&family=Rye&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Instrument+Sans:wght@400;500&family=Rye&display=swap"></noscript>
 <style>
 :root{
   --ink:#14060f; --plum:#1b0812; --blood:#c1121f; --bone:#efe3c8; --gold:#e9b42f; --teal:#1f9e8f;
@@ -82,6 +83,8 @@ body{margin:0;background:transparent;color:var(--bone);font-family:var(--body);o
 .stage{position:absolute;inset:0;pointer-events:none}
 .hero header{position:absolute;left:0;right:0;bottom:calc(clamp(18px,4vh,40px) + 3.1rem);text-align:center;padding:0 16px;pointer-events:none}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.skip-link{position:fixed;left:12px;top:12px;z-index:400;padding:.5rem 1rem;background:var(--gold);color:var(--ink);font-weight:700;text-decoration:none;border-radius:6px;transform:translateY(-250%)}
+.skip-link:focus{transform:none;outline:3px solid var(--bone);outline-offset:2px}
 .now{position:absolute;left:0;right:0;top:clamp(190px,25vh,240px);margin:0;text-align:center;font-family:var(--display);font-size:clamp(1rem,2vw,1.3rem);color:var(--gold);text-shadow:0 2px 10px var(--ink);pointer-events:none}
 .prog{position:absolute;left:0;right:0;bottom:clamp(18px,4vh,40px);display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:.55rem;padding:0 16px;pointer-events:auto}
 .prog-btn,.prog-pause{font-family:var(--display);font-size:1.1rem;color:var(--bone);background:rgba(20,6,15,.75);border:2px solid var(--gold);border-radius:99px;padding:.3rem 1rem;cursor:pointer}
@@ -136,7 +139,7 @@ h2.big.proj-title{font-size:clamp(2.4rem,6vw,4.4rem);margin:1.5rem 0 0}
 .kicker-top{font-family:var(--body);text-transform:uppercase;letter-spacing:.14em;font-size:.82rem;color:var(--gold);margin:0 0 1.6rem}
 .lede-hero{font-size:clamp(1.15rem,2.1vw,1.45rem);max-width:44ch;line-height:1.5;opacity:.92}
 .hero-ctas{display:flex;flex-wrap:wrap;align-items:center;gap:.7rem 1rem;margin:-.6rem 0 2.2rem}
-.hero-note{font-size:.9rem;opacity:.75}
+.hero-note{font-size:.9rem;opacity:.9}
 .note{margin:1.6rem 0 0;font-size:.9rem;opacity:.55}
 @media (max-width:760px){.wrap{grid-template-columns:1fr}.wrap{row-gap:28px}}
 @media (prefers-reduced-motion:reduce){
@@ -388,8 +391,8 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 .projects .case dt{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--gold)}
 .projects .case dd{margin:0;font-size:.92rem;line-height:1.45;opacity:.92}
 .projects .actions{display:flex;flex-wrap:wrap;gap:.7rem;margin-top:auto}
-.projects .note{font-style:italic;opacity:.6;margin:0}
-.projects .note a{color:var(--gold)}
+.projects .note{font-style:italic;opacity:.9;margin:0}
+.projects .note a{color:var(--gold);text-decoration:underline;text-underline-offset:.2em}
 .projects .phone{fill:none;stroke:var(--bone);stroke-width:2}
 .projects .scoop{animation:projects-float 4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
 .projects .scoop.d{animation-delay:-2s}
@@ -683,6 +686,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 </script>
 </head>
 <body>
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
 <canvas class="confetti-back" aria-hidden="true"></canvas>
 <canvas id="fx" aria-hidden="true"></canvas>
 <canvas class="confetti-layer" aria-hidden="true"></canvas>
@@ -696,6 +700,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
   </nav>
   <a class="pill main tb-cta" href="#contacto" data-umami-event="clic-pide-presupuesto">Pide presupuesto</a>
 </header>
+<main id="contenido">
 <section class="projects" id="proyectos">
   <div class="lights" aria-hidden="true">
     <svg viewBox="0 0 1200 30" preserveAspectRatio="none" focusable="false">
@@ -1712,6 +1717,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
     <a class="down" href="#proyectos">Volver arriba ↑</a>
   </div>
 </section>
+</main>
 <footer class="site-foot">
   <p class="site-foot__mark"><img src="assets/logo/logo-horizontal-oscuro.svg" alt="Sundan Studio" width="235" height="40"></p>
   <p class="site-foot__copy">© 2026 Sundan Studio</p>
@@ -1745,9 +1751,8 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
   var speed=reduce?0.15:1;
 
   // h1 kept for the heading structure; the marquee on the canvas shows the name
+  // el texto y la clase sr-only ya vienen en el HTML (#title); no se reescriben aquí para no forzar layout
   var t=document.getElementById("title");
-  t.textContent="Sundan Studio";
-  t.className="sr-only";
 
   var hero=document.getElementById("hero"),cv=document.getElementById("c"),g=cv.getContext("2d"),W,H,dpr,LAND=true;
   // design space: landscape 900x600, portrait 380x760; the canvas covers the hero
@@ -1845,7 +1850,6 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
   // altura de la barra de navegación fija, que se superpone a la parte alta del escenario
   var TOPBAR_H=0;
   function measureTopbar(){var tb=document.querySelector(".topbar");TOPBAR_H=tb?tb.offsetHeight:0;if(tb)document.documentElement.style.setProperty("--hdr",TOPBAR_H+"px");}
-  measureTopbar();
   var bulbs=[];              // marquee bulbs, recomputed when the layout changes
   function layoutBulbs(){
     measureTopbar();
@@ -3508,10 +3512,12 @@ function drawMumi(c, p){
   function syncHidden() { document.body.classList.toggle('spot-tab-hidden', document.hidden); }
   document.addEventListener('visibilitychange', syncHidden);
   syncHidden();
-  var vh = window.innerHeight || document.documentElement.clientHeight;
-  secs.forEach(function (s) {
-    var r = s.getBoundingClientRect();
-    if (r.bottom > 0 && r.top < vh) s.classList.add('spot-on');
+  requestAnimationFrame(function () {
+    var vh = window.innerHeight || document.documentElement.clientHeight;
+    secs.forEach(function (s) {
+      var r = s.getBoundingClientRect();
+      if (r.bottom > 0 && r.top < vh) s.classList.add('spot-on');
+    });
   });
   if ('IntersectionObserver' in window) {
     var io = new IntersectionObserver(function (en) {
