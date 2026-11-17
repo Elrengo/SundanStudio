@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://sundanstudio.com/</loc><lastmod>2026-11-12</lastmod></url>
+  <url><loc>https://sundanstudio.com/</loc><lastmod>2026-11-17</lastmod></url>
   <url><loc>https://sundanstudio.com/demo-heladeria.html</loc><lastmod>2026-11-12</lastmod></url>
   <url><loc>https://sundanstudio.com/demo-reservas.html</loc><lastmod>2026-11-12</lastmod></url>
   <url><loc>https://sundanstudio.com/demo-panel.html</loc><lastmod>2026-11-12</lastmod></url>
@@ -9,4 +9,7 @@
   <url><loc>https://sundanstudio.com/aviso-legal.html</loc><lastmod>2026-11-12</lastmod></url>
   <url><loc>https://sundanstudio.com/privacidad.html</loc><lastmod>2026-11-12</lastmod></url>
   <url><loc>https://sundanstudio.com/demo-motos.html</loc><lastmod>2026-11-12</lastmod></url>
+  <url><loc>https://sundanstudio.com/desarrollo-web.html</loc><lastmod>2026-11-17</lastmod><priority>0.8</priority></url>
+  <url><loc>https://sundanstudio.com/aplicaciones-web.html</loc><lastmod>2026-11-17</lastmod><priority>0.8</priority></url>
+  <url><loc>https://sundanstudio.com/paneles-de-datos.html</loc><lastmod>2026-11-17</lastmod><priority>0.8</priority></url>
 </urlset>

@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aplicaciones web a medida: reservas, pedidos y tiendas online · Sundan Studio</title>
+<meta name="description" content="Sistemas de reservas, tiendas online, pedidos y paneles de gestión a medida para negocios en Barcelona. Menos trabajo manual, más control. Presupuesto en 48 h.">
+<link rel="canonical" href="https://sundanstudio.com/aplicaciones-web.html">
+<meta name="theme-color" content="#14060f">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="manifest" href="assets/site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Sundan Studio">
+<meta property="og:locale" content="es_ES">
+<meta property="og:url" content="https://sundanstudio.com/aplicaciones-web.html">
+<meta property="og:title" content="Aplicaciones web a medida: reservas, pedidos y tiendas online · Sundan Studio">
+<meta property="og:description" content="Sistemas de reservas, tiendas online, pedidos y paneles de gestión a medida para negocios en Barcelona. Menos trabajo manual, más control. Presupuesto en 48 h.">
+<meta property="og:image" content="https://sundanstudio.com/assets/logo/og-imagen.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Aplicaciones web a medida: reservas, pedidos y tiendas online · Sundan Studio">
+<meta name="twitter:description" content="Sistemas de reservas, tiendas online, pedidos y paneles de gestión a medida para negocios en Barcelona. Menos trabajo manual, más control. Presupuesto en 48 h.">
+<meta name="twitter:image" content="https://sundanstudio.com/assets/logo/og-imagen.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Aplicaciones web a medida",
+  "serviceType": "Desarrollo de aplicaciones web a medida",
+  "description": "Sistemas de reservas, tiendas online, pedidos y paneles de gestión a medida para negocios en Barcelona. Menos trabajo manual, más control. Presupuesto en 48 h.",
+  "url": "https://sundanstudio.com/aplicaciones-web.html",
+  "provider": {
+    "@type": "ProfessionalService",
+    "name": "Sundan Studio",
+    "url": "https://sundanstudio.com/"
+  },
+  "areaServed": [
+    {
+      "@type": "City",
+      "name": "Barcelona"
+    },
+    {
+      "@type": "Country",
+      "name": "España"
+    }
+  ],
+  "offers": {
+    "@type": "Offer",
+    "price": "2500",
+    "priceCurrency": "EUR",
+    "description": "Desde 2.500 € sin IVA"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Inicio",
+      "item": "https://sundanstudio.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Aplicaciones web",
+      "item": "https://sundanstudio.com/aplicaciones-web.html"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "¿Cuánto cuesta una aplicación a medida?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Una aplicación sencilla, con reservas, catálogo o formulario avanzado, parte de 2.500 € sin IVA. Con panel de gestión con usuarios y permisos, desde 4.000 €. Con pagos, integraciones y lógica compleja, desde 6.500 €. El precio final se cierra por escrito antes de empezar."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Cuánto se tarda?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Entre 4 y 12 semanas, según el alcance. Si hay prisa, podemos lanzar primero lo esencial y añadir el resto por fases."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Dónde se guardan los datos y quién es el dueño?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Los datos son tuyos. El servidor y la base de datos se contratan a tu nombre, por ejemplo en Supabase, y te entrego todos los accesos documentados."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Se puede conectar con lo que ya uso?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sí. Se pueden conectar pagos, correo, calendario de Google y otras herramientas que tengan una forma de conectarse. Antes de empezar revisamos qué encaja y qué conviene cambiar."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿Qué pasa después de entregar?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Publicamos la aplicación, revisamos que todo funcione y te acompaño durante el primer mes. Después, si quieres, puedes contratar mantenimiento desde 45 €/mes."
+      }
+    }
+  ]
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Gloock&family=Instrument+Sans:wght@400;500&family=Rye&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Instrument+Sans:wght@400;500&family=Rye&display=swap"></noscript>
+<style>
+:root{
+  --ink:#14060f; --plum:#1b0812; --blood:#c1121f; --bone:#efe3c8; --gold:#e9b42f; --teal:#1f9e8f;
+  --display:"Gloock","Georgia","Times New Roman",serif;
+  --body:"Instrument Sans","Helvetica Neue",Arial,sans-serif;
+  color-scheme:dark;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{scroll-padding-top:calc(64px + env(safe-area-inset-top,0px));scroll-behavior:smooth;background:var(--ink)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ink);color:var(--bone);font-family:var(--body);line-height:1.5;overflow-x:hidden}
+h1,h2,h3{font-weight:400}
+p{margin:0}
+a{color:var(--bone)}
+img,svg{max-width:100%}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.skip-link{position:fixed;left:12px;top:12px;z-index:400;padding:.5rem 1rem;background:var(--gold);color:var(--ink);font-weight:700;text-decoration:none;border-radius:6px;transform:translateY(-250%)}
+.skip-link:focus{transform:none;outline:3px solid var(--bone);outline-offset:2px}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:150;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem clamp(16px,5vw,64px);background:rgba(20,6,15,.92);border-bottom:2px solid var(--gold)}
+.tb-logo{display:inline-flex;align-items:center;min-height:44px}
+.tb-logo img{display:block;height:36px;width:auto}
+.topbar nav{display:flex;gap:1.2rem}
+.topbar nav a{color:var(--bone);text-decoration:none;font-size:.95rem;display:inline-flex;align-items:center;min-height:44px}
+.topbar nav a:hover,.topbar nav a:focus-visible{color:var(--gold)}
+.tb-cta{font-size:1rem;padding:.45rem 1rem;white-space:nowrap}
+@media (max-width:639px){.topbar nav{display:none}}
+@media (max-width:420px){.tb-logo img{height:28px}.tb-cta{font-size:.9rem;padding:.4rem .75rem}}
+@media (min-width:640px) and (max-width:900px){.tb-logo img{height:30px}.topbar nav{gap:.8rem}.topbar nav a{font-size:.85rem}}
+
+/* BUTTONS */
+.pill{font-family:var(--display);font-size:1.2rem;padding:.7rem 1.4rem;border:2px solid var(--gold);cursor:pointer;color:var(--bone);background:transparent;text-decoration:none;display:inline-flex;align-items:center;min-height:44px;line-height:1.2}
+.pill.main{background:var(--gold);color:var(--ink)}
+.pill:hover{filter:brightness(1.1)}
+.btns{display:flex;gap:1rem;flex-wrap:wrap;align-items:center}
+@media (min-width:760px){.pill{font-size:1.35rem}}
+
+/* LAYOUT */
+.wrap{max-width:1120px;margin:0 auto;padding:0 clamp(20px,5vw,64px)}
+.band{background:rgba(27,8,18,.82);padding:clamp(48px,8vh,88px) 0}
+.band.alt{background:rgba(20,6,15,.82)}
+.kicker{font-family:var(--body);text-transform:uppercase;letter-spacing:.14em;font-size:.82rem;color:var(--gold);margin:0 0 1.2rem}
+.lede{max-width:44ch;font-size:clamp(1.05rem,2vw,1.25rem);line-height:1.55;opacity:.92}
+.sec-title{font-family:var(--display);font-size:clamp(2.2rem,5.4vw,4rem);line-height:.95;letter-spacing:-.02em;margin:0 0 1rem}
+.sec-lede{max-width:52ch;opacity:.85;margin:0 0 2rem;line-height:1.55}
+
+/* BREADCRUMB */
+.crumbs{list-style:none;margin:0;padding:1.2rem 0 0;display:flex;flex-wrap:wrap;gap:.2rem;font-size:.9rem}
+.crumbs li+li::before{content:"/";margin:0 .5rem;opacity:.6}
+.crumbs a{color:var(--bone);text-underline-offset:.2em;display:inline-flex;align-items:center;min-height:44px}
+.crumbs [aria-current="page"]{color:var(--gold)}
+
+/* HERO */
+.hero{padding:clamp(40px,8vh,88px) 0 clamp(48px,8vh,80px)}
+.hero h1{font-family:var(--display);font-size:clamp(2.6rem,7vw,5.2rem);line-height:.95;letter-spacing:-.02em;margin:0 0 1.2rem;color:var(--bone);text-wrap:balance}
+.hero .lede{margin:0 0 2rem}
+.hero-note{margin:1.2rem 0 0;font-size:.95rem;opacity:.9}
+
+/* CARDS */
+.grid2,.grid3,.grid6{display:grid;gap:clamp(20px,3vw,28px);min-width:0}
+.grid3{grid-template-columns:repeat(4,minmax(0,1fr))}
+.grid2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid6{grid-template-columns:repeat(3,minmax(0,1fr))}
+.ticket{position:relative;min-width:0;padding:1.4rem 1.3rem;border:2px solid var(--gold);background:rgba(239,227,200,.05);transform:rotate(var(--r,0deg));transition:transform .3s ease}
+.ticket:nth-child(odd){--r:-.4deg}
+.ticket:nth-child(even){--r:.4deg}
+.ticket:hover,.ticket:focus-within{--r:0deg;transform:translateY(-4px)}
+.ticket h3{font-family:var(--display);font-size:1.4rem;line-height:1.15;margin:0 0 .5rem;color:var(--bone)}
+.ticket p{opacity:.9;line-height:1.5}
+.ticket .tk-label{margin:0 0 .7rem;font-family:ui-monospace,Consolas,"Courier New",monospace;font-size:.75rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.dia{color:var(--gold);margin-right:.35rem}
+
+/* FEATURES */
+.feat{min-width:0;padding:1.2rem 0 0;border-top:2px dashed rgba(233,180,47,.6)}
+.feat h3{font-family:var(--display);font-size:1.3rem;line-height:1.2;margin:0 0 .4rem;color:var(--gold)}
+.feat p{opacity:.9;line-height:1.5}
+
+/* DEMOS */
+.demo{display:flex;flex-direction:column;gap:.9rem;min-width:0;border:2px solid var(--gold);background:rgba(20,6,15,.6);padding:1.1rem;transform:rotate(var(--r,0deg));transition:transform .3s ease}
+.demo:nth-child(1){--r:-.5deg}
+.demo:nth-child(2){--r:.4deg}
+.demo:hover,.demo:focus-within{--r:0deg;transform:translateY(-4px)}
+.demo .shot{display:block;width:100%;aspect-ratio:16/9;height:auto;background:#0b0307;border:1px solid rgba(233,180,47,.4)}
+.demo h3{font-family:var(--display);font-size:1.5rem;line-height:1.15;margin:0}
+.demo .tag-line{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin:0}
+.demo ul{margin:0;padding:0 0 0 1.1rem;line-height:1.5;opacity:.92}
+.demo .actions{margin-top:auto}
+.demo-note{margin:1.6rem 0 0;font-style:italic;opacity:.9}
+
+/* STEPS */
+.steps{list-style:none;margin:0;padding:0;position:relative;min-width:0}
+.steps li{position:relative;display:grid;grid-template-columns:44px minmax(0,1fr);gap:1rem;padding-bottom:1.6rem}
+.steps li:not(:last-child)::before{content:"";position:absolute;left:21px;top:46px;bottom:4px;border-left:2px dashed var(--gold)}
+.steps .num{width:44px;height:44px;box-sizing:border-box;border:2px solid var(--gold);border-radius:50%;background:var(--ink);color:var(--gold);font-family:var(--display);font-size:1.2rem;display:flex;align-items:center;justify-content:center}
+.steps h3{font-family:var(--display);font-size:1.3rem;line-height:1.2;margin:.1rem 0 .3rem;color:var(--bone)}
+.steps p{opacity:.88}
+.recibes{margin-top:1.6rem;padding:1.3rem 1.4rem;border:2px dashed var(--gold);background:rgba(233,180,47,.06);min-width:0}
+.recibes h3{font-family:var(--display);font-size:1.5rem;margin:0 0 .6rem;color:var(--gold)}
+.checks{list-style:none;margin:0;padding:0}
+.checks li{position:relative;padding-left:1.5em;margin:.45rem 0;line-height:1.45}
+.checks li::before{content:"\25C6";position:absolute;left:0;top:0;color:var(--gold)}
+
+/* BUNTING (decorative separator from the homepage pricing) */
+.pr-bunting{height:38px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='26' viewBox='0 0 160 26'%3E%3Cpath d='M0 2H160' stroke='%23e9b42f' stroke-width='2'/%3E%3Cpath d='M4 2H36L20 24Z' fill='%23c1121f'/%3E%3Cpath d='M44 2H76L60 24Z' fill='%23efe3c8'/%3E%3Cpath d='M84 2H116L100 24Z' fill='%23e9b42f'/%3E%3Cpath d='M124 2H156L140 24Z' fill='%231f9e8f'/%3E%3C/svg%3E") 0 0/232px 38px repeat-x}
+
+/* PRICING */
+.pr-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:36px 28px;margin-top:.5rem;min-width:0}
+.pr-card{position:relative;display:flex;flex-direction:column;min-width:0;padding:1.9rem 1.4rem 1.5rem;border:2px solid var(--gold);background:rgba(239,227,200,.05)}
+.pr-card.pr-feat{background:rgba(233,180,47,.08)}
+.pr-ribbon{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--gold);color:var(--ink);font-family:ui-monospace,Consolas,"Courier New",monospace;font-size:.8rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:.25rem .8rem;white-space:nowrap}
+.pr-name{font-family:var(--display);font-size:1.6rem;line-height:1.15;margin:0 0 .6rem}
+.pr-price{margin:0 0 .9rem}
+.pr-from{display:block;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;opacity:.8}
+.pr-amount{display:block;margin-top:.3rem;font-family:var(--display);font-size:2.6rem;line-height:1;color:var(--gold)}
+.pr-desc{margin:0 0 1rem;opacity:.9}
+.pr-list{list-style:none;margin:0;padding:0}
+.pr-list li{position:relative;padding-left:1.5em;margin:.4rem 0;font-size:.95rem;line-height:1.4}
+.pr-list li::before{content:"\25C6";position:absolute;left:0;top:0;color:var(--gold)}
+.pr-plazo{margin:1.2rem 0 0;padding-top:.9rem;border-top:2px dashed rgba(233,180,47,.6);font-size:.92rem;color:var(--gold)}
+.pr-fine{margin:1.6rem 0 0;opacity:.85;font-size:.9rem;line-height:1.5}
+.launch-note{display:block;margin:.8rem 0 0;color:var(--gold);font-weight:600}
+.launch-note[hidden]{display:none!important}
+
+/* FAQ */
+.faq-list{margin:0;padding:0;max-width:860px}
+.faq-list details{border-left:2px solid var(--gold);padding:0 0 .9rem 1.1rem;margin:0 0 1rem;min-width:0}
+.faq-list summary{display:flex;justify-content:space-between;align-items:center;gap:1rem;cursor:pointer;list-style:none;min-height:44px;padding:.2rem 0;font-family:var(--display);font-size:1.25rem;line-height:1.3;color:var(--bone)}
+.faq-list summary::-webkit-details-marker{display:none}
+.faq-list summary::after{content:"+";font-family:var(--body);font-size:1.5rem;line-height:1;color:var(--gold);flex:0 0 auto}
+.faq-list details[open] summary::after{content:"\2212"}
+.faq-list details p{margin:.5rem 0 0;line-height:1.6;opacity:.9}
+
+/* FINAL CTA */
+.final{text-align:center;padding:clamp(56px,9vh,96px) 0;border-top:2px solid var(--gold);background:var(--plum)}
+.final h2{font-family:var(--display);font-size:clamp(2.2rem,5.4vw,4rem);line-height:1;margin:0 0 .9rem}
+.final .lede{margin:0 auto 1.8rem}
+.final .btns{justify-content:center}
+.final .also{margin:2rem 0 0;font-size:.95rem;opacity:.92}
+.final .also a{color:var(--gold);text-underline-offset:.2em;display:inline-flex;align-items:center;min-height:44px;padding:0 .3rem}
+
+/* FOOTER */
+.site-foot{background:var(--plum);border-top:2px solid var(--gold);padding:2.5rem clamp(20px,5vw,64px);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem 2rem;font-size:.9rem;color:var(--bone)}
+.site-foot__mark{margin:0}
+.site-foot__mark img{display:block;height:40px;width:auto}
+.site-foot__copy{margin:0;opacity:.78}
+.site-foot__nav{display:flex;flex-wrap:wrap;gap:.2rem 1.2rem;width:100%}
+.site-foot__nav a{color:var(--bone);text-underline-offset:.25em;display:inline-flex;align-items:center;min-height:44px;overflow-wrap:anywhere}
+
+/* RESPONSIVE */
+@media (max-width:900px){.grid3{grid-template-columns:repeat(2,minmax(0,1fr))}.grid6{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:760px){.grid2{grid-template-columns:minmax(0,1fr)}.ticket,.demo{transform:none}}
+@media (max-width:640px){.grid3,.grid6{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:860px){.pr-grid{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:520px){.recibes{padding:1.1rem}}
+
+/* MOTION */
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition:none!important;animation:none!important}
+  .ticket,.demo,.ticket:hover,.demo:hover{transform:none}
+}
+</style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="1377f8f1-df62-427b-bc7d-eec5c112cc00" data-domains="sundanstudio.com"></script>
+</head>
+<body>
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+<header class="topbar">
+  <a class="tb-logo" href="index.html"><img src="assets/logo/logo-horizontal-oscuro.svg" alt="Sundan Studio" width="211" height="36"></a>
+  <nav aria-label="Principal">
+    <a href="index.html#proyectos">Proyectos</a>
+    <a href="index.html#servicios">Servicios</a>
+    <a href="index.html#precios">Precios</a>
+    <a href="index.html#contacto">Contacto</a>
+  </nav>
+  <a class="pill main tb-cta" href="index.html#contacto" data-umami-event="clic-pide-presupuesto">Pide presupuesto</a>
+</header>
+
+<main id="contenido">
+
+<nav aria-label="Ruta de navegación" class="wrap">
+  <ol class="crumbs">
+    <li><a href="index.html">Inicio</a></li>
+    <li aria-current="page">Aplicaciones web</li>
+  </ol>
+</nav>
+
+<section class="hero" aria-labelledby="titulo">
+  <div class="wrap">
+    <p class="kicker">Servicio · Aplicaciones y herramientas</p>
+    <h1 id="titulo">Aplicaciones web a medida: reservas, pedidos y tiendas online</h1>
+    <p class="lede">Herramientas que ordenan el día a día de tu negocio: reservas sin llamadas, pedidos sin errores y toda la información en un solo sitio.</p>
+    <div class="btns" style="margin-top:2rem">
+      <a class="pill main" href="index.html#contacto" data-umami-event="cta-servicio-presupuesto" data-umami-event-pagina="aplicaciones-web">Pide presupuesto</a>
+      <a class="pill" href="#precios" data-umami-event="cta-servicio-precios" data-umami-event-pagina="aplicaciones-web">Ver precios</a>
+    </div>
+    <p class="hero-note">Presupuesto cerrado en 48 h, sin compromiso.</p>
+  </div>
+</section>
+
+<section class="band alt" aria-labelledby="suena">
+  <div class="wrap">
+    <p class="kicker">Te suena</p>
+    <h2 class="sec-title" id="suena">¿Te suena esto?</h2>
+    <div class="grid3" style="margin-top:2rem">
+      <article class="ticket">
+        <p class="tk-label">Problema 01</p>
+        <h3>Reservas que se solapan</h3>
+        <p>Llamadas y mensajes de WhatsApp que se cruzan, citas dobles y huecos que nadie apunta.</p>
+      </article>
+      <article class="ticket">
+        <p class="tk-label">Problema 02</p>
+        <h3>Pedidos que se pierden</h3>
+        <p>Llegan por mensaje, sin datos completos, y alguien tiene que copiarlos a mano.</p>
+      </article>
+      <article class="ticket">
+        <p class="tk-label">Problema 03</p>
+        <h3>Información repartida</h3>
+        <p>Hojas de cálculo distintas para clientes, stock y agenda, y nadie sabe cuál está al día.</p>
+      </article>
+      <article class="ticket">
+        <p class="tk-label">Problema 04</p>
+        <h3>Herramientas que no encajan</h3>
+        <p>Suscripciones que cobran comisión por cada venta o que obligan a trabajar como no trabajas.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="band" aria-labelledby="construir">
+  <div class="wrap">
+    <p class="kicker">Alcance</p>
+    <h2 class="sec-title" id="construir">Qué puedo construir</h2>
+    <p class="sec-lede">Cada herramienta se diseña para tu forma de trabajar, con el alcance cerrado por escrito antes de empezar.</p>
+    <div class="grid3">
+      <article class="feat">
+        <h3>Sistemas de reservas</h3>
+        <p>Huecos reales por profesional, recordatorios y agenda clara para el equipo, sin llamadas para cerrar cada cita.</p>
+      </article>
+      <article class="feat">
+        <h3>Tiendas online y pedidos</h3>
+        <p>Catálogo, carrito y un panel donde el equipo ve y gestiona cada pedido desde el primer momento.</p>
+      </article>
+      <article class="feat">
+        <h3>Paneles de gestión</h3>
+        <p>Usuarios, roles y permisos para que cada persona vea solo lo que necesita.</p>
+      </article>
+      <article class="feat">
+        <h3>Portales para clientes</h3>
+        <p>Un acceso privado donde tus clientes consultan sus pedidos, citas o documentos.</p>
+      </article>
+      <article class="feat">
+        <h3>Integraciones</h3>
+        <p>Pagos, correo, calendario de Google y otras herramientas conectadas entre sí.</p>
+      </article>
+      <article class="feat">
+        <h3>Funciona en el móvil como una app</h3>
+        <p>Una PWA que se instala desde el navegador, sin pasar por la tienda de aplicaciones.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="band alt" aria-labelledby="ejemplos">
+  <div class="wrap">
+    <p class="kicker">Ejemplos</p>
+    <h2 class="sec-title" id="ejemplos">Ejemplos que puedes probar</h2>
+    <p class="sec-lede">Estas son demos, no clientes reales. Ábrelas y pruébalas para ver el nivel de detalle.</p>
+    <div class="grid2">
+      <article class="demo">
+        <svg class="shot" viewBox="0 0 320 180" aria-hidden="true" focusable="false">
+          <rect width="320" height="180" fill="#0b0307"/>
+          <rect x="0" y="0" width="320" height="22" fill="#1b0812"/>
+          <circle cx="12" cy="11" r="3" fill="#c1121f"/><circle cx="24" cy="11" r="3" fill="#e9b42f"/><circle cx="36" cy="11" r="3" fill="#1f9e8f"/>
+          <text x="160" y="80" text-anchor="middle" font-family="Georgia,serif" font-size="28" fill="#efe3c8">Bola de Nieve</text>
+          <text x="160" y="102" text-anchor="middle" font-family="Georgia,serif" font-size="13" fill="#e9b42f">tienda y panel de pedidos</text>
+          <rect x="48" y="122" width="58" height="34" fill="none" stroke="#e9b42f" stroke-width="2"/>
+          <rect x="120" y="122" width="58" height="34" fill="#1f9e8f"/>
+          <rect x="192" y="122" width="80" height="34" fill="none" stroke="#c1121f" stroke-width="2"/>
+        </svg>
+        <h3>Bola de Nieve · tienda y panel de pedidos</h3>
+        <p class="tag-line">Demo con datos ficticios</p>
+        <ul>
+          <li>Carta con filtros y carrito</li>
+          <li>Tartas por encargo con fecha de entrega</li>
+          <li>Tablero de pedidos en vivo para el equipo</li>
+        </ul>
+        <div class="actions">
+          <a class="pill main" href="demo-heladeria.html" data-umami-event="abrir-demo" data-umami-event-demo="bola-de-nieve" data-umami-event-pagina="aplicaciones-web">Abrir la demo →</a>
+        </div>
+      </article>
+      <article class="demo">
+        <svg class="shot" viewBox="0 0 320 180" aria-hidden="true" focusable="false">
+          <rect width="320" height="180" fill="#14060f"/>
+          <rect x="0" y="0" width="320" height="22" fill="#1b0812"/>
+          <circle cx="12" cy="11" r="3" fill="#c1121f"/><circle cx="24" cy="11" r="3" fill="#e9b42f"/><circle cx="36" cy="11" r="3" fill="#1f9e8f"/>
+          <text x="160" y="80" text-anchor="middle" font-family="Georgia,serif" font-size="28" fill="#e9b42f">Tijera &amp; Café</text>
+          <text x="160" y="102" text-anchor="middle" font-family="Georgia,serif" font-size="13" fill="#efe3c8">reservas online</text>
+          <rect x="44" y="124" width="62" height="28" fill="none" stroke="#1f9e8f" stroke-width="2"/>
+          <rect x="114" y="124" width="62" height="28" fill="#1f9e8f"/>
+          <rect x="184" y="124" width="62" height="28" fill="none" stroke="#1f9e8f" stroke-width="2"/>
+          <rect x="254" y="124" width="22" height="28" fill="#c1121f"/>
+        </svg>
+        <h3>Tijera &amp; Café · reservas online</h3>
+        <p class="tag-line">Demo con datos ficticios</p>
+        <ul>
+          <li>Reserva en 4 pasos</li>
+          <li>Huecos reales por profesional</li>
+          <li>Recordatorio en el calendario y agenda para el equipo</li>
+        </ul>
+        <div class="actions">
+          <a class="pill main" href="demo-reservas.html" data-umami-event="abrir-demo" data-umami-event-demo="tijera-cafe" data-umami-event-pagina="aplicaciones-web">Abrir la demo →</a>
+        </div>
+      </article>
+    </div>
+    <p class="demo-note">Son demos con datos ficticios: ábrelas y pruébalas.</p>
+
+    <div class="recibes">
+      <h3>¿Aplicación a medida o una suscripción?</h3>
+      <ul class="checks">
+        <li>Una suscripción, por ejemplo de reservas, puede salir más barata al principio.</li>
+        <li>Una aplicación propia compensa si pagas comisión por cada venta, necesitas procesos que ninguna herramienta hace bien o quieres tener tus datos y tu marca.</li>
+        <li>Si tu caso encaja en una herramienta estándar, te lo diré sin rodeos.</li>
+        <li>Te ayudo a decidir sin compromiso.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="band" aria-labelledby="como">
+  <div class="wrap">
+    <p class="kicker">Proceso</p>
+    <h2 class="sec-title" id="como">Cómo trabajo</h2>
+    <div class="grid2" style="margin-top:2rem;align-items:start">
+      <ol class="steps">
+        <li><span class="num" aria-hidden="true">1</span><div><h3>Charla de 15 minutos</h3><p>Hablamos de tu negocio, de lo que quieres conseguir y de si tiene sentido un proyecto.</p></div></li>
+        <li><span class="num" aria-hidden="true">2</span><div><h3>Propuesta con precio cerrado</h3><p>Recibes por escrito el alcance, el plazo y el precio, sin sorpresas.</p></div></li>
+        <li><span class="num" aria-hidden="true">3</span><div><h3>Diseño y desarrollo</h3><p>Con avances semanales para que veas cómo va y puedas opinar a tiempo.</p></div></li>
+        <li><span class="num" aria-hidden="true">4</span><div><h3>Lanzamiento y un mes de soporte</h3><p>Publicamos la web, revisamos que todo funcione y te acompaño durante el primer mes.</p></div></li>
+      </ol>
+      <div class="recibes">
+        <h3>Qué recibes al terminar</h3>
+        <ul class="checks">
+          <li>Código y archivos a tu nombre</li>
+          <li>Accesos a hosting, dominio y herramientas</li>
+          <li>Guía breve para el día a día</li>
+          <li>Formación de 30 minutos por videollamada</li>
+          <li>Un mes de soporte</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="pr-bunting" aria-hidden="true"></div>
+
+<section class="band alt" id="precios" aria-labelledby="precios-titulo">
+  <div class="wrap">
+    <p class="kicker">Precios</p>
+    <h2 class="sec-title" id="precios-titulo">Precios orientativos</h2>
+    <p class="sec-lede">Un punto de partida claro. La propuesta final se ajusta a tu caso concreto.</p>
+    <div class="pr-grid">
+      <article class="pr-card pr-feat">
+        <h3 class="pr-name">Aplicación web</h3>
+        <p class="pr-price"><span class="pr-from">desde</span><span class="pr-amount">2.500 €</span></p>
+        <p class="pr-desc">Reservas, pedidos, paneles y herramientas a medida. El precio depende del alcance.</p>
+        <ul class="pr-list">
+          <li>Sencilla: reservas, catálogo o formulario avanzado, desde 2.500 €</li>
+          <li>Con panel: usuarios, roles y panel de gestión, desde 4.000 €</li>
+          <li>A medida: pagos, integraciones y lógica compleja, desde 6.500 €</li>
+        </ul>
+        <p class="pr-plazo">Plazo: 4 a 12 semanas</p>
+      </article>
+      <article class="pr-card">
+        <h3 class="pr-name">Mantenimiento</h3>
+        <p class="pr-price"><span class="pr-from">desde</span><span class="pr-amount">45 €/mes</span></p>
+        <p class="pr-desc">Para que la aplicación siga funcionando y al día.</p>
+        <ul class="pr-list">
+          <li>Actualizaciones y copias de seguridad</li>
+          <li>Pequeños cambios y soporte</li>
+        </ul>
+        <p class="pr-plazo">Con 1 h de cambios al mes: 90 €/mes</p>
+      </article>
+    </div>
+    <p class="pr-fine">Precio final según alcance, cerrado antes de empezar. Precios sin IVA. Pago en dos partes o por hitos en proyectos grandes.</p>
+    <p class="launch-note" data-until="2026-11-30T23:59:59+01:00">Oferta de lanzamiento: −20 % en proyectos contratados antes del 30 de noviembre.</p>
+  </div>
+</section>
+
+<section class="band" aria-labelledby="faq-titulo">
+  <div class="wrap">
+    <p class="kicker">Preguntas</p>
+    <h2 class="sec-title" id="faq-titulo">Preguntas frecuentes</h2>
+    <div class="faq-list" style="margin-top:2rem">
+      <details>
+        <summary>¿Cuánto cuesta una aplicación a medida?</summary>
+        <p>Una aplicación sencilla, con reservas, catálogo o formulario avanzado, parte de 2.500 € sin IVA. Con panel de gestión con usuarios y permisos, desde 4.000 €. Con pagos, integraciones y lógica compleja, desde 6.500 €. El precio final se cierra por escrito antes de empezar.</p>
+      </details>
+      <details>
+        <summary>¿Cuánto se tarda?</summary>
+        <p>Entre 4 y 12 semanas, según el alcance. Si hay prisa, podemos lanzar primero lo esencial y añadir el resto por fases.</p>
+      </details>
+      <details>
+        <summary>¿Dónde se guardan los datos y quién es el dueño?</summary>
+        <p>Los datos son tuyos. El servidor y la base de datos se contratan a tu nombre, por ejemplo en Supabase, y te entrego todos los accesos documentados.</p>
+      </details>
+      <details>
+        <summary>¿Se puede conectar con lo que ya uso?</summary>
+        <p>Sí. Se pueden conectar pagos, correo, calendario de Google y otras herramientas que tengan una forma de conectarse. Antes de empezar revisamos qué encaja y qué conviene cambiar.</p>
+      </details>
+      <details>
+        <summary>¿Qué pasa después de entregar?</summary>
+        <p>Publicamos la aplicación, revisamos que todo funcione y te acompaño durante el primer mes. Después, si quieres, puedes contratar mantenimiento desde 45 €/mes.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="final" aria-labelledby="cta-final">
+  <div class="wrap">
+    <h2 id="cta-final">¿Qué te quita tiempo en tu negocio?</h2>
+    <p class="lede">Cuéntamelo y te propongo la solución más sencilla que funcione.</p>
+    <div class="btns">
+      <a class="pill main" href="index.html#contacto" data-umami-event="cta-servicio-presupuesto" data-umami-event-pagina="aplicaciones-web-final">Pide presupuesto</a>
+    </div>
+    <p class="also">Otros servicios:
+      <a href="desarrollo-web.html" data-umami-event="clic-servicio-relacionado" data-umami-event-destino="desarrollo-web">Desarrollo web a medida</a> ·
+      <a href="paneles-de-datos.html" data-umami-event="clic-servicio-relacionado" data-umami-event-destino="paneles-de-datos">Paneles de datos</a>
+    </p>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-foot">
+  <p class="site-foot__mark"><img src="assets/logo/logo-horizontal-oscuro.svg" alt="Sundan Studio" width="235" height="40"></p>
+  <p class="site-foot__copy">© 2026 Sundan Studio</p>
+  <nav class="site-foot__nav" aria-label="Pie de página">
+    <a href="index.html#servicios">Servicios</a>
+    <a href="index.html#proyectos">Proyectos</a>
+    <a href="index.html#precios">Precios</a>
+    <a href="index.html#faq">Preguntas</a>
+    <a href="index.html#contacto">Contacto</a>
+    <a href="aviso-legal.html">Aviso legal</a>
+    <a href="privacidad.html">Privacidad</a>
+    <a href="https://www.linkedin.com/in/molinerorafael" target="_blank" rel="me noopener" data-umami-event="clic-linkedin">LinkedIn</a>
+    <a href="https://www.malt.com/profile/rafaelmolinero" target="_blank" rel="me noopener" data-umami-event="clic-malt">Malt</a>
+  </nav>
+</footer>
+
+<script>
+(function () {
+  var n = document.querySelector('.launch-note');
+  if (!n) return;
+  var until = Date.parse(n.getAttribute('data-until'));
+  if (isNaN(until) || Date.now() <= until) return;
+  n.hidden = true;
+})();
+</script>
+<script src="assets/sundan-bar.js" defer data-pos="bl" data-base="/"></script>
+</body>
+</html>
