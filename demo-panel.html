@@ -750,6 +750,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
 .who-group[data-g="partner"] .who-card { grid-column: 2 / span 2; grid-row: 4; }
 .who-group[data-g="comercio"] h2 { grid-column: 4 / span 2; grid-row: 3; }
 .who-group[data-g="comercio"] .who-card { grid-column: 4 / span 2; grid-row: 4; }
+.login-own{grid-column:1 / -1;margin:18px 0 0;font-size:.9rem;color:var(--muted);text-align:center}.login-own a{color:var(--accent);font-weight:600}
 @media (max-width: 640px) {
   .who-group h2, .who-group .who-card { grid-column: 1 / -1 !important; grid-row: auto !important; }
 }
@@ -880,6 +881,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
 <div class="ribbon" id="ribbon">
   <p>Demo · datos ficticios · creada por <strong>Sundan Studio</strong></p>
   <a href="https://sundanstudio.com/#proyectos" target="_blank" rel="noopener">Ver proyectos →</a>
+  <a href="pulso-tus-datos.html" data-umami-event="pulso-ribbon-tus-datos">Prueba con tus datos →</a>
   <button type="button" class="ribbon-close" id="ribbon-close" aria-label="Cerrar aviso"><span class="ico" data-icon="close"></span></button>
 </div>
 
@@ -2444,6 +2446,8 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
                 isLast ? h('span', { class: 'last-tag' }, 'Último acceso') : null)));
         }))));
     });
+    body.appendChild(h('p', { class: 'login-own' }, '¿Quieres verlo con tus números? ',
+      h('a', { href: 'pulso-tus-datos.html', 'data-umami-event': 'pulso-ir-tus-datos' }, 'Prueba Pulso con tus datos →')));
     $('#login-close').hidden = !cancelable;
   }
   function showLogin(cancelable) {
