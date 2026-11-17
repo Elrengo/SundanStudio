@@ -74,8 +74,8 @@ body{margin:0;background:transparent;color:var(--bone);font-family:var(--body);o
 .topbar nav a{color:var(--bone);text-decoration:none;font-size:.95rem}
 .topbar nav a:hover,.topbar nav a:focus-visible{color:var(--gold)}
 .topbar a:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
-.topbar .tb-cta{font-size:1rem;padding:.45rem 1rem}
-@media (max-width:639px){.topbar nav{display:none}}
+.topbar .tb-cta{font-size:1rem;padding:.45rem 1rem;white-space:nowrap;flex:0 0 auto}.topbar .tb-logo{flex:0 0 auto}.topbar nav a{white-space:nowrap}
+@media (max-width:860px){.topbar nav{display:none}}
 /* HERO */
 .hero{position:relative;height:100vh;height:100svh;overflow:hidden}
 #c{position:absolute;inset:0;width:100%;height:100%;display:block}
@@ -564,12 +564,18 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 .services .svc-help p{margin:0;line-height:1.5;opacity:.9}
 .services .svc-help a{display:inline-block;margin-top:.9rem;padding:.45rem 1rem;border:2px solid var(--gold);border-radius:99px;color:var(--bone);text-decoration:none;font-family:var(--display);font-size:1.05rem}
 .services .svc-help a:hover{background:rgba(233,180,47,.15)}
-.services .tk-mas{margin:.9rem 0 0;font-size:.9rem;line-height:1.4}
-.services .tk-mas a{color:var(--gold);text-decoration:none;text-underline-offset:.25em;overflow-wrap:anywhere}
-.services .tk-mas a:hover,.services .tk-mas a:focus-visible{text-decoration:underline}
-.services .svc-paneles{max-width:60ch;margin:1rem 0 0;font-size:.95rem;line-height:1.5;opacity:.9}
-.services .svc-paneles a{color:var(--gold);text-decoration:none;text-underline-offset:.25em;overflow-wrap:anywhere}
-.services .svc-paneles a:hover,.services .svc-paneles a:focus-visible{text-decoration:underline}
+.services .ticket:has(.tk-mas){display:flex;flex-direction:column}.services .ticket .tk-mas{margin-top:auto}.services .ticket .tk-plazo{margin-bottom:1.1rem}
+.services .tk-mas{margin:1.1rem 0 0;padding-top:1rem;border-top:1px dashed rgba(232,182,80,.35)}
+.services .tk-mas a{display:inline-flex;align-items:center;gap:.5rem;min-height:44px;padding:.55rem 1.1rem;border:2px solid var(--gold);border-radius:999px;color:var(--gold);font-family:var(--display);font-size:1.05rem;line-height:1.2;text-decoration:none;transition:background .2s,color .2s}
+.services .tk-mas a .arr{transition:transform .2s}
+.services .tk-mas a:hover,.services .tk-mas a:focus-visible{background:var(--gold);color:var(--ink)}
+.services .tk-mas a:hover .arr,.services .tk-mas a:focus-visible .arr{transform:translateX(4px)}
+@media (prefers-reduced-motion:reduce){.services .tk-mas a,.services .tk-mas a .arr{transition:none}}
+.services .svc-paneles{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.8rem 1.4rem;margin:1.2rem 0 0;padding:1rem 1.3rem;border:2px dashed rgba(232,182,80,.55);background:rgba(232,182,80,.06)}
+.services .svc-paneles p{margin:0;max-width:56ch;font-size:1rem;line-height:1.5}
+.services .svc-paneles strong{color:var(--gold);font-family:var(--display);font-weight:400;font-size:1.15rem}
+.services .svc-paneles a{display:inline-flex;align-items:center;gap:.5rem;min-height:44px;padding:.55rem 1.1rem;border:2px solid var(--gold);border-radius:999px;color:var(--gold);font-family:var(--display);font-size:1.05rem;text-decoration:none;white-space:nowrap;transition:background .2s,color .2s}
+.services .svc-paneles a:hover,.services .svc-paneles a:focus-visible{background:var(--gold);color:var(--ink)}
 .site-foot__grupo{display:inline-flex;flex-wrap:wrap;align-items:center;gap:.6rem 1.2rem;max-width:100%}
 .site-foot__etiqueta{opacity:.6;min-height:44px;display:inline-flex;align-items:center}
 .site-foot__grupo a{display:inline-flex;align-items:center;min-height:44px}
@@ -638,8 +644,8 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 .tb-logo{display:inline-flex;align-items:center;min-height:44px}
 .tb-logo img{display:block;height:36px;width:auto}
 .site-foot__mark img{display:block;height:40px;width:auto}
-@media (max-width:420px){.tb-logo img{height:30px}}
-@media (min-width:640px) and (max-width:900px){.tb-logo img{height:30px}.topbar nav{gap:.8rem}.topbar nav a{font-size:.85rem}.topbar{gap:.6rem}}
+@media (max-width:420px){.topbar{gap:.5rem}.tb-logo img{height:22px}.topbar .tb-cta{font-size:.82rem;padding:.35rem .6rem}}
+@media (min-width:640px) and (max-width:1000px){.tb-logo img{height:30px}.topbar nav{gap:.8rem}.topbar nav a{font-size:.85rem}.topbar{gap:.6rem}.topbar .tb-cta{font-size:.95rem;padding:.4rem .85rem}}
 .note a,a[href^="mailto:"]{padding-block:.7em}
 .panel .plink{display:inline-flex;align-items:center;min-height:44px}
 /* SECTION SPOTLIGHTS: one cone per content section, from a top corner (clipped to its own section) */
@@ -1204,7 +1210,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
           <li>Editas tú los textos cuando quieras</li>
         </ul>
         <p class="tk-plazo">Plazo orientativo: 2–4 semanas</p>
-        <p class="tk-mas"><a href="desarrollo-web.html" data-umami-event="ir-pagina-servicio" data-umami-event-pagina="desarrollo-web">Más sobre webs profesionales →</a></p>
+        <p class="tk-mas"><a href="desarrollo-web.html" data-umami-event="ir-pagina-servicio" data-umami-event-pagina="desarrollo-web" aria-label="Ver servicio completo: webs profesionales">Ver servicio completo <span class="arr" aria-hidden="true">→</span></a></p>
       </article>
 
       <article class="ticket">
@@ -1219,7 +1225,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
           <li>Conectado a tus herramientas: pagos, correo, calendario</li>
         </ul>
         <p class="tk-plazo">Plazo orientativo: 4–10 semanas</p>
-        <p class="tk-mas"><a href="aplicaciones-web.html" data-umami-event="ir-pagina-servicio" data-umami-event-pagina="aplicaciones-web">Más sobre aplicaciones y reservas →</a></p>
+        <p class="tk-mas"><a href="aplicaciones-web.html" data-umami-event="ir-pagina-servicio" data-umami-event-pagina="aplicaciones-web" aria-label="Ver servicio completo: aplicaciones y herramientas">Ver servicio completo <span class="arr" aria-hidden="true">→</span></a></p>
       </article>
 
       <article class="ticket">
@@ -1234,6 +1240,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
           <li>Fluidas también en el móvil</li>
         </ul>
         <p class="tk-plazo">Plazo orientativo: 1–6 semanas</p>
+        <p class="tk-mas"><a href="#proyectos" data-umami-event="ver-ejemplos-interactivos" aria-label="Ver ejemplos de experiencias interactivas">Ver ejemplos <span class="arr" aria-hidden="true">→</span></a></p>
       </article>
     </div>
 
@@ -1252,7 +1259,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
       <a href="#contacto" data-umami-event="cta-no-se-que-necesito">Cuéntamelo →</a>
     </aside>
 
-    <p class="svc-paneles">También hago paneles de datos y dashboards → <a href="paneles-de-datos.html" data-umami-event="ir-pagina-servicio" data-umami-event-pagina="paneles-de-datos">Ver paneles de datos</a></p>
+    <div class="svc-paneles"><p><strong>¿Tienes datos repartidos en hojas de cálculo?</strong> También hago paneles de datos y dashboards a medida para verlo todo de un vistazo.</p><a href="paneles-de-datos.html" data-umami-event="ir-pagina-servicio" data-umami-event-pagina="paneles-de-datos">Ver paneles de datos <span aria-hidden="true">→</span></a></div>
 
     <div class="cta">
       <a class="pill main" href="#contacto">Pide presupuesto</a>

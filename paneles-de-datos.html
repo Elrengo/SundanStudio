@@ -117,16 +117,16 @@ img,svg{max-width:100%}
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 
 /* TOPBAR */
-.topbar{position:sticky;top:0;z-index:150;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem clamp(16px,5vw,64px);background:rgba(20,6,15,.92);border-bottom:2px solid var(--gold)}
-.tb-logo{display:inline-flex;align-items:center;min-height:44px}
-.tb-logo img{display:block;height:36px;width:auto}
-.topbar nav{display:flex;gap:1.2rem}
-.topbar nav a{color:var(--bone);text-decoration:none;font-size:.95rem;display:inline-flex;align-items:center;min-height:44px}
+.topbar{position:sticky;top:0;z-index:150;display:flex;flex-wrap:nowrap;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem clamp(16px,5vw,64px);background:rgba(20,6,15,.92);border-bottom:2px solid var(--gold)}
+.tb-logo{display:inline-flex;align-items:center;min-height:44px;flex:0 0 auto}
+.tb-logo img{display:block;height:36px;width:auto;max-width:none}
+.topbar nav{display:flex;flex-wrap:nowrap;gap:1.2rem;min-width:0}
+.topbar nav a{color:var(--bone);text-decoration:none;font-size:.95rem;display:inline-flex;align-items:center;min-height:44px;white-space:nowrap}
 .topbar nav a:hover,.topbar nav a:focus-visible{color:var(--gold)}
-.tb-cta{font-size:1rem;padding:.45rem 1rem;white-space:nowrap}
-@media (max-width:639px){.topbar nav{display:none}}
-@media (max-width:420px){.tb-logo img{height:28px}.tb-cta{font-size:.9rem;padding:.4rem .75rem}}
-@media (min-width:640px) and (max-width:900px){.tb-logo img{height:30px}.topbar nav{gap:.8rem}.topbar nav a{font-size:.85rem}}
+.topbar .tb-cta{font-size:1rem;padding:.45rem 1rem;white-space:nowrap;flex:0 0 auto}
+@media (max-width:1000px){.tb-logo img{height:30px}.topbar{gap:.7rem}.topbar nav{gap:.8rem}.topbar nav a{font-size:.85rem}.topbar .tb-cta{font-size:.95rem;padding:.4rem .85rem}}
+@media (max-width:860px){.topbar nav{display:none}}
+@media (max-width:420px){.topbar{gap:.5rem}.tb-logo img{height:22px}.topbar .tb-cta{font-size:.82rem;padding:.35rem .6rem}}
 
 /* BUTTONS */
 .pill{font-family:var(--display);font-size:1.2rem;padding:.7rem 1.4rem;border:2px solid var(--gold);cursor:pointer;color:var(--bone);background:transparent;text-decoration:none;display:inline-flex;align-items:center;min-height:44px;line-height:1.2}
