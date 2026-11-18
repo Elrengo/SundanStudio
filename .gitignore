@@ -30,6 +30,8 @@
 !assets/logo/
 !assets/logo/*.svg
 !assets/logo/icono-32.png
+!assets/portfolio/
+!assets/portfolio/*.png
 !desarrollo-web.html
 !aplicaciones-web.html
 !paneles-de-datos.html
