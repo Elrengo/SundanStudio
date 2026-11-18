@@ -329,6 +329,7 @@
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
   }
+  @media (max-width: 600px) { body { padding-bottom: 72px; } }  /* deja sitio a la barra Sundan */
 </style>
 </head>
 <body>
@@ -2832,5 +2833,6 @@ function init() {
 init();
 /* UI END */
 </script>
+<script src="assets/sundan-bar.js" defer data-pos="br" data-z="30"></script>
 </body>
 </html>
