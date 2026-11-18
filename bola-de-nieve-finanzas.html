@@ -254,6 +254,16 @@
     .bf-inline { width: 100%; }
     .bf-cardfoot .bf-hint { flex-basis: 100%; }
   }
+  :root { --cmpm: #3fa7a0; --cmpink: #1f6b66; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --cmpm: #7fd3c7; --cmpink: #bfeee8; } }
+  :root[data-theme="dark"] { --cmpm: #7fd3c7; --cmpink: #bfeee8; }
+  .bf-cmpchip { display: inline-block; background: color-mix(in srgb, var(--cmpm) 18%, var(--surface)); color: var(--cmpink); padding: 2px 9px; border-radius: var(--r-pill); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .bf-cmpval { font: 600 11.5px 'DM Sans', system-ui, sans-serif; fill: var(--cmpink); }
+  .bf-cmpband-s { fill: var(--cmpm); opacity: .2; }
+  .bf-sparkwrap { position: relative; margin-top: 8px; height: 40px; }
+  .bf-sparkwrap .bf-spark { margin-top: 0; }
+  .bf-sdot { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: var(--cmpm); transform: translate(-50%, -50%); box-shadow: 0 0 0 2px var(--surface); }
+  .bf-sdot-edge { width: 6px; height: 6px; transform: translate(-50%, -50%); }
   .bf-switch { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 6px 14px 6px 8px; border-radius: var(--r-pill); border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: 14px; font-weight: 500; }
   .bf-switch[aria-pressed="true"] { border-color: var(--brand); background: var(--brand-soft); font-weight: 700; }
   .bf-track { position: relative; width: 34px; height: 20px; border-radius: 999px; background: var(--line); transition: background .2s var(--ease); flex: none; }
@@ -768,30 +778,41 @@ function cascadeBars(items) {
 }
 CHARTS.cascada = function (w) {
   var A = agg(pickP(ST.period)), C = cmpOn() ? agg(pickRows(ROWS, cmpInfo(ST.period).ks)) : null;
-  var items = cascadeItems(A), bars = cascadeBars(items), cbars = C ? cascadeBars(cascadeItems(C)) : null;
-  var lw = w < 520 ? Math.min(w * 0.4, 150) : 220, vw = C ? 118 : 96, rowH = 32, top = 6;
-  var pw = w - lw - vw, h = top + items.length * rowH + 8;
-  var X = function (v) { return lw + v / A.rev * pw; };
+  var items = cascadeItems(A), bars = cascadeBars(items);
+  var cbars = C ? cascadeBars(cascadeItems(C)) : null;
+  var lw = w < 520 ? Math.min(w * 0.4, 150) : 220;
+  var vw = C ? 104 : 96, rowH = C ? 46 : 32, top = 6;
+  var pw = w - lw - vw - 8;
+  // Escala común: el mayor de los ingresos (actual o comparado) ocupa todo el ancho útil
+  var maxV = Math.max(A.rev, C ? C.rev : 0);
+  var X = function (v) { return lw + Math.max(0, v) / maxV * pw; };
+  var h = top + items.length * rowH + 8;
   var ids = { ing: gid(), cost: gid(), ok: gid(), err: gid() };
   var s = '<defs>' + gradDef(ids.ing, 'var(--brand)', 0.7) + gradDef(ids.cost, 'var(--choco)', 0.6) + gradDef(ids.ok, 'var(--ok)', 0.6) + gradDef(ids.err, 'var(--err)', 0.6) + '</defs>';
   bars.forEach(function (b, i) {
-    var y = top + i * rowH, x1 = X(Math.min(b.a, b.b)), x2 = X(Math.max(b.a, b.b));
+    var y = top + i * rowH;
+    var x1 = X(Math.min(b.a, b.b)), x2 = X(Math.max(b.a, b.b));
     var col = b.kind === 'total' ? ids.ing : b.kind === 'cost' ? ids.cost : (b.v >= 0 ? ids.ok : ids.err);
     var nm = w < 520 ? b.lab.replace('Materias primas y mermas', 'Materias primas').replace('Comisiones y reparto', 'Comisiones').replace('Amortización e intereses', 'Amortización') : b.lab;
-    s += txt(lw - 10, y + (C ? 14 : rowH / 2) + 4, nm, 'end', 'bf-lbl');
-    s += '<rect x="' + x1.toFixed(1) + '" y="' + (y + (C ? 4 : 7)) + '" width="' + Math.max(4, x2 - x1).toFixed(1) + '" height="' + (C ? 13 : rowH - 14) + '" rx="5" fill="url(#' + col + ')"/>';
-    if (cbars && cbars[i]) {
-      var cb = cbars[i], gx1 = X(Math.min(cb.a, cb.b)), gx2 = X(Math.max(cb.a, cb.b));
-      s += '<rect x="' + gx1.toFixed(1) + '" y="' + (y + 20) + '" width="' + Math.max(4, gx2 - gx1).toFixed(1) + '" height="5" rx="2" fill="none" stroke="var(--muted)" stroke-width="1" opacity=".4"/>';
-    }
     var lab = (b.kind === 'cost' || b.v < 0 ? '−' : '') + fE(Math.abs(b.v));
-    s += txt(w - 2, y + (C ? 14 : rowH / 2) + 4, lab, 'end', 'bf-val');
-    if (cbars && cbars[i]) {
-      var cv = cbars[i].v;
-      s += txt(w - 2, y + 29, (cbars[i].kind === 'cost' || cv < 0 ? '−' : '') + fE(Math.abs(cv)), 'end', 'bf-ax');
+    if (!C) {
+      s += txt(lw - 10, y + rowH / 2 + 4, nm, 'end', 'bf-lbl');
+      s += '<rect x="' + x1.toFixed(1) + '" y="' + (y + 7) + '" width="' + Math.max(4, x2 - x1).toFixed(1) + '" height="' + (rowH - 14) + '" rx="5" fill="url(#' + col + ')"/>';
+      s += txt(w - 2, y + rowH / 2 + 4, lab, 'end', 'bf-val');
+      return;
     }
+    var cb = cbars[i];
+    s += txt(lw - 10, y + rowH / 2 + 4, nm, 'end', 'bf-lbl');
+    s += '<rect x="' + x1.toFixed(1) + '" y="' + (y + 6) + '" width="' + Math.max(4, x2 - x1).toFixed(1) + '" height="14" rx="4" fill="url(#' + col + ')"/>';
+    var cx1 = X(Math.min(cb.a, cb.b)), cx2 = X(Math.max(cb.a, cb.b));
+    var cstyle = cb.kind === 'result'
+      ? (cb.v < 0 ? 'fill:var(--err);fill-opacity:.5' : 'fill:var(--cmpm);fill-opacity:.75')
+      : 'fill:var(--cmpm);fill-opacity:.55';
+    s += '<rect x="' + cx1.toFixed(1) + '" y="' + (y + 23) + '" width="' + Math.max(4, cx2 - cx1).toFixed(1) + '" height="8" rx="3" style="' + cstyle + '"/>';
+    s += txt(w - 2, y + 17, lab, 'end', 'bf-val');
+    s += txt(w - 2, y + 38, (cb.kind === 'cost' || cb.v < 0 ? '−' : '') + fE(Math.abs(cb.v)), 'end', 'bf-cmpval');
   });
-  return svgOf(w, h, 'Cascada: de los ingresos al beneficio del periodo' + (C ? ', con la comparación en trazo fino' : ''), s);
+  return svgOf(w, h, 'Cascada: de los ingresos al beneficio del periodo' + (C ? ', con la comparación debajo de cada paso' : ''), s);
 };
 
 // Anillos del donut: exterior = periodo actual; interior fino = comparación
@@ -1012,12 +1033,30 @@ function bindTip(el, name) {
 }
 
 // ---------- Componentes ----------
+// Mini gráfica de Resumen: la línea, una banda mint en el mes comparado y un punto sólido (HTML, sin deformarse)
 function spark(vals, color) {
   var mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals), rg = (mx - mn) || 1, n = vals.length;
   var pts = vals.map(function (v, i) { return [i / (n - 1) * 120, 36 - (v - mn) / rg * 32]; });
   var d = pathOf(pts), id = gid();
-  return '<svg class="bf-spark" viewBox="0 0 120 40" preserveAspectRatio="none" aria-hidden="true" focusable="false"><defs>' + gradDef(id, color, 0) + '</defs>' +
-    '<path d="' + d + ' L120 40 L0 40 Z" fill="url(#' + id + ')" opacity=".55"/><path d="' + d + '" class="bf-spark-l" style="stroke:' + color + '"/>' + sparkMarks(vals, mn, rg, n) + '</svg>';
+  var bands = '', dots = '';
+  if (cmpOn() && ST.tab === 'resumen' && n === 12) {
+    var inWin = [];
+    cmpInfo(ST.period).ks.forEach(function (k) {
+      if (k >= 10 && k <= 21) {
+        var i = k - 10, x = i / (n - 1) * 120, y = 36 - (vals[i] - mn) / rg * 32;
+        bands += '<rect x="' + (x - 4).toFixed(1) + '" y="0" width="8" height="40" class="bf-cmpband-s"/>';
+        dots += '<span class="bf-sdot" style="left:' + (x / 120 * 100).toFixed(2) + '%;top:' + (y / 40 * 100).toFixed(2) + '%"></span>';
+        inWin.push(k);
+      }
+    });
+    if (!inWin.length) {
+      var kk = cmpInfo(ST.period).ks[0], left = kk < 10;
+      var lbl = MES3[kk % 12] + ' ' + (2025 + Math.floor(kk / 12));
+      dots += '<span class="bf-sdot bf-sdot-edge" style="' + (left ? 'left:0' : 'left:100%') + ';top:50%" title="' + esc(lbl) + ' queda fuera de los últimos 12 meses" aria-label="' + esc(lbl) + ' queda fuera de los últimos 12 meses" role="img"></span>';
+    }
+  }
+  return '<div class="bf-sparkwrap"><svg class="bf-spark" viewBox="0 0 120 40" preserveAspectRatio="none" aria-hidden="true" focusable="false"><defs>' + gradDef(id, color, 0) + '</defs>' +
+    bands + '<path d="' + d + ' L120 40 L0 40 Z" fill="url(#' + id + ')" opacity=".55"/><path d="' + d + '" class="bf-spark-l" style="stroke:' + color + '"/></svg>' + dots + '</div>';
 }
 function kpi(cls, label, value, extra, vh, series, color) {
   return '<article class="bf-card bf-kpi ' + cls + '"><p class="bf-kpi-label">' + label + '</p><p class="bf-kpi-val">' + value + '</p>' +
@@ -1065,7 +1104,12 @@ function viewResumen() {
   var best = cur.reduce(function (a, r) { return r.bai > a.bai ? r : a; }, cur[0]);
   var lowest = cur.reduce(function (a, r) { return r.caja < a.caja ? r : a; }, cur[0]);
   var phr = [];
-  phr.push('El personal se lleva el ' + fP(A.personal / A.rev, 0) + ' de las ventas (referencia del sector: 30–35 %).');
+  (function () {
+    var ultA = agg(pickRows(ROWS, ULT)), shareNow = A.personal / A.rev, shareAvg = ultA.personal / ultA.rev;
+    var pts = Math.round((shareNow - shareAvg) * 100);
+    phr.push('El personal se lleva el ' + fP(shareNow, 0) + ' de las ventas, ' +
+      (pts === 0 ? 'igual que' : fN(Math.abs(pts), 0) + ' puntos ' + (pts > 0 ? 'más' : 'menos')) + ' que la media de los últimos 12 meses.');
+  })();
   var shareNow = A.revTortas / A.rev;
   if (pv) {
     var shareBefore = pv.revTortas / pv.rev, dsh = shareNow - shareBefore;
@@ -1114,7 +1158,7 @@ function viewResumen() {
     '<section class="bf-card bf-section" aria-labelledby="h-casc">' +
       '<h2 id="h-casc" class="bf-h2">De las ventas al beneficio</h2>' +
       '<p class="bf-sub">Periodo seleccionado: de los ingresos a Beneficio antes de impuestos.</p>' +
-      (cmpOn() ? legendChips([['Periodo actual', 'var(--brand)'], ['Comparación', 'var(--muted)']]) : '') +
+      (cmpOn() ? legendChips([['Periodo actual', 'var(--brand)'], [cmpI0 ? cmpI0.label : 'Comparación', 'var(--cmpm)']]) : '') +
       '<div class="bf-chart" data-chart="cascada" data-h="0"></div>' +
       srTable('Cascada del periodo', ['Concepto', 'Importe'], [
         ['Ingresos', fE(A.rev)], ['Materias primas y mermas', fE(A.mat)], ['Envases', fE(A.envases)], ['Comisiones y reparto', fE(A.comReparto)],
@@ -1265,7 +1309,7 @@ function cmpTxt(cur, cv, label, abs, fmt, goodUp) {
   if (cv === null || cv === undefined || !isFinite(cv)) return '<p class="bf-var bf-muted">Sin datos de comparación</p>';
   var f = fmt || fE, d = cur - cv, up = d >= 0, good = up === (goodUp !== false);
   var val = abs ? f(Math.abs(d)) : (cv ? fP(Math.abs(d) / Math.abs(cv), 1) : '—');
-  return '<p class="bf-var bf-cmp">vs ' + esc(label) + ': ' + f(cv) + ' · <span class="' + (good ? 'bf-pos' : 'bf-neg') + '">' + (up ? '▲ ' : '▼ ') + val + '</span></p>';
+  return '<p class="bf-var bf-cmp"><span class="bf-cmpchip">' + esc(label) + ' · ' + f(cv) + '</span> <span class="' + (good ? 'bf-pos' : 'bf-neg') + '">' + (up ? '▲ ' : '▼ ') + val + '</span></p>';
 }
 function cmpStartMs() {
   var p = (ST.cmp.ym || '2025-11').split('-');
@@ -1305,17 +1349,6 @@ function periodBar() {
   return '<div class="bf-seg" role="group" aria-label="Periodo">' + presets +
     '<label class="bf-monthpick">Mes: <select id="bf-mes" data-month-select>' + monthOptions(sel, true) + '</select></label></div>' +
     '<div class="bf-cmprow">' + cmpControls() + '</div>';
-}
-// Marcas de comparación en la mini gráfica de Resumen (últimos 12 meses)
-function sparkMarks(vals, mn, rg, n) {
-  if (!cmpOn() || ST.tab !== 'resumen' || n !== 12) return '';
-  var out = '';
-  cmpInfo(ST.period).ks.forEach(function (k) {
-    if (k < 10 || k > 21) return;
-    var i = k - 10, x = i / (n - 1) * 120, y = 36 - (vals[i] - mn) / rg * 32;
-    out += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="2.8" class="bf-hollow"/>';
-  });
-  return out;
 }
 function setFromHash() {
   var parts = (location.hash || '').replace('#', '').split('?'), h = parts[0];
@@ -1477,7 +1510,7 @@ function detailHtml(cat) {
     '<button type="button" class="bf-btn bf-btn-sm" data-drawer-close="1">Cerrar</button></div>';
   var cv = cmpRows ? catSum(cmpRows, cat) : null;
   var cmpLine = cmpI
-    ? '<p class="bf-sub bf-cmp">vs ' + esc(cmpI.label) + ': <b>' + fE(cv) + '</b> <span class="' + (total - cv > 0 ? 'bf-neg' : 'bf-pos') + '">(' + (total - cv >= 0 ? '+' : '') + fE(total - cv) + ')</span></p>'
+    ? '<p class="bf-sub bf-cmp"><span class="bf-cmpchip">' + esc(cmpI.label) + ' · ' + fE(cv) + '</span> <span class="' + (total - cv > 0 ? 'bf-neg' : 'bf-pos') + '">(' + (total - cv >= 0 ? '+' : '') + fE(total - cv) + ')</span></p>'
     : '';
   var summary = '<p class="bf-sub">' + esc(P.label) + ' · Total <b>' + fE(total) + '</b> · ' + fP(total / A.rev, 1) + ' sobre ventas' +
     (cmpI ? '</p>' + cmpLine : ' · ' + (pv === null ? 'sin comparación en este periodo' : '<span class="' + (total - pv > 0 ? 'bf-neg' : 'bf-pos') + '">' + (total - pv >= 0 ? '▲ ' : '▼ ') + fP(Math.abs(total - pv) / pv, 1) + '</span> vs ' + esc(P.prevLabel)) + '</p>');
@@ -2255,7 +2288,7 @@ function tcmpTxt(cur, cv, lbl, goodUp) {
   if (cv === null || cv === undefined || !isFinite(cv)) return '';
   var d = cur - cv, up = d >= 0, good = up === (goodUp !== false);
   var pct = cv ? fP(Math.abs(d) / Math.abs(cv), 0) : '—';
-  return '<p class="bf-var bf-cmp">en ' + esc(lbl) + ': ' + fE(cv) + ' · <span class="' + (good ? 'bf-pos' : 'bf-neg') + '">' + (up ? '▲ ' : '▼ ') + pct + '</span></p>';
+  return '<p class="bf-var bf-cmp"><span class="bf-cmpchip">' + esc(lbl) + ' · ' + fE(cv) + '</span> <span class="' + (good ? 'bf-pos' : 'bf-neg') + '">' + (up ? '▲ ' : '▼ ') + pct + '</span></p>';
 }
 function viewTesoreria() {
   var T = treasuryData(), f = ST.tfilter, lowD = trDate(T.lowI);
