@@ -1,6 +1,6 @@
 /* Bola de Nieve · service worker (demo). Vive en la raíz para controlar el alcance /demo-heladeria. */
 
-const CACHE = 'bn-v1';            // caché de la app (HTML, icono, scripts propios)
+const CACHE = 'bn-v2';            // caché de la app (HTML, icono, scripts propios)
 const FONTS_CACHE = 'bn-fonts';   // tipografías de Google Fonts
 const PAGE = 'demo-heladeria.html';
 
@@ -9,6 +9,7 @@ const SHELL = [
   PAGE,
   'bola-de-nieve.webmanifest',
   'assets/sundan-bar.js',
+  'assets/sundan-track.js',
   'assets/pwa/favicon-bn.svg',
   'assets/pwa/icon-192.png',
   'assets/pwa/icon-512.png',
