@@ -204,6 +204,56 @@
     .bf-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: visible; }
     .bf-tab { flex: none; width: 100%; min-width: 0; padding: 10px 8px; white-space: normal; }
   }
+  .bf-cardhead { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+  .bf-cardfoot { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  .bf-btn-sm { min-height: 34px; padding: 5px 12px; font-size: 13px; }
+  .bf-monthpick { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); padding: 4px 6px 4px 12px; }
+  .bf-monthpick select { min-height: 40px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 6px 10px; font-size: 14px; }
+  .bf-catlink { border: 0; background: none; padding: 4px 6px 4px 0; font: inherit; font-weight: 500; color: var(--ink); text-align: left; cursor: pointer; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 4px; display: inline-flex; align-items: center; gap: 4px; min-height: 32px; }
+  .bf-catlink:hover { text-decoration-color: var(--brand); }
+  .bf-pen { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; width: 30px; height: 30px; margin-left: 6px; font-size: 13px; color: var(--ink); }
+  .bf-pen:disabled { opacity: .45; cursor: not-allowed; }
+  .bf-tag-ed { display: inline-block; font-size: 11px; font-weight: 700; color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, var(--surface)); padding: 1px 7px; border-radius: var(--r-pill); }
+  .bf-inl { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+  .bf-inline { min-height: 36px; width: 120px; border-radius: 10px; border: 1px solid var(--brand); background: var(--surface); color: var(--ink); padding: 4px 10px; font: inherit; font-variant-numeric: tabular-nums; }
+  .bf-err { display: block; color: var(--err); font-size: 12.5px; font-weight: 500; }
+  .bf-small { font-size: 12.5px; }
+  .bf-drawer-root[hidden] { display: none; }
+  .bf-drawer-root { position: fixed; inset: 0; z-index: 60; }
+  .bf-scrim { position: absolute; inset: 0; background: rgba(20, 10, 14, .38); }
+  .bf-drawer { position: absolute; top: 0; right: 0; bottom: 0; width: 100vw; background: var(--surface); color: var(--ink); overflow-y: auto; padding: 20px 18px 28px; box-shadow: -18px 0 40px -20px rgba(0,0,0,.4); }
+  .bf-drawer:focus { outline: none; }
+  @media (min-width: 900px) { .bf-drawer { width: min(540px, 100vw); border-left: 1px solid var(--line); } }
+  .bf-dr-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .bf-dr-head h2 { font-size: 22px; display: flex; align-items: center; gap: 8px; }
+  .bf-dr-head h2:focus { outline: none; }
+  .bf-field { display: grid; gap: 6px; margin: 12px 0; }
+  .bf-field > label:first-child { font-size: 14px; font-weight: 500; }
+  .bf-field input[type=text], .bf-field select, .bf-field textarea { min-height: 40px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 8px 12px; font: inherit; width: 100%; }
+  .bf-field input[aria-invalid="true"] { border-color: var(--err); }
+  .bf-field .bf-check { margin: 0; }
+  .bf-partlist { list-style: none; margin: 6px 0 0; padding: 0; }
+  .bf-partrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .bf-partname { min-width: 0; overflow-wrap: anywhere; display: grid; }
+  .bf-partval { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+  .bf-partact { grid-column: 1 / -1; display: flex; gap: 6px; flex-wrap: wrap; }
+  .bf-partamt { font-variant-numeric: tabular-nums; }
+  .bf-det { margin-top: 12px; }
+  .bf-det summary { cursor: pointer; font-weight: 500; color: var(--muted); min-height: 32px; }
+  body.locked { overflow: hidden; }
+  @media (max-width: 640px) {
+    .bf-stack thead { display: none; }
+    .bf-stack, .bf-stack tbody, .bf-stack tfoot { display: block; width: 100%; }
+    .bf-stack tr { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+    .bf-stack th, .bf-stack td { border: 0; padding: 2px 0; text-align: left; white-space: normal; }
+    .bf-stack th[scope="row"] { grid-column: 1 / -1; }
+    .bf-stack td::before { content: attr(data-label); display: block; font-size: 12px; color: var(--muted); font-weight: 500; }
+    .bf-stack td[data-label="Importe"] { grid-column: 1 / -1; }
+    .bf-stack .bf-subrow th { padding-left: 14px; }
+    .bf-stack .bf-subrow td::before { content: none; }
+    .bf-inline { width: 100%; }
+    .bf-cardfoot .bf-hint { flex-basis: 100%; }
+  }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
   }
@@ -316,6 +366,9 @@ function buildModel(sc) {
     r.envases = 0.05 * bMost + 0.07 * bOnl + 0.04 * bTor + 0.02 * r.revRest;
     r.comisiones = 0.8 * 0.006 * r.revMost + 0.014 * r.revOnline + 0.25 * r.orders + 0.008 * r.revTortas;
     r.reparto = 4.20 * r.ship;
+    r.pm = { most: raw * 0.24 * bMost, onl: raw * 0.24 * bOnl, tor: raw * 0.30 * bTor, rest: raw * 0.36 * r.revRest };
+    r.pe = { most: 0.05 * bMost, onl: 0.07 * bOnl, tor: 0.04 * bTor, rest: 0.02 * r.revRest };
+    r.pc = { tpv: 0.8 * 0.006 * r.revMost, onl: 0.014 * r.revOnline + 0.25 * r.orders, tor: 0.008 * r.revTortas };
     r.variable = r.mat + r.mermas + r.envases + r.comisiones + r.reparto;
     r.margen = r.rev - r.variable;
 
@@ -341,6 +394,7 @@ function buildModel(sc) {
     r.interes = LOAN[k + 12].interest;                  // k=0 es ene 2025 = L 12
     r.principal = LOAN[k + 12].principal;
     r.bai = r.ebitda - r.amort - r.interes;
+    r.parts = baseParts(r);
     rows.push(r);
   }
   // Caja (impuesto de sociedades 23 % del BAI anual positivo, pagado en julio del año siguiente)
@@ -355,6 +409,13 @@ function buildModel(sc) {
     r.ivaSop = 0.10 * r.mat + 0.21 * (r.envases + r.energia + r.alquiler + 150 + 95 + 55 + r.marketing + 120 + 110 + r.reparto + r.averia);
     r.ivaNet = r.ivaRep - r.ivaSop;                        // cobrado menos pagado cada mes
   });
+  applyAdjustments(rows);
+  return finishRows(rows);
+}
+// Caja, IVA trimestral y retenciones a partir de las filas ya ajustadas
+function finishRows(rows) {
+  rows.forEach(function (r) { r.ivaNet = r.ivaRep - r.ivaSop; });
+  var sumBai = function (y) { return rows.reduce(function (a, r) { return a + (r.year === y ? r.bai : 0); }, 0); };
   // Pagos trimestrales (303 y 111/115) el día 20 de abr/jul/oct y 30 de ene; compensación de saldos negativos
   var credit = 0;
   rows.forEach(function (r) {
@@ -444,6 +505,85 @@ function neededDailyTickets(r) {
 }
 // Escenario Base de referencia (para la comprobación del modelo)
 function projectionRows(sc) { return buildModel(sc).slice(BF_HIST); }
+// ---------- Partidas, ajustes y gastos editables ----------
+// BF_DATA.overrides: {ym, pid, amt} o {ym, pid, deleted:true} sobre una partida del modelo
+// BF_DATA.customs: {id, ym, cat, concepto, importe, recurrente, notas, kind:'custom'|'ajuste'}
+var BF_DATA = { overrides: [], customs: [] };
+var BF_IVA_CAT = { mat: 0.10, env: 0.21, com: 0, pers: 0, alq: 0.21, ener: 0.21, mkt: 0.21, otros: 0.21, amort: 0 };
+var BF_FIELD_CAT = { mat: 'mat', env: 'envases', com: 'comisiones', pers: 'personal', alq: 'alquiler', ener: 'energia', mkt: 'marketing', otros: 'otros', amort: 'amort' };
+function ymOfK(k) { return (2025 + Math.floor(k / 12)) + '-' + ('0' + ((k % 12) + 1)).slice(-2); }
+function kOfYm(ym) { var p = ym.split('-'); return (+p[0] - 2025) * 12 + (+p[1]) - 1; }
+// Partidas del modelo para una fila (importes base, sin ajustes)
+function baseParts(r) {
+  var P = [];
+  var add = function (id, cat, label, field, iva, amt) { P.push({ id: id, cat: cat, label: label, field: field, iva: iva, base: amt }); };
+  add('mat-most', 'mat', 'Materias: mostrador', 'mat', 0.10, r.pm.most);
+  add('mat-onl', 'mat', 'Materias: online', 'mat', 0.10, r.pm.onl);
+  add('mat-tor', 'mat', 'Materias: tortas', 'mat', 0.10, r.pm.tor);
+  add('mat-rest', 'mat', 'Materias: restaurantes', 'mat', 0.10, r.pm.rest);
+  add('mat-mermas', 'mat', 'Mermas (3 % de materias)', 'mat', 0.10, r.mermas);
+  add('env-most', 'env', 'Envases: mostrador', 'envases', 0.21, r.pe.most);
+  add('env-onl', 'env', 'Envases: online', 'envases', 0.21, r.pe.onl);
+  add('env-tor', 'env', 'Envases: tortas', 'envases', 0.21, r.pe.tor);
+  add('env-rest', 'env', 'Envases: restaurantes', 'envases', 0.21, r.pe.rest);
+  add('com-tpv', 'com', 'Comisiones TPV (mostrador)', 'comisiones', 0, r.pc.tpv);
+  add('com-onl', 'com', 'Pasarela online y pedidos', 'comisiones', 0, r.pc.onl);
+  add('com-tor', 'com', 'Comisiones tortas', 'comisiones', 0, r.pc.tor);
+  add('com-rep', 'com', 'Reparto de envíos', 'reparto', 0.21, r.reparto);
+  add('pers-marta', 'pers', 'Marta · encargada', 'personal', 0, r.marta);
+  add('pers-jordi', 'pers', 'Jordi · heladero de obrador', 'personal', 0, r.jordi);
+  add('pers-deps', 'pers', 'Dependientes (×' + r.dep + ')', 'personal', 0, r.deps);
+  add('pers-aut', 'pers', 'Cuota de autónomo de la dueña', 'otros', 0, 310);
+  add('alq', 'alq', 'Alquiler', 'alquiler', 0.21, r.alquiler);
+  add('ener-luz', 'ener', 'Electricidad', 'energia', 0.21, r.luz);
+  add('ener-agua', 'ener', 'Agua', 'energia', 0.21, r.agua);
+  add('mkt', 'mkt', 'Marketing', 'marketing', 0.21, r.marketing);
+  add('otr-seg', 'otros', 'Seguros (RC y local)', 'otros', 0, 85);
+  add('otr-gest', 'otros', 'Gestoría', 'otros', 0.21, 150);
+  add('otr-soft', 'otros', 'Software (TPV, web y app)', 'otros', 0.21, 95);
+  add('otr-tel', 'otros', 'Teléfono e internet', 'otros', 0.21, 55);
+  add('otr-mant', 'otros', 'Mantenimiento de maquinaria', 'otros', 0.21, 120);
+  if (r.averia > 0) add('otr-aver', 'otros', 'Avería del compresor (julio de 2025)', 'otros', 0.21, r.averia);
+  add('otr-limp', 'otros', 'Limpieza y consumibles', 'otros', 0.21, 110);
+  add('otr-tasas', 'otros', 'Tasas municipales', 'otros', 0, 175);
+  add('amort-am', 'amort', 'Amortización del equipamiento', 'amort', 0, r.amort);
+  add('amort-int', 'amort', 'Intereses del préstamo ICO', 'interes', 0, r.interes);
+  return P;
+}
+// Aplica overrides, gastos añadidos y ajustes manuales sobre las partidas; recalcula P&L y pasa a caja
+function applyAdjustments(rows) {
+  var D = BF_DATA, ovr = {};
+  D.overrides.forEach(function (o) { ovr[o.ym + '|' + o.pid] = o; });
+  rows.forEach(function (r) {
+    var ym = ymOfK(r.k), d = { mat: 0, envases: 0, comisiones: 0, reparto: 0, personal: 0, alquiler: 0, energia: 0, marketing: 0, otros: 0, amort: 0, interes: 0, ivaSop: 0 };
+    var list = [];
+    r.parts.forEach(function (p) {
+      var o = ovr[ym + '|' + p.id], amt = p.base, del = false, edited = false;
+      if (o) { if (o.deleted) { del = true; amt = 0; } else { amt = o.amt; edited = true; } }
+      list.push({ id: p.id, cat: p.cat, label: p.label, field: p.field, iva: p.iva, base: p.base, amt: amt, deleted: del, edited: edited, kind: 'model', ym: ym });
+      d[p.field] += amt - p.base;
+      d.ivaSop += (amt - p.base) * p.iva;
+    });
+    D.customs.forEach(function (c) {
+      var active = c.kind === 'ajuste' ? c.ym === ym : (c.recurrente ? r.k >= kOfYm(c.ym) : c.ym === ym);
+      if (!active) return;
+      var field = BF_FIELD_CAT[c.cat] || 'otros', rate = BF_IVA_CAT[c.cat] || 0;
+      list.push({ id: c.id, cat: c.cat, label: c.concepto, field: field, iva: rate, base: 0, amt: c.importe, deleted: false, edited: false, kind: c.kind, recurrente: !!c.recurrente, notas: c.notas || '', ym: c.ym });
+      d[field] += c.importe;
+      d.ivaSop += c.importe * rate;
+    });
+    r.partsAdj = list;
+    r.mat += d.mat; r.envases += d.envases; r.comisiones += d.comisiones; r.reparto += d.reparto;
+    r.personal += d.personal; r.alquiler += d.alquiler; r.energia += d.energia; r.marketing += d.marketing;
+    r.otros += d.otros; r.amort += d.amort; r.interes += d.interes; r.ivaSop += d.ivaSop;
+    r.variable = r.mat + r.mermas + r.envases + r.comisiones + r.reparto;
+    r.margen = r.rev - r.variable;
+    r.fijosCaja = r.personal + r.alquiler + r.energia + r.marketing + r.otros;
+    r.ebitda = r.margen - r.fijosCaja;
+    r.bai = r.ebitda - r.amort - r.interes;
+  });
+  finishRows(rows);
+}
 /* MODEL END */
 
 /* UI START */
@@ -454,7 +594,7 @@ function gid() { return 'bfg' + (++GID); }
 var MES3 = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 var TABS = [['resumen','Resumen'],['gastos','Gastos'],['productos','Productos'],['tesoreria','Tesorería'],['sostenibilidad','Sostenibilidad'],['proyeccion','Proyección']];
 var ULT = [10,11,12,13,14,15,16,17,18,19,20,21];
-var ST = { tab: 'resumen', period: 'oct26', scen: 'base', sim: null, gView: 'persona', prodSort: { key: 'contrib', dir: -1 }, tfilter: 'todos' };
+var ST = { tab: 'resumen', period: 'oct26', scen: 'base', sim: null, gView: 'persona', prodSort: { key: 'contrib', dir: -1 }, tfilter: 'todos', drawer: null, inline: null, inlineErr: '', partEdit: null };
 var ROWS = [];
 var CHARTS = {}, TIPS = {};
 var SCEN_LABEL = { prudente: 'Prudente', base: 'Base', optimista: 'Optimista' };
@@ -492,7 +632,7 @@ function fP(x, d) { return fN(x * 100, d === undefined ? 1 : d) + ' %'; }
 function fX(n) { return fN(n, 2) + ' ×'; }
 function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 function sumF(list, f) { return list.reduce(function (a, r) { return a + r[f]; }, 0); }
-function pickP(id) { return pickRows(ROWS, BF_PERIODS[id].ks); }
+function pickP(id) { return pickRows(ROWS, pDef(id).ks); }
 
 // ---------- Helpers SVG ----------
 function svgOf(w, h, label, inner) {
@@ -535,7 +675,7 @@ CHARTS.monthly = function (w, h) {
   var yMax = niceMax(maxR), yMin = minB < 0 ? -niceMax(-minB) : 0;
   var Y = function (v) { return padT + (yMax - v) / (yMax - yMin) * ph; };
   var X = function (i) { return padL + (i + 0.5) * bw; };
-  var sel = BF_PERIODS[ST.period].ks;
+  var sel = pDef(ST.period).ks;
   var ids = { most: gid(), onl: gid(), tor: gid(), res: gid() };
   var s = '<defs>' + gradDef(ids.most, 'var(--brand)') + gradDef(ids.onl, 'var(--online)') + gradDef(ids.tor, 'var(--tortas)') + gradDef(ids.res, 'var(--caja)') + '</defs>';
   ticksOf(yMin, yMax, 5).forEach(function (v) {
@@ -632,8 +772,8 @@ CHARTS.donut = function (w) {
 
 CHARTS.elec = function (w, h) {
   var padL = 48, padR = 10, padT = 14, padB = 28, pw = w - padL - padR, ph = h - padT - padB;
-  var s25 = ROWS.slice(0, 12).map(function (r) { return r.luz; });
-  var s26 = ROWS.slice(12, 22).map(function (r) { return r.luz; });
+  var s25 = ROWS.slice(0, 12).map(function (r) { return partAmt(r, 'ener-luz'); });
+  var s26 = ROWS.slice(12, 22).map(function (r) { return partAmt(r, 'ener-luz'); });
   var yMax = niceMax(Math.max.apply(null, s25.concat(s26)));
   var X = function (i) { return padL + i / 11 * pw; };
   var Y = function (v) { return padT + (yMax - v) / yMax * ph; };
@@ -658,7 +798,7 @@ CHARTS.elec = function (w, h) {
 };
 
 CHARTS.personal = function (w, h) {
-  var rows = ROWS.slice(0, 22), n = rows.length, selK = BF_PERIODS[ST.period].ks;
+  var rows = ROWS.slice(0, 22), n = rows.length, selK = pDef(ST.period).ks;
   var padL = 56, padR = 8, padT = 24, padB = 34, pw = w - padL - padR, ph = h - padT - padB;
   var bw = pw / n, bar = Math.min(46, bw * 0.6);
   var yMax = niceMax(Math.max.apply(null, rows.map(function (r) { return r.personal; })));
@@ -837,11 +977,6 @@ function varAbs(cur, prev, lb) {
   return '<p class="bf-var ' + (up ? 'bf-pos' : 'bf-neg') + '">' + (up ? '▲ ' : '▼ ') + fE(Math.abs(d)) + ' vs ' + esc(lb) + '</p>';
 }
 function chip(t, cls) { return '<span class="bf-chip bf-chip-' + cls + '">' + t + '</span>'; }
-function periodBar() {
-  return '<div class="bf-seg" role="group" aria-label="Periodo">' + Object.keys(BF_PERIODS).map(function (id) {
-    return '<button type="button" data-period="' + id + '" aria-pressed="' + (ST.period === id) + '">' + BF_PERIODS[id].label + '</button>';
-  }).join('') + '</div>';
-}
 function legendChips(items) {
   return '<ul class="bf-legend">' + items.map(function (it) {
     return '<li><span class="bf-dot" style="background:' + it[1] + '"></span>' + it[0] + '</li>';
@@ -850,7 +985,7 @@ function legendChips(items) {
 
 // ---------- Pestaña Resumen ----------
 function viewResumen() {
-  var P = BF_PERIODS[ST.period], cur = pickP(ST.period), A = agg(cur);
+  var P = pDef(ST.period), cur = pickP(ST.period), A = agg(cur);
   var pv = P.prev ? agg(pickRows(ROWS, P.prev)) : null, lb = P.prevLabel;
   var vh = function (c, key) { return pv ? varTxt(c, pv[key], lb) : noCmp(); };
   var l12 = pickRows(ROWS, ULT);
@@ -935,86 +1070,191 @@ function viewResumen() {
     '</div>';
 }
 
-// ---------- Pestaña Gastos ----------
-function catValues(list) {
-  var A = agg(list);
-  return { mat: A.mat, env: A.envases, com: A.comReparto, pers: A.personal, alq: A.alquiler, ener: A.energia,
-    mkt: sumF(list, 'marketing'), otros: sumF(list, 'otros'), amort: A.amortInt };
+// ---------- Periodos, datos editables y persistencia ----------
+var CATS = [
+  { id: 'mat', name: 'Materias primas y mermas', col: 'var(--brand)' },
+  { id: 'env', name: 'Envases', col: 'var(--online)' },
+  { id: 'com', name: 'Comisiones y reparto', col: 'var(--tortas)' },
+  { id: 'pers', name: 'Personal', col: 'var(--choco)' },
+  { id: 'alq', name: 'Alquiler', col: 'var(--warn)' },
+  { id: 'ener', name: 'Energía y agua', col: 'var(--caja)' },
+  { id: 'mkt', name: 'Marketing', col: 'var(--muted)' },
+  { id: 'otros', name: 'Otros fijos', col: 'var(--muted)' },
+  { id: 'amort', name: 'Amortización e intereses', col: 'var(--ink)' }
+];
+var CAT_NAME = {}, CAT_COL = {};
+CATS.forEach(function (c) { CAT_NAME[c.id] = c.name; CAT_COL[c.id] = c.col; });
+var DATA_KEY = 'bf-gastos-v1';
+function dataLoad() {
+  try {
+    var raw = localStorage.getItem(DATA_KEY);
+    if (raw) {
+      var o = JSON.parse(raw);
+      if (o && Array.isArray(o.overrides) && Array.isArray(o.customs)) { BF_DATA.overrides = o.overrides; BF_DATA.customs = o.customs; }
+    }
+  } catch (e) { /* sin almacenamiento: los datos quedan en memoria */ }
 }
+function dataSave() {
+  try { localStorage.setItem(DATA_KEY, JSON.stringify({ overrides: BF_DATA.overrides, customs: BF_DATA.customs })); } catch (e) { /* solo en memoria */ }
+}
+function dataChanged() { dataSave(); recalc(); renderTab(); }
+// Periodo de un mes concreto ('m2026-07') o de los predefinidos
+function pDef(id) {
+  if (BF_PERIODS[id]) return BF_PERIODS[id];
+  var ym = id.slice(1), p = ym.split('-'), y = +p[0], m = +p[1], k = kOfYm(ym);
+  return { label: BF_MONTHS[m - 1] + ' ' + y, ks: [k], prev: k >= 12 ? [k - 12] : null, prevLabel: MES3[m - 1] + ' ' + (y - 1) };
+}
+function catSum(list, cat) {
+  var t = 0;
+  list.forEach(function (r) { r.partsAdj.forEach(function (p) { if (p.cat === cat && !p.deleted) t += p.amt; }); });
+  return t;
+}
+function partAmt(r, id) {
+  var p = r.partsAdj.filter(function (x) { return x.id === id && !x.deleted; })[0];
+  return p ? p.amt : 0;
+}
+function avgWindow(k, cat, n) {
+  var list = [];
+  for (var j = Math.max(0, k - n + 1); j <= k; j++) list.push(ROWS[j]);
+  return catSum(list, cat) / list.length;
+}
+function editedCat(list, cat) {
+  return list.some(function (r) { return r.partsAdj.some(function (p) { return p.cat === cat && (p.kind !== 'model' || p.edited || p.deleted); }); });
+}
+// Partidas visibles de una categoría en un conjunto de meses (sumadas por partida)
+function partidaList(list, cat) {
+  var map = {}, order = [];
+  list.forEach(function (r) {
+    r.partsAdj.forEach(function (p) {
+      if (p.cat !== cat || p.deleted) return;
+      if (!map[p.id]) { map[p.id] = { id: p.id, kind: p.kind, label: p.label, amt: 0, edited: false, ym: p.ym, recurrente: !!p.recurrente, months: 0 }; order.push(p.id); }
+      map[p.id].amt += p.amt; map[p.id].edited = map[p.id].edited || p.edited; map[p.id].months++;
+    });
+  });
+  return order.map(function (id) { return map[id]; });
+}
+function deletedList(list, cat) {
+  var out = [];
+  list.forEach(function (r) {
+    r.partsAdj.forEach(function (p) { if (p.cat === cat && p.deleted) out.push({ ym: ymOfK(r.k), label: p.label, id: p.id }); });
+  });
+  return out;
+}
+function customsOf(list, cat) {
+  var seen = {}, out = [];
+  list.forEach(function (r) {
+    r.partsAdj.forEach(function (p) {
+      if (p.kind === 'custom' && p.cat === cat && !seen[p.id]) {
+        seen[p.id] = true;
+        var c = BF_DATA.customs.filter(function (x) { return x.id === p.id; })[0];
+        if (c) out.push(c);
+      }
+    });
+  });
+  return out;
+}
+function parseNum(s) {
+  if (typeof s !== 'string') return null;
+  var t = s.trim();
+  if (!t) return null;
+  var n = t.indexOf(',') >= 0 ? Number(t.replace(/\./g, '').replace(',', '.')) : Number(t);
+  return isFinite(n) ? n : null;
+}
+function fNum(v) { return fN(v, v % 1 ? 2 : 0); }
+function monthName(ym) { var p = ym.split('-'); return BF_MONTHS[+p[1] - 1].toLowerCase() + ' ' + p[0]; }
+function monthOptions(selected, includeEmpty) {
+  var s = includeEmpty ? '<option value="">— elegir —</option>' : '';
+  for (var k = 21; k >= 0; k--) {
+    var ym = ymOfK(k);
+    s += '<option value="' + ym + '"' + (selected === ym ? ' selected' : '') + '>' + monthName(ym) + '</option>';
+  }
+  return s;
+}
+function periodBar() {
+  var presets = Object.keys(BF_PERIODS).map(function (id) {
+    return '<button type="button" data-period="' + id + '" aria-pressed="' + (ST.period === id) + '">' + BF_PERIODS[id].label + '</button>';
+  }).join('');
+  var sel = ST.period === 'oct26' ? '2026-10' : (ST.period.charAt(0) === 'm' ? ST.period.slice(1) : '');
+  return '<div class="bf-seg" role="group" aria-label="Periodo">' + presets +
+    '<label class="bf-monthpick">Mes: <select id="bf-mes" data-month-select>' + monthOptions(sel, true) + '</select></label></div>';
+}
+
+// ---------- Pestaña Gastos ----------
 function viewGastos() {
-  var P = BF_PERIODS[ST.period], cur = pickP(ST.period), A = agg(cur), n = cur.length;
+  var P = pDef(ST.period), cur = pickP(ST.period), A = agg(cur), n = cur.length, single = n === 1, kEnd = cur[n - 1].k;
   var pvRows = P.prev ? pickRows(ROWS, P.prev) : null, pvA = pvRows ? agg(pvRows) : null;
-  var C = catValues(cur), CP = pvRows ? catValues(pvRows) : null;
-  var part = {
-    marta: sumF(cur, 'marta'), jordi: sumF(cur, 'jordi'), deps: sumF(cur, 'deps'), depsAvg: sumF(cur, 'dep') / n,
-    partidas: [['Cuota de autónomo', 310 * n], ['Seguros (RC y local)', 85 * n], ['Gestoría', 150 * n], ['Software (TPV, web y app)', 95 * n],
-      ['Teléfono e internet', 55 * n], ['Mantenimiento de maquinaria', 120 * n], ['Avería del compresor (julio de 2025)', sumF(cur, 'averia')],
-      ['Limpieza y consumibles', 110 * n], ['Tasas municipales', 175 * n]]
-  };
-  var cats = [
-    { id: 'mat', name: 'Materias primas y mermas', col: 'var(--brand)', ref: [0.25, 0.30], refTxt: '25–30 %' },
-    { id: 'env', name: 'Envases', col: 'var(--online)', ref: [0, 0.06], refTxt: 'menos del 6 %' },
-    { id: 'com', name: 'Comisiones y reparto', col: 'var(--tortas)', ref: null, refTxt: '—' },
-    { id: 'pers', name: 'Personal', col: 'var(--choco)', ref: [0.30, 0.35], refTxt: '30–35 %', exp: 'pers' },
-    { id: 'alq', name: 'Alquiler', col: 'var(--warn)', ref: [0, 0.12], refTxt: 'menos del 12 %' },
-    { id: 'ener', name: 'Energía y agua', col: 'var(--caja)', ref: [0, 0.06], refTxt: 'menos del 6 %' },
-    { id: 'mkt', name: 'Marketing', col: 'var(--muted)', ref: [0.01, 0.03], refTxt: '1–3 %' },
-    { id: 'otros', name: 'Otros fijos', col: 'var(--muted)', ref: null, refTxt: '—', exp: 'otros' },
-    { id: 'amort', name: 'Amortización e intereses', col: 'var(--ink)', ref: null, refTxt: '—' }
-  ];
-  var estado = function (c, pct) {
-    if (!c.ref) return '<span class="bf-muted">—</span>';
-    var hi = c.ref[1];
-    if (pct <= hi) return chip('Bien', 'ok');
-    if (pct <= hi + 0.03) return chip('Vigilar', 'warn');
-    return chip('Alto', 'err');
-  };
-  var rowsHtml = cats.map(function (c) {
-    var v = C[c.id], pct = v / A.rev, vs = CP ? (v - CP[c.id]) / CP[c.id] : null;
-    var vsTxt = vs === null ? '<span class="bf-muted">—</span>' : '<span class="' + (vs > 0 ? 'bf-neg' : 'bf-pos') + '">' + (vs >= 0 ? '+' : '') + fP(vs, 1) + '</span>';
-    var name = c.exp
-      ? '<button type="button" class="bf-exp" data-exp="' + c.exp + '" aria-expanded="false"><span aria-hidden="true">▸</span> <span class="bf-dot" style="background:' + c.col + '"></span>' + c.name + '</button>'
-      : '<span class="bf-dot" style="background:' + c.col + '"></span>' + c.name;
-    var html = '<tr><th scope="row">' + name + '</th><td>' + fE(v) + '</td><td>' + fP(pct, 1) + '</td><td>' + vsTxt + '</td><td>' + c.refTxt + '</td><td>' + estado(c, pct) + '</td></tr>';
-    if (c.exp === 'pers') {
+  var mediaHead = single ? 'Media 12 meses' : 'Media mensual';
+  var rowsH = CATS.map(function (c) {
+    var v = catSum(cur, c.id), pct = A.rev ? v / A.rev : 0;
+    var pv = pvRows ? catSum(pvRows, c.id) : null;
+    var vs = pv ? (v - pv) / pv : null;
+    var media = single ? avgWindow(kEnd, c.id, 12) : v / n;
+    var ed = editedCat(cur, c.id);
+    var amtCell;
+    if (ST.inline === c.id && single) {
+      amtCell = '<div class="bf-inl"><input class="bf-inline" id="bf-inl" type="text" inputmode="decimal" value="' + esc(fNum(v)) + '" aria-label="Nuevo importe de ' + esc(c.name) + '">' +
+        '<button type="button" class="bf-btn bf-btn-sm" data-inline-save="' + c.id + '">Guardar</button> ' +
+        '<button type="button" class="bf-btn bf-btn-sm" data-inline-cancel="1">Cancelar</button>' +
+        (ST.inlineErr ? '<span class="bf-err" role="alert">' + esc(ST.inlineErr) + '</span>' : '') + '</div>';
+    } else {
+      amtCell = fE(v) + ' ' + (single
+        ? '<button type="button" class="bf-pen" data-inline-edit="' + c.id + '" aria-label="Editar importe de ' + esc(c.name) + '">✎</button>'
+        : '<button type="button" class="bf-pen" disabled aria-disabled="true" title="Elige un mes para editar" aria-label="Elige un mes para editar">✎</button>') +
+        (ed ? ' <span class="bf-tag-ed">editado</span>' : '');
+    }
+    var expBtn = (c.id === 'pers' || c.id === 'otros')
+      ? '<button type="button" class="bf-exp" data-exp="' + c.id + '" aria-expanded="false" aria-label="Ver detalle de ' + esc(c.name) + '"><span aria-hidden="true">▸</span></button> ' : '';
+    var html = '<tr><th scope="row">' + expBtn + '<button type="button" class="bf-catlink" data-cat-open="' + c.id + '"><span class="bf-dot" style="background:' + c.col + '"></span>' + esc(c.name) + '</button></th>' +
+      '<td data-label="Importe">' + amtCell + '</td>' +
+      '<td data-label="% sobre ventas">' + fP(pct, 1) + '</td>' +
+      '<td data-label="vs año anterior">' + (vs === null ? '<span class="bf-muted">—</span>' : '<span class="' + (vs > 0 ? 'bf-neg' : 'bf-pos') + '">' + (vs >= 0 ? '+' : '') + fP(vs, 1) + '</span>') + '</td>' +
+      '<td data-label="' + mediaHead + '">' + fE(media) + '</td></tr>';
+    if (c.id === 'pers') {
+      var pl = partidaList(cur, 'pers'), byId = {};
+      pl.forEach(function (p) { byId[p.id] = p.amt; });
       var subs = ST.gView === 'persona'
-        ? [['Marta · encargada, jornada completa', part.marta], ['Jordi · heladero de obrador, jornada completa', part.jordi], ['Dependientes, media jornada (media de ' + fN(part.depsAvg, 1) + ' personas)', part.deps]]
-        : [['Plantilla a jornada completa (encargada y heladero)', part.marta + part.jordi], ['Dependientes a media jornada', part.deps]];
+        ? pl.map(function (p) { return [p.label, p.amt]; })
+        : [['Plantilla a jornada completa (encargada y heladero)', (byId['pers-marta'] || 0) + (byId['pers-jordi'] || 0)],
+           ['Dependientes a media jornada', byId['pers-deps'] || 0], ['Cuota de autónomo de la dueña', byId['pers-aut'] || 0]];
       subs.forEach(function (sr) {
-        html += '<tr class="bf-subrow" data-grp="pers" hidden><th scope="row" class="bf-indent">' + sr[0] + '</th><td>' + fE(sr[1]) + '</td><td>' + fP(sr[1] / A.rev, 1) + '</td><td></td><td></td><td></td></tr>';
+        html += '<tr class="bf-subrow" data-grp="pers" hidden><th scope="row" class="bf-indent">' + esc(sr[0]) + '</th><td data-label="Importe">' + fE(sr[1]) + '</td><td data-label="% sobre ventas">' + fP(sr[1] / A.rev, 1) + '</td><td></td><td></td></tr>';
       });
     }
-    if (c.exp === 'otros') {
-      part.partidas.forEach(function (sr) {
-        html += '<tr class="bf-subrow" data-grp="otros" hidden><th scope="row" class="bf-indent">' + sr[0] + '</th><td>' + fE(sr[1]) + '</td><td>' + fP(sr[1] / A.rev, 1) + '</td><td></td><td></td><td></td></tr>';
+    if (c.id === 'otros') {
+      partidaList(cur, 'otros').forEach(function (p) {
+        html += '<tr class="bf-subrow" data-grp="otros" hidden><th scope="row" class="bf-indent">' + esc(p.label) + '</th><td data-label="Importe">' + fE(p.amt) + '</td><td data-label="% sobre ventas">' + fP(p.amt / A.rev, 1) + '</td><td></td><td></td></tr>';
       });
     }
     return html;
   }).join('');
-  var grow = CP ? cats.filter(function (c) { return CP[c.id] > 0; }).map(function (c) {
-    return { name: c.name, vs: (C[c.id] - CP[c.id]) / CP[c.id], d: C[c.id] - CP[c.id] };
+  var totalV = CATS.reduce(function (a, c) { return a + catSum(cur, c.id); }, 0);
+  var totalVs = pvA ? (totalV - pvA.gastos) / pvA.gastos : null;
+  var grow = pvRows ? CATS.filter(function (c) { return catSum(pvRows, c.id) > 0; }).map(function (c) {
+    var v = catSum(cur, c.id), pv = catSum(pvRows, c.id);
+    return { name: c.name, vs: (v - pv) / pv, d: v - pv };
   }).sort(function (a, b) { return b.vs - a.vs; }).slice(0, 3) : null;
   var growHtml = grow
     ? '<ol class="bf-phr" style="list-style:decimal;padding-left:20px;margin-top:12px">' + grow.map(function (g) {
         return '<li style="list-style:decimal;border:0;background:none;padding:4px 0">' + esc(g.name) + ': <b class="bf-neg">+' + fP(g.vs, 1) + '</b> (' + (g.d >= 0 ? '+' : '') + fE(g.d) + ' frente a ' + esc(P.prevLabel) + ')</li>';
       }).join('') + '</ol>'
     : '<p class="bf-sub" style="margin-top:12px">Sin comparación para este periodo. Elige Octubre 2026 o 2026 hasta oct para ver qué ha crecido.</p>';
-  var totalVs = pvA ? (A.gastos - pvA.gastos) / pvA.gastos : null;
-  var meseLuz = ROWS;
   return '' +
     '<div class="bf-seg-wrap">' + periodBar() + '</div>' +
     '<section class="bf-card bf-section" aria-labelledby="h-tab">' +
-      '<h2 id="h-tab" class="bf-h2">Gastos por categoría</h2>' +
-      '<p class="bf-sub">Porcentajes sobre las ventas del periodo. Pulsa una fila para ver el detalle.</p>' +
+      '<div class="bf-cardhead"><div><h2 id="h-tab" class="bf-h2">Gastos por categoría</h2>' +
+      '<p class="bf-sub">' + (single ? 'Pulsa ✎ para cambiar el importe de este mes. Pulsa un nombre para ver sus partidas.' : 'Elige un mes en el selector para editar importes. Pulsa un nombre para ver sus partidas.') + '</p></div>' +
+      '<button type="button" class="bf-btn bf-btn-sm" data-add-expense="1">+ Añadir gasto</button></div>' +
       '<div class="bf-seg" role="group" aria-label="Vista del personal">' +
         '<button type="button" data-view="persona" aria-pressed="' + (ST.gView === 'persona') + '">Personal por persona</button>' +
         '<button type="button" data-view="tipo" aria-pressed="' + (ST.gView === 'tipo') + '">Personal por tipo</button></div>' +
-      '<div class="bf-scroll"><table class="bf-table"><caption class="bf-sr">Gastos por categoría del periodo</caption>' +
-        '<thead><tr><th scope="col">Categoría</th><th scope="col">Importe</th><th scope="col">% sobre ventas</th><th scope="col">vs año anterior</th><th scope="col">Referencia del sector</th><th scope="col">Estado</th></tr></thead>' +
-        '<tbody>' + rowsHtml + '</tbody>' +
-        '<tfoot><tr><th scope="row">Total gastos</th><td>' + fE(A.gastos) + '</td><td>' + fP(A.gastos / A.rev, 1) + '</td><td>' +
+      '<div class="bf-scroll"><table class="bf-table bf-stack"><caption class="bf-sr">Gastos por categoría del periodo</caption>' +
+        '<thead><tr><th scope="col">Categoría</th><th scope="col">Importe</th><th scope="col">% sobre ventas</th><th scope="col">vs año anterior</th><th scope="col">' + mediaHead + '</th></tr></thead>' +
+        '<tbody>' + rowsH + '</tbody>' +
+        '<tfoot><tr><th scope="row">Total gastos</th><td data-label="Importe">' + fE(totalV) + '</td><td data-label="% sobre ventas">' + fP(totalV / A.rev, 1) + '</td><td data-label="vs año anterior">' +
           (totalVs === null ? '<span class="bf-muted">—</span>' : '<span class="' + (totalVs > 0 ? 'bf-neg' : 'bf-pos') + '">' + (totalVs >= 0 ? '+' : '') + fP(totalVs, 1) + '</span>') +
-          '</td><td></td><td></td></tr></tfoot></table></div>' +
+          '</td><td></td></tr></tfoot></table></div>' +
+      '<div class="bf-cardfoot"><button type="button" class="bf-btn bf-btn-sm" data-reset-data="1">Restablecer datos de ejemplo</button>' +
+        '<span class="bf-hint">Los cambios se guardan en este navegador.</span></div>' +
     '</section>' +
     '<div class="bf-grid2">' +
       '<section class="bf-card" aria-labelledby="h-luz"><h2 id="h-luz" class="bf-h2">Electricidad por mes</h2>' +
@@ -1022,7 +1262,7 @@ function viewGastos() {
         '<div class="bf-chart" data-chart="elec" data-h="230"></div>' +
         '<p class="bf-hint">La luz cuesta el doble en verano: vitrinas y aire acondicionado a pleno rendimiento.</p>' +
         srTable('Luz por mes 2025 y 2026', ['Mes', '2025', '2026'], MES3.map(function (m, i) {
-          return [m, i < 12 ? fE(ROWS[i].luz) : '—', i < 10 ? fE(ROWS[12 + i].luz) : '—'];
+          return [m, i < 12 ? fE(partAmt(ROWS[i], 'ener-luz')) : '—', i < 10 ? fE(partAmt(ROWS[12 + i], 'ener-luz')) : '—'];
         })) +
       '</section>' +
       '<section class="bf-card" aria-labelledby="h-per"><h2 id="h-per" class="bf-h2">Personal: personas y coste</h2>' +
@@ -1034,6 +1274,341 @@ function viewGastos() {
       '</section>' +
     '</div>' +
     '<section class="bf-card bf-section" aria-labelledby="h-crec"><h2 id="h-crec" class="bf-h2">Gastos que más han crecido</h2>' + growHtml + '</section>';
+}
+
+// ---------- Cajón de detalle y formulario de gasto ----------
+var DR_RET = null;
+function focusables(el) {
+  return [].slice.call(el.querySelectorAll('button:not([disabled]), input:not([disabled]), select, textarea, [tabindex="0"]'));
+}
+function openDrawer(state, returnEl) {
+  if (!ST.drawer) DR_RET = returnEl || document.activeElement;
+  ST.drawer = state;
+  $('bf-drawer-root').hidden = false;
+  document.body.classList.add('locked');
+  renderDrawer(true);
+}
+function closeDrawer() {
+  var ret = DR_RET, cat = ST.drawer ? ST.drawer.cat : null;
+  ST.drawer = null; ST.partEdit = null;
+  $('bf-drawer-root').hidden = true;
+  document.body.classList.remove('locked');
+  DR_RET = null;
+  if (ret && !document.contains(ret) && cat) ret = document.querySelector('[data-cat-open="' + cat + '"]');
+  if (ret && document.contains(ret) && ret.focus) ret.focus(); else $('bf-main').focus();
+}
+function renderDrawer(focusTitle) {
+  if (!ST.drawer) return;
+  $('bf-dr-body').innerHTML = ST.drawer.mode === 'form' ? formHtml() : detailHtml(ST.drawer.cat);
+  hydrate();
+  var target = ST.partEdit ? $('bf-part-inp') : (focusTitle ? $('bf-dr-title') : null);
+  if (target) { target.focus(); if (target.select) target.select(); }
+}
+function insightCat(cat, cur) {
+  var name = CAT_NAME[cat].toLowerCase(), n = cur.length, kEnd = cur[n - 1].k;
+  var v = catSum(cur, cat) / n;
+  if (kEnd < 1) return 'Sin histórico suficiente para comparar.';
+  var base = avgWindow(kEnd - 1, cat, 12);
+  if (!(base > 0)) return 'Sin histórico suficiente para comparar.';
+  var d = v / base - 1;
+  return (n === 1 ? 'Este mes ' : 'En este periodo ') + name + ' ' + (d >= 0 ? 'ha costado un ' + fP(d, 0) + ' más' : 'ha costado un ' + fP(-d, 0) + ' menos') + ' que la media de los 12 meses anteriores.';
+}
+function detailHtml(cat) {
+  var c = CATS.filter(function (x) { return x.id === cat; })[0];
+  var P = pDef(ST.period), cur = pickP(ST.period), n = cur.length, single = n === 1, A = agg(cur);
+  var total = catSum(cur, cat), pvRows = P.prev ? pickRows(ROWS, P.prev) : null, pv = pvRows ? catSum(pvRows, cat) : null;
+  var vs = pv ? (total - pv) / pv : null;
+  var head = '<div class="bf-dr-head"><h2 id="bf-dr-title" tabindex="-1"><span class="bf-dot" style="background:' + c.col + '"></span>' + esc(c.name) + '</h2>' +
+    '<button type="button" class="bf-btn bf-btn-sm" data-drawer-close="1">Cerrar</button></div>';
+  var summary = '<p class="bf-sub">' + esc(P.label) + ' · Total <b>' + fE(total) + '</b> · ' + fP(total / A.rev, 1) + ' sobre ventas · ' +
+    (vs === null ? 'sin comparación en este periodo' : '<span class="' + (vs > 0 ? 'bf-neg' : 'bf-pos') + '">' + (vs >= 0 ? '▲ ' : '▼ ') + fP(Math.abs(vs), 1) + '</span> vs ' + esc(P.prevLabel)) + '</p>';
+  var chart = '<div class="bf-chart" data-chart="catmini" data-h="190"></div>';
+  var ymNow = single ? ymOfK(cur[0].k) : null;
+  // Partidas del periodo
+  var pl = partidaList(cur, cat);
+  var partHtml = pl.map(function (p) {
+    var key = (p.kind === 'model' ? 'model' : 'custom') + '|' + (p.kind === 'model' ? ymNow : '') + '|' + p.id;
+    var amt = ST.partEdit === key
+      ? '<input class="bf-inline" id="bf-part-inp" type="text" inputmode="decimal" value="' + esc(fNum(p.amt)) + '" aria-label="Nuevo importe de ' + esc(p.label) + '"> ' +
+        '<button type="button" class="bf-btn bf-btn-sm" data-part-save="' + esc(key) + '">Guardar</button> <button type="button" class="bf-btn bf-btn-sm" data-part-cancel="1">Cancelar</button>'
+      : '<span class="bf-partamt">' + fE(p.amt) + '</span>' + (p.edited || p.kind !== 'model' ? ' <span class="bf-tag-ed">' + (p.kind === 'ajuste' ? 'ajuste' : p.kind === 'custom' ? 'añadido' : 'editado') + '</span>' : '');
+    var actions = !single ? '<span class="bf-muted bf-small">Elige un mes para editar</span>' :
+      (ST.partEdit === key ? '' :
+        '<button type="button" class="bf-btn bf-btn-sm" data-part-edit="' + esc(key) + '">Editar</button> ' +
+        '<button type="button" class="bf-btn bf-btn-sm" data-part-del="' + esc(key) + '" data-part-label="' + esc(p.label) + '">Borrar</button>');
+    return '<li class="bf-partrow"><span class="bf-partname">' + esc(p.label) + '</span><span class="bf-partval">' + amt + '</span><span class="bf-partact">' + actions + '</span></li>';
+  }).join('');
+  var del = deletedList(cur, cat);
+  var delHtml = del.length ? '<details class="bf-det"><summary>Partidas borradas (' + del.length + ')</summary><ul class="bf-partlist">' +
+    del.map(function (d) {
+      return '<li class="bf-partrow"><span class="bf-partname">' + esc(d.label) + ' · ' + monthName(d.ym) + '</span><span class="bf-partact"><button type="button" class="bf-btn bf-btn-sm" data-part-restore="model|' + d.ym + '|' + d.id + '">Restaurar</button></span></li>';
+    }).join('') + '</ul></details>' : '';
+  var cust = customsOf(cur, cat);
+  var custHtml = cust.length ? '<ul class="bf-partlist">' + cust.map(function (x) {
+    return '<li class="bf-partrow"><span class="bf-partname">' + esc(x.concepto) + (x.notas ? '<span class="bf-small bf-muted"> · ' + esc(x.notas) + '</span>' : '') +
+      '<span class="bf-small bf-muted">' + (x.recurrente ? 'Cada mes desde ' + monthName(x.ym) : monthName(x.ym)) + '</span></span>' +
+      '<span class="bf-partval">' + fE(x.importe) + '</span>' +
+      '<span class="bf-partact"><button type="button" class="bf-btn bf-btn-sm" data-cust-edit="' + esc(x.id) + '">Editar</button> <button type="button" class="bf-btn bf-btn-sm" data-cust-del="' + esc(x.id) + '" data-cust-label="' + esc(x.concepto) + '">Borrar</button></span></li>';
+  }).join('') + '</ul>' : '<p class="bf-sub">No hay gastos añadidos en este periodo.</p>';
+  var ins = insightCat(cat, cur);
+  return head + summary + chart +
+    '<h3 class="bf-wk">Partidas del periodo</h3>' + (single ? '' : '<p class="bf-hint">Elige un mes para editar. Importes sumados del periodo.</p>') +
+    '<ul class="bf-partlist">' + (partHtml || '<li class="bf-sub">Sin partidas.</li>') + '</ul>' + delHtml +
+    '<h3 class="bf-wk">Gastos añadidos</h3>' + custHtml +
+    '<p class="bf-hint" style="margin-top:14px">' + esc(ins) + '</p>' +
+    (ST.drawer.mode === 'detail' ? '<div class="bf-cardfoot"><button type="button" class="bf-btn" data-form-open="' + cat + '">+ Añadir gasto</button></div>' : '');
+}
+function formHtml() {
+  var F = ST.drawer.form || {}, single = pickP(ST.period).length === 1;
+  var defYm = F.ym || (single ? ymOfK(pickP(ST.period)[0].k) : ymOfK(pickP(ST.period)[pickP(ST.period).length - 1].k));
+  var cat = F.cat || ST.drawer.cat || 'otros', err = F.err || {};
+  var catOpts = CATS.filter(function (c) { return c.id !== 'amort'; }).map(function (c) {
+    return '<option value="' + c.id + '"' + (c.id === cat ? ' selected' : '') + '>' + esc(c.name) + '</option>';
+  }).join('');
+  var field = function (id, label, input, msg) {
+    return '<div class="bf-field"><label for="' + id + '">' + label + '</label>' + input + (msg ? '<span class="bf-err" id="' + id + '-err" role="alert">' + esc(msg) + '</span>' : '') + '</div>';
+  };
+  return '<div class="bf-dr-head"><h2 id="bf-dr-title" tabindex="-1">' + (F.id ? 'Editar gasto' : 'Añadir gasto') + '</h2>' +
+    '<button type="button" class="bf-btn bf-btn-sm" data-drawer-close="1">Cerrar</button></div>' +
+    '<form id="bf-form" novalidate onsubmit="return false">' +
+    field('bf-f-concepto', 'Concepto <span class="bf-muted">(obligatorio, máx. 60)</span>', '<input id="bf-f-concepto" type="text" maxlength="60" value="' + esc(F.concepto || '') + '" aria-invalid="' + (!!err.concepto) + '">', err.concepto) +
+    field('bf-f-importe', 'Importe (€, sin IVA)', '<input id="bf-f-importe" type="text" inputmode="decimal" value="' + esc(F.importe || '') + '" aria-invalid="' + (!!err.importe) + '" placeholder="120,50">', err.importe) +
+    field('bf-f-mes', 'Mes', '<select id="bf-f-mes">' + monthOptions(defYm, false) + '</select>', '') +
+    field('bf-f-cat', 'Categoría', '<select id="bf-f-cat">' + catOpts + '</select>', '') +
+    '<div class="bf-field"><label class="bf-check"><input id="bf-f-rep" type="checkbox"' + (F.rep ? ' checked' : '') + '> Se repite cada mes (desde el mes elegido)</label></div>' +
+    field('bf-f-notas', 'Notas <span class="bf-muted">(opcional, máx. 140)</span>', '<textarea id="bf-f-notas" maxlength="140" rows="2">' + esc(F.notas || '') + '</textarea>', err.notas) +
+    '<div class="bf-cardfoot"><button type="button" class="bf-btn" data-form-save="1">Guardar</button> <button type="button" class="bf-btn" data-form-cancel="1">Cancelar</button></div></form>';
+}
+function formOpen(cat, custom) {
+  var F = custom ? { id: custom.id, concepto: custom.concepto, importe: fNum(custom.importe), ym: custom.ym, cat: custom.cat, rep: custom.recurrente, notas: custom.notas || '' } : { cat: cat };
+  ST.drawer = { cat: F.cat || cat || 'otros', mode: 'form', form: F };
+  renderDrawer(true);
+}
+function formSave() {
+  var v = {
+    id: ST.drawer.form && ST.drawer.form.id,
+    concepto: $('bf-f-concepto').value.trim(), importe: $('bf-f-importe').value, ym: $('bf-f-mes').value,
+    cat: $('bf-f-cat').value, rep: $('bf-f-rep').checked, notas: $('bf-f-notas').value.trim()
+  };
+  var err = {};
+  if (!v.concepto) err.concepto = 'Escribe un concepto.';
+  else if (v.concepto.length > 60) err.concepto = 'El concepto puede tener 60 caracteres como máximo.';
+  var amt = parseNum(v.importe);
+  if (amt === null || !(amt > 0)) err.importe = 'Escribe un importe mayor que 0 (por ejemplo, 120,50).';
+  if (v.notas.length > 140) err.notas = 'Las notas pueden tener 140 caracteres como máximo.';
+  if (Object.keys(err).length) {
+    ST.drawer.form = Object.assign({}, v, { err: err, cat: v.cat });
+    renderDrawer(false);
+    var first = Object.keys(err)[0];
+    var el = $(first === 'concepto' ? 'bf-f-concepto' : first === 'importe' ? 'bf-f-importe' : 'bf-f-notas');
+    if (el) el.focus();
+    return;
+  }
+  var rec = { ym: v.ym, cat: v.cat, concepto: v.concepto, importe: Math.round(amt * 100) / 100, recurrente: v.rep, notas: v.notas, kind: 'custom' };
+  if (v.id) {
+    BF_DATA.customs = BF_DATA.customs.map(function (c) { return c.id === v.id ? Object.assign({}, rec, { id: v.id }) : c; });
+  } else {
+    rec.id = 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    BF_DATA.customs.push(rec);
+  }
+  ST.drawer = { cat: v.cat, mode: 'detail' };
+  dataChanged();
+  if ($('bf-dr-title')) $('bf-dr-title').focus();
+}
+// Edición de importes: partidas (modelo o añadidas) y total de categoría
+function partSaveValue(key, raw) {
+  var amt = parseNum(raw);
+  if (amt === null || amt < 0) { ST.inlineErr = 'Escribe un importe válido (por ejemplo, 900 o 120,50).'; return false; }
+  var p = key.split('|');
+  if (p[0] === 'model') {
+    BF_DATA.overrides = BF_DATA.overrides.filter(function (o) { return !(o.ym === p[1] && o.pid === p[2]); });
+    BF_DATA.overrides.push({ ym: p[1], pid: p[2], amt: Math.round(amt * 100) / 100 });
+  } else {
+    BF_DATA.customs = BF_DATA.customs.map(function (c) { return c.id === p[2] ? Object.assign({}, c, { importe: Math.round(amt * 100) / 100 }) : c; });
+  }
+  return true;
+}
+function partSave() {
+  var inp = $('bf-part-inp'), key = ST.partEdit;
+  if (!inp || !key) return;
+  ST.inlineErr = '';
+  if (!partSaveValue(key, inp.value)) { renderDrawer(false); return; }
+  ST.partEdit = null;
+  dataChanged();
+  if ($('bf-dr-title')) $('bf-dr-title').focus();
+}
+function inlineSave(cat) {
+  var inp = $('bf-inl');
+  if (!inp) return;
+  var amt = parseNum(inp.value);
+  if (amt === null || amt < 0) { ST.inlineErr = 'Escribe un importe válido (por ejemplo, 900 o 120,50).'; renderTab(); return; }
+  var k = pickP(ST.period)[0].k, ym = ymOfK(k);
+  var current = catSum([ROWS[k]], cat), delta = Math.round((amt - current) * 100) / 100;
+  ST.inlineErr = '';
+  ST.inline = null;
+  if (Math.abs(delta) >= 0.005) {
+    var ex = BF_DATA.customs.filter(function (c) { return c.kind === 'ajuste' && c.ym === ym && c.cat === cat; })[0];
+    if (ex) {
+      ex.importe = Math.round((ex.importe + delta) * 100) / 100;
+      if (Math.abs(ex.importe) < 0.005) BF_DATA.customs = BF_DATA.customs.filter(function (c) { return c !== ex; });
+    } else {
+      BF_DATA.customs.push({ id: 'adj-' + ym + '-' + cat, ym: ym, cat: cat, concepto: 'Ajuste manual', importe: delta, recurrente: false, notas: '', kind: 'ajuste' });
+    }
+  }
+  dataChanged();
+}
+function resetData() {
+  if (!window.confirm('¿Restablecer los datos de ejemplo? Se borrarán todos los cambios de importes y los gastos añadidos.')) return;
+  BF_DATA.overrides = []; BF_DATA.customs = [];
+  ST.inline = null; ST.partEdit = null;
+  dataChanged();
+}
+function partDelete(key, label) {
+  var p = key.split('|'), mes = monthName(p[1] || ymOfK(pickP(ST.period)[0].k));
+  if (p[0] === 'model') {
+    if (!window.confirm('¿Borrar esta partida de ' + mes + '?')) return;
+    BF_DATA.overrides = BF_DATA.overrides.filter(function (o) { return !(o.ym === p[1] && o.pid === p[2]); });
+    BF_DATA.overrides.push({ ym: p[1], pid: p[2], deleted: true });
+  } else {
+    if (!window.confirm('¿Borrar esta partida de ' + mes + '?')) return;
+    BF_DATA.customs = BF_DATA.customs.filter(function (c) { return c.id !== p[2]; });
+  }
+  ST.partEdit = null;
+  dataChanged();
+}
+function partRestore(key) {
+  var p = key.split('|');
+  BF_DATA.overrides = BF_DATA.overrides.filter(function (o) { return !(o.ym === p[1] && o.pid === p[2]); });
+  dataChanged();
+}
+function customDelete(id, label) {
+  var c = BF_DATA.customs.filter(function (x) { return x.id === id; })[0];
+  if (!c) return;
+  var msg = c.recurrente ? '¿Borrar este gasto recurrente? Se quitará de todos los meses.' : '¿Borrar este gasto de ' + monthName(c.ym) + '?';
+  if (!window.confirm(msg)) return;
+  BF_DATA.customs = BF_DATA.customs.filter(function (x) { return x.id !== id; });
+  dataChanged();
+}
+
+// ---------- Gráfico de la categoría (cajón) ----------
+CHARTS.catmini = function (w, h) {
+  var cat = ST.drawer ? ST.drawer.cat : 'otros', col = CAT_COL[cat];
+  var rows = ROWS.slice(0, 22), n = 22, padL = 44, padR = 6, padT = 14, padB = 28;
+  var pw = w - padL - padR, ph = h - padT - padB, bw = pw / n, bar = Math.max(3, bw * 0.6);
+  var vals = rows.map(function (r) { return catSum([r], cat); });
+  var yMax = niceMax(Math.max.apply(null, vals.concat([1])));
+  var Y = function (v) { return padT + (yMax - v) / yMax * ph; };
+  var X = function (i) { return padL + (i + 0.5) * bw; };
+  var id = gid(), sel = pDef(ST.period).ks;
+  var s = '<defs>' + gradDef(id, col, 0.5) + '</defs>';
+  ticksOf(0, yMax, 3).forEach(function (v) {
+    s += '<line x1="' + padL + '" x2="' + (w - padR) + '" y1="' + Y(v) + '" y2="' + Y(v) + '" class="bf-grid-l"/>' + txt(padL - 6, Y(v) + 4, fN(v), 'end');
+  });
+  sel.forEach(function (k) { s += '<rect x="' + (padL + k * bw) + '" y="' + padT + '" width="' + bw + '" height="' + ph + '" class="bf-sel"/>'; });
+  vals.forEach(function (v, i) {
+    s += '<rect x="' + (X(i) - bar / 2) + '" y="' + Y(v) + '" width="' + bar + '" height="' + Math.max(0, padT + ph - Y(v)) + '" rx="2" fill="url(#' + id + ')"/>';
+  });
+  rows.forEach(function (r, i) {
+    if (i % 4) return;
+    s += txt(X(i), padT + ph + 16, MES3[r.cm - 1] + (r.cm === 1 ? ' ' + String(r.year).slice(2) : ''));
+  });
+  TIPS.catmini = {
+    n: n, x: X,
+    idxAt: function (px) { return Math.floor((px - padL) / bw); },
+    tip: function (i) { return '<strong>' + BF_MONTHS[rows[i].cm - 1] + ' ' + rows[i].year + '</strong>' + tl(CAT_NAME[cat], fE(vals[i])); }
+  };
+  return svgOf(w, h, 'Importe mensual de ' + CAT_NAME[cat] + ' de enero de 2025 a octubre de 2026', s);
+};
+
+// ---------- Eventos ----------
+function setFromHash() {
+  var parts = (location.hash || '').replace('#', '').split('?');
+  var h = parts[0];
+  ST.tab = TABS.some(function (t) { return t[0] === h; }) ? h : 'resumen';
+  var m = /mes=(\d{4}-\d{2})/.exec(parts[1] || '');
+  if (m) {
+    var k = kOfYm(m[1]);
+    if (k >= 0 && k <= 21) ST.period = m[1] === '2026-10' ? 'oct26' : 'm' + m[1];
+  }
+}
+function onChange(e) {
+  var t = e.target;
+  if (t.id !== 'bf-mes') return;
+  var v = t.value;
+  if (!v) return;
+  ST.period = v === '2026-10' ? 'oct26' : 'm' + v;
+  history.replaceState(null, '', '#' + ST.tab + (v === '2026-10' ? '' : '?mes=' + v));
+  renderTab();
+}
+function onClick(e) {
+  var t = e.target.closest('[data-tab],[data-period],[data-scen],[data-view],[data-exp],[data-reset],[data-sort],[data-tfilter],[data-cat-open],[data-add-expense],[data-form-open],[data-form-save],[data-form-cancel],[data-cust-edit],[data-cust-del],[data-part-edit],[data-part-save],[data-part-cancel],[data-part-del],[data-part-restore],[data-inline-edit],[data-inline-save],[data-inline-cancel],[data-reset-data],[data-drawer-close],#bf-theme');
+  if (!t) return;
+  if (t.id === 'bf-theme') { toggleTheme(); return; }
+  if (t.hasAttribute('data-drawer-close')) { closeDrawer(); return; }
+  if (t.hasAttribute('data-tab')) { location.hash = t.getAttribute('data-tab'); return; }
+  if (t.hasAttribute('data-period')) {
+    ST.period = t.getAttribute('data-period');
+    history.replaceState(null, '', '#' + ST.tab);
+    renderTab(); return;
+  }
+  if (t.hasAttribute('data-scen')) { ST.scen = t.getAttribute('data-scen'); ST.sim = copyScen(ST.scen); recalc(); renderTab(); return; }
+  if (t.hasAttribute('data-view')) { ST.gView = t.getAttribute('data-view'); renderTab(); return; }
+  if (t.hasAttribute('data-reset')) { ST.sim = copyScen(ST.scen); recalc(); renderTab(); return; }
+  if (t.hasAttribute('data-sort')) {
+    var key = t.getAttribute('data-sort');
+    ST.prodSort = ST.prodSort.key === key ? { key: key, dir: -ST.prodSort.dir } : { key: key, dir: key === 'name' ? 1 : -1 };
+    renderTab(); return;
+  }
+  if (t.hasAttribute('data-tfilter')) { ST.tfilter = t.getAttribute('data-tfilter'); renderTab(); return; }
+  if (t.hasAttribute('data-cat-open')) { openDrawer({ cat: t.getAttribute('data-cat-open'), mode: 'detail' }, t); return; }
+  if (t.hasAttribute('data-add-expense')) { openDrawer({ cat: 'otros', mode: 'form', form: { cat: 'otros' } }, t); return; }
+  if (t.hasAttribute('data-form-open')) { formOpen(t.getAttribute('data-form-open')); return; }
+  if (t.hasAttribute('data-form-save')) { formSave(); return; }
+  if (t.hasAttribute('data-form-cancel')) { ST.drawer = { cat: (ST.drawer && ST.drawer.cat) || 'otros', mode: 'detail' }; renderDrawer(true); return; }
+  if (t.hasAttribute('data-cust-edit')) {
+    var cu = BF_DATA.customs.filter(function (x) { return x.id === t.getAttribute('data-cust-edit'); })[0];
+    if (cu) formOpen(cu.cat, cu);
+    return;
+  }
+  if (t.hasAttribute('data-cust-del')) { customDelete(t.getAttribute('data-cust-del'), t.getAttribute('data-cust-label')); return; }
+  if (t.hasAttribute('data-part-edit')) { ST.partEdit = t.getAttribute('data-part-edit'); renderDrawer(false); return; }
+  if (t.hasAttribute('data-part-save')) { partSave(); return; }
+  if (t.hasAttribute('data-part-cancel')) { ST.partEdit = null; renderDrawer(true); return; }
+  if (t.hasAttribute('data-part-del')) { partDelete(t.getAttribute('data-part-del'), t.getAttribute('data-part-label')); return; }
+  if (t.hasAttribute('data-part-restore')) { partRestore(t.getAttribute('data-part-restore')); return; }
+  if (t.hasAttribute('data-inline-edit')) { ST.inline = t.getAttribute('data-inline-edit'); ST.inlineErr = ''; renderTab(); return; }
+  if (t.hasAttribute('data-inline-save')) { inlineSave(t.getAttribute('data-inline-save')); return; }
+  if (t.hasAttribute('data-inline-cancel')) { ST.inline = null; ST.inlineErr = ''; renderTab(); return; }
+  if (t.hasAttribute('data-reset-data')) { resetData(); return; }
+  if (t.hasAttribute('data-exp')) {
+    var grp = t.getAttribute('data-exp'), open = t.getAttribute('aria-expanded') !== 'true';
+    t.setAttribute('aria-expanded', open ? 'true' : 'false');
+    t.querySelector('span').textContent = open ? '▾' : '▸';
+    document.querySelectorAll('[data-grp="' + grp + '"]').forEach(function (r) { r.hidden = !open; });
+  }
+}
+function onEditKey(e) {
+  var t = e.target;
+  if (t.id === 'bf-inl') {
+    if (e.key === 'Enter') { e.preventDefault(); inlineSave(ST.inline); }
+    else if (e.key === 'Escape') { e.preventDefault(); ST.inline = null; ST.inlineErr = ''; renderTab(); }
+  } else if (t.id === 'bf-part-inp') {
+    if (e.key === 'Enter') { e.preventDefault(); partSave(); }
+    else if (e.key === 'Escape') { e.preventDefault(); ST.partEdit = null; renderDrawer(true); }
+  }
+}
+function onDocKey(e) {
+  if (!ST.drawer) return;
+  if (e.key === 'Escape') {
+    if (e.target.id === 'bf-inl' || e.target.id === 'bf-part-inp') return;
+    e.preventDefault(); closeDrawer(); return;
+  }
+  if (e.key === 'Tab') {
+    var els = focusables($('bf-drawer')), first = els[0], last = els[els.length - 1];
+    if (!els.length) return;
+    if (e.shiftKey && (document.activeElement === first || !$('bf-drawer').contains(document.activeElement))) { last.focus(); e.preventDefault(); }
+    else if (!e.shiftKey && (document.activeElement === last || !$('bf-drawer').contains(document.activeElement))) { first.focus(); e.preventDefault(); }
+  }
 }
 
 // ---------- Pestaña Sostenibilidad ----------
@@ -1400,9 +1975,9 @@ function treasuryData() {
     if (dd === 5) add(i, 'prest', 'Préstamo ICO (cuota mensual)', -660.49);
     if (dd === 3) add(i, 'ser', 'Gestoría, software y teléfono (IVA incluido)', -(150 + 95 + 55) * 1.21);
     if (dd === 10) { add(i, 'seg', 'Seguros', -85); add(i, 'mkt', 'Marketing (IVA incluido)', -R.marketing * 1.21); }
-    if (dd === 12) add(i, 'luz', 'Electricidad (IVA incluido)', -R.luz * 1.21);
+    if (dd === 12) add(i, 'luz', 'Electricidad (IVA incluido)', -partAmt(R, 'ener-luz') * 1.21);
     if (dd === 15) add(i, 'env', 'Envases (IVA incluido)', -R.envases * 1.21);
-    if (dd === 20 && cm === 12) add(i, 'agua', 'Agua de dos meses (IVA incluido)', -(ROWS[22].agua + ROWS[23].agua) * 1.21);
+    if (dd === 20 && cm === 12) add(i, 'agua', 'Agua de dos meses (IVA incluido)', -(partAmt(ROWS[22], 'ener-agua') + partAmt(ROWS[23], 'ener-agua')) * 1.21);
     if (dd === 25) add(i, 'ser', 'Mantenimiento y limpieza (IVA incluido)', -(120 + 110) * 1.21);
     if (dd === 28) { add(i, 'tas', 'Tasas municipales', -175); add(i, 'ret', 'Retiradas de la dueña', -BF_RETIRADAS); }
     if (wd === 1) add(i, 'prov', 'Proveedores de materias primas (semanal, IVA incluido)', -R.mat / 4.33 * 1.10);
@@ -1525,7 +2100,9 @@ function renderTab() {
     b.setAttribute('aria-selected', on ? 'true' : 'false');
     b.tabIndex = on ? 0 : -1;
   });
+  if (ST.drawer) renderDrawer(false);
   if (ST.tab === 'proyeccion') paintProy(); else hydrate();
+  if (ST.inline) { var inl = $('bf-inl'); if (inl) { inl.focus(); inl.select(); } }
 }
 function shell() {
   return '<div class="bf-wrap">' +
@@ -1540,6 +2117,7 @@ function shell() {
       return '<button type="button" role="tab" id="tab-' + t[0] + '" class="bf-tab" data-tab="' + t[0] + '" aria-controls="bf-main" data-umami-event="bf-tab-' + t[0] + '">' + t[1] + '</button>';
     }).join('') + '</div></nav>' +
     '<main id="bf-main" class="bf-main" role="tabpanel" tabindex="-1"></main>' +
+    '<div id="bf-drawer-root" class="bf-drawer-root" hidden><div class="bf-scrim" data-drawer-close="1"></div><aside id="bf-drawer" class="bf-drawer" role="dialog" aria-modal="true" aria-labelledby="bf-dr-title"><div id="bf-dr-body"></div></aside></div>' +
   '</div>';
 }
 function isDark() {
@@ -1566,34 +2144,6 @@ function applyTheme() {
     var t = localStorage.getItem('bf-theme');
     if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
   } catch (e) { /* sin almacenamiento */ }
-}
-function setFromHash() {
-  var h = (location.hash || '').replace('#', '');
-  ST.tab = TABS.some(function (t) { return t[0] === h; }) ? h : 'resumen';
-}
-function onClick(e) {
-  var t = e.target.closest('[data-tab],[data-period],[data-scen],[data-view],[data-exp],[data-reset],[data-sort],[data-tfilter],#bf-theme');
-  if (!t) return;
-  if (t.id === 'bf-theme') { toggleTheme(); return; }
-  if (t.hasAttribute('data-sort')) {
-    var key = t.getAttribute('data-sort');
-    ST.prodSort = ST.prodSort.key === key ? { key: key, dir: -ST.prodSort.dir } : { key: key, dir: key === 'name' ? 1 : -1 };
-    renderTab(); return;
-  }
-  if (t.hasAttribute('data-tfilter')) { ST.tfilter = t.getAttribute('data-tfilter'); renderTab(); return; }
-  if (t.hasAttribute('data-tab')) { location.hash = t.getAttribute('data-tab'); return; }
-  if (t.hasAttribute('data-period')) { ST.period = t.getAttribute('data-period'); renderTab(); return; }
-  if (t.hasAttribute('data-scen')) {
-    ST.scen = t.getAttribute('data-scen'); ST.sim = copyScen(ST.scen); recalc(); renderTab(); return;
-  }
-  if (t.hasAttribute('data-view')) { ST.gView = t.getAttribute('data-view'); renderTab(); return; }
-  if (t.hasAttribute('data-reset')) { ST.sim = copyScen(ST.scen); recalc(); renderTab(); return; }
-  if (t.hasAttribute('data-exp')) {
-    var grp = t.getAttribute('data-exp'), open = t.getAttribute('aria-expanded') !== 'true';
-    t.setAttribute('aria-expanded', open ? 'true' : 'false');
-    t.querySelector('span').textContent = open ? '▾' : '▸';
-    document.querySelectorAll('[data-grp="' + grp + '"]').forEach(function (r) { r.hidden = !open; });
-  }
 }
 function onInput(e) {
   var t = e.target;
@@ -1624,6 +2174,7 @@ function onTabKey(e) {
 }
 function init() {
   applyTheme();
+  dataLoad();
   var app = $('app');
   app.innerHTML = shell();
   ST.sim = copyScen('base');
@@ -1631,6 +2182,9 @@ function init() {
   app.addEventListener('click', onClick);
   app.addEventListener('input', onInput);
   app.addEventListener('keydown', onTabKey);
+  app.addEventListener('keydown', onEditKey);
+  app.addEventListener('change', onChange);
+  document.addEventListener('keydown', onDocKey);
   themeIcon();
   window.addEventListener('hashchange', function () { setFromHash(); renderTab(); });
   var rt = null;
