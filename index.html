@@ -3536,6 +3536,104 @@ function drawMumi(c, p){
     sec.insertBefore(wrap, sec.firstChild);
     secs.push(sec);
   });
+
+  /* MASCARA DE TEXTO: la luz baja a ~5 % dentro de las cajas con texto (bordes suaves).
+     La mascara vive en el wrapper (coordenadas fijas respecto a la seccion), asi que no hay trabajo por scroll. */
+  var BOX_SEL = '.ticket,.pr-card,.faq-item,.svc-help,.svc-paneles,.deliver,.launch-ticket,.cf-side,.faq-intro,form,.card,.case,.plan,.price-card';
+  var BOX_PAD = 28;   /* expansion en px alrededor de cada caja (con desenfoque 14 px deja ~5 % en el borde) */
+  var BLUR = 14;
+  /* alfa de un color CSS (rgba, rgb con "/" o transparent) */
+  function alphaOf(c) {
+    var m = /\(([^)]+)\)/.exec(c);
+    if (!m) return c === 'transparent' ? 0 : 1;
+    var p = m[1].split(/[\s,\/]+/).filter(Boolean);
+    if (p.length < 4) return 1;
+    return p[3].slice(-1) === '%' ? parseFloat(p[3]) / 100 : parseFloat(p[3]);
+  }
+  /* decide si un elemento es una "caja de texto" */
+  function isBox(el, secArea) {
+    var cs = getComputedStyle(el);
+    if (cs.display === 'none' || cs.visibility === 'hidden' || !el.getClientRects().length) return false;
+    var r = el.getBoundingClientRect();
+    if (r.width < 80 || r.height < 40) return false;
+    if (el.matches(BOX_SEL)) return true;                    /* lista explicita */
+    if (r.width * r.height > secArea * 0.85) return false;   /* contenedor de maquetacion */
+    var bg = alphaOf(cs.backgroundColor) > 0.05;
+    var img = cs.backgroundImage !== 'none';
+    var brd = ['Top', 'Right', 'Bottom', 'Left'].some(function (s) {
+      return parseFloat(cs['border' + s + 'Width']) >= 1 && cs['border' + s + 'Style'] !== 'none' && alphaOf(cs['border' + s + 'Color']) > 0;
+    });
+    var shadow = cs.boxShadow !== 'none';
+    if (!(bg || img || brd || shadow)) return false;
+    return el.textContent.trim().length > 0;
+  }
+  /* recoge las cajas mas externas (no desciende dentro de una caja ya elegida) */
+  function collect(root, out, secArea) {
+    Array.prototype.forEach.call(root.children, function (el) {
+      if (el.classList.contains('sec-spot-wrap') || el instanceof SVGElement) return;
+      if (isBox(el, secArea)) out.push(el);
+      else collect(el, out, secArea);
+    });
+  }
+  /* regenera la mascara de una seccion: blanco = luz al 100 %, gris oscuro = luz al 5 % */
+  function updateSpotMask(sec) {
+    var wrap = sec.querySelector(':scope > .sec-spot-wrap');
+    if (!wrap) return;
+    var s = sec.getBoundingClientRect();
+    var W = Math.round(s.width), H = Math.round(s.height);
+    if (!W || !H) return;
+    var boxes = [];
+    collect(sec, boxes, W * H);
+    var base = wrap.getBoundingClientRect();
+    var rects = boxes.map(function (el) {
+      var cs = getComputedStyle(el);
+      var r = el.getBoundingClientRect();
+      var top = r.top, h = r.height;
+      /* caja sticky: se enmascara todo su recorrido (desde su posicion de reposo hasta el fondo de su contenedor) */
+      if (cs.position === 'sticky' && el.parentElement) {
+        var ps = el.style.position;
+        el.style.position = 'static';
+        top = el.getBoundingClientRect().top;
+        el.style.position = ps;
+        h = Math.max(r.height, el.parentElement.getBoundingClientRect().bottom - top);
+      }
+      var rad = Math.min(parseFloat(cs.borderTopLeftRadius) || 0, r.width / 2, h / 2);
+      return "<rect x='" + (r.left - base.left - BOX_PAD).toFixed(1) + "' y='" + (top - base.top - BOX_PAD).toFixed(1) +
+        "' width='" + (r.width + BOX_PAD * 2).toFixed(1) + "' height='" + (h + BOX_PAD * 2).toFixed(1) +
+        "' rx='" + (rad + BOX_PAD).toFixed(1) + "'/>";
+    }).join('');
+    var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='" + W + "' height='" + H + "'>" +
+      "<defs><filter id='f' filterUnits='userSpaceOnUse' x='-100' y='-100' width='" + (W + 200) + "' height='" + (H + 200) + "'>" +
+      "<feGaussianBlur stdDeviation='" + BLUR + "'/></filter>" +
+      "<mask id='m' maskUnits='userSpaceOnUse' x='0' y='0' width='" + W + "' height='" + H + "'>" +
+      "<rect width='" + W + "' height='" + H + "' fill='white'/><g filter='url(#f)' fill='rgb(13,13,13)'>" + rects + "</g></mask></defs>" +
+      "<rect width='" + W + "' height='" + H + "' fill='black' mask='url(#m)'/></svg>";
+    var url = 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
+    wrap.style.maskImage = wrap.style.webkitMaskImage = url;
+    wrap.style.maskSize = wrap.style.webkitMaskSize = '100% 100%';
+    wrap.style.maskRepeat = wrap.style.webkitMaskRepeat = 'no-repeat';
+  }
+  /* reprograma por rAF para no recalcular varias veces seguidas */
+  var pendingMask = {};
+  function queueMask(sec) {
+    if (pendingMask[sec.id]) return;
+    pendingMask[sec.id] = requestAnimationFrame(function () { pendingMask[sec.id] = 0; updateSpotMask(sec); });
+  }
+  function maskAll() { secs.forEach(function (s) { updateSpotMask(s); }); }
+  maskAll();
+  window.addEventListener('load', maskAll);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(maskAll);
+  var resizeT;
+  window.addEventListener('resize', function () { clearTimeout(resizeT); resizeT = setTimeout(maskAll, 150); });
+  /* cambios de altura (FAQ abierta/cerrada, contenido dinamico) */
+  if ('ResizeObserver' in window) {
+    var ro = new ResizeObserver(function (en) { en.forEach(function (e) { queueMask(e.target); }); });
+    secs.forEach(function (s) { ro.observe(s); });
+  }
+  /* filtro de proyectos: el grid cambia tras la animacion de salida */
+  var pfBar = document.querySelector('.pfilter');
+  if (pfBar) pfBar.addEventListener('click', function () { setTimeout(maskAll, 400); });
+
   if (reduce) return;
   function syncHidden() { document.body.classList.toggle('spot-tab-hidden', document.hidden); }
   document.addEventListener('visibilitychange', syncHidden);
