@@ -282,6 +282,12 @@
   .bf-hollow-l { fill: var(--surface); stroke: var(--mint); stroke-width: 2; }
   .bf-cmp { font-variant-numeric: tabular-nums; }
   .bf-cmpline { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--line); color: var(--muted); }
+  .bf-sparkcap { font-size: 11px; color: var(--muted); margin: 2px 0 0; }
+  .bf-cmpdash { fill: none; stroke: var(--cmpm); stroke-width: 1.6; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
+  .bf-zero { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 2 2; vector-effect: non-scaling-stroke; }
+  .bf-wkend { fill: var(--line); opacity: .35; }
+  .bf-closedbar { stroke: var(--muted); stroke-width: .6; opacity: .8; }
+  .bf-phr-line { font-size: 14.5px; margin-top: 8px; }
   .bf-sumline { margin: 6px 0 10px; font-size: 14.5px; }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
@@ -638,6 +644,7 @@ var ICON_LOGO = '<svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="tr
 
 function copyScen(k) { var o = {}; for (var p in BF_SCEN[k]) o[p] = BF_SCEN[k][p]; return o; }
 function recalc() {
+  DAILY_CACHE = {};
   ROWS = buildModel(ST.sim);
   ROWS.forEach(function (r) {
     r.gastos = r.rev - r.bai;
@@ -1033,6 +1040,194 @@ function bindTip(el, name) {
 }
 
 // ---------- Componentes ----------
+// ---------- Vista mensual: datos diarios (suman exactamente los totales del mes) ----------
+var DAILY_CACHE = {};
+function daysInMonth(k) { return new Date(Date.UTC(2025 + Math.floor(k / 12), k % 12 + 1, 0)).getUTCDate(); }
+function capFirst(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+// Caja diaria: mismo método que el panel de tesorería (pagos en su día, IVA y retenciones en su fecha,
+// retiradas el día 28), anclada para que el último día coincida con la caja mensual del modelo
+function dailyCash(k, D) {
+  var R = ROWS[k], T = treasuryData(Date.UTC(2025 + Math.floor(k / 12), k % 12, 1), D);
+  var diff = R.caja - T.bal[D - 1];
+  return T.bal.map(function (v, i) { return v + diff * (i + 1) / D; });
+}
+function dailyOf(k) {
+  if (DAILY_CACHE[k]) return DAILY_CACHE[k];
+  var R = ROWS[k], y = 2025 + Math.floor(k / 12), cm = k % 12 + 1, D = daysInMonth(k);
+  var rnd = mulberry32(BF_SEED * 31 + k), rainy = k === 17 ? { 4: 1, 9: 1, 16: 1, 23: 1 } : {};
+  var days = [], wShop = [], wT = [], tue = [];
+  for (var d = 1; d <= D; d++) {
+    var dow = new Date(Date.UTC(y, cm - 1, d)).getUTCDay();
+    var closed = !((cm >= 4 && cm <= 10) || dow !== 1);
+    var base = dow === 5 ? 1.35 : dow === 6 ? 1.5 : dow === 0 ? 1.2 : 1;
+    var noise = 1 + (rnd() * 2 - 1) * 0.12;
+    wShop.push(closed ? 0 : base * noise * (rainy[d] ? 0.5 : 1));
+    var tb = (dow === 5 || dow === 6 || dow === 0) ? 3 : 1;
+    if (cm === 12 && d >= 20 && d <= 24) tb *= 2.5;
+    wT.push(closed ? 0 : tb);
+    if (dow === 2) tue.push(d);
+    days.push({ d: d, dow: dow, closed: closed });
+  }
+  var sum = function (a) { return a.reduce(function (x, z) { return x + z; }, 0); };
+  var sS = sum(wShop), sT = sum(wT) || 1, restDays = tue.slice(0, 4);
+  // Precio medio del ticket por día: fin de semana ×1,04–1,07, entre semana ×0,96–0,99, ruido ±2 %.
+  // Se renormaliza para que Σ(tickets × precio) = ventas de mostrador del mes (promedio ponderado exacto).
+  var rnd2 = mulberry32(BF_SEED * 57 + k);
+  var gArr = days.map(function (o) {
+    var wk = (o.dow === 5 || o.dow === 6 || o.dow === 0) ? 1.04 + 0.03 * rnd2() : 0.96 + 0.03 * rnd2();
+    return wk * (1 + (rnd2() * 2 - 1) * 0.02);
+  });
+  var tk = days.map(function (o, i) { return sS ? R.tickets * wShop[i] / sS : 0; });
+  var sTG = tk.reduce(function (a, t, i) { return a + t * gArr[i]; }, 0);
+  days.forEach(function (o, i) {
+    o.tickets = tk[i];
+    o.most = sTG ? R.revMost * tk[i] * gArr[i] / sTG : 0;     // = tickets × precio del día
+    o.onl = sS ? R.revOnline * wShop[i] / sS : 0;
+    o.tor = R.revTortas * wT[i] / sT;
+    o.rest = restDays.indexOf(o.d) >= 0 ? R.revRest / restDays.length : 0;
+    o.sales = o.most + o.onl + o.tor + o.rest;
+  });
+  days.forEach(function (o) {
+    o.variable = R.rev ? R.variable * o.sales / R.rev : 0;          // costes variables proporcionales a las ventas del día
+    o.gastos = (R.gastos - R.variable) / D + o.variable;            // costes fijos prorrateados por día natural
+    o.margin = o.sales - o.variable;
+    o.bai = o.sales - o.gastos;
+    o.ticket = o.tickets > 0 ? o.most / o.tickets : null;
+  });
+  var cash = dailyCash(k, D);
+  days.forEach(function (o, i) { o.caja = cash[i]; });
+  var out = { k: k, D: D, days: days, R: R };
+  DAILY_CACHE[k] = out;
+  return out;
+}
+function fillNull(arr) {
+  var first = null;
+  for (var i = 0; i < arr.length; i++) if (arr[i] !== null) { first = arr[i]; break; }
+  if (first === null) return arr.map(function () { return 0; });
+  var last = first;
+  return arr.map(function (v) { if (v !== null) last = v; return last; });
+}
+// Serie diaria para una tarjeta de Resumen (vista mensual)
+function sDaily(fd, zero) {
+  var DY = dailyOf(pickP(ST.period)[0].k), DC = cmpOn() ? dailyOf(cmpInfo(ST.period).ks[0]) : null;
+  return {
+    vals: fillNull(DY.days.map(fd)), cmp: DC ? fillNull(DC.days.map(fd)) : null, zero: !!zero,
+    caption: 'día a día · ' + MES3[DY.k % 12] + ' ' + (2025 + Math.floor(DY.k / 12))
+  };
+}
+// Mini gráfica diaria (31 días; un mes corto termina antes). Beneficio: verde sobre cero, rojo bajo cero.
+function sparkDaily(s, color) {
+  var N = 31, X = function (i) { return i / (N - 1) * 120; };
+  var all = s.vals.concat(s.cmp || []).concat(s.zero ? [0] : []);
+  var mn = Math.min.apply(null, all), mx = Math.max.apply(null, all), rg = (mx - mn) || 1;
+  var Yv = function (v) { return 36 - (v - mn) / rg * 32; };
+  var zy = Yv(0), id = gid(), areaId = gid();
+  var d = pathOf(s.vals.map(function (v, i) { return [X(i), Yv(v)]; }));
+  var base = s.zero ? zy : 40;
+  var defs = s.zero
+    ? '<linearGradient id="' + id + '" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="40"><stop offset="0" style="stop-color:var(--ok)"/><stop offset="' + (zy / 40).toFixed(3) + '" style="stop-color:var(--ok)"/><stop offset="' + (zy / 40).toFixed(3) + '" style="stop-color:var(--err)"/><stop offset="1" style="stop-color:var(--err)"/></linearGradient>'
+    : gradDef(areaId, color, 0);
+  var lineStroke = s.zero ? 'url(#' + id + ')' : color;
+  var fillRef = s.zero ? id : areaId;
+  var areaD = d + ' L' + X(s.vals.length - 1).toFixed(1) + ' ' + base.toFixed(1) + ' L0 ' + base.toFixed(1) + ' Z';
+  var zeroLine = s.zero ? '<line x1="0" x2="120" y1="' + zy.toFixed(1) + '" y2="' + zy.toFixed(1) + '" class="bf-zero"/>' : '';
+  var cmpPath = s.cmp ? '<path d="' + pathOf(s.cmp.map(function (v, i) { return [X(i), Yv(v)]; })) + '" class="bf-cmpdash"/>' : '';
+  return '<div class="bf-sparkwrap"><svg class="bf-spark" viewBox="0 0 120 40" preserveAspectRatio="none" aria-hidden="true" focusable="false"><defs>' + defs + '</defs>' +
+    zeroLine + '<path d="' + areaD + '" fill="url(#' + fillRef + ')" opacity="' + (s.zero ? '.45' : '.55') + '"/>' + cmpPath +
+    '<path d="' + d + '" class="bf-spark-l" style="stroke:' + lineStroke + '"/></svg></div>' +
+    '<p class="bf-sparkcap">' + esc(s.caption) + '</p>';
+}
+function dayTipLine(DY, i) {
+  var o = DY.days[i], y = 2025 + Math.floor(DY.k / 12), dt = new Date(Date.UTC(y, DY.k % 12, i + 1));
+  return '<strong>' + capFirst(TR_DAYN[dt.getUTCDay()]) + ' ' + (i + 1) + ' ' + MES3[DY.k % 12] + ' ' + y + '</strong>' +
+    (o.closed ? tl('Estado', 'cerrado') : '') + tl('Ventas', fE(o.sales)) + tl('Gastos', fE(o.gastos)) + tl('Beneficio', fE(o.bai));
+}
+CHARTS.daily = function (w, h) {
+  var k = pickP(ST.period)[0].k, DY = dailyOf(k), days = DY.days, D = DY.D;
+  var DC = cmpOn() ? dailyOf(cmpInfo(ST.period).ks[0]) : null;
+  var padL = 50, padR = 8, padT = 22, padB = 44, pw = w - padL - padR, ph = h - padT - padB;
+  var bw = pw / D, bar = Math.max(3, bw * 0.7);
+  var maxS = Math.max.apply(null, days.map(function (o) { return o.sales; }).concat(DC ? DC.days.map(function (o) { return o.sales; }) : [0]));
+  var minB = Math.min.apply(null, days.map(function (o) { return o.bai; }).concat([0]));
+  var yMax = niceMax(maxS), yMin = minB < 0 ? -niceMax(-minB) : 0;
+  var Y = function (v) { return padT + (yMax - v) / (yMax - yMin) * ph; };
+  var X = function (i) { return padL + (i + 0.5) * bw; };
+  var ids = { most: gid(), onl: gid(), tor: gid(), res: gid(), hatch: gid(), ok: gid(), err: gid() };
+  var s = '<defs>' + gradDef(ids.most, 'var(--brand)') + gradDef(ids.onl, 'var(--online)') + gradDef(ids.tor, 'var(--tortas)') + gradDef(ids.res, 'var(--caja)') +
+    '<pattern id="' + ids.hatch + '" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="5" style="fill:var(--surface)"/><line x1="0" y1="0" x2="0" y2="5" style="stroke:var(--muted);stroke-width:1.2;opacity:.6"/></pattern>' +
+    '</defs>';
+  ticksOf(yMin, yMax, 4).forEach(function (v) {
+    s += '<line x1="' + padL + '" x2="' + (w - padR) + '" y1="' + Y(v) + '" y2="' + Y(v) + '" class="bf-grid-l"/>' + txt(padL - 8, Y(v) + 4, fN(v), 'end');
+  });
+  days.forEach(function (o, i) {
+    if (o.dow === 0 || o.dow === 6) s += '<rect x="' + (padL + i * bw).toFixed(1) + '" y="' + padT + '" width="' + bw.toFixed(1) + '" height="' + ph + '" class="bf-wkend"/>';
+  });
+  days.forEach(function (o, i) {
+    if (o.closed) {
+      var hh = Math.max(4, yMax * 0.12);
+      s += '<rect x="' + (X(i) - bar / 2).toFixed(1) + '" y="' + Y(hh).toFixed(1) + '" width="' + bar.toFixed(1) + '" height="' + (Y(0) - Y(hh)).toFixed(1) + '" fill="url(#' + ids.hatch + ')" class="bf-closedbar"/>';
+      return;
+    }
+    var cum = 0;
+    [['most', ids.most], ['onl', ids.onl], ['tor', ids.tor], ['rest', ids.res]].forEach(function (c) {
+      var v = o[c[0]];
+      if (v <= 0) return;
+      s += '<rect x="' + (X(i) - bar / 2).toFixed(1) + '" y="' + Y(cum + v).toFixed(1) + '" width="' + bar.toFixed(1) + '" height="' + (Y(cum) - Y(cum + v)).toFixed(1) + '" rx="1.5" fill="url(#' + c[1] + ')"/>';
+      cum += v;
+    });
+  });
+  s += '<path d="' + pathOf(days.map(function (o, i) { return [X(i), Y(o.gastos)]; })) + '" class="bf-line-choco"/>';
+  days.forEach(function (o, i) {
+    s += '<circle cx="' + X(i).toFixed(1) + '" cy="' + Y(o.bai).toFixed(1) + '" r="3" style="fill:' + (o.bai >= 0 ? 'var(--ok)' : 'var(--err)') + ';stroke:var(--surface);stroke-width:1"/>';
+  });
+  if (DC) {
+    s += '<path d="' + pathOf(DC.days.map(function (o, i) { return [X(i), Y(o.sales)]; })) + '" class="bf-line-choco bf-line-dash" style="stroke:var(--cmpm);stroke-width:1.8;fill:none"/>';
+    s += '<path d="' + pathOf(DC.days.map(function (o, i) { return [X(i), Y(o.gastos)]; })) + '" style="stroke:var(--cmpm);stroke-width:1.4;stroke-dasharray:1 3;fill:none"/>';
+  }
+  var step = bw >= 16 ? 1 : bw >= 8 ? 2 : 4;
+  days.forEach(function (o, i) {
+    if ((o.d - 1) % step) return;
+    s += txt(X(i), padT + ph + 14, String(o.d));
+    if (bw >= 16) s += txt(X(i), padT + ph + 28, ['D', 'L', 'M', 'X', 'J', 'V', 'S'][o.dow], 'middle', 'bf-ax bf-ax-y');
+  });
+  TIPS.daily = {
+    n: D, x: X,
+    idxAt: function (px) { return Math.floor((px - padL) / bw); },
+    tip: function (i) { return dayTipLine(DY, i) + (DC && i < DC.D ? '<div class="bf-cmpline"></div>' + dayTipLine(DC, i) : ''); }
+  };
+  return svgOf(w, h, 'Ingresos, gastos y beneficio por día de ' + BF_MONTHS[DY.k % 12] + ' de ' + (2025 + Math.floor(DY.k / 12)), s);
+};
+// Sección "Ingresos y gastos por día" (solo con un mes seleccionado)
+function dailySection() {
+  var k = pickP(ST.period)[0].k, DY = dailyOf(k), D = DY.D;
+  var DC = cmpOn() ? dailyOf(cmpInfo(ST.period).ks[0]) : null, cI = DC ? cmpInfo(ST.period) : null;
+  var closedN = DY.days.filter(function (o) { return o.closed; }).length;
+  var sub = BF_MONTHS[k % 12] + ' de ' + (2025 + Math.floor(k / 12)) + ' · ' + D + ' días · ' + (closedN ? closedN + ' lunes cerrados' : 'todos los días abiertos');
+  var best = DY.days.reduce(function (a, o) { return o.bai > a.bai ? o : a; }, DY.days[0]);
+  var worst = DY.days.reduce(function (a, o) { return o.bai < a.bai ? o : a; }, DY.days[0]);
+  var dn = function (o) { return capFirst(TR_DAYN[o.dow]) + ' ' + o.d; };
+  var sats = DY.days.filter(function (o) { return o.dow === 6 && !o.closed; });
+  var satTxt = '';
+  if (sats.length) {
+    var avgSat = sats.reduce(function (a, o) { return a + o.sales; }, 0) / sats.length, avgMonth = DY.R.rev / D, pct = avgSat / avgMonth - 1;
+    satTxt = ' Los sábados venden de media ' + fE(avgSat) + ', ' + (pct >= 0 ? fP(pct, 0) + ' más' : fP(-pct, 0) + ' menos') + ' que la media del mes.';
+  }
+  var ins = 'Mejor día: ' + dn(best) + ' (' + fE(best.bai) + ' de beneficio). Peor día: ' + dn(worst) + ' (' + fE(worst.bai) + ').' + satTxt;
+  var legend = legendChips([['Mostrador', 'var(--brand)'], ['Online', 'var(--online)'], ['Tortas', 'var(--tortas)'], ['Restaurantes', 'var(--caja)'], ['Gastos', 'var(--choco)'], ['Beneficio', 'var(--ok)']]
+    .concat(DC ? [[cI.label + ' · ventas', 'var(--cmpm)'], [cI.label + ' · gastos (punteado)', 'var(--cmpm)']] : []));
+  var sr = DY.days.map(function (o, i) {
+    var row = [String(o.d) + ' ' + capFirst(TR_DAYN[o.dow]) + (o.closed ? ' (cerrado)' : ''), fE(o.sales), fE(o.gastos), fE(o.bai), fE(o.caja)];
+    if (DC) row.push(i < DC.D ? fE(DC.days[i].sales) : '—');
+    return row;
+  });
+  return '<section class="bf-card bf-section" aria-labelledby="h-dia"><h2 id="h-dia" class="bf-h2">Ingresos y gastos por día</h2>' +
+    '<p class="bf-sub">' + esc(sub) + '</p>' +
+    '<div class="bf-chart" data-chart="daily" data-h="300"></div>' + legend +
+    '<p class="bf-phr-line">' + esc(ins) + '</p>' +
+    srTable('Ingresos, gastos, beneficio y caja por día', ['Día', 'Ventas', 'Gastos', 'Beneficio', 'Caja'].concat(DC ? ['Ventas comparadas'] : []), sr) +
+    '</section>';
+}
+
 // Mini gráfica de Resumen: la línea, una banda mint en el mes comparado y un punto sólido (HTML, sin deformarse)
 function spark(vals, color) {
   var mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals), rg = (mx - mn) || 1, n = vals.length;
@@ -1060,7 +1255,7 @@ function spark(vals, color) {
 }
 function kpi(cls, label, value, extra, vh, series, color) {
   return '<article class="bf-card bf-kpi ' + cls + '"><p class="bf-kpi-label">' + label + '</p><p class="bf-kpi-val">' + value + '</p>' +
-    (extra ? '<p class="bf-kpi-extra">' + extra + '</p>' : '') + (vh || '') + (series ? spark(series, color) : '') + '</article>';
+    (extra ? '<p class="bf-kpi-extra">' + extra + '</p>' : '') + (vh || '') + (series ? (Array.isArray(series) ? spark(series, color) : sparkDaily(series, color)) : '') + '</article>';
 }
 function noCmp() { return '<p class="bf-var bf-muted">Sin comparación en este periodo</p>'; }
 function varTxt(cur, prev, lb, goodUp) {
@@ -1086,17 +1281,19 @@ function viewResumen() {
   var P = pDef(ST.period), cur = pickP(ST.period), A = agg(cur);
   var pv = P.prev ? agg(pickRows(ROWS, P.prev)) : null, lb = P.prevLabel;
   var cmpI0 = cmpOn() ? cmpInfo(ST.period) : null, cA = cmpI0 ? agg(pickRows(ROWS, cmpI0.ks)) : null;
+  var mv = pickP(ST.period).length === 1;   // vista mensual: tarjetas con datos diarios
+  var SER = function (k12, fd, zero) { return mv ? sDaily(fd, zero) : l12.map(k12); };
   var goodUpOf = function (key) { return key !== 'gastos'; };   // subir gastos es malo
   var fmtOf = function (key) { return key === 'ticketMedio' ? function (v) { return fN(v, 2) + ' €'; } : fE; };
   var vh = function (c, key) { if (cA) return cmpTxt(c, cA[key], cmpI0.label, false, fmtOf(key), goodUpOf(key)); return pv ? varTxt(c, pv[key], lb, goodUpOf(key)) : noCmp(); };
   var l12 = pickRows(ROWS, ULT);
   var cards = [
-    kpi('bf-k1', 'Ingresos', fE(A.rev), '', vh(A.rev, 'rev'), l12.map(function (r) { return r.rev; }), 'var(--brand)'),
-    kpi('bf-k2', 'Margen bruto', fE(A.margen), fP(A.margenPct) + ' de los ingresos', vh(A.margen, 'margen'), l12.map(function (r) { return r.margen; }), 'var(--brand)'),
-    kpi('bf-k3', 'Gastos totales', fE(A.gastos), 'incluye amortización e intereses', vh(A.gastos, 'gastos'), l12.map(function (r) { return r.gastos; }), 'var(--choco)'),
-    kpi('bf-k4', 'Beneficio (BAI)', '<span class="' + (A.bai >= 0 ? 'bf-pos' : 'bf-neg') + '">' + fE(A.bai) + '</span>', fP(A.baiPct) + ' de margen' + (A.bai > 0 ? '<span class="bf-block">Impuesto estimado: ' + fE(A.tax) + '</span>' : ''), (cA ? cmpTxt(A.bai, cA.bai, cmpI0.label, true) : (pv ? varAbs(A.bai, pv.bai, lb) : noCmp())), l12.map(function (r) { return r.bai; }), A.bai >= 0 ? 'var(--ok)' : 'var(--err)'),
-    kpi('bf-k5', 'Ticket medio en mostrador', fN(A.ticketMedio, 2) + ' €', '', vh(A.ticketMedio, 'ticketMedio'), l12.map(function (r) { return r.ticketMed; }), 'var(--brand)'),
-    kpi('bf-k6', 'Caja al final del periodo', fE(A.caja), '', vh(A.caja, 'caja'), l12.map(function (r) { return r.caja; }), 'var(--caja)')
+    kpi('bf-k1', 'Ingresos', fE(A.rev), '', vh(A.rev, 'rev'), SER(function (r) { return r.rev; }, function (o) { return o.sales; }, false), 'var(--brand)'),
+    kpi('bf-k2', 'Margen bruto', fE(A.margen), fP(A.margenPct) + ' de los ingresos', vh(A.margen, 'margen'), SER(function (r) { return r.margen; }, function (o) { return o.margin; }, false), 'var(--brand)'),
+    kpi('bf-k3', 'Gastos totales', fE(A.gastos), 'incluye amortización e intereses', vh(A.gastos, 'gastos'), SER(function (r) { return r.gastos; }, function (o) { return o.gastos; }, false), 'var(--choco)'),
+    kpi('bf-k4', 'Beneficio (BAI)', '<span class="' + (A.bai >= 0 ? 'bf-pos' : 'bf-neg') + '">' + fE(A.bai) + '</span>', fP(A.baiPct) + ' de margen' + (A.bai > 0 ? '<span class="bf-block">Impuesto estimado: ' + fE(A.tax) + '</span>' : ''), (cA ? cmpTxt(A.bai, cA.bai, cmpI0.label, true) : (pv ? varAbs(A.bai, pv.bai, lb) : noCmp())), SER(function (r) { return r.bai; }, function (o) { return o.bai; }, true), A.bai >= 0 ? 'var(--ok)' : 'var(--err)'),
+    kpi('bf-k5', 'Ticket medio en mostrador', fN(A.ticketMedio, 2) + ' €', '', vh(A.ticketMedio, 'ticketMedio'), SER(function (r) { return r.ticketMed; }, function (o) { return o.ticket; }, false), 'var(--brand)'),
+    kpi('bf-k6', 'Caja al final del periodo', fE(A.caja), '', vh(A.caja, 'caja'), SER(function (r) { return r.caja; }, function (o) { return o.caja; }, false), 'var(--caja)')
   ].join('');
 
   // Frases automáticas
@@ -1145,7 +1342,7 @@ function viewResumen() {
   return '' +
     '<div class="bf-seg-wrap">' + periodBar() + '</div>' +
     '<div class="bf-kpis">' + cards + '</div>' +
-    '<section class="bf-card bf-section" aria-labelledby="h-mes">' +
+    (mv ? dailySection() : '') + '<section class="bf-card bf-section" aria-labelledby="h-mes">' +
       '<h2 id="h-mes" class="bf-h2">Ingresos y gastos por mes</h2>' +
       '<p class="bf-sub">De enero de 2025 a octubre de 2026. Los meses del periodo seleccionado están resaltados. Pasa el ratón, toca o usa las flechas sobre el gráfico.</p>' +
       '<div class="bf-chart" data-chart="monthly" data-h="320"></div>' +
@@ -2185,13 +2382,14 @@ function fDM(d) { return ('0' + d.getUTCDate()).slice(-2) + '/' + ('0' + (d.getU
 function fDMY(d) { return fDM(d) + '/' + d.getUTCFullYear(); }
 // ---------- Pestaña Tesorería: 60 días, con comparación del mismo periodo de otro año ----------
 // Saldo día a día desde una fecha de inicio (por defecto 18/11/2026), con el mismo método para histórico y previsión
-function treasuryData(startMs) {
+function treasuryData(startMs, nd) {
+  var N = nd || TR_DAYS;
   var S = startMs || TR_START, sd = new Date(S), k0 = (sd.getUTCFullYear() - 2025) * 12 + sd.getUTCMonth(), dom = sd.getUTCDate();
   var prevC = k0 >= 1 ? ROWS[k0 - 1].caja : BF_CAJA_INI;
   var start = prevC + (ROWS[k0].caja - prevC) * (dom - 1) / 30;   // saldo estimado al inicio de la ventana
   var ev = [];
   var add = function (i, cat, concept, amt) { if (Math.abs(amt) > 0.005) ev.push({ i: i, cat: cat, concept: concept, amt: amt }); };
-  for (var i = 0; i < TR_DAYS; i++) {
+  for (var i = 0; i < N; i++) {
     var d = new Date(S + i * DAY_MS), dd = d.getUTCDate(), wd = d.getUTCDay(), cm = d.getUTCMonth() + 1, R = trRow(d);
     var open = (cm >= 4 && cm <= 10) || wd !== 1;
     var peakDay = cm === 12 && dd >= 20 && dd <= 24;
@@ -2218,7 +2416,7 @@ function treasuryData(startMs) {
     if (wd === 1) add(i, 'prov', 'Proveedores de materias primas (semanal, IVA incluido)', -R.mat / 4.33 * 1.10);
   }
   var b = start, bal = [];
-  for (var j = 0; j < TR_DAYS; j++) {
+  for (var j = 0; j < N; j++) {
     ev.forEach(function (e) { if (e.i === j) { b += e.amt; e.running = b; } });
     bal.push(b);
   }
