@@ -1,0 +1,71 @@
+{
+  "name": "Bola de Nieve · Heladería",
+  "short_name": "Bola de Nieve",
+  "description": "Pide helados y tortas por encargo en Bola de Nieve, heladería artesana. Demo creada por Sundan Studio.",
+  "lang": "es",
+  "dir": "ltr",
+  "start_url": "demo-heladeria.html?source=pwa",
+  "scope": "/demo-heladeria",
+  "id": "/demo-heladeria.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#e8516b",
+  "background_color": "#fff8f1",
+  "categories": ["food", "shopping"],
+  "icons": [
+    {
+      "src": "assets/pwa/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/pwa/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/pwa/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "assets/pwa/screen-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Carta de helados y tortas en el móvil"
+    },
+    {
+      "src": "assets/pwa/screen-wide.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Tienda Bola de Nieve en escritorio"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Pedir helados",
+      "short_name": "Helados",
+      "url": "demo-heladeria.html#helados",
+      "icons": [{ "src": "assets/pwa/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Encargar una tarta",
+      "short_name": "Tortas",
+      "url": "demo-heladeria.html#tortas",
+      "icons": [{ "src": "assets/pwa/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Panel del equipo",
+      "short_name": "Equipo",
+      "url": "demo-heladeria.html#admin",
+      "icons": [{ "src": "assets/pwa/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}

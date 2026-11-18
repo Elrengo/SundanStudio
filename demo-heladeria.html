@@ -3,10 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#fff8f1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#e8516b" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1d1519" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Demo de heladería artesana: tienda online de helados y tortas por encargo, y panel de administración para el equipo. Bola de Nieve, creada por Sundan Studio.">
-<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/pwa/favicon-bn.svg" type="image/svg+xml">
+<link rel="manifest" href="bola-de-nieve.webmanifest">
+<link rel="apple-touch-icon" href="assets/pwa/apple-touch-icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bola de Nieve">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="canonical" href="https://sundanstudio.com/demo-heladeria.html">
 <meta property="og:title" content="Bola de Nieve · Demo">
 <meta property="og:description" content="Demo de heladería artesana: tienda online de helados y tortas por encargo, y panel de administración para el equipo. Bola de Nieve, creada por Sundan Studio.">
@@ -696,6 +701,48 @@
     .week { grid-template-columns: 1fr; }
     .pn-toast { left: var(--s3); right: var(--s3); }
   }
+
+  /* ===== CSS: PWA (instalar, sin conexión, avisos) ===== */
+  .bn-install[hidden], .bn-tip[hidden], .bn-offline[hidden], .bn-notify[hidden] { display: none !important; }
+  .bn-install {
+    display: inline-flex; align-items: center; gap: var(--s2); flex: 0 0 auto; white-space: nowrap;
+    font-size: 13px; font-weight: 500; padding: 6px 12px; border-radius: var(--r-pill);
+    background: var(--brand-soft); color: var(--ink); border: 1px solid transparent; cursor: pointer;
+  }
+  .bn-install:hover { border-color: var(--brand); }
+  .bn-install svg { width: 16px; height: 16px; flex: 0 0 auto; color: var(--brand); }
+  @media (max-width: 599px) {
+    .bn-install-txt { display: none; }
+    .bn-install { padding: 8px; }
+    .top .brand { flex: 1 1 auto; }
+    .top .wordmark, .top .loc { display: block; overflow: hidden; text-overflow: ellipsis; }
+  }
+  .bn-offline { background: var(--vanilla); color: var(--ink); font-size: 14px; text-align: center; padding: 8px var(--s4); border-bottom: 1px solid var(--line); }
+  .bn-tip {
+    position: fixed; left: var(--s4); right: var(--s4); bottom: var(--s4); z-index: 60; max-width: 460px; margin: 0 auto;
+    display: flex; gap: var(--s3); align-items: flex-start; padding: var(--s4); border-radius: var(--r-card);
+    background: var(--surface); color: var(--ink); border: 1px solid var(--line); box-shadow: 0 12px 30px rgba(43,29,36,.2);
+    font-size: 14px; line-height: 1.45;
+  }
+  .bn-tip svg { width: 22px; height: 22px; flex: 0 0 auto; color: var(--brand); margin-top: 1px; }
+  .bn-tip p { flex: 1; min-width: 0; }
+  .bn-tip-x { background: none; border: 0; color: var(--muted); font-size: 22px; line-height: 1; padding: 0 var(--s1); }
+  .bn-notify { display: grid; gap: var(--s2); margin-top: var(--s4); justify-items: start; }
+  .bn-note { font-size: 12px; color: var(--muted); }
+  .pwa-standalone .ribbon { display: none; }
+  /* Tarjeta de instalación bajo la portada: solo móvil estrecho (≤480px) */
+  .bn-app-card[hidden] { display: none !important; }
+  .bn-app-card {
+    display: flex; align-items: center; gap: var(--s3); margin-top: var(--s4); padding: var(--s3) var(--s4);
+    background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: var(--r-card);
+    box-shadow: var(--shadow); font-size: 14px; line-height: 1.4;
+  }
+  .bn-app-ic { width: 44px; height: 44px; border-radius: 12px; flex: 0 0 auto; }
+  .bn-app-card p { flex: 1; min-width: 0; }
+  .bn-app-go { flex: 0 0 auto; width: auto; padding: 10px 16px; box-shadow: none; }
+  .bn-app-card .bn-tip-x { flex: 0 0 auto; }
+  @media (min-width: 481px) { .bn-app-card { display: none !important; } }
+  @media (max-width: 480px) { .bn-install { display: none !important; } }
 </style>
 <script defer src="https://cloud.umami.is/script.js" data-website-id="1377f8f1-df62-427b-bc7d-eec5c112cc00" data-domains="sundanstudio.com"></script>
 </head>
@@ -704,6 +751,7 @@
 
 <!-- ===== STORE (customer) ===== -->
 <div id="app">
+  <div class="bn-offline" id="bnOffline" role="status" hidden>Sin conexión: puedes seguir viendo la carta y preparar tu pedido</div>
   <div class="ribbon" id="ribbon" role="region" aria-label="Aviso de demo">
     <p>Demo creada por Sundan Studio — ¿quieres una app así para tu negocio? <a href="index.html#contacto">Hablemos →</a></p>
     <button type="button" class="ribbon-close" id="ribbonClose" aria-label="Cerrar aviso">×</button>
@@ -726,6 +774,10 @@
         <a href="#contacto">Contacto</a>
       </nav>
       <span class="open-pill" id="openPill" data-state="open" role="status">Abierto</span>
+      <button type="button" class="bn-install" id="bnInstall" hidden aria-label="Instalar la app Bola de Nieve">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>
+        <span class="bn-install-txt">Instalar app</span>
+      </button>
       <button type="button" class="cart-btn" id="cartBtn" aria-label="Ver carrito, 0 artículos">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6h15l-1.5 8.5a2 2 0 0 1-2 1.5H9.5a2 2 0 0 1-2-1.6L6 3H3"/><circle cx="9" cy="20" r="1.3"/><circle cx="17" cy="20" r="1.3"/></svg>
         <span class="badge" id="badge" hidden>0</span>
@@ -754,6 +806,12 @@
           </div>
           <div class="hero-art" id="heroArt" aria-hidden="true"></div>
         </section>
+        <aside class="bn-app-card" id="bnAppCard" aria-label="Instalar la app" hidden>
+          <img class="bn-app-ic" src="assets/pwa/icon-192.png" alt="" width="44" height="44">
+          <p id="bnAppCardTxt">Instala Bola de Nieve en tu móvil · pide en dos toques y recibe un aviso cuando esté listo</p>
+          <button type="button" class="btn btn-primary bn-app-go" id="bnAppCardBtn">Instalar</button>
+          <button type="button" class="bn-tip-x" id="bnAppCardX" aria-label="Ocultar esta tarjeta">×</button>
+        </aside>
 
         <section class="section" id="helados" aria-labelledby="helados-title">
           <div class="section-head">
@@ -816,6 +874,10 @@
             <div class="track"><div class="track-fill" id="trackFill"></div></div>
           </div>
           <p class="status" id="statusMsg" aria-live="polite"></p>
+          <div class="bn-notify" id="bnNotify" hidden>
+            <button type="button" class="btn btn-ghost" id="bnNotifyBtn">Avisarme cuando esté listo</button>
+            <p class="bn-note">Demo: el aviso llega mientras la app está abierta o en segundo plano en este dispositivo.</p>
+          </div>
           <div class="sum-card">
             <h3 class="sum-title">Resumen</h3>
             <ul class="sum-list" id="sumList"></ul>
@@ -873,6 +935,11 @@
   </div>
   <div id="sheetBody"></div>
 </section>
+<aside class="bn-tip" id="bnTip" role="note" aria-label="Instalar en iPhone" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><rect x="4" y="12" width="16" height="9" rx="2"/></svg>
+  <p>Instálala en tu iPhone: pulsa Compartir y luego «Añadir a pantalla de inicio».</p>
+  <button type="button" class="bn-tip-x" id="bnTipClose" aria-label="Cerrar consejo">×</button>
+</aside>
 <div class="toast" id="toast" aria-hidden="true"></div>
 <p class="sr-only" id="live" role="status" aria-live="polite"></p>
 
@@ -2149,6 +2216,7 @@
     $('sumTypeLbl').textContent = fulfilLabel(o.type);
     $('sumPlace').textContent = o.type === 'envio' ? o.address : DB.settings().address;
     $('sumTotal').textContent = money(o.total);
+    updateNotifyUI();
   }
 
   $('again').addEventListener('click', function () {
@@ -2940,8 +3008,86 @@
     if (currentView === 'cart') show('cart');
   });
 
+  /* ---------- Avisos de pedido listo (solo si el cliente pulsa el botón) ---------- */
+  var NOTIFY_KEY = 'bola-de-nieve-avisos';
+  var NOTIFY_STATUSES = { listo: true, reparto: true };
+  var lastSeen = {};
+  var notifyBtn = $('bnNotifyBtn');
+  window.bnToast = toast;
+  function watchedIds() {
+    try { var v = JSON.parse(window.localStorage.getItem(NOTIFY_KEY) || '[]'); return Array.isArray(v) ? v : []; }
+    catch (e) { return []; }
+  }
+  function saveWatched(list) {
+    try { window.localStorage.setItem(NOTIFY_KEY, JSON.stringify(list)); } catch (e) { /* sin almacenamiento: avisos solo en esta sesión */ }
+  }
+  function notifyText(o) {
+    if (o.status === 'reparto') return 'Tu pedido ' + o.id + ' está en reparto 🛵';
+    if (o.type === 'envio') return 'Tu pedido ' + o.id + ' está listo y sale en breve 🍦';
+    return 'Tu pedido ' + o.id + ' está listo para recoger 🍦';
+  }
+  /* Notificación del sistema vía service worker; devuelve false si no hay permiso */
+  function notifyOrder(o) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return false;
+    var opts = {
+      body: notifyText(o), icon: 'assets/pwa/icon-192.png', badge: 'assets/pwa/icon-192.png', tag: o.id,
+      data: { url: 'demo-heladeria.html?source=pwa#seguimiento/' + o.id }
+    };
+    try {
+      if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) {
+        navigator.serviceWorker.getRegistration().then(function (reg) {
+          return reg ? reg.showNotification('Bola de Nieve', opts) : new Notification('Bola de Nieve', opts);
+        }).catch(function () { toast(notifyText(o)); });
+      } else {
+        new Notification('Bola de Nieve', opts);
+      }
+      return true;
+    } catch (e) { return false; }
+  }
+  /* Se llama con cada cambio de datos (otra pestaña, panel del equipo o misma página) */
+  function checkWatchedOrders() {
+    watchedIds().forEach(function (id) {
+      var o = DB.getOrder(id);
+      if (!o) return;
+      var prev = lastSeen[id];
+      lastSeen[id] = o.status;
+      if (o.status === 'entregado') { saveWatched(watchedIds().filter(function (x) { return x !== id; })); return; }
+      if (prev && prev !== o.status && NOTIFY_STATUSES[o.status]) {
+        if (!notifyOrder(o)) toast(notifyText(o));
+      }
+    });
+  }
+  function updateNotifyUI() {
+    if (!notifyBtn) return;
+    var o = lastOrderId ? DB.getOrder(lastOrderId) : null;
+    var wrap = $('bnNotify');
+    if (wrap) wrap.hidden = !(o && o.status !== 'entregado');
+    if (!o) return;
+    var watching = watchedIds().indexOf(o.id) !== -1;
+    notifyBtn.textContent = watching ? 'Te avisaremos cuando esté listo' : 'Avisarme cuando esté listo';
+    notifyBtn.disabled = watching;
+  }
+  notifyBtn.addEventListener('click', function () {
+    var o = lastOrderId ? DB.getOrder(lastOrderId) : null;
+    if (!o) return;
+    function enable(state) {
+      var list = watchedIds();
+      if (list.indexOf(o.id) === -1) list.push(o.id);
+      saveWatched(list);
+      lastSeen[o.id] = o.status;
+      toast(state === 'granted' ? 'Te avisaremos cuando tu pedido esté listo' : 'Te avisaremos en esta pantalla mientras la tengas abierta');
+      updateNotifyUI();
+    }
+    var perm = ('Notification' in window) ? Notification.permission : 'unsupported';
+    if (perm !== 'default') { enable(perm); return; }
+    var asked;
+    try { asked = Notification.requestPermission(); } catch (e) { asked = Promise.resolve('default'); }
+    Promise.resolve(asked).then(enable, function () { enable('default'); });
+  });
+
   /* ---------- Init ---------- */
   DB.onChange(function () { refreshAll(); });
+  DB.onChange(function () { checkWatchedOrders(); updateNotifyUI(); });
   setInterval(renderOpenInfo, 30000);
 
   renderHero();
@@ -2951,8 +3097,114 @@
   renderOpenInfo();
   renderCart();
   refresh();
+  checkWatchedOrders();
   route();
   window.__bnBooted = true;
+})();
+</script>
+
+<script>
+/* ===== PWA: instalación, aviso sin conexión y service worker ===== */
+(function () {
+  'use strict';
+  function el(id) { return document.getElementById(id); }
+  function say(msg) { if (window.bnToast) window.bnToast(msg); }
+  var params = new URLSearchParams(location.search);
+  if (params.get('source') === 'pwa') document.documentElement.classList.add('pwa-standalone');
+
+  /* Ya instalada o abierta desde el icono: no mostramos nada de instalación */
+  var standalone = false;
+  try { standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; }
+  catch (e) { standalone = window.navigator.standalone === true; }
+  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent || '') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  /* Botón "Instalar app" (Chrome, Edge, Android) */
+  var installBtn = el('bnInstall');
+  var tip = el('bnTip');
+  var deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault(); /* guardamos el evento para lanzarlo desde nuestro botón */
+    if (standalone) return;
+    deferredPrompt = e;
+    if (installBtn) installBtn.hidden = false;
+    showCard('install');
+  });
+  if (installBtn) installBtn.addEventListener('click', function () {
+    if (!deferredPrompt) return;
+    var ev = deferredPrompt;
+    deferredPrompt = null;
+    installBtn.hidden = true;
+    try { ev.prompt(); } catch (e) { /* el navegador no mostró el diálogo */ }
+  });
+  window.addEventListener('appinstalled', function () {
+    deferredPrompt = null;
+    if (installBtn) installBtn.hidden = true;
+    if (tip) tip.hidden = true;
+    if (card) card.hidden = true;
+    say('¡Bola de Nieve instalada!');
+  });
+
+  /* Tarjeta bajo la portada en móvil estrecho: instalar (Android/Chrome) o instrucciones (iPhone) */
+  var card = el('bnAppCard');
+  var cardBtn = el('bnAppCardBtn');
+  var cardTxt = el('bnAppCardTxt');
+  var narrow = window.matchMedia('(max-width: 480px)');
+  var CARD_KEY = 'bola-de-nieve-app-card';
+  var cardOff = false;
+  try { cardOff = window.localStorage.getItem(CARD_KEY) === 'off'; } catch (e) { cardOff = false; }
+  function showCard(mode) {
+    if (!card || cardOff || standalone || !narrow.matches) return;
+    if (mode === 'ios') {
+      cardTxt.textContent = 'Instálala en tu iPhone: pulsa Compartir y luego «Añadir a pantalla de inicio».';
+      cardBtn.hidden = true;
+    } else {
+      cardTxt.textContent = 'Instala Bola de Nieve en tu móvil · pide en dos toques y recibe un aviso cuando esté listo';
+      cardBtn.hidden = false;
+    }
+    card.hidden = false;
+  }
+  if (cardBtn) cardBtn.addEventListener('click', function () {
+    if (!deferredPrompt) return;
+    var ev = deferredPrompt;
+    deferredPrompt = null;
+    card.hidden = true;
+    if (installBtn) installBtn.hidden = true;
+    try { ev.prompt(); } catch (e) { /* el navegador no mostró el diálogo */ }
+  });
+  var cardX = el('bnAppCardX');
+  if (cardX) cardX.addEventListener('click', function () {
+    card.hidden = true;
+    cardOff = true;
+    try { window.localStorage.setItem(CARD_KEY, 'off'); } catch (e) { /* sin almacenamiento: vuelve en la próxima visita */ }
+  });
+  if (isIOS && !standalone && narrow.matches) showCard('ios');
+
+  /* Consejo para iPhone/iPad (pantallas anchas): Safari no tiene beforeinstallprompt */
+  if (tip && isIOS && !standalone && !narrow.matches) {
+    var TIP_KEY = 'bola-de-nieve-ios-tip';
+    var dismissed = false;
+    try { dismissed = window.localStorage.getItem(TIP_KEY) === 'off'; } catch (e) { dismissed = false; }
+    tip.hidden = dismissed;
+    var tipClose = el('bnTipClose');
+    if (tipClose) tipClose.addEventListener('click', function () {
+      tip.hidden = true;
+      try { window.localStorage.setItem(TIP_KEY, 'off'); } catch (e) { /* sin almacenamiento: vuelve en la próxima visita */ }
+    });
+  }
+
+  /* Banner de "sin conexión" */
+  var offline = el('bnOffline');
+  function paintOnline() { if (offline) offline.hidden = navigator.onLine !== false; }
+  window.addEventListener('online', paintOnline);
+  window.addEventListener('offline', paintOnline);
+  paintOnline();
+
+  /* Service worker: solo en https o localhost; si falla, la web funciona igual sin modo offline */
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    try {
+      navigator.serviceWorker.register('bn-sw.js', { scope: '/demo-heladeria' }).catch(function () { /* sin offline */ });
+    } catch (e) { /* navegador sin soporte */ }
+  }
 })();
 </script>
 <script src="assets/sundan-bar.js" defer data-pos="br" data-pos-narrow="tl" data-z="35" data-below=".top" data-hash-pos="#admin:tr"></script>
