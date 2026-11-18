@@ -95,9 +95,11 @@
     var span = (W - 2 * PADX) / n;
     var ySag = function (u) { return YP + 4 * SAG * u * (1 - u); };
     var s, j, K, x0, x, y, u, slope, ang, g, gb, b = 0, p = 0;
+    var curve = ' L' + PADX + ' ' + YP; /* misma curva que los cordones */
 
     for (s = 0; s < n; s++) {
       x0 = PADX + s * span;
+      curve += ' Q' + (x0 + span / 2) + ' ' + (YP + 2 * SAG) + ' ' + (x0 + span) + ' ' + YP;
       mk('path', { d: 'M' + x0 + ' ' + YP + ' Q' + (x0 + span / 2) + ' ' + (YP + 2 * SAG) + ' ' + (x0 + span) + ' ' + YP,
                    fill: 'none', stroke: '#4a3320', 'stroke-width': 1.5 }, svg);
       K = Math.max(4, Math.round(span / 46));
@@ -123,12 +125,80 @@
         b++;
       }
     }
+    /* curva de la guirnalda (en coordenadas locales): region sobre ella y region bajo ella */
+    curve += ' L' + W + ' ' + YP;
+    el._w = W;
+    el._upD = 'M0 0 L0 ' + YP + curve + ' L' + W + ' 0 Z';
+    el._loD = 'M0 ' + YP + curve + ' L' + W + ' ' + GAR_H + ' L0 ' + GAR_H + ' Z';
     /* nudos dorados donde se unen dos tramos de guirnalda */
     for (s = 1; s < n; s++) {
       x = PADX + s * span;
       mk('circle', { cx: x.toFixed(2), cy: YP, r: 1.5, fill: '#e9b42f' }, svg);
     }
   }
+
+  /* mascara de un .sec-spot-wrap: blanco = luz, negro = oculto en la zona indicada (path en coordenadas de la guirnalda) */
+  function setSpotMask(wrap, wr, inner) {
+    /* el negro de la mascara interna es transparencia: se usa un <mask> (luminancia) y no el alfa de la imagen */
+    var w = Math.round(wr.width), h = Math.round(wr.height);
+    var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='" + w + "' height='" + h + "'>" +
+      "<defs><mask id='gm' maskUnits='userSpaceOnUse' x='0' y='0' width='" + w + "' height='" + h + "'>" +
+      "<rect width='" + w + "' height='" + h + "' fill='white'/>" + inner + "</mask></defs>" +
+      "<rect width='" + w + "' height='" + h + "' fill='white' mask='url(#gm)'/></svg>";
+    var url = 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
+    wrap.style.maskImage = wrap.style.webkitMaskImage = url;
+    wrap.style.maskSize = wrap.style.webkitMaskSize = '100% 100%';
+    wrap.style.maskRepeat = wrap.style.webkitMaskRepeat = 'no-repeat';
+  }
+
+  /* franja de la guirnalda: color de la seccion de arriba sobre la curva y el de la de abajo bajo ella.
+     La capa va dentro de la seccion de arriba (z -1), por debajo de su haz de luz; los haces de ambas
+     secciones se extienden hasta la franja y se enmascaran por la curva, asi ningun borde recto queda visible */
+  function garSpots(el) {
+    if (!el._upD) return;
+    var up = el.previousElementSibling, lo = el.nextElementSibling;
+    var gr = el.getBoundingClientRect();
+    var W = Math.round(el.clientWidth);
+    if (up && up.tagName === 'SECTION') {
+      var ur = up.getBoundingClientRect();
+      if (getComputedStyle(up).position === 'static') up.style.position = 'relative';
+      var fill = el._fill;
+      if (!fill) {
+        fill = document.createElement('div');
+        fill.className = 'sep-garland-fill';
+        fill.setAttribute('aria-hidden', 'true');
+        el._fill = fill;
+      }
+      if (fill.parentNode !== up) up.appendChild(fill);
+      var upC = getComputedStyle(up).backgroundColor;
+      var loC = (lo && lo.tagName === 'SECTION') ? getComputedStyle(lo).backgroundColor : 'transparent';
+      fill.innerHTML = '';
+      fill.style.left = (gr.left - ur.left) + 'px';
+      fill.style.top = (gr.top - ur.top) + 'px';
+      fill.style.width = W + 'px';
+      var fsvg = mk('svg', { viewBox: '0 0 ' + W + ' ' + GAR_H, 'aria-hidden': 'true' }, fill);
+      mk('path', { d: el._upD, fill: upC }, fsvg);
+      mk('path', { d: el._loD, fill: loC }, fsvg);
+      var wu = up.querySelector(':scope > .sec-spot-wrap');
+      if (wu) {
+        wu.style.bottom = (ur.bottom - gr.bottom) + 'px';   /* se extiende hasta el fondo de la guirnalda */
+        var wur = wu.getBoundingClientRect();
+        setSpotMask(wu, wur, "<path transform='translate(" + (gr.left - wur.left).toFixed(1) + " " + (gr.top - wur.top).toFixed(1) +
+          ")' d='" + el._loD + "' fill='black'/>");
+      }
+    }
+    if (lo && lo.tagName === 'SECTION') {
+      var lr = lo.getBoundingClientRect();
+      var wl = lo.querySelector(':scope > .sec-spot-wrap');
+      if (wl) {
+        wl.style.top = (gr.top - lr.top) + 'px';   /* se extiende hasta el inicio de la guirnalda */
+        var wlr = wl.getBoundingClientRect();
+        setSpotMask(wl, wlr, "<path transform='translate(" + (gr.left - wlr.left).toFixed(1) + " " + (gr.top - wlr.top).toFixed(1) +
+          ")' d='" + el._upD + "' fill='black'/>");
+      }
+    }
+  }
+  function garSpotsAll() { gars.forEach(garSpots); }
 
   function watchPause(el) {
     if (reduce || !('IntersectionObserver' in window)) return;
@@ -149,7 +219,18 @@
       gars.push(el);
     });
     buildGars();
+    garSpotsAll();
     gars.forEach(watchPause);
+    /* las secciones vecinas pueden cambiar de altura (imagenes, fuentes, acordeones) */
+    window.addEventListener('load', garSpotsAll);
+    if ('ResizeObserver' in window) {
+      var gro = new ResizeObserver(garSpotsAll);
+      gars.forEach(function (el) {
+        [el.previousElementSibling, el.nextElementSibling].forEach(function (s) {
+          if (s && s.tagName === 'SECTION') gro.observe(s);
+        });
+      });
+    }
   }
 
   /* ---- (c) papel picado en dos capas ---- */
@@ -286,6 +367,7 @@
   function refresh() {
     measureTopbar();
     buildGars();
+    garSpotsAll();
     if (!reduce) sizeConfetti();
   }
 

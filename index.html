@@ -308,10 +308,13 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 
 
 /* SERVICIOS */
-.services{background:rgba(20,6,15,.82);color:var(--bone);position:relative;overflow:clip;padding:0 0 clamp(36px,6vh,64px)}
+/* El fondo de servicios empieza bajo la guirnalda (90px); la franja de la guirnalda la pinta el propio SVG, siguiendo la curva */
+.services{background:linear-gradient(rgba(20,6,15,.82),rgba(20,6,15,.82)) 0 90px/100% calc(100% - 90px) no-repeat;color:var(--bone);position:relative;overflow:clip;padding:0 0 clamp(36px,6vh,64px)}
 /* Separador A: guirnalda de Mumi (JS la construye al ancho del contenedor) */
 .sep-garland{position:relative;z-index:1;width:100%;height:90px;overflow:hidden}
 .sep-garland svg{display:block;width:100%;height:90px}
+.sep-garland-bg{position:absolute;left:0;top:0;width:100%;height:90px;z-index:-1;pointer-events:none;overflow:hidden}
+.sep-garland-bg svg{display:block;width:100%;height:90px}
 @keyframes sepGarTw{0%,100%{opacity:1}50%{opacity:.4}}
 .sep-garland-b{animation:sepGarTw 3s ease-in-out infinite}
 .sep-paused .sep-garland-b,.sep-paused .sep-marquee-b{animation-play-state:paused}
@@ -654,7 +657,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 @supports not (overflow:clip){.sec-spot-wrap{overflow:hidden}}
 /* sticky inside the section-sized wrap: the light follows the viewport top while the section scrolls past */
 .sec-spot-stick{position:sticky;top:var(--hdr,64px);display:block;width:100%;height:min(calc(100vh - var(--hdr,64px)),100%)}
-.has-spot > :not(.sec-spot-wrap):not(.cf-side):not(.faq-intro){position:relative;z-index:1}
+.has-spot > :not(.sec-spot-wrap):not(.cf-side):not(.faq-intro):not(.sep-garland-bg){position:relative;z-index:1}
 .sec-spot{position:absolute;top:calc(min(180vh,1800px) * -.04);width:min(70vw,900px);height:min(180vh,1800px);transform-origin:50% 0;background:radial-gradient(ellipse 40% 90% at 50% 0%,rgba(255,232,180,.136),rgba(255,232,180,.051) 45%,transparent 72%);clip-path:polygon(44% 0,56% 0,100% 100%,0 100%);mix-blend-mode:screen;opacity:0;transition:opacity .8s ease;animation-duration:11s;animation-timing-function:ease-in-out;animation-iteration-count:infinite;animation-play-state:paused}
 .sec-spot::before{content:"";position:absolute;left:50%;top:0;width:60px;height:60px;margin-left:-30px;border-radius:50%;background:radial-gradient(circle,rgba(255,240,200,.30),transparent 70%)}
 .sec-spot.spot-l{left:calc(min(70vw,900px) / -2);transform:rotate(-45deg);animation-name:spotL}
@@ -1192,6 +1195,7 @@ select.cf-input option{background:var(--plum);color:var(--bone)}
 </section>
 
 <section class="services" id="servicios">
+  <div class="sep-garland-bg" id="sepGarlandBg" aria-hidden="true"></div>
   <div class="sep-garland" id="sepGarland" aria-hidden="true"></div>
   <div class="wrap one">
     <div class="intro">
@@ -3602,11 +3606,19 @@ function drawMumi(c, p){
         "' width='" + (r.width + BOX_PAD * 2).toFixed(1) + "' height='" + (h + BOX_PAD * 2).toFixed(1) +
         "' rx='" + (rad + BOX_PAD).toFixed(1) + "'/>";
     }).join('');
+    /* guirnalda al inicio de la seccion: lo que queda sobre su curva se enmascara a 0 (la luz empieza en la curva) */
+    var gEl = sec.querySelector(':scope > .sep-garland');
+    var cut = '';
+    if (gEl && gEl._upD) {
+      var gr = gEl.getBoundingClientRect();
+      cut = "<path transform='translate(" + (gr.left - s.left).toFixed(1) + " " + (gr.top - s.top).toFixed(1) +
+        ")' d='" + gEl._upD + "' fill='black'/>";
+    }
     var svg = "<svg xmlns='http://www.w3.org/2000/svg' width='" + W + "' height='" + H + "'>" +
       "<defs><filter id='f' filterUnits='userSpaceOnUse' x='-100' y='-100' width='" + (W + 200) + "' height='" + (H + 200) + "'>" +
       "<feGaussianBlur stdDeviation='" + BLUR + "'/></filter>" +
       "<mask id='m' maskUnits='userSpaceOnUse' x='0' y='0' width='" + W + "' height='" + H + "'>" +
-      "<rect width='" + W + "' height='" + H + "' fill='white'/><g filter='url(#f)' fill='rgb(13,13,13)'>" + rects + "</g></mask></defs>" +
+      "<rect width='" + W + "' height='" + H + "' fill='white'/><g filter='url(#f)' fill='rgb(13,13,13)'>" + rects + "</g>" + cut + "</mask></defs>" +
       "<rect width='" + W + "' height='" + H + "' fill='black' mask='url(#m)'/></svg>";
     var url = 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
     wrap.style.maskImage = wrap.style.webkitMaskImage = url;
@@ -3693,9 +3705,11 @@ function drawMumi(c, p){
     var span = (W - 2 * PADX) / n;
     var ySag = function (u) { return YP + 4 * SAG * u * (1 - u); };
     var s, j, K, x0, x, y, u, slope, ang, g, gb, b = 0, p = 0;
+    var curve = ' L' + PADX + ' ' + YP; /* misma curva que los cordones */
 
     for (s = 0; s < n; s++) {
       x0 = PADX + s * span;
+      curve += ' Q' + (x0 + span / 2) + ' ' + (YP + 2 * SAG) + ' ' + (x0 + span) + ' ' + YP;
       mk('path', {d: 'M' + x0 + ' ' + YP + ' Q' + (x0 + span / 2) + ' ' + (YP + 2 * SAG) + ' ' + (x0 + span) + ' ' + YP,
                   fill: 'none', stroke: '#4a3320', 'stroke-width': 1.5}, svg);
       K = Math.max(4, Math.round(span / 46));
@@ -3720,6 +3734,17 @@ function drawMumi(c, p){
         }
         b++;
       }
+    }
+    /* franja de fondo: color de la seccion superior (.projects) sobre la curva y el de servicios bajo ella.
+       Va en su propia capa (#sepGarlandBg, z -1) para que el haz de luz siga viéndose encima */
+    curve += ' L' + W + ' ' + YP;
+    el._upD = 'M0 0 L0 ' + YP + curve + ' L' + W + ' 0 Z'; /* region sobre la curva; la usa updateSpotMask */
+    var bgEl = document.getElementById('sepGarlandBg');
+    if (bgEl) {
+      bgEl.innerHTML = '';
+      var bsvg = mk('svg', {viewBox: '0 0 ' + W + ' ' + GAR_H, 'aria-hidden': 'true'}, bgEl);
+      mk('path', {d: 'M0 0 L0 ' + YP + curve + ' L' + W + ' 0 Z', fill: 'rgba(27,8,18,.82)'}, bsvg);
+      mk('path', {d: 'M0 ' + YP + curve + ' L' + W + ' ' + GAR_H + ' L0 ' + GAR_H + ' Z', fill: 'rgba(20,6,15,.82)'}, bsvg);
     }
     /* nudos dorados donde se unen dos guirnaldas (antiguos polos), colgadas del borde superior */
     for (s = 1; s < n; s++) {
