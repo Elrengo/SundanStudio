@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0b1020">
+<meta name="theme-color" content="#f3ead6">
 <meta name="color-scheme" content="dark light">
 <meta name="description" content="Demo de Pulso: panel de analítica de pagos para Demopay, una pasarela ficticia. Creado por Sundan Studio.">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
@@ -18,10 +18,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Gloock&family=Inter:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <script>
 (function () {
-  var t = 'dark';
+  var t = 'carpa';
   try {
     var p = JSON.parse(localStorage.getItem('pulso-prefs') || '{}');
-    if (p && p.theme === 'carpa') t = 'carpa';
+    if (p && p.theme === 'dark') t = 'dark';
   } catch (e) {}
   document.documentElement.setAttribute('data-theme', t);
 })();
@@ -691,7 +691,9 @@ html[data-theme="carpa"] h1 { display: inline-block; padding-bottom: 4px; border
 html[data-theme="carpa"] :is(.btn, .toggle, .seg button, .fsel, .kpi-label, .nav-item, .sub, .card-head p, .dd-item) { font-family: var(--font-ui); }
 html[data-theme="carpa"] .ribbon { border-bottom: 1px solid var(--gold); }
 html[data-theme="carpa"] .sidebar {
-  background-image: repeating-linear-gradient(90deg, rgba(27,8,18,.035) 0 12px, rgba(27,8,18,0) 12px 24px);
+  background: linear-gradient(180deg, #fbf6ea 0%, #f5ecd9 100%);
+  border-right: 1px solid #e2d3b4;
+  box-shadow: inset -3px 0 0 rgba(185,138,30,.18);
 }
 html[data-theme="carpa"] .kpi { box-shadow: inset 0 1px 0 var(--gold), var(--shadow); }
 html[data-theme="carpa"] .logo { color: #e9b42f; box-shadow: inset 0 0 0 1px #e9b42f; }
@@ -1127,16 +1129,6 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
           <p><strong>Ningún comercio coincide con los filtros.</strong></p>
           <button type="button" class="btn" id="empty-clear">Quitar filtros</button>
         </div>
-        <article class="card alert-card" id="res-alerts" aria-labelledby="t-alerts">
-          <div class="card-head">
-            <div>
-              <h2 id="t-alerts">Alertas activas</h2>
-              <p>Hasta tres alertas sin revisar. Usa «Ver todas» para el listado completo.</p>
-            </div>
-            <button type="button" class="btn btn-ghost" data-open-alerts>Ver todas</button>
-          </div>
-          <ul class="alert-card-list" id="alerts-mini"></ul>
-        </article>
         <div class="kpi-grid" id="kpis"></div>
         <p class="defs-link"><button type="button" class="btn btn-ghost defs-btn" aria-haspopup="dialog">ⓘ Definiciones</button></p>
 
@@ -1241,6 +1233,16 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
             <button type="button" class="btn btn-ghost" data-goto="transacciones">Ver todas</button>
           </div>
           <ul class="feed" id="feed"></ul>
+        </article>
+        <article class="card alert-card" id="res-alerts" aria-labelledby="t-alerts">
+          <div class="card-head">
+            <div>
+              <h2 id="t-alerts">Alertas activas</h2>
+              <p>Hasta tres alertas sin revisar. Usa «Ver todas» para el listado completo.</p>
+            </div>
+            <button type="button" class="btn btn-ghost" data-open-alerts>Ver todas</button>
+          </div>
+          <ul class="alert-card-list" id="alerts-mini"></ul>
         </article>
       </section>
 
@@ -1516,8 +1518,8 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
           <div class="form-grid">
             <label class="fsel"><span>Tema</span>
               <select class="field" id="p-theme">
-                <option value="dark">Noche (predeterminado)</option>
-                <option value="carpa">Carpa</option>
+                <option value="carpa">Carpa (predeterminado)</option>
+                <option value="dark">Noche</option>
               </select>
             </label>
             <label class="fsel"><span>Divisa</span>
@@ -2460,6 +2462,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
   var ACT = lsGet('pulso-activity', []);
   var PENDING = lsGet('pulso-approvals', []);
   var LAST_KEY = 'pulso-last-user';
+  var DEFAULT_USER_ID = 'laura'; /* Laura Méndez · Administración: todos los permisos */
   function lastUserId() { try { return localStorage.getItem(LAST_KEY) || ''; } catch (e) { return ''; } }
   function rememberUser(id) { try { localStorage.setItem(LAST_KEY, id); } catch (e) {} }
   function userById(id) {
@@ -5911,7 +5914,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     syncIf($('#t-appr'), String(T.appr));
     syncIf($('#t-cb'), String(T.cb));
     syncIf($('#t-margin'), String(T.margin));
-    syncIf($('#p-theme'), prefs.theme === 'carpa' ? 'carpa' : 'dark');
+    syncIf($('#p-theme'), prefs.theme === 'dark' ? 'dark' : 'carpa');
     syncIf($('#p-currency'), state.currency);
     syncIf($('#p-range'), RANGE_CODE_OF[state.range] || '30d');
     renderSched();
@@ -5923,7 +5926,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     ACT.length = 0; lsSet('pulso-activity', ACT);
     PENDING.length = 0; savePending();
     prefs = {};
-    applyTheme('dark');
+    applyTheme('carpa');
     document.documentElement.setAttribute('data-density', 'comoda');
     state.seed = SEED_TODAY; state.scenario = 'normal'; state.range = 30; state.custom = null; state.cmpMode = 'prev';
     state.compare = true; state.currency = 'EUR';
@@ -6999,7 +7002,7 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     if (RANGE_CODE_OF[prefs.range] && !state.custom) state.range = prefs.range;
     if (typeof prefs.compare === 'boolean') state.compare = prefs.compare;
     if (RATES[prefs.currency]) state.currency = prefs.currency;
-    applyTheme(prefs.theme === 'carpa' ? 'carpa' : 'dark');
+    applyTheme(prefs.theme === 'dark' ? 'dark' : 'carpa');
     document.documentElement.setAttribute('data-density', prefs.density === 'compacta' ? 'compacta' : 'comoda');
     readHash();
     buildFase();
@@ -7023,10 +7026,11 @@ th.cf-active .colbtn { color: var(--accent); font-weight: 700; }
     loginEl = $('#login');
     window.addEventListener('scroll', onStickyScroll, { passive: true });
     syncSidebarA11y();
-    /* Cada carga muestra "Entrar como…"; solo un enlace con como=<id> entra directamente */
-    var direct = userById(state.comoParam);
+    /* Entrada automática: enlace con como=<id>, si no el último usuario recordado, si no la administradora (acceso completo) */
+    var direct = userById(state.comoParam), remembered = userById(lastUserId());
     if (direct) setUser(direct.id);
-    else showLogin(false);
+    else if (remembered) setUser(remembered.id);
+    else setUser(DEFAULT_USER_ID);
     /* Primer pintado con el login visible; después se generan los datos */
     var nextFrame = window.requestAnimationFrame || function (f) { return setTimeout(f, 16); };
     nextFrame(function () { setTimeout(loadData, 0); });

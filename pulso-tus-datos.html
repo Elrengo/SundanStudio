@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0b1020">
+<meta name="theme-color" content="#f3ead6">
 <meta name="color-scheme" content="dark light">
 <meta name="description" content="Sube un CSV de ventas y mira al momento tu propio panel de datos. Se procesa en tu navegador: tus datos no salen de tu ordenador.">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
@@ -18,10 +18,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Gloock&family=Inter:wght@400;500;600;700&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <script>
   (function () {
-    var t = 'dark';
+    var t = 'carpa';
     try {
       var p = JSON.parse(localStorage.getItem('pulso-prefs') || '{}');
-      if (p && p.theme === 'carpa') t = 'carpa';
+      if (p && p.theme === 'dark') t = 'dark';
     } catch (e) {}
     document.documentElement.setAttribute('data-theme', t);
   })();
