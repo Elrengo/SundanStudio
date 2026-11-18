@@ -296,6 +296,35 @@
   .bf-monthpick select { border-radius: 999px; padding: 8px 14px; }
   .bf-monthpick select option[disabled] { color: var(--muted); }
   .bf-monthpick select.bf-sel-on { background: var(--brand-soft); border: 1px solid var(--brand); font-weight: 700; color: var(--ink); }
+  .bf-pbar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 4px; }
+  .bf-fields { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .bf-pickwrap { position: relative; }
+  .bf-field-btn { min-height: 42px; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: 14px; box-shadow: var(--card-sh); cursor: pointer; }
+  .bf-field-btn b { font-weight: 700; }
+  .bf-field-open { border-color: var(--brand); }
+  .bf-rangechk { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); min-height: 40px; }
+  .bf-rangechk input { width: 18px; height: 18px; accent-color: var(--brand); }
+  .bf-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .bf-chip-p { min-height: 38px; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: 14px; cursor: pointer; }
+  .bf-chip-p[aria-pressed="true"] { background: var(--brand-soft); border-color: var(--brand); font-weight: 700; }
+  .bf-pop { position: absolute; top: calc(100% + 8px); left: 0; z-index: 40; width: 300px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 18px 40px -16px rgba(43,29,36,.35), 0 1px 0 rgba(255,255,255,.6) inset; padding: 14px; }
+  .bf-pop-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .bf-pop-year { font-family: 'Fraunces', Georgia, serif; font-size: 22px; margin: 0; }
+  .bf-pop-arrow { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font-size: 18px; cursor: pointer; }
+  .bf-pop-arrow:disabled { opacity: .35; cursor: not-allowed; }
+  .bf-pop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .bf-pm { position: relative; min-height: 40px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; font-size: 14px; cursor: pointer; }
+  .bf-pm:disabled { opacity: .35; cursor: not-allowed; }
+  .bf-pm-cmp { background: color-mix(in srgb, var(--cmpm) 22%, var(--surface)); border-color: var(--cmpm); }
+  .bf-pm-sel { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); font-weight: 700; }
+  .bf-pm-today::after { content: ""; position: absolute; bottom: 4px; left: 50%; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--brand); }
+  .bf-pm-sel.bf-pm-today::after { background: var(--brand-ink); }
+  .bf-pop-hint { font-size: 12px; color: var(--muted); margin: 10px 0 0; }
+  @media (max-width: 600px) {
+    .bf-fields > .bf-pickwrap { flex: 1 1 100%; }
+    .bf-field-btn { width: 100%; }
+    .bf-pop { position: fixed; left: 0; right: 0; bottom: 0; top: auto; width: 100%; border-radius: 16px 16px 0 0; max-height: 70vh; overflow: auto; z-index: 70; }
+  }
   .bf-sumline { margin: 6px 0 10px; font-size: 14.5px; }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
@@ -637,7 +666,7 @@ function gid() { return 'bfg' + (++GID); }
 var MES3 = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 var TABS = [['resumen','Resumen'],['gastos','Gastos'],['productos','Productos'],['tesoreria','Tesorería'],['sostenibilidad','Sostenibilidad'],['proyeccion','Proyección']];
 var ULT = [10,11,12,13,14,15,16,17,18,19,20,21];
-var ST = { tab: 'resumen', period: 'oct26', scen: 'base', sim: null, gView: 'persona', prodSort: { key: 'contrib', dir: -1 }, tfilter: 'todos', drawer: null, inline: null, inlineErr: '', partEdit: null, cmp: { on: false, ym: '' } };
+var ST = { tab: 'resumen', period: 'oct26', scen: 'base', sim: null, gView: 'persona', prodSort: { key: 'contrib', dir: -1 }, tfilter: 'todos', drawer: null, inline: null, inlineErr: '', partEdit: null, cmp: { on: false, year: 0 }, rangeOn: false, picker: null, pickRet: null, pickFocus: null };
 var ROWS = [];
 var CHARTS = {}, TIPS = {};
 var SCEN_LABEL = { prudente: 'Prudente', base: 'Base', optimista: 'Optimista' };
@@ -1125,7 +1154,7 @@ function sDaily(fd, zero) {
 }
 // Mini gráfica diaria (31 días; un mes corto termina antes). Beneficio: verde sobre cero, rojo bajo cero.
 function sparkDaily(s, color) {
-  var N = 31, X = function (i) { return i / (N - 1) * 120; };
+  var N = s.N || 31, X = function (i) { return i / (N - 1) * 120; };
   var all = s.vals.concat(s.cmp || []).concat(s.zero ? [0] : []);
   var mn = Math.min.apply(null, all), mx = Math.max.apply(null, all), rg = (mx - mn) || 1;
   var Yv = function (v) { return 36 - (v - mn) / rg * 32; };
@@ -1290,7 +1319,7 @@ function viewResumen() {
   var pv = P.prev ? agg(pickRows(ROWS, P.prev)) : null, lb = P.prevLabel;
   var cmpI0 = cmpOn() ? cmpInfo(ST.period) : null, cA = cmpI0 ? agg(pickRows(ROWS, cmpI0.ks)) : null;
   var mv = pickP(ST.period).length === 1;   // vista mensual: tarjetas con datos diarios
-  var SER = function (k12, fd, zero) { return mv ? sDaily(fd, zero) : l12.map(k12); };
+  var SER = function (k12, fd, zero) { return mv ? sDaily(fd, zero) : sRange(k12, zero); };
   var goodUpOf = function (key) { return key !== 'gastos'; };   // subir gastos es malo
   var fmtOf = function (key) { return key === 'ticketMedio' ? function (v) { return fN(v, 2) + ' €'; } : fE; };
   var vh = function (c, key) { if (cA) return cmpTxt(c, cA[key], cmpI0.label, false, fmtOf(key), goodUpOf(key)); return pv ? varTxt(c, pv[key], lb, goodUpOf(key)) : noCmp(); };
@@ -1416,11 +1445,6 @@ function dataSave() {
 }
 function dataChanged() { dataSave(); recalc(); renderTab(); }
 // Periodo de un mes concreto ('m2026-07') o de los predefinidos
-function pDef(id) {
-  if (BF_PERIODS[id]) return BF_PERIODS[id];
-  var ym = id.slice(1), p = ym.split('-'), y = +p[0], m = +p[1], k = kOfYm(ym);
-  return { label: BF_MONTHS[m - 1] + ' ' + y, ks: [k], prev: k >= 12 ? [k - 12] : null, prevLabel: MES3[m - 1] + ' ' + (y - 1) };
-}
 function catSum(list, cat) {
   var t = 0;
   list.forEach(function (r) { r.partsAdj.forEach(function (p) { if (p.cat === cat && !p.deleted) t += p.amt; }); });
@@ -1489,26 +1513,7 @@ function monthOptions(selected, includeEmpty) {
 }
 // ---------- Comparar: estado, periodos comparados y controles ----------
 var DAY_MS = 86400000;
-function cmpOn() { return !!(ST.cmp && ST.cmp.on); }
-function cmpDefaultYm(tab, periodId) {
-  if (tab === 'tesoreria') return '2025-11';
-  var P = pDef(periodId), kEnd = P.ks[P.ks.length - 1];
-  return ymOfK(kEnd - 12 >= 0 ? kEnd - 12 : Math.max(0, kEnd - 1));
-}
 // Periodo de comparación: mismo número de meses que el periodo base, terminando en el mes elegido
-function cmpInfo(periodId) {
-  var P = pDef(periodId), n = P.ks.length;
-  var ym = ST.cmp.ym || cmpDefaultYm(ST.tab, periodId);
-  var end = Math.min(21, kOfYm(ym)), start = end - n + 1, partial = start < 0;
-  if (start < 0) start = 0;
-  var ks = [];
-  for (var k = start; k <= end; k++) ks.push(k);
-  var label = n === 1
-    ? MES3[end % 12] + ' ' + (2025 + Math.floor(end / 12))
-    : MES3[start % 12] + ' ' + (2025 + Math.floor(start / 12)) + '–' + MES3[end % 12] + ' ' + (2025 + Math.floor(end / 12));
-  if (partial) label += ' (datos parciales)';
-  return { ks: ks, label: label, partial: partial, n: n, end: end, start: start };
-}
 // fmt: formateador del propio KPI; goodUp: false si subir es malo (gastos)
 function cmpTxt(cur, cv, label, abs, fmt, goodUp) {
   if (cv === null || cv === undefined || !isFinite(cv)) return '<p class="bf-var bf-muted">Sin datos de comparación</p>';
@@ -1516,72 +1521,11 @@ function cmpTxt(cur, cv, label, abs, fmt, goodUp) {
   var val = abs ? f(Math.abs(d)) : (cv ? fP(Math.abs(d) / Math.abs(cv), 1) : '—');
   return '<p class="bf-var bf-cmp"><span class="bf-cmpchip">' + esc(label) + ' · ' + f(cv) + '</span> <span class="' + (good ? 'bf-pos' : 'bf-neg') + '">' + (up ? '▲ ' : '▼ ') + val + '</span></p>';
 }
-function cmpStartMs() {
-  var p = (ST.cmp.ym || '2025-11').split('-');
-  return Date.UTC(+p[0], +p[1] - 1, 18);
-}
 function tesoCmpLabel() {
   var s = cmpStartMs(), e = s + 59 * DAY_MS, partial = e > Date.UTC(2026, 9, 31);
   return fDMY(new Date(s)) + '–' + fDMY(new Date(e)) + (partial ? ' (parcialmente previsto)' : '');
 }
-function syncHash() {
-  var q = [];
-  if (ST.period.charAt(0) === 'm') q.push('mes=' + ST.period.slice(1));
-  if (cmpOn()) q.push('cmp=' + ST.cmp.ym);
-  try { history.replaceState(null, '', '#' + ST.tab + (q.length ? '?' + q.join('&') : '')); } catch (e) { /* sin historial */ }
-}
 function selectTab(tab) { ST.tab = tab; syncHash(); renderTab(); }
-function cmpControls() {
-  var on = cmpOn();
-  if (on && !ST.cmp.ym) ST.cmp.ym = cmpDefaultYm(ST.tab, ST.period);
-  var ym = ST.cmp.ym || cmpDefaultYm(ST.tab, ST.period);
-  var opts = '';
-  for (var k = 21; k >= 0; k--) {
-    var y = ymOfK(k);
-    opts += '<option value="' + y + '"' + (y === ym ? ' selected' : '') + '>' + monthName(y) + '</option>';
-  }
-  var cap = !on ? '' : (ST.tab === 'tesoreria' ? tesoCmpLabel() : cmpInfo(ST.period).label);
-  return '<div class="bf-cmpctl"><button type="button" class="bf-switch" aria-pressed="' + on + '" data-cmp-toggle="1">' +
-    '<span class="bf-track" aria-hidden="true"><span class="bf-knob"></span></span>Comparar</button>' +
-    '<label class="bf-cmpsel">con: <select id="bf-cmp" data-cmp-select="1"' + (on ? '' : ' disabled') + '>' + opts + '</select></label>' +
-    (on && ST.tab === 'tesoreria' ? '<span class="bf-cmpcap">Comparando con ' + esc(cap) + '</span>' : '') + '</div>';
-}
-function periodBar() {
-  var presets = Object.keys(BF_PERIODS).map(function (id) {
-    return '<button type="button" data-period="' + id + '" aria-pressed="' + (ST.period === id) + '">' + BF_PERIODS[id].label + '</button>';
-  }).join('');
-  var sel = ST.period === 'oct26' ? '2026-10' : (ST.period.charAt(0) === 'm' ? ST.period.slice(1) : '');
-  var isSel = !!sel;   // el selector queda activo solo cuando el periodo es un mes concreto
-  return '<div class="bf-seg" role="group" aria-label="Periodo">' + presets +
-    '<label class="bf-monthpick">Mes: <select id="bf-mes" data-month-select class="' + (isSel ? 'bf-sel-on' : '') + '" aria-label="' + (isSel ? 'Mes seleccionado: ' + monthName(sel) : 'Elegir mes') + '"' + (isSel ? ' aria-current="true"' : '') + '>' + monthOptions(sel, true) + '</select></label></div>' +
-    '<div class="bf-cmprow">' + cmpControls() + '</div>';
-}
-function setFromHash() {
-  var parts = (location.hash || '').replace('#', '').split('?'), h = parts[0];
-  ST.tab = TABS.some(function (t) { return t[0] === h; }) ? h : 'resumen';
-  var q = {};
-  (parts[1] || '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) q[p[0]] = p[1]; });
-  if (q.mes && /^\d{4}-\d{2}$/.test(q.mes)) {
-    var k = kOfYm(q.mes);
-    if (k >= 0 && k <= 21) ST.period = q.mes === '2026-10' ? 'oct26' : 'm' + q.mes;
-  }
-  if (q.cmp && /^\d{4}-\d{2}$/.test(q.cmp)) {
-    var kc = kOfYm(q.cmp);
-    if (kc >= 0 && kc <= 21) { ST.cmp.on = true; ST.cmp.ym = q.cmp; }
-  }
-}
-function onChange(e) {
-  var t = e.target;
-  if (t.id === 'bf-mes') {
-    var v = t.value;
-    if (!v) return;
-    ST.period = v === '2026-10' ? 'oct26' : 'm' + v;
-    syncHash(); renderTab(); return;
-  }
-  if (t.id === 'bf-cmp') {
-    ST.cmp.ym = t.value; ST.cmp.on = true; syncHash(); renderTab();
-  }
-}
 
 // ---------- Pestaña Gastos ----------
 function viewGastos() {
@@ -1972,56 +1916,9 @@ CHARTS.catmini = function (w, h) {
 };
 
 // ---------- Eventos ----------
-function onClick(e) {
-  var t = e.target.closest('[data-tab],[data-period],[data-scen],[data-view],[data-exp],[data-reset],[data-sort],[data-tfilter],[data-cat-open],[data-add-expense],[data-form-open],[data-form-save],[data-form-cancel],[data-cust-edit],[data-cust-del],[data-part-edit],[data-part-save],[data-part-cancel],[data-part-del],[data-part-restore],[data-inline-edit],[data-inline-save],[data-inline-cancel],[data-reset-data],[data-drawer-close],[data-cmp-toggle],#bf-theme');
-  if (!t) return;
-  if (t.id === 'bf-theme') { toggleTheme(); return; }
-  if (t.hasAttribute('data-drawer-close')) { closeDrawer(); return; }
-  if (t.hasAttribute('data-tab')) { selectTab(t.getAttribute('data-tab')); return; }
-  if (t.hasAttribute('data-cmp-toggle')) {
-    ST.cmp.on = !cmpOn();
-    if (ST.cmp.on && !ST.cmp.ym) ST.cmp.ym = cmpDefaultYm(ST.tab, ST.period);
-    syncHash(); renderTab(); return;
-  }
-  if (t.hasAttribute('data-period')) { ST.period = t.getAttribute('data-period'); syncHash(); renderTab(); return; }
-  if (t.hasAttribute('data-scen')) { ST.scen = t.getAttribute('data-scen'); ST.sim = copyScen(ST.scen); recalc(); renderTab(); return; }
-  if (t.hasAttribute('data-view')) { ST.gView = t.getAttribute('data-view'); renderTab(); return; }
-  if (t.hasAttribute('data-reset')) { ST.sim = copyScen(ST.scen); recalc(); renderTab(); return; }
-  if (t.hasAttribute('data-sort')) {
-    var key = t.getAttribute('data-sort');
-    ST.prodSort = ST.prodSort.key === key ? { key: key, dir: -ST.prodSort.dir } : { key: key, dir: key === 'name' ? 1 : -1 };
-    renderTab(); return;
-  }
-  if (t.hasAttribute('data-tfilter')) { ST.tfilter = t.getAttribute('data-tfilter'); renderTab(); return; }
-  if (t.hasAttribute('data-cat-open')) { openDrawer({ cat: t.getAttribute('data-cat-open'), mode: 'detail' }, t); return; }
-  if (t.hasAttribute('data-add-expense')) { openDrawer({ cat: 'otros', mode: 'form', form: { cat: 'otros' } }, t); return; }
-  if (t.hasAttribute('data-form-open')) { formOpen(t.getAttribute('data-form-open')); return; }
-  if (t.hasAttribute('data-form-save')) { formSave(); return; }
-  if (t.hasAttribute('data-form-cancel')) { ST.drawer = { cat: (ST.drawer && ST.drawer.cat) || 'otros', mode: 'detail' }; renderDrawer(true); return; }
-  if (t.hasAttribute('data-cust-edit')) {
-    var cu = BF_DATA.customs.filter(function (x) { return x.id === t.getAttribute('data-cust-edit'); })[0];
-    if (cu) formOpen(cu.cat, cu);
-    return;
-  }
-  if (t.hasAttribute('data-cust-del')) { customDelete(t.getAttribute('data-cust-del'), t.getAttribute('data-cust-label')); return; }
-  if (t.hasAttribute('data-part-edit')) { ST.partEdit = t.getAttribute('data-part-edit'); renderDrawer(false); return; }
-  if (t.hasAttribute('data-part-save')) { partSave(); return; }
-  if (t.hasAttribute('data-part-cancel')) { ST.partEdit = null; renderDrawer(true); return; }
-  if (t.hasAttribute('data-part-del')) { partDelete(t.getAttribute('data-part-del'), t.getAttribute('data-part-label')); return; }
-  if (t.hasAttribute('data-part-restore')) { partRestore(t.getAttribute('data-part-restore')); return; }
-  if (t.hasAttribute('data-inline-edit')) { ST.inline = t.getAttribute('data-inline-edit'); ST.inlineErr = ''; renderTab(); return; }
-  if (t.hasAttribute('data-inline-save')) { inlineSave(t.getAttribute('data-inline-save')); return; }
-  if (t.hasAttribute('data-inline-cancel')) { ST.inline = null; ST.inlineErr = ''; renderTab(); return; }
-  if (t.hasAttribute('data-reset-data')) { resetData(); return; }
-  if (t.hasAttribute('data-exp')) {
-    var grp = t.getAttribute('data-exp'), open = t.getAttribute('aria-expanded') !== 'true';
-    t.setAttribute('aria-expanded', open ? 'true' : 'false');
-    t.querySelector('span').textContent = open ? '▾' : '▸';
-    document.querySelectorAll('[data-grp="' + grp + '"]').forEach(function (r) { r.hidden = !open; });
-  }
-}
 
 function onEditKey(e) {
+  if (pickerKey(e)) return;
   var t = e.target;
   if (t.id === 'bf-inl') {
     if (e.key === 'Enter') { e.preventDefault(); inlineSave(ST.inline); }
@@ -2570,32 +2467,257 @@ function viewTesoreria() {
 
 
 // Encabezado del periodo (anunciado con aria-live)
+// ---------- Periodos de rango, selector con calendario y comparación por año ----------
+// ST.period: id de preset ('oct26', 'ult12', 'y2025', 'ytd26'), 'm<ym>' (un mes) o 'r<ym>_<ym>' (rango)
+var PRESET_CHIPS = [['oct26', 'Último mes'], ['ult12', 'Últimos 12 meses'], ['y2025', '2025'], ['ytd26', '2026 hasta oct']];
+function mOf(k) { return ((k % 12) + 12) % 12; }
+function yOf(k) { return 2025 + Math.floor(k / 12); }
+function rangeOf(id) {
+  if (BF_PERIODS[id]) { var ks = BF_PERIODS[id].ks; return [ks[0], ks[ks.length - 1]]; }
+  if (id.charAt(0) === 'm') { var k1 = kOfYm(id.slice(1)); return [k1, k1]; }
+  if (id.charAt(0) === 'r') { var p = id.slice(1).split('_'); return [kOfYm(p[0]), kOfYm(p[1])]; }
+  return [21, 21];
+}
+function rangeId(f, t) { return f === t ? 'm' + ymOfK(f) : 'r' + ymOfK(f) + '_' + ymOfK(t); }
+function rangeTitle(f, t) {
+  if (f === t) return BF_MONTHS[mOf(f)] + ' de ' + yOf(f);
+  if (yOf(f) === yOf(t)) return BF_MONTHS[mOf(f)] + ' – ' + BF_MONTHS[mOf(t)] + ' de ' + yOf(f);
+  return BF_MONTHS[mOf(f)] + ' de ' + yOf(f) + ' – ' + BF_MONTHS[mOf(t)] + ' de ' + yOf(t);
+}
+function rangeShort(f, t) {
+  if (f === t) return MES3[mOf(f)] + ' ' + yOf(f);
+  if (yOf(f) === yOf(t)) return MES3[mOf(f)] + '–' + MES3[mOf(t)] + ' ' + yOf(f);
+  return MES3[mOf(f)] + ' ' + yOf(f) + ' – ' + MES3[mOf(t)] + ' ' + yOf(t);
+}
+function pDef(id) {
+  if (BF_PERIODS[id]) return BF_PERIODS[id];
+  var r = rangeOf(id), f = r[0], t = r[1], ks = [];
+  for (var k = f; k <= t; k++) ks.push(k);
+  return { label: rangeTitle(f, t), ks: ks, prev: f - 12 >= 0 ? ks.map(function (x) { return x - 12; }) : null, prevLabel: rangeShort(f - 12, t - 12), single: f === t };
+}
+// Comparación por año: mismos meses en el año elegido (por defecto, el año anterior al del periodo)
+function cmpDefaultYear() { return ST.tab === 'tesoreria' ? 2025 : yOf(rangeOf(ST.period)[1]) - 1; }
+function cmpYear() { return ST.cmp.year || cmpDefaultYear(); }
+function cmpInfo(periodId) {
+  var P = pDef(periodId), t = rangeOf(periodId)[1], y = cmpYear(), sh = (y - yOf(t)) * 12;
+  var all = P.ks.map(function (k) { return k + sh; });
+  var aligned = all.map(function (k) { return k >= 0 && k <= 21 ? k : -1; });
+  var ks = aligned.filter(function (k) { return k >= 0; });
+  var partial = ks.length < all.length;
+  var label = ks.length ? rangeTitle(all[0], all[all.length - 1]).toLowerCase() : 'sin datos de ' + y;
+  if (ks.length && partial) label += ' (datos parciales: solo desde ene 2025)';
+  return { ks: ks, aligned: aligned, all: all, label: label, partial: partial, n: P.ks.length, shift: sh, year: y };
+}
+function cmpOn() {
+  if (!(ST.cmp && ST.cmp.on)) return false;
+  if (ST.tab === 'tesoreria') { var y = cmpYear(); return y >= 2025 && y <= 2026; }
+  return cmpInfo(ST.period).ks.length > 0;
+}
+function cmpStartMs() { return Date.UTC(cmpYear(), 10, 18); }
+function syncHash() {
+  var r = rangeOf(ST.period), q = ['desde=' + ymOfK(r[0])];
+  if (r[1] !== r[0]) q.push('hasta=' + ymOfK(r[1]));
+  if (ST.cmp.on) q.push('cmpAnio=' + cmpYear());
+  try { history.replaceState(null, '', '#' + ST.tab + '?' + q.join('&')); } catch (e) { /* sin historial */ }
+}
+function cmpControls() {
+  var on = cmpOn(), base = yOf(rangeOf(ST.period)[1]), y = cmpYear();
+  var opts = [2025, 2026].map(function (yy) {
+    var same = yy === base;
+    return '<option value="' + yy + '"' + (yy === y && !same ? ' selected' : '') + (same ? ' disabled' : '') + '>' + yy + (same ? ' (periodo actual)' : '') + '</option>';
+  }).join('');
+  var cap = on && ST.tab === 'tesoreria' ? '<span class="bf-cmpcap">Comparando con ' + esc(tesoCmpLabel()) + '</span>' : '';
+  return '<div class="bf-cmpctl"><button type="button" class="bf-switch" aria-pressed="' + on + '" data-cmp-toggle="1">' +
+    '<span class="bf-track" aria-hidden="true"><span class="bf-knob"></span></span>Comparar</button>' +
+    '<label class="bf-cmpsel">Año: <select id="bf-cmp" data-cmp-select="1"' + (on ? '' : ' disabled') + '>' + opts + '</select></label>' + cap + '</div>';
+}
+// Selector: campos "Desde" / "Hasta", casilla "Agregar periodo", calendario mensual y chips rápidos
+function pickerHtml(which) {
+  var r = rangeOf(ST.period), cur = which === 'from' ? r[0] : r[1], minK = which === 'to' ? r[0] : 0, y = ST.picker.y;
+  var cmpK = cmpOn() ? cmpInfo(ST.period).ks : [], cells = '';
+  for (var mi = 0; mi < 12; mi++) {
+    var k = (y - 2025) * 12 + mi, dis = k < 0 || k > 21 || k < minK, sel = k === cur;
+    cells += '<button type="button" class="bf-pm' + (sel ? ' bf-pm-sel' : '') + (cmpK.indexOf(k) >= 0 ? ' bf-pm-cmp' : '') + (k === 21 ? ' bf-pm-today' : '') +
+      '" data-pick-month="' + k + '" aria-pressed="' + sel + '"' + (dis ? ' disabled aria-disabled="true"' : '') + '>' + MES3[mi] + '</button>';
+  }
+  return '<div class="bf-pop" id="bf-pop" role="dialog" aria-label="' + (which === 'from' ? 'Elegir mes de inicio' : 'Elegir mes final') + '">' +
+    '<div class="bf-pop-head"><button type="button" class="bf-pop-arrow" data-pick-year="-1" aria-label="Año anterior"' + (y <= 2025 ? ' disabled' : '') + '>‹</button>' +
+    '<h3 class="bf-pop-year">' + y + '</h3><button type="button" class="bf-pop-arrow" data-pick-year="1" aria-label="Año siguiente"' + (y >= 2026 ? ' disabled' : '') + '>›</button></div>' +
+    '<div class="bf-pop-grid">' + cells + '</div><p class="bf-pop-hint">Flechas para moverse · Enter elige · Esc cierra</p></div>';
+}
+function periodBar() {
+  var r = rangeOf(ST.period), f = r[0], t = r[1];
+  var field = function (which, k) {
+    var open = !!(ST.picker && ST.picker.which === which);
+    return '<button type="button" class="bf-field-btn' + (open ? ' bf-field-open' : '') + '" data-pick="' + which + '" aria-haspopup="dialog" aria-expanded="' + open + '" id="bf-pick-' + which + '">' +
+      (which === 'from' ? 'Desde' : 'Hasta') + ': <b>' + monthName(ymOfK(k)) + '</b> <span aria-hidden="true">▾</span></button>';
+  };
+  var chips = PRESET_CHIPS.map(function (c) {
+    var rr = rangeOf(c[0]), on = rr[0] === f && rr[1] === t;
+    return '<button type="button" class="bf-chip-p" data-chip="' + c[0] + '" aria-pressed="' + on + '">' + c[1] + '</button>';
+  }).join('');
+  return '<div class="bf-pbar"><div class="bf-fields">' +
+    '<div class="bf-pickwrap">' + field('from', f) + (ST.picker && ST.picker.which === 'from' ? pickerHtml('from') : '') + '</div>' +
+    (ST.rangeOn ? '<div class="bf-pickwrap">' + field('to', t) + (ST.picker && ST.picker.which === 'to' ? pickerHtml('to') : '') + '</div>' : '') +
+    '<label class="bf-rangechk"><input type="checkbox" id="bf-range" data-range-toggle="1"' + (ST.rangeOn ? ' checked' : '') + '> Agregar periodo</label></div>' +
+    '<div class="bf-chips" role="group" aria-label="Periodos rápidos">' + chips + '</div></div>' +
+    '<div class="bf-cmprow">' + cmpControls() + '</div>';
+}
 function periodHeading() {
-  var P = pDef(ST.period), ks = P.ks, single = ks.length === 1, title, sub;
-  if (single) {
-    var k = ks[0];
-    title = BF_MONTHS[k % 12] + ' de ' + (2025 + Math.floor(k / 12));
-    sub = 'Vista mensual · datos día a día';
-  } else if (ST.period === 'ult12') {
-    var a = ks[0], b = ks[ks.length - 1];
-    title = 'Últimos 12 meses · ' + MES3[a % 12] + ' ' + (2025 + Math.floor(a / 12)) + ' – ' + MES3[b % 12] + ' ' + (2025 + Math.floor(b / 12));
-    sub = 'Vista anual · datos mensuales';
-  } else if (ST.period === 'y2025') {
-    title = 'Año 2025';
-    sub = 'Vista anual · datos mensuales';
-  } else {
-    title = '2026 hasta octubre';
-    sub = 'Vista anual · datos mensuales';
-  }
+  var r = rangeOf(ST.period), f = r[0], t = r[1], single = f === t, title, sub;
+  if (single) { title = rangeTitle(f, t); sub = 'Vista mensual · datos día a día'; }
+  else if (ST.period === 'ult12') { title = 'Últimos 12 meses · ' + MES3[mOf(f)] + ' ' + yOf(f) + ' – ' + MES3[mOf(t)] + ' ' + yOf(t); sub = 'Vista anual · datos mensuales'; }
+  else if (ST.period === 'y2025') { title = 'Año 2025'; sub = 'Vista anual · datos mensuales'; }
+  else if (ST.period === 'ytd26') { title = '2026 hasta octubre'; sub = 'Vista anual · datos mensuales'; }
+  else { title = rangeTitle(f, t); sub = 'Vista por meses · datos mensuales'; }
   var chip = '';
-  if (cmpOn()) {
-    var ci = cmpInfo(ST.period);
-    chip = single ? 'vs ' + BF_MONTHS[ci.ks[0] % 12].toLowerCase() + ' de ' + (2025 + Math.floor(ci.ks[0] / 12)) : 'vs ' + ci.label;
-  }
+  if (cmpOn()) chip = 'vs ' + cmpInfo(ST.period).label;
+  else if (ST.cmp.on) chip = 'sin datos de ' + cmpYear();
   return '<div class="bf-periodhead" aria-live="polite"><div class="bf-ph-row"><h2 class="bf-ph-title">' + esc(title) + '</h2>' +
     (chip ? '<span class="bf-cmpchip bf-ph-chip">' + esc(chip) + '</span>' : '') + '</div>' +
     '<p class="bf-ph-sub">' + esc(sub) + '</p></div>';
 }
+// Serie mes a mes para un rango (2–24 meses): valores del periodo y, si se compara, el rango comparado alineado
+function sRange(k12, zero) {
+  var rows = pickP(ST.period), cI = cmpOn() ? cmpInfo(ST.period) : null;
+  var vals = rows.map(function (r) { return k12(r); });
+  var cmp = cI ? fillNull(cI.aligned.map(function (k) { return k >= 0 ? k12(ROWS[k]) : null; })) : null;
+  var r = rangeOf(ST.period);
+  return { vals: vals, cmp: cmp, zero: !!zero, N: vals.length, caption: 'mes a mes · ' + rangeShort(r[0], r[1]) };
+}
+function afterPickRender() {
+  if (ST.picker && ST.pickFocus === 'sel') {
+    var b = document.querySelector('#bf-pop .bf-pm-sel:not([disabled])') || document.querySelector('#bf-pop .bf-pm:not([disabled])');
+    if (b) b.focus();
+  } else if (!ST.picker && ST.pickFocus === 'ret' && ST.pickRet) {
+    var fb = document.querySelector('[data-pick="' + ST.pickRet + '"]');
+    if (fb) fb.focus();
+  }
+  ST.pickFocus = null;
+  if (!ST.picker) ST.pickRet = null;
+}
+function pickMonth(k) {
+  var p = ST.picker;
+  if (!p) return;
+  var r = rangeOf(ST.period), nf = r[0], nt = r[1];
+  if (p.which === 'from') { nf = k; nt = ST.rangeOn ? Math.max(r[1], k) : k; }
+  else { nt = k; }
+  ST.period = rangeId(nf, nt);
+  ST.picker = null; ST.pickRet = p.which; ST.pickFocus = 'ret';
+  syncHash(); renderTab();
+}
+// Teclado en el calendario: flechas, Enter (botón nativo) y Esc
+function pickerKey(e) {
+  var t = e.target;
+  if (ST.picker && e.key === 'Escape') {
+    e.preventDefault();
+    var w = ST.picker.which;
+    ST.picker = null; ST.pickRet = w; ST.pickFocus = 'ret';
+    renderTab(); return true;
+  }
+  if (t.hasAttribute && t.hasAttribute('data-pick-month')) {
+    var btns = [].slice.call(document.querySelectorAll('#bf-pop .bf-pm:not([disabled])'));
+    var i = btns.indexOf(t);
+    var d = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: 4, ArrowUp: -4 }[e.key];
+    if (i >= 0 && d) {
+      e.preventDefault();
+      var j = Math.max(0, Math.min(btns.length - 1, i + d));
+      if (btns[j]) btns[j].focus();
+      return true;
+    }
+  }
+  return false;
+}
+function setFromHash() {
+  var parts = (location.hash || '').replace('#', '').split('?'), h = parts[0];
+  ST.tab = TABS.some(function (t) { return t[0] === h; }) ? h : 'resumen';
+  var q = {};
+  (parts[1] || '').split('&').forEach(function (kv) { var p = kv.split('='); if (p[0]) q[p[0]] = p[1]; });
+  var valid = function (s) { return !!s && /^\d{4}-\d{2}$/.test(s) && kOfYm(s) >= 0 && kOfYm(s) <= 21; };
+  var f = null, t = null;
+  if (valid(q.desde)) f = kOfYm(q.desde);
+  if (valid(q.hasta)) t = kOfYm(q.hasta);
+  if (valid(q.mes)) { f = t = kOfYm(q.mes); }
+  if (f !== null) {
+    if (t === null || t < f) t = f;
+    ST.period = rangeId(f, t); ST.rangeOn = t !== f;
+  }
+  if (q.cmpAnio && /^\d{4}$/.test(q.cmpAnio)) { ST.cmp.on = true; ST.cmp.year = +q.cmpAnio; }
+  else if (valid(q.cmp)) { ST.cmp.on = true; ST.cmp.year = +q.cmp.slice(0, 4); }
+}
+function onChange(e) {
+  var t = e.target;
+  if (t.id === 'bf-range') {
+    var f = rangeOf(ST.period)[0];
+    ST.rangeOn = t.checked;
+    ST.period = rangeId(f, t.checked ? Math.min(f + 2, 21) : f);
+    ST.picker = null; syncHash(); renderTab(); return;
+  }
+  if (t.id === 'bf-cmp') { ST.cmp.year = +t.value; ST.cmp.on = true; syncHash(); renderTab(); }
+}
+function onClick(e) {
+  var outside = !!ST.picker && !e.target.closest('#bf-pop,[data-pick]');
+  if (outside) ST.picker = null;
+  var t = e.target.closest('[data-tab],[data-pick],[data-pick-year],[data-pick-month],[data-chip],[data-cmp-toggle],[data-period],[data-scen],[data-view],[data-exp],[data-reset],[data-sort],[data-tfilter],[data-cat-open],[data-add-expense],[data-form-open],[data-form-save],[data-form-cancel],[data-cust-edit],[data-cust-del],[data-part-edit],[data-part-save],[data-part-cancel],[data-part-del],[data-part-restore],[data-inline-edit],[data-inline-save],[data-inline-cancel],[data-reset-data],[data-drawer-close],#bf-theme');
+  if (!t) { if (outside) renderTab(); return; }
+  if (t.id === 'bf-theme') { toggleTheme(); return; }
+  if (t.hasAttribute('data-drawer-close')) { closeDrawer(); return; }
+  if (t.hasAttribute('data-tab')) { selectTab(t.getAttribute('data-tab')); return; }
+  if (t.hasAttribute('data-pick')) {
+    var which = t.getAttribute('data-pick');
+    if (ST.picker && ST.picker.which === which) { ST.picker = null; ST.pickRet = which; ST.pickFocus = 'ret'; }
+    else { ST.picker = { which: which, y: yOf(rangeOf(ST.period)[which === 'from' ? 0 : 1]) }; ST.pickFocus = 'sel'; }
+    renderTab(); return;
+  }
+  if (t.hasAttribute('data-pick-year')) { ST.picker.y += +t.getAttribute('data-pick-year'); ST.pickFocus = 'sel'; renderTab(); return; }
+  if (t.hasAttribute('data-pick-month')) { pickMonth(+t.getAttribute('data-pick-month')); return; }
+  if (t.hasAttribute('data-chip')) {
+    var id = t.getAttribute('data-chip'), rr = rangeOf(id);
+    ST.period = id; ST.rangeOn = rr[0] !== rr[1]; ST.picker = null;
+    syncHash(); renderTab(); return;
+  }
+  if (t.hasAttribute('data-cmp-toggle')) {
+    ST.cmp.on = !ST.cmp.on;
+    if (ST.cmp.on && !ST.cmp.year) ST.cmp.year = cmpDefaultYear();
+    syncHash(); renderTab(); return;
+  }
+  if (t.hasAttribute('data-scen')) { ST.scen = t.getAttribute('data-scen'); ST.sim = copyScen(ST.scen); recalc(); renderTab(); return; }
+  if (t.hasAttribute('data-view')) { ST.gView = t.getAttribute('data-view'); renderTab(); return; }
+  if (t.hasAttribute('data-reset')) { ST.sim = copyScen(ST.scen); recalc(); renderTab(); return; }
+  if (t.hasAttribute('data-sort')) {
+    var key = t.getAttribute('data-sort');
+    ST.prodSort = ST.prodSort.key === key ? { key: key, dir: -ST.prodSort.dir } : { key: key, dir: key === 'name' ? 1 : -1 };
+    renderTab(); return;
+  }
+  if (t.hasAttribute('data-tfilter')) { ST.tfilter = t.getAttribute('data-tfilter'); renderTab(); return; }
+  if (t.hasAttribute('data-cat-open')) { openDrawer({ cat: t.getAttribute('data-cat-open'), mode: 'detail' }, t); return; }
+  if (t.hasAttribute('data-add-expense')) { openDrawer({ cat: 'otros', mode: 'form', form: { cat: 'otros' } }, t); return; }
+  if (t.hasAttribute('data-form-open')) { formOpen(t.getAttribute('data-form-open')); return; }
+  if (t.hasAttribute('data-form-save')) { formSave(); return; }
+  if (t.hasAttribute('data-form-cancel')) { ST.drawer = { cat: (ST.drawer && ST.drawer.cat) || 'otros', mode: 'detail' }; renderDrawer(true); return; }
+  if (t.hasAttribute('data-cust-edit')) {
+    var cu = BF_DATA.customs.filter(function (x) { return x.id === t.getAttribute('data-cust-edit'); })[0];
+    if (cu) formOpen(cu.cat, cu);
+    return;
+  }
+  if (t.hasAttribute('data-cust-del')) { customDelete(t.getAttribute('data-cust-del'), t.getAttribute('data-cust-label')); return; }
+  if (t.hasAttribute('data-part-edit')) { ST.partEdit = t.getAttribute('data-part-edit'); renderDrawer(false); return; }
+  if (t.hasAttribute('data-part-save')) { partSave(); return; }
+  if (t.hasAttribute('data-part-cancel')) { ST.partEdit = null; renderDrawer(true); return; }
+  if (t.hasAttribute('data-part-del')) { partDelete(t.getAttribute('data-part-del'), t.getAttribute('data-part-label')); return; }
+  if (t.hasAttribute('data-part-restore')) { partRestore(t.getAttribute('data-part-restore')); return; }
+  if (t.hasAttribute('data-inline-edit')) { ST.inline = t.getAttribute('data-inline-edit'); ST.inlineErr = ''; renderTab(); return; }
+  if (t.hasAttribute('data-inline-save')) { inlineSave(t.getAttribute('data-inline-save')); return; }
+  if (t.hasAttribute('data-inline-cancel')) { ST.inline = null; ST.inlineErr = ''; renderTab(); return; }
+  if (t.hasAttribute('data-reset-data')) { resetData(); return; }
+  if (t.hasAttribute('data-exp')) {
+    var grp = t.getAttribute('data-exp'), open = t.getAttribute('aria-expanded') !== 'true';
+    t.setAttribute('aria-expanded', open ? 'true' : 'false');
+    t.querySelector('span').textContent = open ? '▾' : '▸';
+    document.querySelectorAll('[data-grp="' + grp + '"]').forEach(function (r) { r.hidden = !open; });
+  }
+}
+
 // ---------- Vistas, eventos y arranque ----------
 function viewFor(tab) {
   if (tab === 'gastos') return viewGastos();
@@ -2614,6 +2736,7 @@ function renderTab() {
     b.setAttribute('aria-selected', on ? 'true' : 'false');
     b.tabIndex = on ? 0 : -1;
   });
+  afterPickRender();
   if (ST.drawer) renderDrawer(false);
   if (ST.tab === 'proyeccion') paintProy(); else hydrate();
   if (ST.inline) { var inl = $('bf-inl'); if (inl) { inl.focus(); inl.select(); } }
