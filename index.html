@@ -2641,13 +2641,24 @@ function drawMumi(c, p){
   // text blocks the orb orbits instead of crossing (blocks bigger than the viewport are ignored)
   var TXT_SEL='p,h1,h2,h3,h4,li,a,button,label,blockquote,figcaption,summary,dt,dd,input,textarea,select,.desc,.faq-a';
   var reduceM=!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
+  // cursor over a text box: the light fades to 5 % (checked once per frame, mouse/pen only)
+  var boxRaf=0;
+  function checkBox(){
+    boxRaf=0;
+    var el=document.elementFromPoint(vptr.x,vptr.y);
+    vptr.inBox=!!(el&&window.__ceTextBox&&window.__ceTextBox(el));
+  }
+  function queueBox(){if(!boxRaf)boxRaf=requestAnimationFrame(checkBox);}
   addEventListener("pointermove",function(e){
     vptr.x=e.clientX;vptr.y=e.clientY;vptr.on=true;
+    vptr.touch=e.pointerType==="touch";
+    if(!vptr.touch)queueBox();else vptr.inBox=false;
     var t=e.target&&e.target.closest?e.target.closest(TXT_SEL):null;
     if(t){var r=t.getBoundingClientRect();if(r.width>innerWidth*.85&&r.height>innerHeight*.6)t=null;}
     vptr.txt=t||null;
   });
-  document.documentElement.addEventListener("pointerleave",function(){vptr.on=false;vptr.txt=null;});
+  addEventListener("scroll",function(){if(vptr.on)queueBox();},{passive:true});
+  document.documentElement.addEventListener("pointerleave",function(){vptr.on=false;vptr.txt=null;vptr.inBox=false;});
 
   // fixed canvas covering full viewport for orbs
   var fc=document.getElementById("fx"),fg=fc.getContext("2d"),FW,FH;
@@ -2655,7 +2666,17 @@ function drawMumi(c, p){
   addEventListener("resize",fresize);fresize();
 
   // one light orb (playful, warm): viewport coords on fixed canvas
-  var orb={x:innerWidth*.62,y:innerHeight*.72,vx:0,vy:0,tr:[],inv:0,col:"255,138,64",core:"#fff1c9",lab:"¡Dale, clic!",tgt:null,txk:0};
+  var orb={x:innerWidth*.62,y:innerHeight*.72,vx:0,vy:0,tr:[],inv:0,col:"255,138,64",core:"#fff1c9",lab:"¡Dale, clic!",tgt:null,txk:0,
+    dim:1,dimFrom:1,dimTo:1,dimT0:0};   // dim = light intensity (1 normal, .05 over a text box)
+  window.__cursorLight=orb;   // debug: read orb.dim
+  // eased 250 ms transition of dim toward 1 or .05 (instant with reduced motion)
+  function stepDim(ts){
+    var o=orb,to=(vptr.on&&vptr.inBox&&!vptr.touch)?.05:1;
+    if(to!==o.dimTo){o.dimFrom=o.dim;o.dimTo=to;o.dimT0=ts;}
+    if(reduceM){o.dim=to;return;}
+    var p=Math.min(1,Math.max(0,(ts-o.dimT0)/.25)),e=p*p*(3-2*p);
+    o.dim=o.dimFrom+(o.dimTo-o.dimFrom)*e;
+  }
   var pmx=0,pmy=0,spdS=0,stillT=0;
   function invite(){
     if(!vptr.on)return null;
@@ -2710,7 +2731,9 @@ function drawMumi(c, p){
   }
   function drawOrbs(ts){
     var o=orb,n=o.tr.length,i,pt2;
+    stepDim(ts);
     fg.clearRect(0,0,FW,FH);
+    fg.globalAlpha=o.dim;
     fg.globalCompositeOperation="lighter";
     for(i=0;i<n;i+=2){pt2=o.tr[i];fg.fillStyle="rgba("+o.col+","+(i/n*.55)+")";fg.beginPath();fg.arc(pt2.x+Math.sin(i*5+ts*9)*3,pt2.y+Math.cos(i*3+ts*7)*3,1+i/n*2.4,0,TAU);fg.fill();}
     var pulse=1+Math.sin(ts*7)*.15,rad=26*pulse*(1+o.inv*.35);
@@ -2734,6 +2757,7 @@ function drawMumi(c, p){
       fg.fillStyle="rgba("+o.col+","+Math.min(1,o.inv)+")";
       fg.fillText(o.lab,o.x,o.y-34-Math.abs(Math.sin(ts*6.5))*6);
     }
+    fg.globalAlpha=1;
   }
 })();
 
@@ -3571,6 +3595,15 @@ function drawMumi(c, p){
     if (!(bg || img || brd || shadow)) return false;
     return el.textContent.trim().length > 0;
   }
+  /* para la luz del cursor: true si el elemento (o un ancestro) es una caja de texto de esta lista */
+  window.__ceTextBox = function (el) {
+    for (var n = el; n && n.nodeType === 1 && n !== document.body; n = n.parentElement) {
+      var sec = n.closest('section') || document.body;
+      var a = sec.getBoundingClientRect();
+      if (isBox(n, Math.max(1, a.width * a.height))) return true;
+    }
+    return false;
+  };
   /* recoge las cajas mas externas (no desciende dentro de una caja ya elegida) */
   function collect(root, out, secArea) {
     Array.prototype.forEach.call(root.children, function (el) {
