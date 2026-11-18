@@ -288,6 +288,14 @@
   .bf-wkend { fill: var(--line); opacity: .35; }
   .bf-closedbar { stroke: var(--muted); stroke-width: .6; opacity: .8; }
   .bf-phr-line { font-size: 14.5px; margin-top: 8px; }
+  .bf-periodhead { margin: 8px 0 14px; }
+  .bf-ph-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; min-width: 0; }
+  .bf-ph-title { font-family: 'Fraunces', Georgia, serif; font-size: clamp(22px, 3.2vw, 30px); line-height: 1.15; margin: 0; overflow-wrap: anywhere; }
+  .bf-ph-sub { font-size: 13px; color: var(--muted); margin: 2px 0 0; }
+  .bf-ph-chip { font-size: 13px; padding: 4px 12px; }
+  .bf-monthpick select { border-radius: 999px; padding: 8px 14px; }
+  .bf-monthpick select option[disabled] { color: var(--muted); }
+  .bf-monthpick select.bf-sel-on { background: var(--brand-soft); border: 1px solid var(--brand); font-weight: 700; color: var(--ink); }
   .bf-sumline { margin: 6px 0 10px; font-size: 14.5px; }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
@@ -1341,7 +1349,7 @@ function viewResumen() {
   });
   return '' +
     '<div class="bf-seg-wrap">' + periodBar() + '</div>' +
-    '<div class="bf-kpis">' + cards + '</div>' +
+    periodHeading() + '<div class="bf-kpis">' + cards + '</div>' +
     (mv ? dailySection() : '') + '<section class="bf-card bf-section" aria-labelledby="h-mes">' +
       '<h2 id="h-mes" class="bf-h2">Ingresos y gastos por mes</h2>' +
       '<p class="bf-sub">De enero de 2025 a octubre de 2026. Los meses del periodo seleccionado están resaltados. Pasa el ratón, toca o usa las flechas sobre el gráfico.</p>' +
@@ -1472,7 +1480,7 @@ function parseNum(s) {
 function fNum(v) { return fN(v, v % 1 ? 2 : 0); }
 function monthName(ym) { var p = ym.split('-'); return BF_MONTHS[+p[1] - 1].toLowerCase() + ' ' + p[0]; }
 function monthOptions(selected, includeEmpty) {
-  var s = includeEmpty ? '<option value="">— elegir —</option>' : '';
+  var s = includeEmpty ? '<option value="" disabled' + (selected ? '' : ' selected') + '>Elegir mes…</option>' : '';
   for (var k = 21; k >= 0; k--) {
     var ym = ymOfK(k);
     s += '<option value="' + ym + '"' + (selected === ym ? ' selected' : '') + '>' + monthName(ym) + '</option>';
@@ -1536,15 +1544,16 @@ function cmpControls() {
   return '<div class="bf-cmpctl"><button type="button" class="bf-switch" aria-pressed="' + on + '" data-cmp-toggle="1">' +
     '<span class="bf-track" aria-hidden="true"><span class="bf-knob"></span></span>Comparar</button>' +
     '<label class="bf-cmpsel">con: <select id="bf-cmp" data-cmp-select="1"' + (on ? '' : ' disabled') + '>' + opts + '</select></label>' +
-    (on ? '<span class="bf-cmpcap">Comparando con ' + esc(cap) + '</span>' : '') + '</div>';
+    (on && ST.tab === 'tesoreria' ? '<span class="bf-cmpcap">Comparando con ' + esc(cap) + '</span>' : '') + '</div>';
 }
 function periodBar() {
   var presets = Object.keys(BF_PERIODS).map(function (id) {
     return '<button type="button" data-period="' + id + '" aria-pressed="' + (ST.period === id) + '">' + BF_PERIODS[id].label + '</button>';
   }).join('');
   var sel = ST.period === 'oct26' ? '2026-10' : (ST.period.charAt(0) === 'm' ? ST.period.slice(1) : '');
+  var isSel = !!sel;   // el selector queda activo solo cuando el periodo es un mes concreto
   return '<div class="bf-seg" role="group" aria-label="Periodo">' + presets +
-    '<label class="bf-monthpick">Mes: <select id="bf-mes" data-month-select>' + monthOptions(sel, true) + '</select></label></div>' +
+    '<label class="bf-monthpick">Mes: <select id="bf-mes" data-month-select class="' + (isSel ? 'bf-sel-on' : '') + '" aria-label="' + (isSel ? 'Mes seleccionado: ' + monthName(sel) : 'Elegir mes') + '"' + (isSel ? ' aria-current="true"' : '') + '>' + monthOptions(sel, true) + '</select></label></div>' +
     '<div class="bf-cmprow">' + cmpControls() + '</div>';
 }
 function setFromHash() {
@@ -1661,7 +1670,7 @@ function viewGastos() {
   var cmpSr = cmpI ? [] : null;
   return '' +
     '<div class="bf-seg-wrap">' + periodBar() + '</div>' +
-    '<section class="bf-card bf-section" aria-labelledby="h-tab">' +
+    periodHeading() + '<section class="bf-card bf-section" aria-labelledby="h-tab">' +
       '<div class="bf-cardhead"><div><h2 id="h-tab" class="bf-h2">Gastos por categoría</h2>' +
       '<p class="bf-sub">' + (single ? 'Pulsa ✎ para cambiar el importe de este mes. Pulsa un nombre para ver sus partidas.' : 'Elige un mes en el selector para editar importes. Pulsa un nombre para ver sus partidas.') + '</p></div>' +
       '<button type="button" class="bf-btn bf-btn-sm" data-add-expense="1">+ Añadir gasto</button></div>' +
@@ -2560,6 +2569,33 @@ function viewTesoreria() {
 }
 
 
+// Encabezado del periodo (anunciado con aria-live)
+function periodHeading() {
+  var P = pDef(ST.period), ks = P.ks, single = ks.length === 1, title, sub;
+  if (single) {
+    var k = ks[0];
+    title = BF_MONTHS[k % 12] + ' de ' + (2025 + Math.floor(k / 12));
+    sub = 'Vista mensual · datos día a día';
+  } else if (ST.period === 'ult12') {
+    var a = ks[0], b = ks[ks.length - 1];
+    title = 'Últimos 12 meses · ' + MES3[a % 12] + ' ' + (2025 + Math.floor(a / 12)) + ' – ' + MES3[b % 12] + ' ' + (2025 + Math.floor(b / 12));
+    sub = 'Vista anual · datos mensuales';
+  } else if (ST.period === 'y2025') {
+    title = 'Año 2025';
+    sub = 'Vista anual · datos mensuales';
+  } else {
+    title = '2026 hasta octubre';
+    sub = 'Vista anual · datos mensuales';
+  }
+  var chip = '';
+  if (cmpOn()) {
+    var ci = cmpInfo(ST.period);
+    chip = single ? 'vs ' + BF_MONTHS[ci.ks[0] % 12].toLowerCase() + ' de ' + (2025 + Math.floor(ci.ks[0] / 12)) : 'vs ' + ci.label;
+  }
+  return '<div class="bf-periodhead" aria-live="polite"><div class="bf-ph-row"><h2 class="bf-ph-title">' + esc(title) + '</h2>' +
+    (chip ? '<span class="bf-cmpchip bf-ph-chip">' + esc(chip) + '</span>' : '') + '</div>' +
+    '<p class="bf-ph-sub">' + esc(sub) + '</p></div>';
+}
 // ---------- Vistas, eventos y arranque ----------
 function viewFor(tab) {
   if (tab === 'gastos') return viewGastos();
