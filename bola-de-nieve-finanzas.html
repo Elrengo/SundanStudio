@@ -171,6 +171,23 @@
   .bf-cal .bf-empty { color: var(--muted); background: var(--bg); border: 1px dashed var(--line); }
   .bf-hint { font-size: 12.5px; color: var(--muted); margin-top: 8px; }
   .bf-big-txt { font-size: 14.5px; margin-top: 8px; }
+  .bf-block { display: block; margin-top: 2px; font-size: 12.5px; color: var(--muted); }
+  .bf-sortbtn { border: 0; background: none; padding: 0; font: inherit; color: inherit; font-weight: 500; cursor: pointer; }
+  .bf-quad { fill: var(--ok); opacity: .08; }
+  .bf-plab { font: 500 11px 'DM Sans', system-ui, sans-serif; fill: var(--ink); }
+  .bf-wk { font-size: 15px; margin: 16px 0 4px; color: var(--muted); }
+  .bf-tlist { list-style: none; margin: 0; padding: 0; }
+  .bf-trow { display: grid; grid-template-columns: 84px 24px minmax(0, 1fr) auto; gap: 8px 10px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .bf-tdate { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .bf-ticon { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--bg); border: 1px solid var(--line); font-size: 12px; }
+  .bf-tconc { min-width: 0; overflow-wrap: anywhere; }
+  .bf-tbal { display: block; font-size: 12px; color: var(--muted); }
+  .bf-tamt { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  @media (max-width: 600px) {
+    .bf-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); overflow: visible; padding: 4px; }
+    .bf-tab { font-size: 13px; padding: 8px 2px; white-space: normal; min-height: 44px; }
+    .bf-trow { grid-template-columns: 70px 20px minmax(0, 1fr) auto; }
+  }
   @media (max-width: 860px) {
     .bf-grid2 { grid-template-columns: minmax(0, 1fr); }
     .bf-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -200,8 +217,8 @@
 'use strict';
 // ---------- Constantes del negocio (ficticio) ----------
 var BF_SEED = 2026;
-var BF_CAJA_INI = 30800;           // caja a 1/1/2025 (calibrada: mínimo de 2025 en abril, ≈ 5.000 €)
-var BF_RETIRADAS = 1000;           // retiradas de la dueña: solo caja, todos los meses
+var BF_CAJA_INI = 33900;           // caja a 1/1/2025 (calibrada: mínimo de 2025 ≈ 5.000 €; nunca negativa)
+var BF_RETIRADAS = 1800;           // retiradas de la dueña: solo caja, todos los meses
 var BF_TICKET_MULT = 0.95;         // multiplicador global de tickets diarios (calibración: 1 da 270 k€ de ingresos 2025)
 var BF_N = 34;                     // k=0 ene 2025 ... k=33 oct 2027
 var BF_HIST = 22;                  // k<22 histórico (hasta oct 2026); k>=22 proyección
@@ -328,11 +345,33 @@ function buildModel(sc) {
   }
   // Caja (impuesto de sociedades 23 % del BAI anual positivo, pagado en julio del año siguiente)
   var sumBai = function (y) { return rows.reduce(function (a, r) { return a + (r.year === y ? r.bai : 0); }, 0); };
+  // Impuestos indirectos y retenciones: solo cambian el momento del pago (la P&L va sin IVA)
+  rows.forEach(function (r) {
+    r.brutoPers = (r.marta + r.jordi + r.deps) / 1.31;     // salarios brutos
+    r.irpfNom = 0.12 * r.brutoPers;                        // modelo 111: retención nóminas
+    r.irpfAlq = 0.19 * r.alquiler;                         // modelo 115: retención alquiler
+    r.irpfW = r.irpfNom + r.irpfAlq;
+    r.ivaRep = 0.10 * r.rev;                               // IVA repercutido (ventas incl. envíos)
+    r.ivaSop = 0.10 * r.mat + 0.21 * (r.envases + r.energia + r.alquiler + 150 + 95 + 55 + r.marketing + 120 + 110 + r.reparto + r.averia);
+    r.ivaNet = r.ivaRep - r.ivaSop;                        // cobrado menos pagado cada mes
+  });
+  // Pagos trimestrales (303 y 111/115) el día 20 de abr/jul/oct y 30 de ene; compensación de saldos negativos
+  var credit = 0;
+  rows.forEach(function (r) {
+    r.ivaPay = 0; r.irpfPay = 0;
+    if ((r.cm === 1 || r.cm === 4 || r.cm === 7 || r.cm === 10) && r.k >= 3) {
+      var qs = rows.slice(r.k - 3, r.k);
+      var bal = qs.reduce(function (a, q) { return a + q.ivaNet; }, 0) - credit;
+      r.ivaPay = Math.max(0, bal);
+      credit = Math.max(0, -bal);
+      r.irpfPay = qs.reduce(function (a, q) { return a + q.irpfW; }, 0);
+    }
+  });
   var caja = BF_CAJA_INI;
   rows.forEach(function (r) {
     r.taxPaid = (r.cm === 7 && r.year >= 2026) ? 0.23 * Math.max(0, sumBai(r.year - 1)) : 0;
     r.retirada = BF_RETIRADAS;
-    caja += r.bai + r.amort - r.principal - r.taxPaid - r.retirada;
+    caja += r.bai + r.amort - r.principal - r.taxPaid - r.retirada + r.ivaNet + r.irpfW - r.ivaPay - r.irpfPay;
     r.caja = caja;
   });
   return rows;
@@ -413,9 +452,9 @@ var $ = function (id) { return document.getElementById(id); };
 var GID = 0;
 function gid() { return 'bfg' + (++GID); }
 var MES3 = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-var TABS = [['resumen','Resumen'],['gastos','Gastos'],['sostenibilidad','Sostenibilidad'],['proyeccion','Proyección']];
+var TABS = [['resumen','Resumen'],['gastos','Gastos'],['productos','Productos'],['tesoreria','Tesorería'],['sostenibilidad','Sostenibilidad'],['proyeccion','Proyección']];
 var ULT = [10,11,12,13,14,15,16,17,18,19,20,21];
-var ST = { tab: 'resumen', period: 'oct26', scen: 'base', sim: null, gView: 'persona' };
+var ST = { tab: 'resumen', period: 'oct26', scen: 'base', sim: null, gView: 'persona', prodSort: { key: 'contrib', dir: -1 }, tfilter: 'todos' };
 var ROWS = [];
 var CHARTS = {}, TIPS = {};
 var SCEN_LABEL = { prudente: 'Prudente', base: 'Base', optimista: 'Optimista' };
@@ -550,6 +589,7 @@ CHARTS.cascada = function (w) {
     ['Energía y agua', A.energia, 'cost'], ['Otros fijos', A.otrosFijos, 'cost'], ['Amortización e intereses', A.amortInt, 'cost'],
     ['Beneficio (BAI)', A.bai, 'result']
   ];
+  if (A.bai > 0) items.push(['Impuesto estimado', A.tax, 'cost'], ['Beneficio después de impuestos', A.bai - A.tax, 'result']);
   var lw = w < 520 ? Math.min(w * 0.4, 150) : 220, vw = 96, rowH = 32, top = 6;
   var pw = w - lw - vw, h = top + items.length * rowH + 8;
   var X = function (v) { return lw + v / A.rev * pw; };
@@ -560,7 +600,7 @@ CHARTS.cascada = function (w) {
     var y = top + i * rowH, a, b, col, v = it[1], kind = it[2];
     if (kind === 'total') { a = 0; b = v; col = ids.ing; cum = v; }
     else if (kind === 'cost') { a = cum - v; b = cum; cum = a; col = ids.cost; }
-    else { a = 0; b = Math.max(v, 0); col = v >= 0 ? ids.ok : ids.err; }
+    else { a = 0; b = Math.max(v, 0); col = v >= 0 ? ids.ok : ids.err; cum = v; }
     var x1 = X(Math.min(a, b)), x2 = X(Math.max(a, b));
     var nm = w < 520 ? it[0].replace('Materias primas y mermas', 'Materias primas').replace('Comisiones y reparto', 'Comisiones').replace('Amortización e intereses', 'Amortización') : it[0];
     s += txt(lw - 10, y + rowH / 2 + 4, nm, 'end', 'bf-lbl');
@@ -607,6 +647,13 @@ CHARTS.elec = function (w, h) {
   s += '<path d="' + pathOf(p26) + '" class="bf-line-choco" style="stroke:var(--brand)"/>';
   p26.forEach(function (p) { s += '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="3" style="fill:var(--brand)"/>'; });
   for (var i = 0; i < 12; i++) s += txt(X(i), padT + ph + 17, w < 420 ? MES3[i].charAt(0) : MES3[i]);
+  TIPS.elec = {
+    n: 12, x: function (i) { return X(i); },
+    idxAt: function (px) { return Math.round((px - padL) / (pw / 11)); },
+    tip: function (i) {
+      return '<strong>' + BF_MONTHS[i] + '</strong>' + tl('2025', fE(s25[i])) + (i < 10 ? tl('2026', fE(s26[i])) : '');
+    }
+  };
   return svgOf(w, h, 'Consumo de luz por mes, 2025 y 2026 superpuestos', s);
 };
 
@@ -629,6 +676,14 @@ CHARTS.personal = function (w, h) {
     if (bw >= 22 || i % 2 === 0) s += txt(X(i), padT + ph + 16, bw >= 30 ? MES3[r.cm - 1] : MES3[r.cm - 1].charAt(0));
     if (r.cm === 1) s += txt(X(i), padT + ph + 31, String(r.year), 'middle', 'bf-ax bf-ax-y');
   });
+  TIPS.personal = {
+    n: n, x: function (i) { return X(i); },
+    idxAt: function (px) { return Math.floor((px - padL) / bw); },
+    tip: function (i) {
+      var r = rows[i];
+      return '<strong>' + BF_MONTHS[r.cm - 1] + ' ' + r.year + '</strong>' + tl('Personas', String(r.dep + 2)) + tl('Coste empresa', fE(r.personal)) + tl('Coste por persona', fE(r.personal / (r.dep + 2)));
+    }
+  };
   return svgOf(w, h, 'Coste mensual del personal y número de personas por mes del periodo', s);
 };
 
@@ -803,7 +858,7 @@ function viewResumen() {
     kpi('bf-k1', 'Ingresos', fE(A.rev), '', vh(A.rev, 'rev'), l12.map(function (r) { return r.rev; }), 'var(--brand)'),
     kpi('bf-k2', 'Margen bruto', fE(A.margen), fP(A.margenPct) + ' de los ingresos', vh(A.margen, 'margen'), l12.map(function (r) { return r.margen; }), 'var(--brand)'),
     kpi('bf-k3', 'Gastos totales', fE(A.gastos), 'incluye amortización e intereses', vh(A.gastos, 'gastos'), l12.map(function (r) { return r.gastos; }), 'var(--choco)'),
-    kpi('bf-k4', 'Beneficio (BAI)', '<span class="' + (A.bai >= 0 ? 'bf-pos' : 'bf-neg') + '">' + fE(A.bai) + '</span>', fP(A.baiPct) + ' de margen', (pv ? varAbs(A.bai, pv.bai, lb) : noCmp()), l12.map(function (r) { return r.bai; }), A.bai >= 0 ? 'var(--ok)' : 'var(--err)'),
+    kpi('bf-k4', 'Beneficio (BAI)', '<span class="' + (A.bai >= 0 ? 'bf-pos' : 'bf-neg') + '">' + fE(A.bai) + '</span>', fP(A.baiPct) + ' de margen' + (A.bai > 0 ? '<span class="bf-block">Impuesto estimado: ' + fE(A.tax) + '</span>' : ''), (pv ? varAbs(A.bai, pv.bai, lb) : noCmp()), l12.map(function (r) { return r.bai; }), A.bai >= 0 ? 'var(--ok)' : 'var(--err)'),
     kpi('bf-k5', 'Ticket medio en mostrador', fN(A.ticketMedio, 2) + ' €', '', vh(A.ticketMedio, 'ticketMedio'), l12.map(function (r) { return r.ticketMed; }), 'var(--brand)'),
     kpi('bf-k6', 'Caja al final del periodo', fE(A.caja), '', vh(A.caja, 'caja'), l12.map(function (r) { return r.caja; }), 'var(--caja)')
   ].join('');
@@ -861,7 +916,7 @@ function viewResumen() {
       srTable('Cascada del periodo', ['Concepto', 'Importe'], [
         ['Ingresos', fE(A.rev)], ['Materias primas y mermas', fE(A.mat)], ['Envases', fE(A.envases)], ['Comisiones y reparto', fE(A.comReparto)],
         ['Personal', fE(A.personal)], ['Alquiler', fE(A.alquiler)], ['Energía y agua', fE(A.energia)], ['Otros fijos', fE(A.otrosFijos)],
-        ['Amortización e intereses', fE(A.amortInt)], ['Beneficio', fE(A.bai)]
+        ['Amortización e intereses', fE(A.amortInt)], ['Beneficio', fE(A.bai)], ['Impuesto estimado', fE(A.tax)], ['Beneficio después de impuestos', fE(A.bai - A.tax)]
       ]) +
     '</section>' +
     '<div class="bf-grid2">' +
@@ -1053,7 +1108,7 @@ function viewSost() {
   ].join('');
 
   return '' +
-    '<div class="bf-seg-wrap" style="margin-bottom:6px"><p class="bf-sub">Indicadores del año móvil (noviembre de 2025 a octubre de 2026) salvo que se indique lo contrario. La caja descuenta 1.000 €/mes de retiradas de la dueña.</p></div>' +
+    '<div class="bf-seg-wrap" style="margin-bottom:6px"><p class="bf-sub">Indicadores del año móvil (noviembre de 2025 a octubre de 2026) salvo que se indique lo contrario. La caja incluye IVA trimestral, retenciones y retiradas de la dueña (1.800 €/mes).</p></div>' +
     '<div class="bf-grid2" style="margin-top:0">' +
       '<section class="bf-card" aria-labelledby="h-pe1"><h2 id="h-pe1" class="bf-h2">Punto de equilibrio: octubre de 2026</h2>' +
         '<p class="bf-sub">Último mes completo.</p>' + meter(last.rev, beO.be) +
@@ -1160,14 +1215,303 @@ function paintProy() {
         '<tbody>' + tbl + '</tbody></table></div></section>' +
       '<section class="bf-card" aria-labelledby="h-fr"><h2 id="h-fr" class="bf-h2">Lo que dice el escenario</h2>' +
         '<ul class="bf-phr" style="margin-top:12px">' + phr.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul>' +
-        '<p class="bf-hint">Base de cálculo: cada mes se estima con el mismo mes del año anterior (noviembre y diciembre de 2026 desde 2025, y de enero a octubre de 2027 desde 2026), con la tendencia ya aplicada. La caja incluye 1.000 €/mes de retiradas de la dueña. El préstamo sigue su calendario y el impuesto de 2026 se paga en julio de 2027.</p></section>' +
+        '<p class="bf-hint">Base de cálculo: cada mes se estima con el mismo mes del año anterior (noviembre y diciembre de 2026 desde 2025, y de enero a octubre de 2027 desde 2026), con la tendencia ya aplicada. La caja incluye IVA trimestral, retenciones y retiradas de la dueña (1.800 €/mes). El préstamo sigue su calendario y el impuesto de 2026 se paga en julio de 2027.</p></section>' +
     '</div>';
   hydrate();
+}
+
+// ---------- Pestaña Productos (escandallo) ----------
+var BF_FLAV = [
+  { id: 'fresa', name: 'Fresa de temporada', short: 'Fresa', price: 2.80, base: 0.28, ing: 0.22, pop: 10 },
+  { id: 'pistacho', name: 'Pistacho de Bronte', short: 'Pistacho', price: 3.40, base: 0.28, ing: 0.78, pop: 9 },
+  { id: 'chocolate', name: 'Chocolate 70 %', short: 'Chocolate', price: 3.00, base: 0.28, ing: 0.38, pop: 13 },
+  { id: 'vainilla', name: 'Vainilla de Madagascar', short: 'Vainilla', price: 2.60, base: 0.28, ing: 0.30, pop: 13 },
+  { id: 'mango', name: 'Mango y maracuyá', short: 'Mango', price: 3.10, base: 0.10, ing: 0.34, pop: 6, veg: true },
+  { id: 'limon', name: 'Limón y albahaca', short: 'Limón', price: 2.90, base: 0.10, ing: 0.18, pop: 7, veg: true },
+  { id: 'dulce', name: 'Dulce de leche', short: 'Dulce de leche', price: 2.90, base: 0.28, ing: 0.30, pop: 8 },
+  { id: 'cookies', name: 'Cookies & cream', short: 'Cookies', price: 3.20, base: 0.28, ing: 0.36, pop: 8 },
+  { id: 'frambuesa', name: 'Frambuesa y pimienta rosa', short: 'Frambuesa', price: 3.50, base: 0.28, ing: 0.48, pop: 5 },
+  { id: 'turron', name: 'Turrón de Jijona', short: 'Turrón', price: 3.30, base: 0.28, ing: 0.52, pop: 5 },
+  { id: 'bosque', name: 'Frutos del bosque', short: 'Bosque', price: 2.90, base: 0.28, ing: 0.32, pop: 5 },
+  { id: 'coco', name: 'Coco y lima', short: 'Coco', price: 3.00, base: 0.10, ing: 0.30, pop: 3, veg: true },
+  { id: 'cafe', name: 'Café con leche', short: 'Café', price: 2.90, base: 0.28, ing: 0.22, pop: 4 },
+  { id: 'naranja', name: 'Naranja y jengibre', short: 'Naranja', price: 2.90, base: 0.10, ing: 0.20, pop: 4, veg: true }
+];
+var BF_CAKES = [
+  { name: 'Selva Negra', p8: 44, pct: 0.30 }, { name: 'Tarta de turrón', p8: 46, pct: 0.33 },
+  { name: 'Tres chocolates', p8: 48, pct: 0.34 }, { name: 'Tarta de frutos rojos', p8: 44, pct: 0.30 },
+  { name: 'Tarta de cumpleaños', p8: 42, pct: 0.30 }
+];
+function median(a) {
+  var s = a.slice().sort(function (x, y) { return x - y; }), n = s.length;
+  return n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2;
+}
+function escandallo() {
+  var tot = BF_FLAV.reduce(function (a, f) { return a + f.pop; }, 0);
+  var bolas12 = agg(pickRows(ROWS, ULT)).tickets * 1.35;
+  return BF_FLAV.map(function (f, i) {
+    var net = f.price / 1.10, cost = f.base + f.ing + 0.11, margin = net - cost, bolas = bolas12 * f.pop / tot;
+    return { id: f.id, name: f.name, short: f.short, veg: !!f.veg, color: 'hsl(' + Math.round(i * 360 / BF_FLAV.length) + ' 62% 56%)',
+      price: net, cost: cost, margin: margin, mpct: margin / net, bolas: bolas, contrib: margin * bolas };
+  });
+}
+function viewProductos() {
+  var list = escandallo(), s = ST.prodSort;
+  var sorted = list.slice().sort(function (a, b) {
+    var va = a[s.key], vb = b[s.key];
+    return typeof va === 'string' ? s.dir * va.localeCompare(vb, 'es') : s.dir * (va - vb);
+  });
+  var th = function (key, label) {
+    var on = s.key === key, arrow = on ? (s.dir > 0 ? ' ▲' : ' ▼') : '';
+    return '<th scope="col" aria-sort="' + (on ? (s.dir > 0 ? 'ascending' : 'descending') : 'none') + '"><button type="button" class="bf-sortbtn" data-sort="' + key + '">' + label + arrow + '</button></th>';
+  };
+  var body = sorted.map(function (p) {
+    return '<tr><th scope="row"><span class="bf-dot" style="background:' + p.color + '"></span>' + esc(p.name) + (p.veg ? ' <span class="bf-chip bf-chip-ok">vegano</span>' : '') + '</th>' +
+      '<td>' + fN(p.price, 2) + ' €</td><td>' + fN(p.cost, 2) + ' €</td><td>' + fN(p.margin, 2) + ' €</td><td>' + fP(p.mpct, 0) + '</td>' +
+      '<td>' + fN(p.bolas, 0) + '</td><td>' + fE(p.contrib) + '</td></tr>';
+  }).join('');
+  var byM = list.slice().sort(function (a, b) { return a.mpct - b.mpct; });
+  var low = byM[0];
+  // Cuadrantes según las medianas (misma clasificación que la gráfica)
+  var medBolas = median(list.map(function (p) { return p.bolas; })), medMpct = median(list.map(function (p) { return p.mpct; }));
+  var estrellas = list.filter(function (p) { return p.bolas >= medBolas && p.mpct >= medMpct; });
+  var caballos = list.filter(function (p) { return p.bolas >= medBolas && p.mpct < medMpct; });
+  var star = estrellas.slice().sort(function (a, b) { return b.contrib - a.contrib; })[0];
+  var starTxt = star
+    ? star.name + ' es tu estrella: ' + fN(star.bolas, 0) + ' bolas al año y ' + fE(star.contrib) + ' de contribución. Destácala en invierno.'
+    : 'Ningún sabor llega a la vez a la mediana de popularidad y de margen: revisa la carta.';
+  var caba = caballos.slice().sort(function (a, b) { return b.bolas - a.bolas; })[0];
+  var caballoTxt = !caba ? 'Ningún sabor se vende mucho con poco margen.'
+    : caba.id === 'chocolate' ? 'Chocolate 70 % se vende mucho pero deja menos margen (' + fP(caba.mpct, 0) + '): revisa la ración o el proveedor de cacao.'
+    : caba.name + ' se vende mucho pero deja menos margen (' + fP(caba.mpct, 0) + '): revisa la ración o el proveedor del ingrediente principal.';
+  var rare = list.slice().sort(function (a, b) { return a.bolas - b.bolas; })[0];
+  var avgM = function (arr) { return arr.reduce(function (a, p) { return a + p.margin; }, 0) / arr.reduce(function (a, p) { return a + p.price; }, 0); };
+  var vegs = list.filter(function (p) { return p.veg; }), lacs = list.filter(function (p) { return !p.veg; });
+  var phr = [
+    low.name + ' deja el margen más bajo (' + fP(low.mpct, 0) + '): súbelo 0,20 € o reduce la ración.',
+    starTxt,
+    rare.name + ' apenas se vende (' + fN(rare.bolas, 0) + ' bolas al año): valora sacarlo de carta o darle más visibilidad.',
+    'Los veganos dejan un margen medio del ' + fP(avgM(vegs), 0) + ', frente al ' + fP(avgM(lacs), 0) + ' de las lácteas.',
+    caballoTxt
+  ];
+  var cakes = BF_CAKES.map(function (c) {
+    var net = c.p8 / 1.10, cost = c.pct * net, caja = 1.20, m = net - cost - caja;
+    return '<tr><th scope="row">' + esc(c.name) + '</th><td>' + fE(c.p8) + '</td><td>' + fN(net, 2) + ' €</td><td>' + fN(cost, 2) + ' €</td><td>' + fN(caja, 2) + ' €</td><td>' + fN(m, 2) + ' €</td><td>' + fP(m / net, 0) + '</td></tr>';
+  }).join('');
+  return '' +
+    '<section class="bf-card" aria-labelledby="h-esc2"><h2 id="h-esc2" class="bf-h2">Escandallo por bola</h2>' +
+      '<p class="bf-sub">Precio sin IVA (precio de la tienda entre 1,10), coste de materias, envase y margen. Ventas de los últimos 12 meses estimadas a partir de los tickets de mostrador (× 1,35 bolas por ticket). Pulsa una cabecera para ordenar.</p>' +
+      '<div class="bf-scroll"><table class="bf-table"><caption class="bf-sr">Escandallo de helados</caption><thead><tr>' +
+        th('name', 'Producto') + th('price', 'Precio sin IVA') + th('cost', 'Coste por bola') + th('margin', 'Margen € por bola') + th('mpct', 'Margen %') + th('bolas', 'Bolas vendidas (12 meses)') + th('contrib', 'Contribución total') +
+      '</tr></thead><tbody>' + body + '</tbody></table></div></section>' +
+    '<section class="bf-card bf-section" aria-labelledby="h-ing"><h2 id="h-ing" class="bf-h2">Ingeniería de carta</h2>' +
+      '<p class="bf-sub">Popularidad (bolas vendidas) frente a margen %. Las líneas punteadas son las medianas.</p>' +
+      '<div class="bf-chart" data-chart="escandallo" data-h="340"></div>' +
+      '<ul class="bf-phr" style="margin-top:12px">' + phr.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul></section>' +
+    '<section class="bf-card bf-section" aria-labelledby="h-tar"><h2 id="h-tar" class="bf-h2">Tortas por encargo (8 raciones)</h2>' +
+      '<div class="bf-scroll"><table class="bf-table"><caption class="bf-sr">Escandallo de tortas</caption><thead><tr><th scope="col">Tarta</th><th scope="col">Precio IVA incl.</th><th scope="col">Precio sin IVA</th><th scope="col">Coste materias</th><th scope="col">Caja</th><th scope="col">Margen €</th><th scope="col">Margen %</th></tr></thead>' +
+      '<tbody>' + cakes + '</tbody></table></div></section>' +
+    '<p class="bf-hint">Escandallo estimado con costes de proveedores de octubre de 2026.</p>';
+}
+CHARTS.escandallo = function (w, h) {
+  var list = escandallo();
+  var padL = 46, padR = 12, padT = 14, padB = 36, pw = w - padL - padR, ph = h - padT - padB;
+  var xs = list.map(function (p) { return p.bolas; }), ys = list.map(function (p) { return p.mpct * 100; });
+  var xMax = niceMax(Math.max.apply(null, xs));
+  var yMin = Math.floor((Math.min.apply(null, ys) - 3) / 5) * 5, yMax = Math.ceil((Math.max.apply(null, ys) + 3) / 5) * 5;
+  var X = function (v) { return padL + v / xMax * pw; };
+  var Y = function (v) { return padT + (yMax - v) / (yMax - yMin) * ph; };
+  var medX = median(xs), medY = median(ys);
+  var s = '';
+  s += '<rect x="' + X(medX) + '" y="' + padT + '" width="' + (padL + pw - X(medX)) + '" height="' + (Y(medY) - padT) + '" class="bf-quad"/>';
+  ticksOf(yMin, yMax, 4).forEach(function (v) {
+    s += '<line x1="' + padL + '" x2="' + (w - padR) + '" y1="' + Y(v) + '" y2="' + Y(v) + '" class="bf-grid-l"/>' + txt(padL - 6, Y(v) + 4, fN(v, 0) + '%', 'end');
+  });
+  ticksOf(0, xMax, 4).forEach(function (v) { s += txt(X(v), padT + ph + 16, fN(v, 0)); });
+  s += '<line x1="' + X(medX) + '" x2="' + X(medX) + '" y1="' + padT + '" y2="' + (padT + ph) + '" style="stroke:var(--muted);stroke-dasharray:4 4"/>';
+  s += '<line x1="' + padL + '" x2="' + (padL + pw) + '" y1="' + Y(medY) + '" y2="' + Y(medY) + '" style="stroke:var(--muted);stroke-dasharray:4 4"/>';
+  s += txt(padL + pw - 6, padT + 14, 'Estrellas', 'end', 'bf-ax') + txt(padL + 6, padT + 14, 'Enigmas', 'start', 'bf-ax') +
+    txt(padL + pw - 6, padT + ph - 6, 'Caballos de batalla', 'end', 'bf-ax') + txt(padL + 6, padT + ph - 6, 'Perros', 'start', 'bf-ax');
+  s += txt(padL + pw / 2, padT + ph + 31, 'Bolas vendidas al año', 'middle', 'bf-ax');
+  var placed = [];
+  list.slice().sort(function (a, b) { return Y(a.mpct * 100) - Y(b.mpct * 100); }).forEach(function (p) {
+    var px = X(p.bolas), py = Y(p.mpct * 100), lw = p.short.length * 6.2 + 4, pl = null;
+    var tries = [0, -12, 12, -24, 24];
+    var hy = Y(medY), vx = X(medX);
+    var fits = function (box) {
+      if (box[0] < padL - 4 || box[2] > w - padR + 4) return false;
+      if (box[1] < hy && box[3] > hy) return false;      // no cruzar la mediana horizontal
+      if (box[0] < vx && box[2] > vx) return false;      // no cruzar la mediana vertical
+      return !placed.some(function (q) { return !(box[2] < q[0] || box[0] > q[2] || box[3] < q[1] || box[1] > q[3]); });
+    };
+    search: for (var sd = 0; sd < 2; sd++) {
+      for (var t = 0; t < tries.length; t++) {
+        var right = sd === 0, by = py + 4 + tries[t];
+        var bx = right ? px + 9 : px - 9 - lw, box = [bx, by - 10, bx + lw, by + 2];
+        if (fits(box)) { pl = { x: right ? px + 9 : px - 9, y: by, anchor: right ? 'start' : 'end', box: box }; break search; }
+      }
+    }
+    if (!pl) pl = { x: px + 9, y: py + 4, anchor: 'start', box: [px + 9, py - 6, px + 9 + lw, py + 6] };
+    placed.push(pl.box);
+    s += '<circle cx="' + px.toFixed(1) + '" cy="' + py.toFixed(1) + '" r="6" style="fill:' + p.color + ';stroke:var(--surface);stroke-width:1.5"/>';
+    s += '<text x="' + pl.x.toFixed(1) + '" y="' + pl.y.toFixed(1) + '" text-anchor="' + pl.anchor + '" class="bf-plab">' + esc(p.short) + '</text>';
+  });
+  var byX = list.slice().sort(function (a, b) { return a.bolas - b.bolas; });
+  TIPS.escandallo = {
+    n: byX.length, x: function (i) { return X(byX[i].bolas); },
+    idxAt: function (px) {
+      var best = 0, bd = Infinity;
+      byX.forEach(function (p, i) { var d = Math.abs(X(p.bolas) - px); if (d < bd) { bd = d; best = i; } });
+      return best;
+    },
+    tip: function (i) {
+      var p = byX[i];
+      return '<strong>' + esc(p.name) + '</strong>' + tl('Margen', fP(p.mpct, 0)) + tl('Bolas al año', fN(p.bolas, 0)) + tl('Contribución', fE(p.contrib));
+    }
+  };
+  return svgOf(w, h, 'Ingeniería de carta: popularidad frente a margen de cada sabor', s);
+};
+
+// ---------- Pestaña Tesorería (60 días) ----------
+var TR_START = Date.UTC(2026, 10, 18), TR_DAYS = 60;
+var TR_ICON = { ven: '↑', nom: '€', ss: '§', aut: '€', prest: '%', luz: '~', agua: '~', env: '▣', ser: '✎', seg: '✚', mkt: '★', tas: '▤', ret: '↺', prov: '⌂', alq: '⌂' };
+var TR_DAYN = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+function trDate(i) { return new Date(TR_START + i * 86400000); }
+function trRow(d) { return ROWS[(d.getUTCFullYear() - 2025) * 12 + d.getUTCMonth()]; }
+function fDM(d) { return ('0' + d.getUTCDate()).slice(-2) + '/' + ('0' + (d.getUTCMonth() + 1)).slice(-2); }
+function fDMY(d) { return fDM(d) + '/' + d.getUTCFullYear(); }
+function treasuryData() {
+  var start = ROWS[21].caja + (ROWS[22].caja - ROWS[21].caja) * 17 / 30;   // saldo estimado el 18/11
+  var ev = [];
+  var add = function (i, cat, concept, amt) { if (Math.abs(amt) > 0.005) ev.push({ i: i, cat: cat, concept: concept, amt: amt }); };
+  for (var i = 0; i < TR_DAYS; i++) {
+    var d = trDate(i), dd = d.getUTCDate(), wd = d.getUTCDay(), cm = d.getUTCMonth() + 1, R = trRow(d);
+    var open = (cm >= 4 && cm <= 10) || wd !== 1;
+    var peakDay = cm === 12 && dd >= 20 && dd <= 24;
+    var gross = R.rev * 1.10, peak = cm === 12 ? 0.6 * R.revTortas * 1.10 : 0;
+    add(i, 'ven', peakDay ? 'Ventas del día · campaña de tortas' : 'Ventas del día (IVA incluido)',
+      (open ? (gross - peak) / R.open : 0) + (peakDay ? peak / 5 : 0));
+    if (dd === 1) add(i, 'alq', 'Alquiler (con retención del 19 % e IVA del 21 %)', -R.alquiler * 1.02);
+    if (dd === 30) {
+      add(i, 'nom', 'Nóminas netas (tras IRPF del 12 % y SS del trabajador)', -R.brutoPers * (1 - 0.12 - 0.0635));
+      add(i, 'ss', 'Seguridad Social (empresa y trabajador)', -((R.personal - R.brutoPers) + 0.0635 * R.brutoPers));
+      add(i, 'aut', 'Cuota de autónomo', -310);
+    }
+    if (dd === 5) add(i, 'prest', 'Préstamo ICO (cuota mensual)', -660.49);
+    if (dd === 3) add(i, 'ser', 'Gestoría, software y teléfono (IVA incluido)', -(150 + 95 + 55) * 1.21);
+    if (dd === 10) { add(i, 'seg', 'Seguros', -85); add(i, 'mkt', 'Marketing (IVA incluido)', -R.marketing * 1.21); }
+    if (dd === 12) add(i, 'luz', 'Electricidad (IVA incluido)', -R.luz * 1.21);
+    if (dd === 15) add(i, 'env', 'Envases (IVA incluido)', -R.envases * 1.21);
+    if (dd === 20 && cm === 12) add(i, 'agua', 'Agua de dos meses (IVA incluido)', -(ROWS[22].agua + ROWS[23].agua) * 1.21);
+    if (dd === 25) add(i, 'ser', 'Mantenimiento y limpieza (IVA incluido)', -(120 + 110) * 1.21);
+    if (dd === 28) { add(i, 'tas', 'Tasas municipales', -175); add(i, 'ret', 'Retiradas de la dueña', -BF_RETIRADAS); }
+    if (wd === 1) add(i, 'prov', 'Proveedores de materias primas (semanal, IVA incluido)', -R.mat / 4.33 * 1.10);
+  }
+  var b = start, bal = [];
+  for (var j = 0; j < TR_DAYS; j++) {
+    ev.forEach(function (e) { if (e.i === j) { b += e.amt; e.running = b; } });
+    bal.push(b);
+  }
+  var lowI = 0;
+  bal.forEach(function (v, k) { if (v < bal[lowI]) lowI = k; });
+  var inW = 0, outW = 0;
+  ev.forEach(function (e) { if (e.i < 30) { if (e.amt > 0) inW += e.amt; else outW -= e.amt; } });
+  return { start: start, ev: ev, bal: bal, lowI: lowI, low: bal[lowI], inW: inW, outW: outW, grand: ROWS[24].ivaPay + ROWS[24].irpfPay };
+}
+CHARTS.treasury = function (w, h) {
+  var T = treasuryData(), n = TR_DAYS, padL = 58, padR = 12, padT = 26, padB = 30, pw = w - padL - padR, ph = h - padT - padB;
+  var mn = Math.min(T.low, 0), mx = Math.max.apply(null, T.bal.concat([5000]));
+  var yMax = niceMax(mx), yMin = mn < 0 ? -niceMax(-mn) : 0;
+  var X = function (i) { return padL + i / (n - 1) * pw; };
+  var Y = function (v) { return padT + (yMax - v) / (yMax - yMin) * ph; };
+  var ids = gid();
+  var s = '<defs>' + gradDef(ids, 'var(--brand)', 0.05) + '</defs>';
+  ticksOf(yMin, yMax, 4).forEach(function (v) {
+    s += '<line x1="' + padL + '" x2="' + (w - padR) + '" y1="' + Y(v) + '" y2="' + Y(v) + '" class="bf-grid-l"/>' + txt(padL - 8, Y(v) + 4, fN(v), 'end');
+  });
+  var line = T.bal.map(function (v, i) { return [X(i), Y(v)]; });
+  s += '<path d="' + pathOf(line) + ' L' + X(n - 1) + ' ' + Y(0) + ' L' + X(0) + ' ' + Y(0) + ' Z" style="fill:url(#' + ids + ')"/>';
+  s += '<path d="' + pathOf(line) + '" class="bf-line-choco" style="stroke:var(--brand)"/>';
+  s += '<line x1="' + padL + '" x2="' + (w - padR) + '" y1="' + Y(5000) + '" y2="' + Y(5000) + '" style="stroke:var(--err);stroke-dasharray:4 4"/>';
+  s += txt(w - padR, Y(5000) - 4, '5.000 €', 'end', 'bf-ax');
+  for (var i = 0; i < n; i += 10) s += txt(X(i), padT + ph + 16, fDM(trDate(i)));
+  var lx = X(T.lowI), ly = Y(T.low);
+  s += '<circle cx="' + lx.toFixed(1) + '" cy="' + ly.toFixed(1) + '" r="5" style="fill:var(--err);stroke:var(--surface);stroke-width:1.5"/>';
+  var lab = w < 500 ? 'Mínimo: ' + fDM(trDate(T.lowI)) + ' · ' + fE(T.low) : 'Punto más bajo: ' + fDMY(trDate(T.lowI)) + ' · ' + fE(T.low);
+  s += lx > padL + pw * 0.5 ? txt(lx - 8, ly + 18, lab, 'end', 'bf-val') : txt(lx + 8, ly + 18, lab, 'start', 'bf-val');
+  TIPS.treasury = {
+    n: n, x: X,
+    idxAt: function (px) { return Math.round((px - padL) / (pw / (n - 1))); },
+    tip: function (i) { return '<strong>' + fDMY(trDate(i)) + '</strong>' + tl('Saldo al cierre', fE(T.bal[i])); }
+  };
+  return svgOf(w, h, 'Saldo previsto día a día durante los próximos 60 días, con el punto más bajo marcado', s);
+};
+function viewTesoreria() {
+  var T = treasuryData(), f = ST.tfilter;
+  var lowD = trDate(T.lowI);
+  var alert = T.low < 5000
+    ? ['warn', 'Alerta: el ' + fDMY(lowD) + ' la caja baja a ' + fE(T.low) + '. Sugerencia: adelanta la campaña de tortas o negocia pagar a proveedores a 30 días.']
+    : ['ok', 'Ok: la caja no baja de 5.000 € en los próximos 60 días.'];
+  var kp = [
+    kpi('bf-k1', 'Saldo hoy', fE(T.start), 'estimado el 18/11/2026', '', null),
+    kpi('bf-k2', 'Salidas próximos 30 días', '<span class="bf-neg">−' + fE(T.outW) + '</span>', 'del 18/11 al 17/12/2026', '', null),
+    kpi('bf-k3', 'Entradas previstas 30 días', '<span class="bf-pos">+' + fE(T.inW) + '</span>', 'ventas con IVA incluido', '', null),
+    kpi('bf-k4', 'Punto más bajo', fE(T.low), fDMY(lowD), '', null),
+    kpi('bf-k5', 'Próximo gran pago', fE(T.grand), '30/01/2027 · IVA y retenciones del 4.º trimestre', '', null)
+  ].join('');
+  // Agrupa por semana (lunes): pagos y otros cobros fila a fila; las ventas diarias, en una fila semanal al final
+  var weeks = [], byKey = {};
+  T.ev.forEach(function (e) {
+    var d = trDate(e.i), key = e.i - ((d.getUTCDay() + 6) % 7);
+    if (!byKey[key]) { byKey[key] = { singles: [], sales: [] }; weeks.push(key); }
+    (e.cat === 'ven' ? byKey[key].sales : byKey[key].singles).push(e);
+  });
+  var rowH = function (e) {
+    var d = trDate(e.i), out = e.amt < 0;
+    return '<li class="bf-trow"><span class="bf-tdate">' + TR_DAYN[d.getUTCDay()] + ' ' + fDM(d) + '</span>' +
+      '<span class="bf-ticon" aria-hidden="true">' + TR_ICON[e.cat] + '</span>' +
+      '<span class="bf-tconc">' + esc(e.concept) + '<span class="bf-tbal">Saldo: ' + fE(e.running) + '</span></span>' +
+      '<span class="bf-tamt ' + (out ? 'bf-neg' : 'bf-pos') + '">' + (out ? '−' : '+') + fE(Math.abs(e.amt)) + '</span></li>';
+  };
+  var list = weeks.map(function (key) {
+    var g = byKey[key];
+    var singles = g.singles.filter(function (e) { return f === 'todos' || (f === 'pagos' ? e.amt < 0 : e.amt > 0); });
+    var showSales = f !== 'pagos' && g.sales.length > 0;
+    if (!singles.length && !showSales) return '';
+    var html = singles.map(rowH).join('');
+    if (showSales) {
+      var sum = g.sales.reduce(function (a, e) { return a + e.amt; }, 0);
+      var endI = Math.min(TR_DAYS - 1, Math.max(0, key + 6));
+      html += '<li class="bf-trow"><span class="bf-tdate">' + fDM(trDate(key)) + '–' + fDM(trDate(key + 6)) + '</span>' +
+        '<span class="bf-ticon" aria-hidden="true">' + TR_ICON.ven + '</span>' +
+        '<span class="bf-tconc">Ventas previstas de la semana (' + g.sales.length + ' días, IVA incluido)<span class="bf-tbal">Saldo al cierre de la semana: ' + fE(T.bal[endI]) + '</span></span>' +
+        '<span class="bf-tamt bf-pos">+' + fE(sum) + '</span></li>';
+    }
+    return '<h3 class="bf-wk">Semana del ' + fDM(trDate(key)) + '</h3><ul class="bf-tlist">' + html + '</ul>';
+  }).join('');
+  return '' +
+    '<div class="bf-kpis">' + kp + '</div>' +
+    '<div class="bf-alert bf-alert-' + alert[0] + '" role="status" style="margin-top:14px"><span class="bf-alert-ic" aria-hidden="true">' + (alert[0] === 'ok' ? '✓' : '!') + '</span><span>' + esc(alert[1]) + '</span></div>' +
+    '<section class="bf-card bf-section" aria-labelledby="h-saldo"><h2 id="h-saldo" class="bf-h2">Saldo previsto día a día</h2>' +
+      '<p class="bf-sub">Próximos 60 días: del 18/11/2026 al 16/01/2027.</p>' +
+      '<div class="bf-chart" data-chart="treasury" data-h="300"></div>' +
+      srTable('Saldo al cierre de cada día', ['Fecha', 'Saldo'], T.bal.map(function (v, i) { return [fDMY(trDate(i)), fE(v)]; })) +
+    '</section>' +
+    '<section class="bf-card bf-section" aria-labelledby="h-cal2"><h2 id="h-cal2" class="bf-h2">Calendario de pagos y cobros</h2>' +
+      '<div class="bf-seg" role="group" aria-label="Filtro">' +
+        '<button type="button" data-tfilter="todos" aria-pressed="' + (f === 'todos') + '">Todos</button>' +
+        '<button type="button" data-tfilter="pagos" aria-pressed="' + (f === 'pagos') + '">Pagos</button>' +
+        '<button type="button" data-tfilter="cobros" aria-pressed="' + (f === 'cobros') + '">Cobros</button></div>' +
+      (list || '<p class="bf-sub">No hay movimientos con este filtro.</p>') +
+      '<p class="bf-hint">Aproximación: no incluye comisiones de tarjeta ni pagos aplazados. Las ventas se cobran con IVA; el IVA y las retenciones del 4.º trimestre se pagan el 30/01/2027.</p>' +
+    '</section>';
 }
 
 // ---------- Vistas, eventos y arranque ----------
 function viewFor(tab) {
   if (tab === 'gastos') return viewGastos();
+  if (tab === 'productos') return viewProductos();
+  if (tab === 'tesoreria') return viewTesoreria();
   if (tab === 'sostenibilidad') return viewSost();
   if (tab === 'proyeccion') return viewProy();
   return viewResumen();
@@ -1228,9 +1572,15 @@ function setFromHash() {
   ST.tab = TABS.some(function (t) { return t[0] === h; }) ? h : 'resumen';
 }
 function onClick(e) {
-  var t = e.target.closest('[data-tab],[data-period],[data-scen],[data-view],[data-exp],[data-reset],#bf-theme');
+  var t = e.target.closest('[data-tab],[data-period],[data-scen],[data-view],[data-exp],[data-reset],[data-sort],[data-tfilter],#bf-theme');
   if (!t) return;
   if (t.id === 'bf-theme') { toggleTheme(); return; }
+  if (t.hasAttribute('data-sort')) {
+    var key = t.getAttribute('data-sort');
+    ST.prodSort = ST.prodSort.key === key ? { key: key, dir: -ST.prodSort.dir } : { key: key, dir: key === 'name' ? 1 : -1 };
+    renderTab(); return;
+  }
+  if (t.hasAttribute('data-tfilter')) { ST.tfilter = t.getAttribute('data-tfilter'); renderTab(); return; }
   if (t.hasAttribute('data-tab')) { location.hash = t.getAttribute('data-tab'); return; }
   if (t.hasAttribute('data-period')) { ST.period = t.getAttribute('data-period'); renderTab(); return; }
   if (t.hasAttribute('data-scen')) {
