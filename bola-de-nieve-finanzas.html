@@ -341,8 +341,10 @@
 'use strict';
 // ---------- Constantes del negocio (ficticio) ----------
 var BF_SEED = 2026;
-var BF_CAJA_INI = 33900;           // caja a 1/1/2025 (calibrada: mínimo de 2025 ≈ 5.000 €; nunca negativa)
-var BF_RETIRADAS = 1800;           // retiradas de la dueña: solo caja, todos los meses
+var BF_CAJA_INI = 32400;           // caja a 1/1/2025: mínimo de 2025 ≈ 5.900 € (abril); abril de 2026 ≥ 3.000 €; proyección ≥ 2.000 €
+// Retiradas de la dueña (solo caja): temporada alta de mayo a septiembre, resto del año en temporada baja
+var BF_RETIRADA_ALTA = 2000, BF_RETIRADA_BAJA = 1150;
+function retiradaOf(cm) { return cm >= 5 && cm <= 9 ? BF_RETIRADA_ALTA : BF_RETIRADA_BAJA; }
 var BF_TICKET_MULT = 0.95;         // multiplicador global de tickets diarios (calibración: 1 da 270 k€ de ingresos 2025)
 var BF_N = 34;                     // k=0 ene 2025 ... k=33 oct 2027
 var BF_HIST = 22;                  // k<22 histórico (hasta oct 2026); k>=22 proyección
@@ -351,6 +353,35 @@ var BF_BASE_UNITS = [18,22,28,32,38,42,36,26,32,38,44,105];
 var BF_DEP = [1,1,1,2,3,4,4,4,3,2,1,2];
 var BF_SEASON = [0.8,0.8,0.9,1.0,1.2,1.5,1.7,1.7,1.4,1.1,0.9,0.9];
 var BF_MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+// Tortas por encargo: catálogo de la tienda (precio IVA incl. por número de raciones) y mezcla de ventas por tamaño
+var BF_TORTA_CAT = [
+  { name: 'Selva Negra', p: { 6: 34, 8: 44, 12: 60 }, cost8: 0.30 },
+  { name: 'Tarta de turrón', p: { 6: 36, 8: 46, 12: 62 }, cost8: 0.33 },
+  { name: 'Tres chocolates', p: { 6: 38, 8: 48, 12: 66 }, cost8: 0.34 },
+  { name: 'Tarta de frutos rojos', p: { 6: 34, 8: 44, 12: 58 }, cost8: 0.30 },
+  { name: 'Tarta de cumpleaños', p: { 6: 32, 8: 42, 12: 56 }, cost8: 0.30 }
+];
+var BF_TORTA_MIX = { 6: 0.20, 8: 0.45, 12: 0.35 };
+// Precio medio neto por torta (2025) = media ponderada por la mezcla de tamaños del catálogo, sin IVA
+var BF_TORTA_NET = (function () {
+  var s = 0;
+  [6, 8, 12].forEach(function (z) {
+    var avg = BF_TORTA_CAT.reduce(function (a, c) { return a + c.p[z]; }, 0) / BF_TORTA_CAT.length;
+    s += BF_TORTA_MIX[z] * avg;
+  });
+  return s / 1.10;
+})();
+// IRPF de la dueña (autónoma): escala general 2025 simplificada
+var IRPF_TRAMOS = [[12450, 0.19], [20200, 0.24], [35200, 0.30], [60000, 0.37], [Infinity, 0.45]];
+var IRPF_MINIMO = 5550;   // mínimo personal: crédito de 5.550 € × 19 %
+function irpfCuotaIntegra(base) {
+  var cuota = 0, lo = 0;
+  IRPF_TRAMOS.forEach(function (t) {
+    if (base > lo) cuota += (Math.min(base, t[0]) - lo) * t[1];
+    lo = t[0];
+  });
+  return cuota;
+}
 var BF_SCEN = {
   prudente:   { vol:-0.06, price:0,    elec:0.15, sal:0.03, tortas:0,    extraDep:false, rent:0, extraRest:false },
   base:       { vol:0.04,  price:0.02, elec:0,    sal:0.03, tortas:0,    extraDep:false, rent:0, extraRest:false },
@@ -423,7 +454,7 @@ function buildModel(sc) {
     if (k < 12) r.units = BF_BASE_UNITS[cm - 1];
     else if (k < BF_HIST) r.units = BF_BASE_UNITS[cm - 1] * 1.12;
     else r.units = rows[k - 12].units * (k < 24 ? 1.12 : 1) * (1 + sc.tortas);
-    r.revTortas = r.units * 46 * priceIdx;
+    r.revTortas = r.units * BF_TORTA_NET * priceIdx;
 
     // Restaurantes (cubetas 5 L)
     var restBase = k < 8 ? 0 : k < 15 ? 520 : 780;
@@ -453,15 +484,15 @@ function buildModel(sc) {
     r.marta = 1900 * 1.31 * wage;
     r.jordi = 1750 * 1.31 * wage;
     r.deps = dep * 900 * 1.31 * wage;
-    r.personal = r.marta + r.jordi + r.deps;
+    r.personal = r.marta + r.jordi + r.deps + 310;      // + cuota de autónomo de la dueña (categoría Personal)
     r.alquiler = 2400 * (k >= 12 ? 1.028 : 1) * (k >= 24 ? 1 + sc.rent : 1);
     r.luz = 600 * BF_SEASON[cm - 1] * (k >= 13 ? 0.95 : 1) * (proj ? 1 + sc.elec : 1);
     r.agua = 70 + 25 * BF_SEASON[cm - 1];
     r.energia = r.luz + r.agua;
     r.marketing = (cm >= 4 && cm <= 9) ? 320 : 150;
     r.averia = k === 6 ? 1400 : 0;                      // compresor vitrina, julio 2025
-    // autónomo 310 + seguros 85 + gestoría 150 + software 95 + teléfono 55 + mantenimiento 120 + limpieza 110 + tasas 175
-    r.otros = 1100 + r.averia;
+    // seguros 85 + gestoría 150 + software 95 + teléfono 55 + mantenimiento 120 + limpieza 110 + tasas 175 (la autónoma va en personal)
+    r.otros = 790 + r.averia;
     r.fijosCaja = r.personal + r.alquiler + r.energia + r.marketing + r.otros;
     r.ebitda = r.margen - r.fijosCaja;
     r.amort = 500;                                      // 48.000 € / 96 meses
@@ -471,7 +502,7 @@ function buildModel(sc) {
     r.parts = baseParts(r);
     rows.push(r);
   }
-  // Caja (impuesto de sociedades 23 % del BAI anual positivo, pagado en julio del año siguiente)
+  // Caja: el IRPF (pagos fraccionados y renta) se calcula en finishRows
   var sumBai = function (y) { return rows.reduce(function (a, r) { return a + (r.year === y ? r.bai : 0); }, 0); };
   // Impuestos indirectos y retenciones: solo cambian el momento del pago (la P&L va sin IVA)
   rows.forEach(function (r) {
@@ -489,11 +520,10 @@ function buildModel(sc) {
 // Caja, IVA trimestral y retenciones a partir de las filas ya ajustadas
 function finishRows(rows) {
   rows.forEach(function (r) { r.ivaNet = r.ivaRep - r.ivaSop; });
-  var sumBai = function (y) { return rows.reduce(function (a, r) { return a + (r.year === y ? r.bai : 0); }, 0); };
   // Pagos trimestrales (303 y 111/115) el día 20 de abr/jul/oct y 30 de ene; compensación de saldos negativos
   var credit = 0;
   rows.forEach(function (r) {
-    r.ivaPay = 0; r.irpfPay = 0;
+    r.ivaPay = 0; r.irpfPay = 0; r.pay130 = 0; r.renta = 0; r.irpfEst = 0;
     if ((r.cm === 1 || r.cm === 4 || r.cm === 7 || r.cm === 10) && r.k >= 3) {
       var qs = rows.slice(r.k - 3, r.k);
       var bal = qs.reduce(function (a, q) { return a + q.ivaNet; }, 0) - credit;
@@ -502,10 +532,35 @@ function finishRows(rows) {
       r.irpfPay = qs.reduce(function (a, q) { return a + q.irpfW; }, 0);
     }
   });
+  // IRPF de la dueña (autónoma). Rendimiento neto = BAI.
+  // Modelo 130: 20 % del rendimiento acumulado (si es positivo) menos lo ya pagado ese año; abr, jul, oct y 30 de enero.
+  var paid = {}, base = {}, sumPos = {};
+  [2025, 2026].forEach(function (y) {
+    paid[y] = 0; base[y] = 0; sumPos[y] = 0;
+    rows.forEach(function (r) { if (r.year === y) { base[y] += r.bai; sumPos[y] += Math.max(0, r.bai); } });
+  });
+  rows.forEach(function (r) {
+    if (!(r.cm === 1 || r.cm === 4 || r.cm === 7 || r.cm === 10)) return;
+    var ty = r.cm === 1 ? r.year - 1 : r.year;            // el pago de enero corresponde al año anterior
+    if (paid[ty] === undefined) return;
+    var toCm = r.cm === 1 ? 12 : r.cm - 1;                  // acumulado: ene–dic, ene–mar, ene–jun, ene–sep
+    var ytd = 0;
+    rows.forEach(function (q) { if (q.year === ty && q.cm <= toCm) ytd += q.bai; });
+    r.pay130 = Math.max(0, 0.2 * Math.max(0, ytd) - paid[ty]);
+    paid[ty] += r.pay130;
+  });
+  // Declaración anual (renta, junio del año siguiente): cuota íntegra menos mínimo personal menos modelo 130 del año
+  var cuota = {};
+  [2025, 2026].forEach(function (y) { cuota[y] = Math.max(0, irpfCuotaIntegra(Math.max(0, base[y])) - IRPF_MINIMO * 0.19); });
+  rows.forEach(function (r) {
+    if (r.cm === 6 && cuota[r.year - 1] !== undefined) r.renta = cuota[r.year - 1] - paid[r.year - 1];   // negativo = devolución
+    // IRPF estimado del mes: reparto proporcional de la cuota anual según el BAI positivo del mes
+    if (cuota[r.year] !== undefined && sumPos[r.year] > 0 && r.bai > 0) r.irpfEst = cuota[r.year] * r.bai / sumPos[r.year];
+  });
   var caja = BF_CAJA_INI;
   rows.forEach(function (r) {
-    r.taxPaid = (r.cm === 7 && r.year >= 2026) ? 0.23 * Math.max(0, sumBai(r.year - 1)) : 0;
-    r.retirada = BF_RETIRADAS;
+    r.taxPaid = (r.pay130 || 0) + (r.renta || 0);       // IRPF en caja: pagos fraccionados y renta
+    r.retirada = retiradaOf(r.cm);
     caja += r.bai + r.amort - r.principal - r.taxPaid - r.retirada + r.ivaNet + r.irpfW - r.ivaPay - r.irpfPay;
     r.caja = caja;
   });
@@ -550,7 +605,7 @@ function agg(list) {
     caja: list.length ? list[list.length - 1].caja : null,
     cajaMin: list.length ? Math.min.apply(null, list.map(function (r) { return r.caja; })) : null
   };
-  o.tax = 0.23 * Math.max(0, o.bai);
+  o.tax = list.reduce(function (a, r) { return a + (r.irpfEst || 0); }, 0);   // IRPF estimado (dueña autónoma)
   o.margenPct = o.rev ? o.margen / o.rev : 0;
   o.baiPct = o.rev ? o.bai / o.rev : 0;
   o.ticketMedio = o.tickets ? o.revMost / o.tickets : 0;
@@ -607,7 +662,7 @@ function baseParts(r) {
   add('pers-marta', 'pers', 'Marta · encargada', 'personal', 0, r.marta);
   add('pers-jordi', 'pers', 'Jordi · heladero de obrador', 'personal', 0, r.jordi);
   add('pers-deps', 'pers', 'Dependientes (×' + r.dep + ')', 'personal', 0, r.deps);
-  add('pers-aut', 'pers', 'Cuota de autónomo de la dueña', 'otros', 0, 310);
+  add('pers-aut', 'pers', 'Cuota de autónomo de la dueña', 'personal', 0, 310);
   add('alq', 'alq', 'Alquiler', 'alquiler', 0.21, r.alquiler);
   add('ener-luz', 'ener', 'Electricidad', 'energia', 0.21, r.luz);
   add('ener-agua', 'ener', 'Agua', 'energia', 0.21, r.agua);
@@ -683,7 +738,7 @@ var ICON_LOGO = '<svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="tr
 
 function copyScen(k) { var o = {}; for (var p in BF_SCEN[k]) o[p] = BF_SCEN[k][p]; return o; }
 function recalc() {
-  DAILY_CACHE = {};
+  DAILY_CACHE = {}; SALES_CACHE = {}; EV_CACHE = {};
   ROWS = buildModel(ST.sim);
   ROWS.forEach(function (r) {
     r.gastos = r.rev - r.bai;
@@ -703,11 +758,13 @@ function fN(n, d) {
   return grp(NF[d].format(n));
 }
 function fE(n, d) { return fN(n, d || 0) + ' €'; }
+// Signo menos solo si el valor, ya redondeado al decimal mostrado, no es 0 (evita «−0 €» y «−0,0 %»)
+function negS(n, d) { d = d || 0; return n < 0 && Math.abs(n) >= 0.5 * Math.pow(10, -d) ? '−' : ''; }
 function fP(x, d) { return fN(x * 100, d === undefined ? 1 : d) + ' %'; }
 function fX(n) { return fN(n, 2) + ' ×'; }
 function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 function sumF(list, f) { return list.reduce(function (a, r) { return a + r[f]; }, 0); }
-function pickP(id) { return pickRows(ROWS, pDef(id).ks); }
+function pickP(id) { return pickRows(ROWS, effKs(id)); }
 
 // ---------- Helpers SVG ----------
 function svgOf(w, h, label, inner) {
@@ -790,7 +847,8 @@ CHARTS.monthly = function (w, h) {
     n: n, x: X,
     idxAt: function (px) { return Math.floor((px - padL) / bw); },
     tip: function (i) {
-      var r = rows[i], j = sel.indexOf(i), c = (cmpOn() && j >= 0 && cmpK[j] !== undefined) ? ROWS[cmpK[j]] : null;
+      var pr = cmpOn() ? cmpInfo(ST.period).pairs.filter(function (p) { return p.b === i; })[0] : null;
+      var r = rows[i], c = pr ? ROWS[pr.c] : null;
       return '<strong>' + BF_MONTHS[r.cm - 1] + ' ' + r.year + '</strong>' +
         tl('Mostrador', fE(r.revMost)) + tl('Online', fE(r.revOnline)) + tl('Tortas', fE(r.revTortas)) + tl('Restaurantes', fE(r.revRest)) +
         tl('Ingresos', fE(r.rev)) + tl('Gastos', fE(r.gastos)) + tl('Beneficio', fE(r.bai)) + tl('Caja', fE(r.caja)) +
@@ -801,14 +859,15 @@ CHARTS.monthly = function (w, h) {
 };
 
 // Filas de la cascada: cada paso con su importe (sobre el total de ingresos)
-function cascadeItems(A) {
+// Filas fijas de la cascada: si alguno de los dos periodos tiene IRPF, ambos llevan las mismas filas (evita listas desalineadas)
+function cascadeItems(A, showTax) {
   var items = [
     ['Ingresos', A.rev, 'total'], ['Materias primas y mermas', A.mat, 'cost'], ['Envases', A.envases, 'cost'],
     ['Comisiones y reparto', A.comReparto, 'cost'], ['Personal', A.personal, 'cost'], ['Alquiler', A.alquiler, 'cost'],
     ['Energía y agua', A.energia, 'cost'], ['Otros fijos', A.otrosFijos, 'cost'], ['Amortización e intereses', A.amortInt, 'cost'],
     ['Beneficio (BAI)', A.bai, 'result']
   ];
-  if (A.bai > 0) items.push(['Impuesto estimado', A.tax, 'cost'], ['Beneficio después de impuestos', A.bai - A.tax, 'result']);
+  if (showTax) items.push(['IRPF estimado (dueña autónoma)', A.tax, 'cost'], ['Beneficio después de IRPF', A.bai - A.tax, 'result']);
   return items;
 }
 function cascadeBars(items) {
@@ -824,8 +883,9 @@ function cascadeBars(items) {
 }
 CHARTS.cascada = function (w) {
   var A = agg(pickP(ST.period)), C = cmpOn() ? agg(pickRows(ROWS, cmpInfo(ST.period).ks)) : null;
-  var items = cascadeItems(A), bars = cascadeBars(items);
-  var cbars = C ? cascadeBars(cascadeItems(C)) : null;
+  var showTax = A.tax > 0 || (C !== null && C.tax > 0);
+  var items = cascadeItems(A, showTax), bars = cascadeBars(items);
+  var cbars = C ? cascadeBars(cascadeItems(C, showTax)) : null;
   var lw = w < 520 ? Math.min(w * 0.4, 150) : 220;
   var vw = C ? 104 : 96, rowH = C ? 46 : 32, top = 6;
   var pw = w - lw - vw - 8;
@@ -840,7 +900,7 @@ CHARTS.cascada = function (w) {
     var x1 = X(Math.min(b.a, b.b)), x2 = X(Math.max(b.a, b.b));
     var col = b.kind === 'total' ? ids.ing : b.kind === 'cost' ? ids.cost : (b.v >= 0 ? ids.ok : ids.err);
     var nm = w < 520 ? b.lab.replace('Materias primas y mermas', 'Materias primas').replace('Comisiones y reparto', 'Comisiones').replace('Amortización e intereses', 'Amortización') : b.lab;
-    var lab = (b.kind === 'cost' || b.v < 0 ? '−' : '') + fE(Math.abs(b.v));
+    var lab = negS(b.kind === 'cost' ? -Math.abs(b.v) : b.v) + fE(Math.abs(b.v));
     if (!C) {
       s += txt(lw - 10, y + rowH / 2 + 4, nm, 'end', 'bf-lbl');
       s += '<rect x="' + x1.toFixed(1) + '" y="' + (y + 7) + '" width="' + Math.max(4, x2 - x1).toFixed(1) + '" height="' + (rowH - 14) + '" rx="5" fill="url(#' + col + ')"/>';
@@ -848,6 +908,7 @@ CHARTS.cascada = function (w) {
       return;
     }
     var cb = cbars[i];
+    if (!cb) return;
     s += txt(lw - 10, y + rowH / 2 + 4, nm, 'end', 'bf-lbl');
     s += '<rect x="' + x1.toFixed(1) + '" y="' + (y + 6) + '" width="' + Math.max(4, x2 - x1).toFixed(1) + '" height="14" rx="4" fill="url(#' + col + ')"/>';
     var cx1 = X(Math.min(cb.a, cb.b)), cx2 = X(Math.max(cb.a, cb.b));
@@ -856,7 +917,7 @@ CHARTS.cascada = function (w) {
       : 'fill:var(--cmpm);fill-opacity:.55';
     s += '<rect x="' + cx1.toFixed(1) + '" y="' + (y + 23) + '" width="' + Math.max(4, cx2 - cx1).toFixed(1) + '" height="8" rx="3" style="' + cstyle + '"/>';
     s += txt(w - 2, y + 17, lab, 'end', 'bf-val');
-    s += txt(w - 2, y + 38, (cb.kind === 'cost' || cb.v < 0 ? '−' : '') + fE(Math.abs(cb.v)), 'end', 'bf-cmpval');
+    s += txt(w - 2, y + 38, negS(cb.kind === 'cost' ? -Math.abs(cb.v) : cb.v) + fE(Math.abs(cb.v)), 'end', 'bf-cmpval');
   });
   return svgOf(w, h, 'Cascada: de los ingresos al beneficio del periodo' + (C ? ', con la comparación debajo de cada paso' : ''), s);
 };
@@ -1045,9 +1106,15 @@ function hydrate() {
   document.querySelectorAll('[data-chart]').forEach(function (el) {
     var name = el.getAttribute('data-chart'), h = +el.getAttribute('data-h') || 260;
     var w = Math.max(240, Math.floor(el.clientWidth || 600));
-    el.innerHTML = CHARTS[name](w, h) + '<div class="bf-tip" hidden></div>';
-    var svg = el.querySelector('svg');
-    if (TIPS[name] && svg) { svg.setAttribute('tabindex', '0'); bindTip(el, name); }
+    // Un gráfico que falla no debe dejar en blanco a los demás
+    try {
+      el.innerHTML = CHARTS[name](w, h) + '<div class="bf-tip" hidden></div>';
+      var svg = el.querySelector('svg');
+      if (TIPS[name] && svg) { svg.setAttribute('tabindex', '0'); bindTip(el, name); }
+    } catch (err) {
+      console.error('Gráfico "' + name + '":', err);
+      el.innerHTML = '<p class="bf-sub">No se pudo dibujar este gráfico.</p>';
+    }
   });
 }
 function bindTip(el, name) {
@@ -1083,15 +1150,13 @@ function bindTip(el, name) {
 var DAILY_CACHE = {};
 function daysInMonth(k) { return new Date(Date.UTC(2025 + Math.floor(k / 12), k % 12 + 1, 0)).getUTCDate(); }
 function capFirst(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
-// Caja diaria: mismo método que el panel de tesorería (pagos en su día, IVA y retenciones en su fecha,
-// retiradas el día 28), anclada para que el último día coincida con la caja mensual del modelo
-function dailyCash(k, D) {
-  var R = ROWS[k], T = treasuryData(Date.UTC(2025 + Math.floor(k / 12), k % 12, 1), D);
-  var diff = R.caja - T.bal[D - 1];
-  return T.bal.map(function (v, i) { return v + diff * (i + 1) / D; });
-}
-function dailyOf(k) {
-  if (DAILY_CACHE[k]) return DAILY_CACHE[k];
+// Caja diaria y ventas: un solo motor para Resumen y Tesorería (histórico y previsión)
+var SALES_CACHE = {}, EV_CACHE = {};
+function prevCajaOf(k) { return k > 0 ? ROWS[k - 1].caja : BF_CAJA_INI; }
+function diaOf(k, d) { return Math.min(d, daysInMonth(k)); }
+// Ventas diarias sin IVA del mes: días de la semana, lunes cerrados de nov a mar y picos de tortas
+function salesDays(k) {
+  if (SALES_CACHE[k]) return SALES_CACHE[k];
   var R = ROWS[k], y = 2025 + Math.floor(k / 12), cm = k % 12 + 1, D = daysInMonth(k);
   var rnd = mulberry32(BF_SEED * 31 + k), rainy = k === 17 ? { 4: 1, 9: 1, 16: 1, 23: 1 } : {};
   var days = [], wShop = [], wT = [], tue = [];
@@ -1109,8 +1174,7 @@ function dailyOf(k) {
   }
   var sum = function (a) { return a.reduce(function (x, z) { return x + z; }, 0); };
   var sS = sum(wShop), sT = sum(wT) || 1, restDays = tue.slice(0, 4);
-  // Precio medio del ticket por día: fin de semana ×1,04–1,07, entre semana ×0,96–0,99, ruido ±2 %.
-  // Se renormaliza para que Σ(tickets × precio) = ventas de mostrador del mes (promedio ponderado exacto).
+  // Precio medio del ticket por día (fin de semana algo más alto) renormalizado para cuadrar con el mostrador del mes
   var rnd2 = mulberry32(BF_SEED * 57 + k);
   var gArr = days.map(function (o) {
     var wk = (o.dow === 5 || o.dow === 6 || o.dow === 0) ? 1.04 + 0.03 * rnd2() : 0.96 + 0.03 * rnd2();
@@ -1120,22 +1184,81 @@ function dailyOf(k) {
   var sTG = tk.reduce(function (a, t, i) { return a + t * gArr[i]; }, 0);
   days.forEach(function (o, i) {
     o.tickets = tk[i];
-    o.most = sTG ? R.revMost * tk[i] * gArr[i] / sTG : 0;     // = tickets × precio del día
+    o.most = sTG ? R.revMost * tk[i] * gArr[i] / sTG : 0;
     o.onl = sS ? R.revOnline * wShop[i] / sS : 0;
     o.tor = R.revTortas * wT[i] / sT;
     o.rest = restDays.indexOf(o.d) >= 0 ? R.revRest / restDays.length : 0;
     o.sales = o.most + o.onl + o.tor + o.rest;
   });
+  SALES_CACHE[k] = { k: k, D: D, days: days, R: R };
+  return SALES_CACHE[k];
+}
+// Movimientos de caja de un mes, por día (importes con IVA; negativo = salida). Cuadran con el saldo mensual del modelo.
+function monthEvents(k) {
+  if (EV_CACHE[k]) return EV_CACHE[k];
+  var S = salesDays(k), R = S.R, D = S.D, cm = k % 12 + 1;
+  var per = [];
+  for (var i = 0; i < D; i++) per.push([]);
+  var add = function (d, cat, concept, amt) { if (Math.abs(amt) > 0.005) per[diaOf(k, d) - 1].push({ cat: cat, concept: concept, amt: amt }); };
+  var mondays = S.days.filter(function (o) { return o.dow === 1; }).length || 1;
+  S.days.forEach(function (o) {
+    var peak = cm === 12 && o.d >= 20 && o.d <= 24;
+    add(o.d, 'ven', peak ? 'Ventas del día · campaña de tortas (IVA incluido)' : 'Ventas del día (IVA incluido)', o.sales * 1.10);
+    if (o.dow === 1) add(o.d, 'prov', 'Proveedores de materias primas y mermas (semanal, IVA incluido)', -(R.mat * 1.10 + R.mermas) / mondays);
+  });
+  add(1, 'alq', 'Alquiler (con retención del 19 % e IVA del 21 %)', -(R.alquiler * 1.21 - R.irpfAlq));
+  add(3, 'ser', 'Gestoría, software y teléfono (IVA incluido)', -(partAmt(R, 'otr-gest') + partAmt(R, 'otr-soft') + partAmt(R, 'otr-tel')) * 1.21);
+  add(5, 'com', 'Comisiones de tarjeta y pasarela', -R.comisiones);
+  add(5, 'prest', 'Préstamo ICO (cuota mensual)', -(R.interes + R.principal));
+  add(10, 'seg', 'Seguros', -partAmt(R, 'otr-seg'));
+  add(10, 'mkt', 'Marketing (IVA incluido)', -R.marketing * 1.21);
+  add(12, 'luz', 'Electricidad (IVA incluido)', -partAmt(R, 'ener-luz') * 1.21);
+  add(15, 'env', 'Envases (IVA incluido)', -R.envases * 1.21);
+  add(20, 'agua', 'Agua (IVA incluido)', -partAmt(R, 'ener-agua') * 1.21);
+  add(20, 'rep', 'Reparto de envíos (IVA incluido)', -R.reparto * 1.21);
+  add(20, 'aver', 'Reparación de equipos (IVA incluido)', -partAmt(R, 'otr-aver') * 1.21);
+  add(25, 'mant', 'Mantenimiento y limpieza (IVA incluido)', -(partAmt(R, 'otr-mant') + partAmt(R, 'otr-limp')) * 1.21);
+  add(28, 'tas', 'Tasas municipales', -partAmt(R, 'otr-tasas'));
+  add(28, 'ret', cm >= 5 && cm <= 9 ? 'Retiradas de la dueña (temporada alta)' : 'Retiradas de la dueña (temporada baja)', -retiradaOf(cm));
+  add(30, 'nom', 'Nóminas y seguridad social (netas de retención)', -((R.personal - 310) - R.irpfNom));
+  add(30, 'aut', 'Cuota de autónomo de la dueña', -310);
+  // Pagos trimestrales: IVA (303), retenciones (111 y 115) e IRPF (130) el 20 de abr/jul/oct y el 30 de enero
+  if (cm === 1 || cm === 4 || cm === 7 || cm === 10) add(cm === 1 ? 30 : 20, 'iva', 'IVA, retenciones e IRPF (mod. 130) del trimestre', -(R.ivaPay + R.irpfPay + R.pay130));
+  // Renta anual de la dueña en junio (positivo = pago; negativo = devolución)
+  if (cm === 6 && R.renta) add(30, R.renta > 0 ? 'irpf' : 'dev', R.renta > 0 ? 'Renta anual de la dueña (IRPF, junio)' : 'Devolución de la renta (IRPF, junio)', -R.renta);
+  // Lo que no está en las partidas (ajustes manuales, IVA de ajustes): último día del mes para cuadrar con el modelo
+  var sumAll = 0;
+  per.forEach(function (l) { l.forEach(function (e) { sumAll += e.amt; }); });
+  add(D, 'otr', 'Otros movimientos (IVA de ajustes y redondeos)', (R.caja - prevCajaOf(k)) - sumAll);
+  EV_CACHE[k] = per;
+  return per;
+}
+// Saldo al cierre de cada día del mes
+function cashPath(k) {
+  var b = prevCajaOf(k);
+  return monthEvents(k).map(function (list) { list.forEach(function (e) { b += e.amt; }); return b; });
+}
+// Saldo al cierre de un día (ms UTC)
+function cashEnd(ms) {
+  var d = new Date(ms), k = (d.getUTCFullYear() - 2025) * 12 + d.getUTCMonth();
+  if (k < 0) return BF_CAJA_INI;
+  if (k >= ROWS.length) k = ROWS.length - 1;
+  return cashPath(k)[d.getUTCDate() - 1];
+}
+// Datos diarios de un mes para Resumen: ventas, costes prorrateados y caja del motor
+function dailyOf(k) {
+  if (DAILY_CACHE[k]) return DAILY_CACHE[k];
+  var S = salesDays(k), R = S.R, days = S.days;
   days.forEach(function (o) {
     o.variable = R.rev ? R.variable * o.sales / R.rev : 0;          // costes variables proporcionales a las ventas del día
-    o.gastos = (R.gastos - R.variable) / D + o.variable;            // costes fijos prorrateados por día natural
+    o.gastos = (R.gastos - R.variable) / S.D + o.variable;          // costes fijos prorrateados por día natural
     o.margin = o.sales - o.variable;
     o.bai = o.sales - o.gastos;
     o.ticket = o.tickets > 0 ? o.most / o.tickets : null;
   });
-  var cash = dailyCash(k, D);
+  var cash = cashPath(k);
   days.forEach(function (o, i) { o.caja = cash[i]; });
-  var out = { k: k, D: D, days: days, R: R };
+  var out = { k: k, D: S.D, days: days, R: R };
   DAILY_CACHE[k] = out;
   return out;
 }
@@ -1318,19 +1441,23 @@ function legendChips(items) {
 // ---------- Pestaña Resumen ----------
 function viewResumen() {
   var P = pDef(ST.period), cur = pickP(ST.period), A = agg(cur);
-  var pv = P.prev ? agg(pickRows(ROWS, P.prev)) : null, lb = P.prevLabel;
+  var pv = P.prev && !ST.cmp.on ? agg(pickRows(ROWS, P.prev)) : null, lb = P.prevLabel;
   var cmpI0 = cmpOn() ? cmpInfo(ST.period) : null, cA = cmpI0 ? agg(pickRows(ROWS, cmpI0.ks)) : null;
   var mv = pickP(ST.period).length === 1;   // vista mensual: tarjetas con datos diarios
   var SER = function (k12, fd, zero) { return mv ? sDaily(fd, zero) : sRange(k12, zero); };
   var goodUpOf = function (key) { return key !== 'gastos'; };   // subir gastos es malo
   var fmtOf = function (key) { return key === 'ticketMedio' ? function (v) { return fN(v, 2) + ' €'; } : fE; };
-  var vh = function (c, key) { if (cA) return cmpTxt(c, cA[key], cmpI0.label, false, fmtOf(key), goodUpOf(key)); return pv ? varTxt(c, pv[key], lb, goodUpOf(key)) : noCmp(); };
+  var vh = function (c, key) {
+    if (cA) return cmpTxt(c, cA[key], cmpI0.label, false, fmtOf(key), goodUpOf(key));
+    if (ST.cmp.on) return '<p class="bf-var bf-muted">Sin datos de ' + cmpYear() + '</p>';
+    return pv ? varTxt(c, pv[key], lb, goodUpOf(key)) : noCmp();
+  };
   var l12 = pickRows(ROWS, ULT);
   var cards = [
     kpi('bf-k1', 'Ingresos', fE(A.rev), '', vh(A.rev, 'rev'), SER(function (r) { return r.rev; }, function (o) { return o.sales; }, false), 'var(--brand)'),
     kpi('bf-k2', 'Margen bruto', fE(A.margen), fP(A.margenPct) + ' de los ingresos', vh(A.margen, 'margen'), SER(function (r) { return r.margen; }, function (o) { return o.margin; }, false), 'var(--brand)'),
     kpi('bf-k3', 'Gastos totales', fE(A.gastos), 'incluye amortización e intereses', vh(A.gastos, 'gastos'), SER(function (r) { return r.gastos; }, function (o) { return o.gastos; }, false), 'var(--choco)'),
-    kpi('bf-k4', 'Beneficio (BAI)', '<span class="' + (A.bai >= 0 ? 'bf-pos' : 'bf-neg') + '">' + fE(A.bai) + '</span>', fP(A.baiPct) + ' de margen' + (A.bai > 0 ? '<span class="bf-block">Impuesto estimado: ' + fE(A.tax) + '</span>' : ''), (cA ? cmpTxt(A.bai, cA.bai, cmpI0.label, true) : (pv ? varAbs(A.bai, pv.bai, lb) : noCmp())), SER(function (r) { return r.bai; }, function (o) { return o.bai; }, true), A.bai >= 0 ? 'var(--ok)' : 'var(--err)'),
+    kpi('bf-k4', 'Beneficio (BAI)', '<span class="' + (A.bai >= 0 ? 'bf-pos' : 'bf-neg') + '">' + fE(A.bai) + '</span>', fP(A.baiPct) + ' de margen' + (A.tax > 0.5 ? '<span class="bf-block">IRPF estimado (dueña autónoma): ' + fE(A.tax) + '</span>' : ''), (cA ? cmpTxt(A.bai, cA.bai, cmpI0.label, true) : ST.cmp.on ? '<p class="bf-var bf-muted">Sin datos de ' + cmpYear() + '</p>' : (pv ? varAbs(A.bai, pv.bai, lb) : noCmp())), SER(function (r) { return r.bai; }, function (o) { return o.bai; }, true), A.bai >= 0 ? 'var(--ok)' : 'var(--err)'),
     kpi('bf-k5', 'Ticket medio en mostrador', fN(A.ticketMedio, 2) + ' €', '', vh(A.ticketMedio, 'ticketMedio'), SER(function (r) { return r.ticketMed; }, function (o) { return o.ticket; }, false), 'var(--brand)'),
     kpi('bf-k6', 'Caja al final del periodo', fE(A.caja), '', vh(A.caja, 'caja'), SER(function (r) { return r.caja; }, function (o) { return o.caja; }, false), 'var(--caja)')
   ].join('');
@@ -1399,8 +1526,8 @@ function viewResumen() {
       srTable('Cascada del periodo', ['Concepto', 'Importe'], [
         ['Ingresos', fE(A.rev)], ['Materias primas y mermas', fE(A.mat)], ['Envases', fE(A.envases)], ['Comisiones y reparto', fE(A.comReparto)],
         ['Personal', fE(A.personal)], ['Alquiler', fE(A.alquiler)], ['Energía y agua', fE(A.energia)], ['Otros fijos', fE(A.otrosFijos)],
-        ['Amortización e intereses', fE(A.amortInt)], ['Beneficio', fE(A.bai)], ['Impuesto estimado', fE(A.tax)], ['Beneficio después de impuestos', fE(A.bai - A.tax)]
-      ]) +
+        ['Amortización e intereses', fE(A.amortInt)], ['Beneficio', fE(A.bai)]
+      ].concat(A.tax > 0.5 ? [['IRPF estimado (dueña autónoma)', fE(A.tax)], ['Beneficio después de IRPF', fE(A.bai - A.tax)]] : [])) +
     '</section>' +
     '<div class="bf-grid2">' +
       '<section class="bf-card" aria-labelledby="h-don"><h2 id="h-don" class="bf-h2">De dónde viene el dinero</h2>' +
@@ -1534,7 +1661,7 @@ function viewGastos() {
   var P = pDef(ST.period), cur = pickP(ST.period), A = agg(cur), n = cur.length, single = n === 1, kEnd = cur[n - 1].k;
   var cmpI = cmpOn() ? cmpInfo(ST.period) : null;
   var cmpRows = cmpI ? pickRows(ROWS, cmpI.ks) : null, CA = cmpRows ? agg(cmpRows) : null;
-  var pvRows = !cmpI && P.prev ? pickRows(ROWS, P.prev) : null, pvA = pvRows ? agg(pvRows) : null;
+  var pvRows = !cmpI && !ST.cmp.on && P.prev ? pickRows(ROWS, P.prev) : null, pvA = pvRows ? agg(pvRows) : null;
   var mediaHead = single ? 'Media 12 meses' : 'Media mensual';
   var diffCells = function (v, cv) {
     if (cv === null) return '<td data-label="Comparación"><span class="bf-muted">—</span></td><td data-label="Diferencia"><span class="bf-muted">—</span></td>';
@@ -1909,9 +2036,9 @@ CHARTS.catmini = function (w, h) {
     n: n, x: X,
     idxAt: function (px) { return Math.floor((px - padL) / bw); },
     tip: function (i) {
-      var j = sel.indexOf(i), c = (cmpOn() && j >= 0 && cmpK[j] !== undefined) ? cmpK[j] : null;
+      var pr = cmpOn() ? cmpInfo(ST.period).pairs.filter(function (p) { return p.b === i; })[0] : null;
       return '<strong>' + BF_MONTHS[rows[i].cm - 1] + ' ' + rows[i].year + '</strong>' + tl(CAT_NAME[cat], fE(vals[i])) +
-        (c !== null ? tl('Comparación · ' + monthName(ymOfK(c)), fE(catSum([ROWS[c]], cat))) : '');
+        (pr ? tl('Comparación · ' + monthName(ymOfK(pr.c)), fE(catSum([ROWS[pr.c]], cat))) : '');
     }
   };
   return svgOf(w, h, 'Importe mensual de ' + CAT_NAME[cat] + ' de enero de 2025 a octubre de 2026', s);
@@ -2016,7 +2143,7 @@ function viewSost() {
   ].join('');
 
   return '' +
-    '<div class="bf-seg-wrap" style="margin-bottom:6px"><p class="bf-sub">Indicadores del año móvil (noviembre de 2025 a octubre de 2026) salvo que se indique lo contrario. La caja incluye IVA trimestral, retenciones y retiradas de la dueña (1.800 €/mes).</p></div>' +
+    '<div class="bf-seg-wrap" style="margin-bottom:6px"><p class="bf-sub">Indicadores del año móvil (noviembre de 2025 a octubre de 2026) salvo que se indique lo contrario. La caja incluye IVA trimestral, retenciones, IRPF (pagos fraccionados y renta) y retiradas de la dueña (2.000 €/mes en temporada alta y 1.150 €/mes el resto del año). Simplificación orientativa: no sustituye el asesoramiento de una gestoría.</p></div>' +
     '<div class="bf-grid2" style="margin-top:0">' +
       '<section class="bf-card" aria-labelledby="h-pe1"><h2 id="h-pe1" class="bf-h2">Punto de equilibrio: octubre de 2026</h2>' +
         '<p class="bf-sub">Último mes completo.</p>' + meter(last.rev, beO.be) +
@@ -2123,7 +2250,7 @@ function paintProy() {
         '<tbody>' + tbl + '</tbody></table></div></section>' +
       '<section class="bf-card" aria-labelledby="h-fr"><h2 id="h-fr" class="bf-h2">Lo que dice el escenario</h2>' +
         '<ul class="bf-phr" style="margin-top:12px">' + phr.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul>' +
-        '<p class="bf-hint">Base de cálculo: cada mes se estima con el mismo mes del año anterior (noviembre y diciembre de 2026 desde 2025, y de enero a octubre de 2027 desde 2026), con la tendencia ya aplicada. La caja incluye IVA trimestral, retenciones y retiradas de la dueña (1.800 €/mes). El préstamo sigue su calendario y el impuesto de 2026 se paga en julio de 2027.</p></section>' +
+        '<p class="bf-hint">Base de cálculo: cada mes se estima con el mismo mes del año anterior (noviembre y diciembre de 2026 desde 2025, y de enero a octubre de 2027 desde 2026), con la tendencia ya aplicada. La caja incluye IVA trimestral, retenciones, IRPF (pagos fraccionados y renta) y retiradas de la dueña (2.000 €/mes en temporada alta y 1.150 €/mes el resto del año). El préstamo sigue su calendario y la renta de 2026 se paga en junio de 2027. Simplificación orientativa: no sustituye el asesoramiento de una gestoría.</p></section>' +
     '</div>';
   hydrate();
 }
@@ -2145,18 +2272,24 @@ var BF_FLAV = [
   { id: 'cafe', name: 'Café con leche', short: 'Café', price: 2.90, base: 0.28, ing: 0.22, pop: 4 },
   { id: 'naranja', name: 'Naranja y jengibre', short: 'Naranja', price: 2.90, base: 0.10, ing: 0.20, pop: 4, veg: true }
 ];
-var BF_CAKES = [
-  { name: 'Selva Negra', p8: 44, pct: 0.30 }, { name: 'Tarta de turrón', p8: 46, pct: 0.33 },
-  { name: 'Tres chocolates', p8: 48, pct: 0.34 }, { name: 'Tarta de frutos rojos', p8: 44, pct: 0.30 },
-  { name: 'Tarta de cumpleaños', p8: 42, pct: 0.30 }
-];
+// Precio medio de una bola sin IVA, ponderado por la popularidad de cada sabor
+function bolaNetAvg() {
+  var tot = BF_FLAV.reduce(function (a, f) { return a + f.pop; }, 0);
+  return BF_FLAV.reduce(function (a, f) { return a + f.pop * (f.price / 1.10); }, 0) / tot;
+}
+// Bolas por ticket derivadas del modelo: ticket medio de mostrador (sin IVA) ÷ precio medio de una bola
+function bolasPerTicket() {
+  var u = agg(pickRows(ROWS, ULT));
+  return u.tickets ? (u.revMost / u.tickets) / bolaNetAvg() : 0;
+}
 function median(a) {
   var s = a.slice().sort(function (x, y) { return x - y; }), n = s.length;
   return n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2;
 }
 function escandallo() {
   var tot = BF_FLAV.reduce(function (a, f) { return a + f.pop; }, 0);
-  var bolas12 = agg(pickRows(ROWS, ULT)).tickets * 1.35;
+  // Bolas vendidas = ingresos de mostrador sin IVA de 12 meses ÷ precio medio de una bola (sin IVA)
+  var bolas12 = agg(pickRows(ROWS, ULT)).revMost / bolaNetAvg();
   return BF_FLAV.map(function (f, i) {
     var net = f.price / 1.10, cost = f.base + f.ing + 0.11, margin = net - cost, bolas = bolas12 * f.pop / tot;
     return { id: f.id, name: f.name, short: f.short, veg: !!f.veg, color: 'hsl(' + Math.round(i * 360 / BF_FLAV.length) + ' 62% 56%)',
@@ -2202,13 +2335,19 @@ function viewProductos() {
     'Los veganos dejan un margen medio del ' + fP(avgM(vegs), 0) + ', frente al ' + fP(avgM(lacs), 0) + ' de las lácteas.',
     caballoTxt
   ];
-  var cakes = BF_CAKES.map(function (c) {
-    var net = c.p8 / 1.10, cost = c.pct * net, caja = 1.20, m = net - cost - caja;
-    return '<tr><th scope="row">' + esc(c.name) + '</th><td>' + fE(c.p8) + '</td><td>' + fN(net, 2) + ' €</td><td>' + fN(cost, 2) + ' €</td><td>' + fN(caja, 2) + ' €</td><td>' + fN(m, 2) + ' €</td><td>' + fP(m / net, 0) + '</td></tr>';
+  // Todas las raciones de cada tarta. El coste de materias escala con las raciones (la tarta de 8 usa cost8 del catálogo).
+  var cakes = BF_TORTA_CAT.map(function (c) {
+    return [6, 8, 12].map(function (z, zi) {
+      var price = c.p[z], net = price / 1.10, net8 = c.p[8] / 1.10, cost = c.cost8 * net8 * z / 8, caja = 1.20, m = net - cost - caja;
+      return '<tr>' + (zi === 0 ? '<th scope="row" rowspan="3">' + esc(c.name) + '</th>' : '') +
+        '<td>' + z + '</td><td>' + fE(price) + '</td><td>' + fN(net, 2) + ' €</td><td>' + fN(cost, 2) + ' €</td><td>' + fN(caja, 2) + ' €</td><td>' + fN(m, 2) + ' €</td><td>' + fP(m / net, 0) + '</td><td>' + fP(BF_TORTA_MIX[z], 0) + '</td></tr>';
+    }).join('');
   }).join('');
+  var mixRow = '<p class="bf-sub" style="margin-top:12px">Precio medio neto por torta con la mezcla de ventas (' +
+    [6, 8, 12].map(function (z) { return fP(BF_TORTA_MIX[z], 0) + ' en ' + z + ' raciones'; }).join(', ') + '): <b>' + fN(BF_TORTA_NET, 2) + ' €</b>, el mismo precio que usa el modelo de ventas de tortas en 2025.</p>';
   return '' +
     '<section class="bf-card" aria-labelledby="h-esc2"><h2 id="h-esc2" class="bf-h2">Escandallo por bola</h2>' +
-      '<p class="bf-sub">Precio sin IVA (precio de la tienda entre 1,10), coste de materias, envase y margen. Ventas de los últimos 12 meses estimadas a partir de los tickets de mostrador (× 1,35 bolas por ticket). Pulsa una cabecera para ordenar.</p>' +
+      '<p class="bf-sub">Precio sin IVA (precio de la tienda entre 1,10), coste de materias, envase y margen. Ventas de los últimos 12 meses estimadas a partir de los ingresos de mostrador (≈ ' + fN(bolasPerTicket(), 1) + ' bolas por ticket, derivado del ticket medio y del precio medio de la carta). Pulsa una cabecera para ordenar.</p>' +
       '<div class="bf-scroll"><table class="bf-table"><caption class="bf-sr">Escandallo de helados</caption><thead><tr>' +
         th('name', 'Producto') + th('price', 'Precio sin IVA') + th('cost', 'Coste por bola') + th('margin', 'Margen € por bola') + th('mpct', 'Margen %') + th('bolas', 'Bolas vendidas (12 meses)') + th('contrib', 'Contribución total') +
       '</tr></thead><tbody>' + body + '</tbody></table></div></section>' +
@@ -2216,9 +2355,10 @@ function viewProductos() {
       '<p class="bf-sub">Popularidad (bolas vendidas) frente a margen %. Las líneas punteadas son las medianas.</p>' +
       '<div class="bf-chart" data-chart="escandallo" data-h="340"></div>' +
       '<ul class="bf-phr" style="margin-top:12px">' + phr.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul></section>' +
-    '<section class="bf-card bf-section" aria-labelledby="h-tar"><h2 id="h-tar" class="bf-h2">Tortas por encargo (8 raciones)</h2>' +
-      '<div class="bf-scroll"><table class="bf-table"><caption class="bf-sr">Escandallo de tortas</caption><thead><tr><th scope="col">Tarta</th><th scope="col">Precio IVA incl.</th><th scope="col">Precio sin IVA</th><th scope="col">Coste materias</th><th scope="col">Caja</th><th scope="col">Margen €</th><th scope="col">Margen %</th></tr></thead>' +
-      '<tbody>' + cakes + '</tbody></table></div></section>' +
+    '<section class="bf-card bf-section" aria-labelledby="h-tar"><h2 id="h-tar" class="bf-h2">Tortas por encargo (6, 8 y 12 raciones)</h2>' +
+      '<p class="bf-sub">Precios de la tienda con IVA incluido. El coste de materias crece con las raciones.</p>' +
+      '<div class="bf-scroll"><table class="bf-table"><caption class="bf-sr">Escandallo de tortas por tamaño</caption><thead><tr><th scope="col">Tarta</th><th scope="col">Raciones</th><th scope="col">Precio IVA incl.</th><th scope="col">Precio sin IVA</th><th scope="col">Coste materias</th><th scope="col">Caja</th><th scope="col">Margen €</th><th scope="col">Margen %</th><th scope="col">% de ventas por tamaño</th></tr></thead>' +
+      '<tbody>' + cakes + '</tbody></table></div>' + mixRow + '</section>' +
     '<p class="bf-hint">Escandallo estimado con costes de proveedores de octubre de 2026.</p>';
 }
 CHARTS.escandallo = function (w, h) {
@@ -2281,55 +2421,31 @@ CHARTS.escandallo = function (w, h) {
 };
 
 // ---------- Pestaña Tesorería (60 días) ----------
-var TR_START = Date.UTC(2026, 10, 18), TR_DAYS = 60;
-var TR_ICON = { ven: '↑', nom: '€', ss: '§', aut: '€', prest: '%', luz: '~', agua: '~', env: '▣', ser: '✎', seg: '✚', mkt: '★', tas: '▤', ret: '↺', prov: '⌂', alq: '⌂' };
+// "Hoy" es la fecha real si cae entre el 1/11/2026 y el 30/9/2027; si no, el 18/11/2026
+var TR_DAYS = 60;
+var TR_ICON = { ven: '↑', nom: '€', ss: '§', aut: '€', prest: '%', luz: '~', agua: '~', env: '▣', ser: '✎', seg: '✚', mkt: '★', tas: '▤', ret: '↺', prov: '⌂', alq: '⌂', com: '€', rep: '▣', iva: '%', irpf: '%', dev: '↑', aver: '!', mant: '✎', otr: '•' };
 var TR_DAYN = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
-function trDate(i) { return new Date(TR_START + i * 86400000); }
-function trRow(d) { return ROWS[(d.getUTCFullYear() - 2025) * 12 + d.getUTCMonth()]; }
+function trStart() { return todayUTC().getTime(); }
+function trDate(i) { return new Date(trStart() + i * DAY_MS); }
 function fDM(d) { return ('0' + d.getUTCDate()).slice(-2) + '/' + ('0' + (d.getUTCMonth() + 1)).slice(-2); }
 function fDMY(d) { return fDM(d) + '/' + d.getUTCFullYear(); }
-// ---------- Pestaña Tesorería: 60 días, con comparación del mismo periodo de otro año ----------
-// Saldo día a día desde una fecha de inicio (por defecto 18/11/2026), con el mismo método para histórico y previsión
+// Saldo día a día desde una fecha (por defecto, hoy). El saldo inicial es el cierre del día anterior del motor.
 function treasuryData(startMs, nd) {
-  var N = nd || TR_DAYS;
-  var S = startMs || TR_START, sd = new Date(S), k0 = (sd.getUTCFullYear() - 2025) * 12 + sd.getUTCMonth(), dom = sd.getUTCDate();
-  var prevC = k0 >= 1 ? ROWS[k0 - 1].caja : BF_CAJA_INI;
-  var start = prevC + (ROWS[k0].caja - prevC) * (dom - 1) / 30;   // saldo estimado al inicio de la ventana
-  var ev = [];
-  var add = function (i, cat, concept, amt) { if (Math.abs(amt) > 0.005) ev.push({ i: i, cat: cat, concept: concept, amt: amt }); };
+  var N = nd || TR_DAYS, S = startMs || trStart();
+  var start = cashEnd(S - DAY_MS);
+  var ev = [], bal = [], b = start;
   for (var i = 0; i < N; i++) {
-    var d = new Date(S + i * DAY_MS), dd = d.getUTCDate(), wd = d.getUTCDay(), cm = d.getUTCMonth() + 1, R = trRow(d);
-    var open = (cm >= 4 && cm <= 10) || wd !== 1;
-    var peakDay = cm === 12 && dd >= 20 && dd <= 24;
-    var gross = R.rev * 1.10, peak = cm === 12 ? 0.6 * R.revTortas * 1.10 : 0;
-    add(i, 'ven', peakDay ? 'Ventas del día · campaña de tortas' : 'Ventas del día (IVA incluido)',
-      (open ? (gross - peak) / R.open : 0) + (peakDay ? peak / 5 : 0));
-    if (dd === 1) add(i, 'alq', 'Alquiler (con retención del 19 % e IVA del 21 %)', -R.alquiler * 1.02);
-    if (dd === 30) {
-      add(i, 'nom', 'Nóminas netas (tras IRPF del 12 % y SS del trabajador)', -R.brutoPers * (1 - 0.12 - 0.0635));
-      add(i, 'ss', 'Seguridad Social (empresa y trabajador)', -((R.personal - R.brutoPers) + 0.0635 * R.brutoPers));
-      add(i, 'aut', 'Cuota de autónomo', -310);
+    var d = new Date(S + i * DAY_MS), k = (d.getUTCFullYear() - 2025) * 12 + d.getUTCMonth();
+    if (k >= 0 && k < ROWS.length) {
+      monthEvents(k)[d.getUTCDate() - 1].forEach(function (e) {
+        b += e.amt;
+        ev.push({ i: i, cat: e.cat, concept: e.concept, amt: e.amt, running: b });
+      });
     }
-    if (dd === 5) add(i, 'prest', 'Préstamo ICO (cuota mensual)', -660.49);
-    if (dd === 3) add(i, 'ser', 'Gestoría, software y teléfono (IVA incluido)', -(150 + 95 + 55) * 1.21);
-    if (dd === 10) { add(i, 'seg', 'Seguros', -85); add(i, 'mkt', 'Marketing (IVA incluido)', -R.marketing * 1.21); }
-    if (dd === 12) add(i, 'luz', 'Electricidad (IVA incluido)', -partAmt(R, 'ener-luz') * 1.21);
-    if (dd === 15) add(i, 'env', 'Envases (IVA incluido)', -R.envases * 1.21);
-    if (dd === 20 && cm === 12) {
-      var R2 = ROWS[(d.getUTCFullYear() - 2025) * 12 + 10];   // noviembre del mismo año
-      add(i, 'agua', 'Agua de dos meses (IVA incluido)', -(partAmt(R, 'ener-agua') + partAmt(R2, 'ener-agua')) * 1.21);
-    }
-    if (dd === 25) add(i, 'ser', 'Mantenimiento y limpieza (IVA incluido)', -(120 + 110) * 1.21);
-    if (dd === 28) { add(i, 'tas', 'Tasas municipales', -175); add(i, 'ret', 'Retiradas de la dueña', -BF_RETIRADAS); }
-    if (wd === 1) add(i, 'prov', 'Proveedores de materias primas (semanal, IVA incluido)', -R.mat / 4.33 * 1.10);
-  }
-  var b = start, bal = [];
-  for (var j = 0; j < N; j++) {
-    ev.forEach(function (e) { if (e.i === j) { b += e.amt; e.running = b; } });
     bal.push(b);
   }
   var lowI = 0;
-  bal.forEach(function (v, k) { if (v < bal[lowI]) lowI = k; });
+  bal.forEach(function (v, j) { if (v < bal[lowI]) lowI = j; });
   var inW = 0, outW = 0, pay = 0, inc = 0;
   ev.forEach(function (e) {
     if (e.i < 30) { if (e.amt > 0) inW += e.amt; else outW -= e.amt; }
@@ -2337,7 +2453,7 @@ function treasuryData(startMs, nd) {
   });
   return { startMs: S, start: start, ev: ev, bal: bal, lowI: lowI, low: bal[lowI], inW: inW, outW: outW, pay: pay, inc: inc };
 }
-// Próximo pago trimestral (IVA + retenciones) desde una fecha
+// Próximo pago trimestral (IVA, retenciones e IRPF) desde una fecha
 function nextGrand(S) {
   var sd = new Date(S), y = sd.getUTCFullYear(), m = sd.getUTCMonth();
   for (var j = 0; j < 16; j++) {
@@ -2346,7 +2462,7 @@ function nextGrand(S) {
     var date = Date.UTC(yy, mm, mm === 0 ? 30 : 20);
     if (date >= S) {
       var k = (yy - 2025) * 12 + mm, R = ROWS[k];
-      return { date: date, amt: R ? R.ivaPay + R.irpfPay : 0 };
+      return { date: date, amt: R ? R.ivaPay + R.irpfPay + R.pay130 : 0 };
     }
   }
   return { date: S, amt: 0 };
@@ -2399,16 +2515,16 @@ function tcmpTxt(cur, cv, lbl, goodUp) {
 function viewTesoreria() {
   var T = treasuryData(), f = ST.tfilter, lowD = trDate(T.lowI);
   var on = cmpOn(), cS = on ? cmpStartMs() : null, C = on ? treasuryData(cS) : null, lbl = on ? mesCorto(cS) : '';
-  var G = nextGrand(TR_START), GC = on ? nextGrand(cS) : null;
+  var G = nextGrand(trStart()), GC = on ? nextGrand(cS) : null;
   var alert = T.low < 5000
     ? ['warn', 'Alerta: el ' + fDMY(lowD) + ' la caja baja a ' + fE(T.low) + '. Sugerencia: adelanta la campaña de tortas o negocia pagar a proveedores a 30 días.']
     : ['ok', 'Ok: la caja no baja de 5.000 € en los próximos 60 días.'];
   var kp = [
-    kpi('bf-k1', 'Saldo hoy', fE(T.start), 'estimado el 18/11/2026', on ? tcmpTxt(T.start, C.start, lbl) : '', null),
-    kpi('bf-k2', 'Salidas próximos 30 días', '<span class="bf-neg">−' + fE(T.outW) + '</span>', 'del 18/11 al 17/12/2026', on ? tcmpTxt(T.outW, C.outW, lbl, false) : '', null),
+    kpi('bf-k1', 'Saldo hoy', fE(T.start), 'a ' + fDMY(trDate(0)), on ? tcmpTxt(T.start, C.start, lbl) : '', null),
+    kpi('bf-k2', 'Salidas próximos 30 días', '<span class="bf-neg">' + negS(-T.outW) + fE(T.outW) + '</span>', 'del ' + fDM(trDate(0)) + ' al ' + fDMY(trDate(29)), on ? tcmpTxt(T.outW, C.outW, lbl, false) : '', null),
     kpi('bf-k3', 'Entradas previstas 30 días', '<span class="bf-pos">+' + fE(T.inW) + '</span>', 'ventas con IVA incluido', on ? tcmpTxt(T.inW, C.inW, lbl) : '', null),
     kpi('bf-k4', 'Punto más bajo', fE(T.low), fDMY(lowD) + (on ? ' · comparado: ' + fDMY(new Date(C.startMs + C.lowI * DAY_MS)) : ''), on ? tcmpTxt(T.low, C.low, lbl, true) : '', null),
-    kpi('bf-k5', 'Próximo gran pago', fE(G.amt), 'IVA y retenciones del trimestre · ' + fDMY(new Date(G.date)) + (on && GC ? '' : ''), on && GC ? tcmpTxt(G.amt, GC.amt, lbl, false) : '', null)
+    kpi('bf-k5', 'Próximo gran pago', fE(G.amt), 'IVA, retenciones e IRPF (mod. 130) · ' + fDMY(new Date(G.date)) + (on && GC ? '' : ''), on && GC ? tcmpTxt(G.amt, GC.amt, lbl, false) : '', null)
   ].join('');
   var evs = T.ev.filter(function (e) { return f === 'todos' || (f === 'pagos' ? e.amt < 0 : e.amt > 0); });
   var weeks = [], byKey = {};
@@ -2422,7 +2538,7 @@ function viewTesoreria() {
     return '<li class="bf-trow"><span class="bf-tdate">' + TR_DAYN[d.getUTCDay()] + ' ' + fDM(d) + '</span>' +
       '<span class="bf-ticon" aria-hidden="true">' + TR_ICON[e.cat] + '</span>' +
       '<span class="bf-tconc">' + esc(e.concept) + '<span class="bf-tbal">Saldo: ' + fE(e.running) + '</span></span>' +
-      '<span class="bf-tamt ' + (out ? 'bf-neg' : 'bf-pos') + '">' + (out ? '−' : '+') + fE(Math.abs(e.amt)) + '</span></li>';
+      '<span class="bf-tamt ' + (out ? 'bf-neg' : 'bf-pos') + '">' + (out ? negS(-Math.abs(e.amt)) : '+') + fE(Math.abs(e.amt)) + '</span></li>';
   };
   var list = weeks.map(function (key) {
     var g = byKey[key];
@@ -2440,6 +2556,9 @@ function viewTesoreria() {
     }
     return '<h3 class="bf-wk">Semana del ' + fDM(trDate(key)) + '</h3><ul class="bf-tlist">' + html + '</ul>';
   }).join('');
+  var openRow = '<h3 class="bf-wk">Hoy, ' + fDMY(trDate(0)) + '</h3><ul class="bf-tlist"><li class="bf-trow"><span class="bf-tdate">' + TR_DAYN[trDate(0).getUTCDay()] + ' ' + fDM(trDate(0)) + '</span>' +
+    '<span class="bf-ticon" aria-hidden="true">=</span><span class="bf-tconc">Saldo al inicio del día<span class="bf-tbal">Saldo: ' + fE(T.start) + '</span></span>' +
+    '<span class="bf-tamt">' + fE(T.start) + '</span></li></ul>';
   var sumLine = '<p class="bf-sub bf-sumline">Pagos: <b>' + fE(T.pay) + '</b>' + (on ? ' <span class="bf-muted">(vs ' + fE(C.pay) + ')</span>' : '') +
     ' · Cobros: <b>' + fE(T.inc) + '</b>' + (on ? ' <span class="bf-muted">(vs ' + fE(C.inc) + ')</span>' : '') + '</p>';
   var legend = on ? legendChips([['Próximos 60 días', 'var(--brand)'], ['Mismo periodo desde ' + fDM(new Date(cS)) + '/' + new Date(cS).getUTCFullYear(), 'var(--mint)']]) : '';
@@ -2451,7 +2570,7 @@ function viewTesoreria() {
     '<div class="bf-kpis">' + kp + '</div>' +
     '<div class="bf-alert bf-alert-' + alert[0] + '" role="status" style="margin-top:14px"><span class="bf-alert-ic" aria-hidden="true">' + (alert[0] === 'ok' ? '✓' : '!') + '</span><span>' + esc(alert[1]) + '</span></div>' +
     '<section class="bf-card bf-section" aria-labelledby="h-saldo"><h2 id="h-saldo" class="bf-h2">Saldo previsto día a día</h2>' +
-      '<p class="bf-sub">Próximos 60 días: del 18/11/2026 al 16/01/2027.' + (on ? ' Comparación: ' + esc(tesoCmpLabel()) + '.' : '') + '</p>' +
+      '<p class="bf-sub">Próximos 60 días: del ' + fDMY(trDate(0)) + ' al ' + fDMY(trDate(TR_DAYS - 1)) + '.' + (on ? ' Comparación: ' + esc(tesoCmpLabel()) + '.' : '') + '</p>' +
       legend +
       '<div class="bf-chart" data-chart="treasury" data-h="300"></div>' +
       srTable('Saldo al cierre de cada día', ['Fecha', 'Saldo'].concat(on ? ['Comparación'] : []), srRows) +
@@ -2462,8 +2581,8 @@ function viewTesoreria() {
         '<button type="button" data-tfilter="todos" aria-pressed="' + (f === 'todos') + '">Todos</button>' +
         '<button type="button" data-tfilter="pagos" aria-pressed="' + (f === 'pagos') + '">Pagos</button>' +
         '<button type="button" data-tfilter="cobros" aria-pressed="' + (f === 'cobros') + '">Cobros</button></div>' +
-      (list || '<p class="bf-sub">No hay movimientos con este filtro.</p>') +
-      '<p class="bf-hint">Aproximación: no incluye comisiones de tarjeta ni pagos aplazados. Las ventas se cobran con IVA; el IVA y las retenciones del 4.º trimestre se pagan el 30/01/2027.</p>' +
+      openRow + (list || '<p class="bf-sub">No hay movimientos con este filtro.</p>') +
+      '<p class="bf-hint">Aproximación: no incluye pagos aplazados. Las ventas se cobran con IVA; el IVA, las retenciones y el IRPF (mod. 130) del 4.º trimestre se pagan el 30/01/2027, y la renta de cada año, en junio. Simplificación orientativa: no sustituye el asesoramiento de una gestoría.</p>' +
     '</section>';
 }
 
@@ -2498,35 +2617,71 @@ function pDef(id) {
   return { label: rangeTitle(f, t), ks: ks, prev: f - 12 >= 0 ? ks.map(function (x) { return x - 12; }) : null, prevLabel: rangeShort(f - 12, t - 12), single: f === t };
 }
 // Comparación por año: mismos meses en el año elegido (por defecto, el año anterior al del periodo)
+// Año base del periodo (el de su último mes). En Tesorería no hay periodo base: no aplica la regla.
+function cmpBaseYear() { return ST.tab === 'tesoreria' ? null : yOf(rangeOf(ST.period)[1]); }
 function cmpDefaultYear() { return ST.tab === 'tesoreria' ? 2025 : yOf(rangeOf(ST.period)[1]) - 1; }
-function cmpYear() { return ST.cmp.year || cmpDefaultYear(); }
+// Año de comparación en uso: nunca el año base (si no es válido, vuelve al valor por defecto)
+function cmpYear() {
+  var y = ST.cmp.year, b = cmpBaseYear();
+  if (!y || (b !== null && y === b)) y = cmpDefaultYear();
+  return y;
+}
+// Meses que existen en ambos lados. Un periodo que se compara con un año sin datos se queda sin pares.
 function cmpInfo(periodId) {
   var P = pDef(periodId), t = rangeOf(periodId)[1], y = cmpYear(), sh = (y - yOf(t)) * 12;
-  var all = P.ks.map(function (k) { return k + sh; });
-  var aligned = all.map(function (k) { return k >= 0 && k <= 21 ? k : -1; });
-  var ks = aligned.filter(function (k) { return k >= 0; });
-  var partial = ks.length < all.length;
-  var label = ks.length ? rangeTitle(all[0], all[all.length - 1]).toLowerCase() : 'sin datos de ' + y;
-  if (ks.length && partial) label += ' (datos parciales: solo desde ene 2025)';
-  return { ks: ks, aligned: aligned, all: all, label: label, partial: partial, n: P.ks.length, shift: sh, year: y };
+  var pairs = [];
+  P.ks.forEach(function (b) { var c = b + sh; if (c >= 0 && c <= 21) pairs.push({ b: b, c: c }); });
+  var ks = pairs.map(function (p) { return p.c; });
+  var partial = ks.length < P.ks.length;
+  var label = 'sin datos de ' + y;
+  if (ks.length) {
+    label = monthSpan(ks[0], ks[ks.length - 1]);
+    if (partial) label += ' (solo meses con datos)';
+  }
+  return { ks: ks, pairs: pairs, baseKs: pairs.map(function (p) { return p.b; }), label: label, partial: partial, n: P.ks.length, shift: sh, year: y };
+}
+// "oct de 2025", "ene – oct de 2025", "nov 2024 – oct 2025"
+function monthSpan(f, t) {
+  if (f === t) return MES3[mOf(f)] + ' de ' + yOf(f);
+  if (yOf(f) === yOf(t)) return MES3[mOf(f)] + ' – ' + MES3[mOf(t)] + ' de ' + yOf(f);
+  return MES3[mOf(f)] + ' ' + yOf(f) + ' – ' + MES3[mOf(t)] + ' ' + yOf(t);
+}
+// ¿Hay meses con datos para ese año de comparación? (periodo base actual)
+function cmpHasData(y) {
+  var P = pDef(ST.period), t = rangeOf(ST.period)[1], sh = (y - yOf(t)) * 12;
+  return P.ks.some(function (b) { var c = b + sh; return c >= 0 && c <= 21; });
+}
+function todayUTC() {
+  var n = new Date(), t = Date.UTC(n.getFullYear(), n.getMonth(), n.getDate());
+  if (t >= Date.UTC(2026, 10, 1) && t <= Date.UTC(2027, 8, 30)) return new Date(t);
+  return new Date(Date.UTC(2026, 10, 18));
 }
 function cmpOn() {
   if (!(ST.cmp && ST.cmp.on)) return false;
   if (ST.tab === 'tesoreria') { var y = cmpYear(); return y >= 2025 && y <= 2026; }
   return cmpInfo(ST.period).ks.length > 0;
 }
-function cmpStartMs() { return Date.UTC(cmpYear(), 10, 18); }
+// Meses efectivos del periodo: con Comparar solo se usan los meses que tienen par en el periodo comparado
+function effKs(periodId) {
+  if (ST.tab !== 'tesoreria' && periodId === ST.period && cmpOn()) return cmpInfo(periodId).baseKs;
+  return pDef(periodId).ks;
+}
+function cmpStartMs() { var d = todayUTC(); return Date.UTC(cmpYear(), d.getUTCMonth(), d.getUTCDate()); }
 function syncHash() {
   var r = rangeOf(ST.period), q = ['desde=' + ymOfK(r[0])];
   if (r[1] !== r[0]) q.push('hasta=' + ymOfK(r[1]));
-  if (ST.cmp.on) q.push('cmpAnio=' + cmpYear());
+  if (ST.cmp.on) { ST.cmp.year = cmpYear(); q.push('cmpAnio=' + ST.cmp.year); }
   try { history.replaceState(null, '', '#' + ST.tab + '?' + q.join('&')); } catch (e) { /* sin historial */ }
 }
 function cmpControls() {
-  var on = cmpOn(), base = yOf(rangeOf(ST.period)[1]), y = cmpYear();
-  var opts = [2025, 2026].map(function (yy) {
+  var on = cmpOn(), base = cmpBaseYear(), y = cmpYear();
+  var years = ST.tab === 'tesoreria' ? [2025, 2026] : [2024, 2025, 2026];
+  var opts = years.map(function (yy) {
     var same = yy === base;
-    return '<option value="' + yy + '"' + (yy === y && !same ? ' selected' : '') + (same ? ' disabled' : '') + '>' + yy + (same ? ' (periodo actual)' : '') + '</option>';
+    var sinDatos = base !== null && !cmpHasData(yy);
+    var dis = same || (sinDatos && yy !== y);
+    var txt = same ? ' (periodo actual)' : sinDatos ? ' (sin datos)' : '';
+    return '<option value="' + yy + '"' + (yy === y ? ' selected' : '') + (dis ? ' disabled' : '') + '>' + yy + txt + '</option>';
   }).join('');
   var cap = on && ST.tab === 'tesoreria' ? '<span class="bf-cmpcap">Comparando con ' + esc(tesoCmpLabel()) + '</span>' : '';
   return '<div class="bf-cmpctl"><button type="button" class="bf-switch" aria-pressed="' + on + '" data-cmp-toggle="1">' +
@@ -2567,13 +2722,18 @@ function periodBar() {
 }
 function periodHeading() {
   var r = rangeOf(ST.period), f = r[0], t = r[1], single = f === t, title, sub;
-  if (single) { title = rangeTitle(f, t); sub = 'Vista mensual · datos día a día'; }
+  var ci = cmpOn() ? cmpInfo(ST.period) : null, eff = ci && ci.partial ? ci.baseKs : null;
+  if (eff) { title = rangeTitle(eff[0], eff[eff.length - 1]); sub = 'Vista por meses · datos mensuales'; }
+  else if (single) { title = rangeTitle(f, t); sub = 'Vista mensual · datos día a día'; }
   else if (ST.period === 'ult12') { title = 'Últimos 12 meses · ' + MES3[mOf(f)] + ' ' + yOf(f) + ' – ' + MES3[mOf(t)] + ' ' + yOf(t); sub = 'Vista anual · datos mensuales'; }
   else if (ST.period === 'y2025') { title = 'Año 2025'; sub = 'Vista anual · datos mensuales'; }
   else if (ST.period === 'ytd26') { title = '2026 hasta octubre'; sub = 'Vista anual · datos mensuales'; }
   else { title = rangeTitle(f, t); sub = 'Vista por meses · datos mensuales'; }
   var chip = '';
-  if (cmpOn()) chip = 'vs ' + cmpInfo(ST.period).label;
+  if (cmpOn()) {
+    chip = 'vs ' + cmpInfo(ST.period).label;
+    if (cmpInfo(ST.period).partial) sub += ' · las cifras y los cambios usan solo los meses que existen en ambos periodos';
+  }
   else if (ST.cmp.on) chip = 'sin datos de ' + cmpYear();
   return '<div class="bf-periodhead" aria-live="polite"><div class="bf-ph-row"><h2 class="bf-ph-title">' + esc(title) + '</h2>' +
     (chip ? '<span class="bf-cmpchip bf-ph-chip">' + esc(chip) + '</span>' : '') + '</div>' +
@@ -2583,7 +2743,7 @@ function periodHeading() {
 function sRange(k12, zero) {
   var rows = pickP(ST.period), cI = cmpOn() ? cmpInfo(ST.period) : null;
   var vals = rows.map(function (r) { return k12(r); });
-  var cmp = cI ? fillNull(cI.aligned.map(function (k) { return k >= 0 ? k12(ROWS[k]) : null; })) : null;
+  var cmp = cI ? cI.ks.map(function (k) { return k12(ROWS[k]); }) : null;   // mismos meses que la serie base (solo pares)
   var r = rangeOf(ST.period);
   return { vals: vals, cmp: cmp, zero: !!zero, N: vals.length, caption: 'mes a mes · ' + rangeShort(r[0], r[1]) };
 }
@@ -2598,6 +2758,9 @@ function afterPickRender() {
   ST.pickFocus = null;
   if (!ST.picker) ST.pickRet = null;
 }
+function dropStaleCmpYear() {
+  if (ST.cmp.year && (ST.cmp.year === cmpBaseYear() || !cmpHasData(ST.cmp.year))) ST.cmp.year = 0;
+}
 function pickMonth(k) {
   var p = ST.picker;
   if (!p) return;
@@ -2605,6 +2768,7 @@ function pickMonth(k) {
   if (p.which === 'from') { nf = k; nt = ST.rangeOn ? Math.max(r[1], k) : k; }
   else { nt = k; }
   ST.period = rangeId(nf, nt);
+  dropStaleCmpYear();
   ST.picker = null; ST.pickRet = p.which; ST.pickFocus = 'ret';
   syncHash(); renderTab();
 }
@@ -2653,6 +2817,7 @@ function onChange(e) {
     var f = rangeOf(ST.period)[0];
     ST.rangeOn = t.checked;
     ST.period = rangeId(f, t.checked ? Math.min(f + 2, 21) : f);
+    dropStaleCmpYear();
     ST.picker = null; syncHash(); renderTab(); return;
   }
   if (t.id === 'bf-cmp') { ST.cmp.year = +t.value; ST.cmp.on = true; syncHash(); renderTab(); }
@@ -2676,6 +2841,7 @@ function onClick(e) {
   if (t.hasAttribute('data-chip')) {
     var id = t.getAttribute('data-chip'), rr = rangeOf(id);
     ST.period = id; ST.rangeOn = rr[0] !== rr[1]; ST.picker = null;
+    dropStaleCmpYear();
     syncHash(); renderTab(); return;
   }
   if (t.hasAttribute('data-cmp-toggle')) {
@@ -2825,10 +2991,11 @@ function init() {
   app.addEventListener('change', onChange);
   document.addEventListener('keydown', onDocKey);
   themeIcon();
-  window.addEventListener('hashchange', function () { setFromHash(); renderTab(); });
+  window.addEventListener('hashchange', function () { setFromHash(); syncHash(); renderTab(); });
   var rt = null;
   window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(function () { if (ST.tab === 'proyeccion') paintProy(); else hydrate(); }, 150); });
   setFromHash();
+  syncHash();
   renderTab();
 }
 init();
